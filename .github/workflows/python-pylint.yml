@@ -1,0 +1,39 @@
+# OpenCodeBlock an open-source tool for modular visual programing in python
+# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+name: Pylint
+
+on: ["push"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Lint with pylint
+      run: |
+        pip install pylint
+        score=$(python pylint_score.py --score)
+        color=$(python pylint_score.py --color)
+        echo "PYLINT_SCORE=$score/10.00"
+        echo "PYLINT_COLOR=$color"
+        echo "PYLINT_SCORE=$score/10.00" >> $GITHUB_ENV
+        echo "PYLINT_COLOR=$color" >> $GITHUB_ENV
+    - name: Create Pylint Badge
+      uses: schneegans/dynamic-badges-action@v1.1.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 00ce73155619a4544884ca6d251954b3
+        filename: opencodeblocks_pylint_badge.json
+        label: Pylint
+        message: ${{ env.PYLINT_SCORE }}
+        color: ${{ env.PYLINT_COLOR }}
+        style: plastic
