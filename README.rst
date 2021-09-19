@@ -11,6 +11,16 @@ OpenCodeBlocks - An open-source tool for modular visual programing in python
    :target: https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-pylint.yml
 
 
+.. image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_unit_coverage_badge.json
+   :alt: Unit coverage badge
+   :target: https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml
+
+
+.. image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_integration_coverage_badge.json
+   :alt: Integration coverage badge
+   :target: https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml
+
+
 .. image:: https://img.shields.io/github/license/MathisFederico/Crafting?style=plastic
    :alt: Licence - GPLv3
    :target: https://www.gnu.org/licenses/
