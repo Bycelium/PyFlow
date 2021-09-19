@@ -5,6 +5,12 @@ OpenCodeBlocks - An open-source tool for modular visual programing in python
    :alt: Pytest badge
    :target: https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml
 
+
+.. image:: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/MathisFederico/00ce73155619a4544884ca6d251954b3/raw/opencodeblocks_pylint_badge.json
+   :alt: Pylint badge
+   :target: https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-pylint.yml
+
+
 .. image:: https://img.shields.io/github/license/MathisFederico/Crafting?style=plastic
    :alt: Licence - GPLv3
    :target: https://www.gnu.org/licenses/
