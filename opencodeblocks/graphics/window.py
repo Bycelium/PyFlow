@@ -3,10 +3,11 @@
 
 """ Module for the OCB Window """
 
-from PyQt5.QtWidgets import QGraphicsView, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from opencodeblocks import __appname__ as application_name
 from opencodeblocks.graphics.scene import OCBScene
+from opencodeblocks.graphics.view import OCBView
 
 class OCBWindow(QWidget):
 
@@ -29,11 +30,10 @@ class OCBWindow(QWidget):
         self.setLayout(self.layout)
 
         # Graphics Scene
-        self.grScene = OCBScene()
+        self.scene = OCBScene()
 
         # Graphics View
-        self.view = QGraphicsView(self)
-        self.view.setScene(self.grScene)
+        self.view = OCBView(self.scene)
         self.layout.addWidget(self.view)
 
         self.setWindowTitle(application_name)
