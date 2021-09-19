@@ -59,7 +59,7 @@ if __name__ == '__main__':
     results = Run(options, exit=False)
     score = results.linter.stats['global_note']
     color = score_to_rgb_color(score, score_min=8.0, score_max=10,
-        error_msg='Insufficient score with pylint')
+        error_msg=f'Insufficient score with pylint: {score}')
     if sys.argv[1] == '--score':
         print(f"{score:.2f}")
     elif sys.argv[1] == '--color':
