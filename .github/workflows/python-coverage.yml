@@ -1,0 +1,60 @@
+# OpenCodeBlock an open-source tool for modular visual programing in python
+# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+name: Python coverage
+
+on: ["push"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Build unit coverage using pytest-cov
+      run: |
+        pip install -r requirements-dev.txt
+        pytest --cov=opencodeblocks --cov-report=xml tests/unit
+        score=$(python coverage_score.py --score)
+        color=$(python coverage_score.py --color)
+        echo "COVERAGE_UNIT_SCORE=$score"
+        echo "COVERAGE_UNIT_COLOR=$color"
+        echo "COVERAGE_UNIT_SCORE=$score" >> $GITHUB_ENV
+        echo "COVERAGE_UNIT_COLOR=$color" >> $GITHUB_ENV
+    - name: Create unit coverage badge
+      uses: schneegans/dynamic-badges-action@v1.1.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 00ce73155619a4544884ca6d251954b3
+        filename: opencodeblocks_unit_coverage_badge.json
+        label: Unit coverage
+        message: ${{ env.COVERAGE_UNIT_SCORE }}
+        color: ${{ env.COVERAGE_UNIT_COLOR }}
+        style: plastic
+    - name: Build integration coverage using pytest-cov
+      run: |
+        pip install -r requirements-dev.txt
+        pytest --cov=opencodeblocks --cov-report=xml tests/integration
+        score=$(python coverage_score.py --score)
+        color=$(python coverage_score.py --color)
+        echo "COVERAGE_INTEGRATION_SCORE=$score"
+        echo "COVERAGE_INTEGRATION_COLOR=$color"
+        echo "COVERAGE_INTEGRATION_SCORE=$score" >> $GITHUB_ENV
+        echo "COVERAGE_INTEGRATION_COLOR=$color" >> $GITHUB_ENV
+    - name: Create integration coverage badge
+      uses: schneegans/dynamic-badges-action@v1.1.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 00ce73155619a4544884ca6d251954b3
+        filename: opencodeblocks_integration_coverage_badge.json
+        label: Integration coverage
+        message: ${{ env.COVERAGE_INTEGRATION_SCORE }}
+        color: ${{ env.COVERAGE_INTEGRATION_COLOR }}
+        style: plastic
