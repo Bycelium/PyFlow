@@ -1,0 +1,132 @@
+{
+    "id": 47557488,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 47356616,
+            "title": "My Awesome Node 1",
+            "pos_x": 79.0,
+            "pos_y": 15.0,
+            "inputs": [
+                {
+                    "id": 48520384,
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": 0
+                },
+                {
+                    "id": 48536656,
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": 0
+                },
+                {
+                    "id": 48536712,
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": 0
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 48536768,
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": 1
+                }
+            ],
+            "content": {}
+        },
+        {
+            "id": 48520328,
+            "title": "My Awesome Node 2",
+            "pos_x": -115.0,
+            "pos_y": -294.0,
+            "inputs": [
+                {
+                    "id": 48536880,
+                    "index": 0,
+                    "position": 2,
+                    "socket_type": 3
+                },
+                {
+                    "id": 48536936,
+                    "index": 1,
+                    "position": 2,
+                    "socket_type": 3
+                },
+                {
+                    "id": 48536992,
+                    "index": 2,
+                    "position": 2,
+                    "socket_type": 3
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 48537048,
+                    "index": 0,
+                    "position": 5,
+                    "socket_type": 1
+                }
+            ],
+            "content": {}
+        },
+        {
+            "id": 48536824,
+            "title": "My Awesome Node 3",
+            "pos_x": -278.0,
+            "pos_y": 18.0,
+            "inputs": [
+                {
+                    "id": 48537160,
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": 2
+                },
+                {
+                    "id": 48537216,
+                    "index": 1,
+                    "position": 3,
+                    "socket_type": 2
+                },
+                {
+                    "id": 48537272,
+                    "index": 2,
+                    "position": 3,
+                    "socket_type": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 48537328,
+                    "index": 0,
+                    "position": 6,
+                    "socket_type": 1
+                }
+            ],
+            "content": {}
+        }
+    ],
+    "edges": [
+        {
+            "id": 48537104,
+            "edge_type": 2,
+            "start": 48536768,
+            "end": 48536880
+        },
+        {
+            "id": 48562016,
+            "edge_type": 2,
+            "start": 48537048,
+            "end": 48537160
+        },
+        {
+            "id": 48659928,
+            "edge_type": 2,
+            "start": 48537328,
+            "end": 48536992
+        }
+    ]
+}

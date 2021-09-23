@@ -1,0 +1,4 @@
+1.0.0 (unreleased)
+------------------
+
+- Added first version of library
