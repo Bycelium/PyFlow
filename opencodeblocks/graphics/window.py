@@ -15,15 +15,7 @@ class OCBWindow(QWidget):
 
     def __init__(self, parent=None, width=800, height=600, x_offset=0, y_offset=0) -> None:
         super().__init__(parent=parent)
-        self.width = width
-        self.height = height
-        self.x_offset = x_offset
-        self.y_offset = y_offset
-        self.init_ui()
-
-    def init_ui(self) -> None:
-        """ Initialize the user interface of the OCB Window. """
-        self.setGeometry(self.x_offset, self.y_offset, self.width, self.height)
+        self.setGeometry(x_offset, y_offset, width, height)
 
         self.layout = QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
