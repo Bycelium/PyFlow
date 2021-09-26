@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     wnd = OCBWindow()
 
-    test_block = OCBBlock(Node("Test Block"))
+    test_block = OCBBlock(Node("Test Block with a very very very long long name"))
     wnd.scene.addItem(test_block)
 
     wnd.show()

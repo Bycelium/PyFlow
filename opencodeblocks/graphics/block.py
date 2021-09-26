@@ -16,7 +16,6 @@ from opencodeblocks.core.node import Node
 class OCBBlock(QGraphicsItem):
     def __init__(self, node:Node,
             title_color:str='white', title_font:str="Ubuntu", title_size:int=10, title_padding=4.0,
-            title_rel_height=0.12,
             parent: typing.Optional['QGraphicsItem']=None) -> None:
         super().__init__(parent=parent)
         self.node = node
@@ -30,8 +29,7 @@ class OCBBlock(QGraphicsItem):
         self.title_graphics = self.init_title_graphics(
             title_color, title_font, title_size, title_padding)
         self.title = self.node.title
-        self.title_rel_height = title_rel_height
-        self.title_height = int(self.title_rel_height * self.height)
+        self.title_height = 3 * title_size
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
@@ -128,3 +126,12 @@ class OCBBlock(QGraphicsItem):
     def title(self, value:str):
         self._title = value
         self.title_graphics.setPlainText(self._title)
+
+    @property
+    def width(self):
+        return self._width
+    @width.setter
+    def width(self, value:float):
+        self._width = value
+        if hasattr(self, 'title_graphics'):
+            self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
