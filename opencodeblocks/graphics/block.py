@@ -5,9 +5,10 @@
 
 import typing
 
-from PyQt5.QtCore import QRectF, Qt
+from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsTextItem, QStyleOptionGraphicsItem, QWidget
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsTextItem, \
+    QStyleOptionGraphicsItem, QWidget, QApplication
 
 from opencodeblocks.core.node import Node
 
@@ -21,7 +22,9 @@ class OCBBlock(QGraphicsItem):
         self.node = node
 
         self.width = 180
+        self._min_width = 100
         self.height = 240
+        self._min_height = 100
         self.edge_size = 10.0
 
         self.title_graphics = self.init_title_graphics(
@@ -38,13 +41,14 @@ class OCBBlock(QGraphicsItem):
 
         self.init_ui()
 
+        self.resizing = False
+
     def init_ui(self):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
     def boundingRect(self) -> QRectF:
-        return QRectF(0, 0,
-            self.width + 2 * self.edge_size, self.height + 2 * self.edge_size).normalized()
+        return QRectF(0, 0, self.width, self.height).normalized()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
             widget: typing.Optional[QWidget]=None) -> None:
@@ -81,6 +85,33 @@ class OCBBlock(QGraphicsItem):
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
 
+    def _is_in_resize_area(self, pos:QPointF):
+        return self.width - pos.x() < 2 * self.edge_size \
+            and self.height - pos.y() < 2 * self.edge_size
+
+    def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
+        pos = event.pos()
+        if self._is_in_resize_area(pos):
+            self.resize_start = pos
+            self.resizing = True
+            QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event:QGraphicsSceneMouseEvent):
+        self.resizing = False
+        QApplication.restoreOverrideCursor()
+        super().mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):
+        if self.resizing:
+            delta = event.pos() - self.resize_start
+            self.width = max(self.width + delta.x(), self._min_width)
+            self.height = max(self.height + delta.y(), self._min_height)
+            self.resize_start = event.pos()
+            self.update()
+        else:
+            super().mouseMoveEvent(event)
+
     def init_title_graphics(self, color:str, font:str, size:int,
             padding:float) -> QGraphicsTextItem:
         title = QGraphicsTextItem(self)
@@ -97,17 +128,3 @@ class OCBBlock(QGraphicsItem):
     def title(self, value:str):
         self._title = value
         self.title_graphics.setPlainText(self._title)
-
-    @property
-    def width(self):
-        return self._width
-    @width.setter
-    def width(self, value:int):
-        self._width = value
-
-    @property
-    def height(self):
-        return self._height
-    @height.setter
-    def height(self, value:int):
-        self._height = value
