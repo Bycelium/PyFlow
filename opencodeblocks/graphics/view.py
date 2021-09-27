@@ -27,59 +27,63 @@ class OCBView(QGraphicsView):
         """ Initialize the custom OCB View UI. """
         # Antialiasing
         self.setRenderHints(
-            QPainter.Antialiasing |
-            QPainter.HighQualityAntialiasing |
-            QPainter.TextAntialiasing |
-            QPainter.SmoothPixmapTransform
+            QPainter.RenderHint.Antialiasing |
+            QPainter.RenderHint.HighQualityAntialiasing |
+            QPainter.RenderHint.TextAntialiasing |
+            QPainter.RenderHint.SmoothPixmapTransform
         )
         # Better Update
         self.setViewportUpdateMode(
-            QGraphicsView.FullViewportUpdate
+            QGraphicsView.ViewportUpdateMode.FullViewportUpdate
         )
         # Remove scroll bars
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # Zoom on cursor
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
 
     def mousePressEvent(self, event: QMouseEvent):
         """Dispatch Qt's mousePress events to corresponding functions below"""
-        if event.button() == Qt.MiddleButton:
+        if event.button() == Qt.MouseButton.MiddleButton:
             self.middleMouseButtonPress(event)
-        elif event.button() == Qt.LeftButton:
+        elif event.button() == Qt.MouseButton.LeftButton:
             self.leftMouseButtonPress(event)
-        elif event.button() == Qt.RightButton:
+        elif event.button() == Qt.MouseButton.RightButton:
             self.rightMouseButtonPress(event)
         else:
             super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         """Dispatch Qt's mouseRelease events to corresponding functions below"""
-        if event.button() == Qt.MiddleButton:
+        if event.button() == Qt.MouseButton.MiddleButton:
             self.middleMouseButtonRelease(event)
-        elif event.button() == Qt.LeftButton:
+        elif event.button() == Qt.MouseButton.LeftButton:
             self.leftMouseButtonRelease(event)
-        elif event.button() == Qt.RightButton:
+        elif event.button() == Qt.MouseButton.RightButton:
             self.rightMouseButtonRelease(event)
         else:
             super().mouseReleaseEvent(event)
 
+    def fake_drag(self, event: QMouseEvent, action="press"):
+        """ Drag the scene around. """
+        if action == "press":
+            releaseEvent = QMouseEvent(QEvent.Type.MouseButtonRelease,
+                event.localPos(), event.screenPos(),
+                Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
+            super().mouseReleaseEvent(releaseEvent)
+            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+            return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
+                Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
+                event.modifiers())
+        return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
+            Qt.MouseButton.LeftButton,event.buttons() & ~Qt.MouseButton.LeftButton,
+            event.modifiers())
+
     def middleMouseButtonPress(self, event: QMouseEvent):
-        """ Drag the scene around on middleMouseButtonPress. """
-        releaseEvent = QMouseEvent(QEvent.MouseButtonRelease, event.localPos(), event.screenPos(),
-                                   Qt.LeftButton, Qt.NoButton, event.modifiers())
-        super().mouseReleaseEvent(releaseEvent)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
-        fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                                Qt.LeftButton, event.buttons() | Qt.LeftButton, event.modifiers())
-        super().mousePressEvent(fakeEvent)
+        super().mousePressEvent(event)
 
     def middleMouseButtonRelease(self, event: QMouseEvent):
-        """ Release the scene on middleMouseButtonPress. """
-        fakeEvent = QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                                Qt.LeftButton, event.buttons() & ~Qt.LeftButton, event.modifiers())
-        super().mouseReleaseEvent(fakeEvent)
-        self.setDragMode(QGraphicsView.RubberBandDrag)
+        super().mouseReleaseEvent(event)
 
     def leftMouseButtonPress(self, event: QMouseEvent):
         super().mousePressEvent(event)
@@ -88,10 +92,13 @@ class OCBView(QGraphicsView):
         super().mouseReleaseEvent(event)
 
     def rightMouseButtonPress(self, event: QMouseEvent):
+        event = self.fake_drag(event, "press")
         super().mousePressEvent(event)
 
     def rightMouseButtonRelease(self, event: QMouseEvent):
+        event = self.fake_drag(event, "release")
         super().mouseReleaseEvent(event)
+        self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
     def wheelEvent(self, event: QWheelEvent):
         """ Handles zooming with mouse wheel """
@@ -105,7 +112,7 @@ class OCBView(QGraphicsView):
             self.zoom *= zoom_factor
             self.scale(zoom_factor, zoom_factor)
 
-    def getItemAtClick(self, event: QEvent) -> QGraphicsItem:
+    def getItemAtClick(self, event: QMouseEvent) -> QGraphicsItem:
         """ Return the object on which we've clicked/release mouse button """
         pos = event.pos()
         obj = self.itemAt(pos)
