@@ -13,11 +13,8 @@ class Node():
         self.metadata = metadata if metadata is not None else {}
 
 class CodeNode(Node):
-    def __init__(self, source:str="", title="Undefined block", inputs:list=(),
-            outputs_values:list=(), outputs:List[dict]=None,
-            collapsed=True, scrolled=True, metadata=None):
+    def __init__(self, source:str="", title="Undefined block",
+            outputs:List[dict]=None, collapsed=True, scrolled=True, metadata=None):
         super().__init__(node_type="code", source=source, title=title, metadata=metadata)
-        self.inputs = list(inputs)
-        self.outputs_values = list(outputs_values)
         self.outputs = outputs if outputs is not None else []
         self.metadata.update({"collapsed": collapsed, "scrolled": scrolled})
