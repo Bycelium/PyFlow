@@ -3,7 +3,7 @@
 
 """ Module for the OCB Block visualization """
 
-import typing
+from typing import Optional, List, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
@@ -11,14 +11,16 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsTe
     QStyleOptionGraphicsItem, QWidget, QApplication
 
 from opencodeblocks.core.node import Node
-
+from opencodeblocks.graphics.socket import OCBSocket
 
 class OCBBlock(QGraphicsItem):
     def __init__(self, node:Node,
             title_color:str='white', title_font:str="Ubuntu", title_size:int=10, title_padding=4.0,
-            parent: typing.Optional['QGraphicsItem']=None) -> None:
+            parent: Optional['QGraphicsItem']=None) -> None:
         super().__init__(parent=parent)
         self.node = node
+        self.sockets_in = []
+        self.sockets_out = []
 
         self.width = 180
         self._min_width = 100
@@ -45,11 +47,44 @@ class OCBBlock(QGraphicsItem):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
+    def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
+        x = 0 if socket.socket_type == 'input' else self.width
+        y_offset = self.title_height + 2 * socket.radius
+
+        n_sockets = self.get_n_sockets(socket.socket_type)
+        if n_sockets < 2:
+            y = y_offset
+        else:
+            side_lenght = self.height - y_offset - 2 * socket.radius - self.edge_size
+            y = y_offset + side_lenght * socket.index / (n_sockets - 1)
+        return x, y
+
+    def get_n_sockets(self, socket_type='input'):
+        return len(self.sockets_in) if socket_type == 'input' else len(self.sockets_out)
+
+    def update_sockets(self, socket_type='input'):
+        if socket_type == 'input':
+            for socket in self.sockets_in:
+                socket.setPos(*self.get_socket_pos(socket))
+        else:
+            for socket in self.sockets_out:
+                socket.setPos(*self.get_socket_pos(socket))
+
+    def add_socket(self, socket_type='input', *args, **kwargs):
+        n_sockets = self.get_n_sockets(socket_type)
+        socket = OCBSocket(block=self, socket_type=socket_type, index=n_sockets, *args, **kwargs)
+        if socket_type == 'input':
+            self.sockets_in.append(socket)
+            self.update_sockets(socket_type='input')
+        else:
+            self.sockets_out.append(socket)
+            self.update_sockets(socket_type='output')
+
     def boundingRect(self) -> QRectF:
         return QRectF(0, 0, self.width, self.height).normalized()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
-            widget: typing.Optional[QWidget]=None) -> None:
+            widget: Optional[QWidget]=None) -> None:
         # title
         path_title = QPainterPath()
         path_title.setFillRule(Qt.FillRule.WindingFill)
@@ -135,3 +170,5 @@ class OCBBlock(QGraphicsItem):
         self._width = value
         if hasattr(self, 'title_graphics'):
             self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
+        self.update_sockets('input')
+        self.update_sockets('output')
