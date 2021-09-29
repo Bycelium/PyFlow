@@ -14,9 +14,10 @@ from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 class OCBSocket(QGraphicsItem):
 
     def __init__(self, block:'OCBBlock', socket_type:str='undefined', index:int=0, radius:float=6.0,
-            color:str='#FFFF7700', linewidth:float=1.0, linecolor:str='#FF000000'):
+            color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
 
         self.block = block
+        self.edges = []
         self.socket_type = socket_type
         self.index = index
         super().__init__(parent=self.block)
@@ -25,6 +26,12 @@ class OCBSocket(QGraphicsItem):
         self._pen = QPen(QColor(linecolor))
         self._pen.setWidth(linewidth)
         self._brush = QBrush(QColor(color))
+
+    def add_edge(self, edge):
+        self.edges.append(edge)
+
+    def remove_edge(self, edge):
+        self.edges.pop(edge)
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget]=None):

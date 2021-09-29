@@ -1,9 +1,9 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for the OCB Block visualization """
+""" Module for the base OCB Block. """
 
-from typing import Optional, List, Tuple
+from typing import Optional, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
@@ -70,7 +70,7 @@ class OCBBlock(QGraphicsItem):
             for socket in self.sockets_out:
                 socket.setPos(*self.get_socket_pos(socket))
 
-    def add_socket(self, socket_type='input', *args, **kwargs):
+    def add_socket(self, *args, socket_type='input', **kwargs):
         n_sockets = self.get_n_sockets(socket_type)
         socket = OCBSocket(block=self, socket_type=socket_type, index=n_sockets, *args, **kwargs)
         if socket_type == 'input':
