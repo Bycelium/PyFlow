@@ -31,7 +31,7 @@ class OCBSocket(QGraphicsItem):
         self.edges.append(edge)
 
     def remove_edge(self, edge):
-        self.edges.pop(edge)
+        self.edges.pop(self.edges.index(edge))
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget]=None):
