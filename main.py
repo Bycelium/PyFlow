@@ -1,7 +1,8 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-import os, sys
+import os
+import sys
 
 from qtpy.QtWidgets import QApplication
 
@@ -18,16 +19,19 @@ if __name__ == '__main__':
     wnd = OCBWindow()
 
     test_block = OCBBlock(CodeNode(title="Test Block with a very very very long long name"))
-    test_block.add_socket()
-    test_block.add_socket()
-    test_block.add_socket()
-    test_block.add_socket()
-    test_block.add_socket()
-    test_block.add_socket('output')
-    test_block.add_socket('output')
-    test_block.add_socket('output')
+    for _ in range(5):
+        test_block.add_socket(socket_type='input')
+    for _ in range(3):
+        test_block.add_socket(socket_type='output')
     wnd.scene.addItem(test_block)
 
+    test_block_2 = OCBBlock(CodeNode(title="Test Block 2"))
+    for _ in range(3):
+        test_block_2.add_socket(socket_type='input')
+    for _ in range(1):
+        test_block_2.add_socket(socket_type='output')
+    test_block_2.setPos(-300, -100)
+    wnd.scene.addItem(test_block_2)
     wnd.show()
 
     sys.exit(app.exec_())

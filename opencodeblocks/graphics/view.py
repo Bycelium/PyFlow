@@ -50,6 +50,8 @@ class OCBView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # Zoom on cursor
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        # Selection box
+        self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
     def mousePressEvent(self, event: QMouseEvent):
         """Dispatch Qt's mousePress events to corresponding functions below"""
