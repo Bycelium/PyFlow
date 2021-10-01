@@ -3,9 +3,8 @@
 
 """ Module for OCB in block python editor. """
 
-from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QFontMetrics, QColor
+from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
 
@@ -78,3 +77,16 @@ class SimplePythonEditor(QsciScintilla):
         self.setStyleSheet("background:transparent")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+
+    def set_views_mode(self, mode:str):
+        for view in self.graphicsProxyWidget().scene().views():
+            if mode == "MODE_EDITING" or view.is_mode("MODE_EDITING"):
+                view.set_mode(mode)
+
+    def focusInEvent(self, event: QFocusEvent):
+        self.set_views_mode("MODE_EDITING")
+        return super().focusInEvent(event)
+
+    def focusOutEvent(self, event: QFocusEvent):
+        self.set_views_mode("MODE_NOOP")
+        return super().focusInEvent(event)

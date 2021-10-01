@@ -41,6 +41,11 @@ class OCBEdge(QGraphicsPathItem):
 
         self.source_socket = source_socket
         self.destination_socket = destination_socket
+        if self.source_socket is not None:
+            self.source_socket.add_edge(self)
+        if self.destination_socket is not None:
+            self.destination_socket.add_edge(self)
+
         self.updateSocketsPosition()
 
     def remove_from_socket(self, socket_type='source'):
@@ -53,6 +58,12 @@ class OCBEdge(QGraphicsPathItem):
     def remove_from_sockets(self):
         self.remove_from_socket('source')
         self.remove_from_socket('destination')
+
+    def remove(self):
+        self.remove_from_sockets()
+        scene = self.scene()
+        if scene is not None:
+            scene.removeItem(self)
 
     def updateSocketsPosition(self):
         if self.source_socket is not None:

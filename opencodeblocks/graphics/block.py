@@ -7,8 +7,8 @@ from typing import Optional, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, QGraphicsTextItem, \
-    QStyleOptionGraphicsItem, QWidget, QApplication
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, \
+    QGraphicsTextItem, QStyleOptionGraphicsItem, QWidget, QApplication
 
 from opencodeblocks.core.node import Node
 from opencodeblocks.graphics.socket import OCBSocket
@@ -46,39 +46,6 @@ class OCBBlock(QGraphicsItem):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
         self.resizing = False
-
-    def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
-        x = 0 if socket.socket_type == 'input' else self.width
-        y_offset = self.title_height + 2 * socket.radius
-
-        n_sockets = self.get_n_sockets(socket.socket_type)
-        if n_sockets < 2:
-            y = y_offset
-        else:
-            side_lenght = self.height - y_offset - 2 * socket.radius - self.edge_size
-            y = y_offset + side_lenght * socket.index / (n_sockets - 1)
-        return x, y
-
-    def get_n_sockets(self, socket_type='input'):
-        return len(self.sockets_in) if socket_type == 'input' else len(self.sockets_out)
-
-    def update_sockets(self, socket_type='input'):
-        if socket_type == 'input':
-            for socket in self.sockets_in:
-                socket.setPos(*self.get_socket_pos(socket))
-        else:
-            for socket in self.sockets_out:
-                socket.setPos(*self.get_socket_pos(socket))
-
-    def add_socket(self, *args, socket_type='input', **kwargs):
-        n_sockets = self.get_n_sockets(socket_type)
-        socket = OCBSocket(block=self, socket_type=socket_type, index=n_sockets, *args, **kwargs)
-        if socket_type == 'input':
-            self.sockets_in.append(socket)
-            self.update_sockets(socket_type='input')
-        else:
-            self.sockets_out.append(socket)
-            self.update_sockets(socket_type='output')
 
     def boundingRect(self) -> QRectF:
         return QRectF(0, 0, self.width, self.height).normalized()
@@ -122,6 +89,47 @@ class OCBBlock(QGraphicsItem):
         return self.width - pos.x() < 2 * self.edge_size \
             and self.height - pos.y() < 2 * self.edge_size
 
+    def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
+        x = 0 if socket.socket_type == 'input' else self.width
+        y_offset = self.title_height + 2 * socket.radius
+
+        n_sockets = self.get_n_sockets(socket.socket_type)
+        if n_sockets < 2:
+            y = y_offset
+        else:
+            side_lenght = self.height - y_offset - 2 * socket.radius - self.edge_size
+            y = y_offset + side_lenght * socket.index / (n_sockets - 1)
+        return x, y
+
+    def get_n_sockets(self, socket_type='input'):
+        return len(self.sockets_in) if socket_type == 'input' else len(self.sockets_out)
+
+    def update_sockets(self, socket_type='input'):
+        if socket_type == 'input':
+            for socket in self.sockets_in:
+                socket.setPos(*self.get_socket_pos(socket))
+        else:
+            for socket in self.sockets_out:
+                socket.setPos(*self.get_socket_pos(socket))
+
+    def add_socket(self, *args, socket_type='input', **kwargs):
+        n_sockets = self.get_n_sockets(socket_type)
+        socket = OCBSocket(block=self, socket_type=socket_type, index=n_sockets, *args, **kwargs)
+        if socket_type == 'input':
+            self.sockets_in.append(socket)
+            self.update_sockets(socket_type='input')
+        else:
+            self.sockets_out.append(socket)
+            self.update_sockets(socket_type='output')
+
+    def remove_socket(self, socket:OCBSocket):
+        if socket.socket_type == 'input':
+            self.sockets_in.remove(socket)
+            self.update_sockets(socket_type='input')
+        else:
+            self.sockets_out.remove(socket)
+            self.update_sockets(socket_type='output')
+
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
         pos = event.pos()
         if self._is_in_resize_area(pos):
@@ -163,6 +171,14 @@ class OCBBlock(QGraphicsItem):
         source_editor_graphics.setWidget(source_editor)
         source_editor_graphics.setZValue(-1)
         return source_editor_graphics
+
+    def remove(self):
+        scene = self.scene()
+        for socket in self.sockets_in + self.sockets_out:
+            self.remove_socket(socket)
+            socket.remove()
+        if scene is not None:
+            scene.removeItem(self)
 
     @property
     def title(self):

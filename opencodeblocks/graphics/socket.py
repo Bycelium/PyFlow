@@ -11,6 +11,7 @@ from PyQt5.QtCore import QRectF
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
+
 class OCBSocket(QGraphicsItem):
 
     def __init__(self, block:'OCBBlock', socket_type:str='undefined', index:int=0, radius:float=6.0,
@@ -31,7 +32,15 @@ class OCBSocket(QGraphicsItem):
         self.edges.append(edge)
 
     def remove_edge(self, edge):
-        self.edges.pop(self.edges.index(edge))
+        if edge in self.edges:
+            self.edges.remove(edge)
+
+    def remove(self):
+        for edge in self.edges:
+            edge.remove()
+        scene = self.scene()
+        if scene is not None:
+            scene.removeItem(self)
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget]=None):
