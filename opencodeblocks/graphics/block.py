@@ -7,11 +7,12 @@ from typing import Optional, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsTextItem, \
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, QGraphicsTextItem, \
     QStyleOptionGraphicsItem, QWidget, QApplication
 
 from opencodeblocks.core.node import Node
 from opencodeblocks.graphics.socket import OCBSocket
+from opencodeblocks.graphics.pyeditor import SimplePythonEditor
 
 class OCBBlock(QGraphicsItem):
     def __init__(self, node:Node,
@@ -22,10 +23,10 @@ class OCBBlock(QGraphicsItem):
         self.sockets_in = []
         self.sockets_out = []
 
-        self.width = 180
-        self._min_width = 100
-        self.height = 240
-        self._min_height = 100
+        self.width = 300
+        self._min_width = 300
+        self.height = 200
+        self._min_height = 200
         self.edge_size = 10.0
 
         self.title_graphics = self.init_title_graphics(
@@ -39,13 +40,12 @@ class OCBBlock(QGraphicsItem):
         self._brush_title = QBrush(QColor("#FF313131"))
         self._brush_background = QBrush(QColor("#E3212121"))
 
-        self.init_ui()
+        self.source_editor = self.init_source_editor()
 
-        self.resizing = False
-
-    def init_ui(self):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+
+        self.resizing = False
 
     def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
         x = 0 if socket.socket_type == 'input' else self.width
@@ -154,6 +154,16 @@ class OCBBlock(QGraphicsItem):
         title.setTextWidth(self.width - 2 * self.edge_size)
         return title
 
+    def init_source_editor(self):
+        source_editor_graphics = QGraphicsProxyWidget(self)
+        source_editor = SimplePythonEditor()
+        source_editor.setGeometry(self.edge_size, self.edge_size + self.title_height,
+                                  self.width - 2*self.edge_size,
+                                  self.height - self.title_height - 2*self.edge_size)
+        source_editor_graphics.setWidget(source_editor)
+        source_editor_graphics.setZValue(-1)
+        return source_editor_graphics
+
     @property
     def title(self):
         return self._title
@@ -170,5 +180,9 @@ class OCBBlock(QGraphicsItem):
         self._width = value
         if hasattr(self, 'title_graphics'):
             self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
+        if hasattr(self, 'source_editor'):
+            self.source_editor.widget().setGeometry(self.edge_size,
+                self.edge_size + self.title_height, self.width - 2*self.edge_size,
+                self.height - self.title_height - 2*self.edge_size)
         self.update_sockets('input')
         self.update_sockets('output')
