@@ -166,15 +166,18 @@ class OCBView(QGraphicsView):
 
     def wheelEvent(self, event: QWheelEvent):
         """ Handles zooming with mouse wheel """
-        # calculate zoom
-        if event.angleDelta().y() > 0:
-            zoom_factor = self.zoom_step
-        else:
-            zoom_factor = 1 / self.zoom_step
+        if Qt.Modifier.CTRL == int(event.modifiers()):      
+            # calculate zoom
+            if event.angleDelta().y() > 0:
+                zoom_factor = self.zoom_step
+            else:
+                zoom_factor = 1 / self.zoom_step
 
-        if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
-            self.zoom *= zoom_factor
-            self.scale(zoom_factor, zoom_factor)
+            if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
+                self.zoom *= zoom_factor
+                self.scale(zoom_factor, zoom_factor)
+        else:
+            super().wheelEvent(event)
 
     def set_mode(self, mode:str):
         self.mode = eval(mode)
