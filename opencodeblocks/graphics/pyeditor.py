@@ -11,7 +11,6 @@ from opencodeblocks.core.node import Node
 
 
 class SimplePythonEditor(QsciScintilla):
-    ARROW_MARKER_NUM = 8
 
     def __init__(self, node:Node, parent=None):
         super().__init__(parent)
@@ -27,13 +26,13 @@ class SimplePythonEditor(QsciScintilla):
 
         # Margin 0 is used for line numbers
         fontmetrics = QFontMetrics(font)
-        margins_foreground_color = QColor("#00dddddd")
-        margins_background_color = QColor("#E3212121")
+        foreground_color = QColor("#dddddd")
+        background_color = QColor("#212121")
         self.setMarginsFont(font)
-        self.setMarginWidth(0, fontmetrics.width("00"))
-        self.setMarginLineNumbers(0, True)
-        self.setMarginsForegroundColor(margins_foreground_color)
-        self.setMarginsBackgroundColor(margins_background_color)
+        self.setMarginWidth(2, fontmetrics.width("00") + 6)
+        self.setMarginLineNumbers(2, True)
+        self.setMarginsForegroundColor(foreground_color)
+        self.setMarginsBackgroundColor(background_color)
 
         # Set Python lexer
         lexer = QsciLexerPython()
@@ -67,7 +66,7 @@ class SimplePythonEditor(QsciScintilla):
         self.setCaretForegroundColor(QColor("#D4D4D4"))
 
         # Indentation
-        self.setAutoIndent(True)
+        self.setAutoIndent(False)
         self.setTabWidth(4)
         self.setIndentationGuides(True)
         self.setIndentationsUseTabs(False)
@@ -76,9 +75,11 @@ class SimplePythonEditor(QsciScintilla):
         # Disable horizontal scrollbar
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
 
-        # Add folding
-        self.setFolding(QsciScintilla.FoldStyle.CircledTreeFoldStyle)
-        self.setFoldMarginColors(margins_foreground_color, margins_background_color)
+        # # Add folding
+        # self.setFolding(QsciScintilla.FoldStyle.CircledTreeFoldStyle, 1)
+        # self.setFoldMarginColors(background_color, background_color)
+        # self.setMarkerForegroundColor(foreground_color, 0)
+        # self.setMarkerBackgroundColor(background_color, 0)
 
         # Add background transparency
         self.setStyleSheet("background:transparent")
