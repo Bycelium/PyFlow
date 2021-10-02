@@ -164,7 +164,7 @@ class OCBBlock(QGraphicsItem):
 
     def init_source_editor(self):
         source_editor_graphics = QGraphicsProxyWidget(self)
-        source_editor = SimplePythonEditor()
+        source_editor = SimplePythonEditor(self.node)
         source_editor.setGeometry(self.edge_size, self.edge_size + self.title_height,
                                   self.width - 2*self.edge_size,
                                   self.height - self.title_height - 2*self.edge_size)

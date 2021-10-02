@@ -7,12 +7,15 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
+from opencodeblocks.core.node import Node
+
 
 class SimplePythonEditor(QsciScintilla):
     ARROW_MARKER_NUM = 8
 
-    def __init__(self, parent=None):
+    def __init__(self, node:Node, parent=None):
         super().__init__(parent)
+        self.node = node
 
         # Set the default font
         font = QFont()
@@ -59,6 +62,9 @@ class SimplePythonEditor(QsciScintilla):
 
         self.setLexer(lexer)
 
+        # Set caret
+        self.setCaretForegroundColor(QColor("#D4D4D4"))
+
         # Indentation
         self.setAutoIndent(True)
         self.setTabWidth(4)
@@ -89,4 +95,7 @@ class SimplePythonEditor(QsciScintilla):
 
     def focusOutEvent(self, event: QFocusEvent):
         self.set_views_mode("MODE_NOOP")
+        if self.isModified():
+            self.node.source = self.text()
+            self.setModified(False)
         return super().focusInEvent(event)
