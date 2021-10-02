@@ -16,6 +16,7 @@ class SimplePythonEditor(QsciScintilla):
     def __init__(self, node:Node, parent=None):
         super().__init__(parent)
         self.node = node
+        self.setText(self.node.source)
 
         # Set the default font
         font = QFont()
