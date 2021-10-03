@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsSceneMouseEvent
 
 from opencodeblocks.core.node import CodeNode
 from opencodeblocks.graphics.blocks.block import OCBBlock
-from opencodeblocks.graphics.pyeditor import SimplePythonEditor
+from opencodeblocks.graphics.pyeditor import PythonEditor
 
 class OCBCodeBlock(OCBBlock):
 
@@ -21,7 +21,7 @@ class OCBCodeBlock(OCBBlock):
 
     def init_source_editor(self):
         source_editor_graphics = QGraphicsProxyWidget(self)
-        source_editor = SimplePythonEditor(self.node)
+        source_editor = PythonEditor(self.node)
         source_editor.setGeometry(self.edge_size, self.edge_size + self.title_height,
                                   self.width - 2*self.edge_size,
                                   self.height - self.title_height - 2*self.edge_size)
@@ -35,21 +35,3 @@ class OCBCodeBlock(OCBBlock):
                 self.edge_size + self.title_height, self.width - 2*self.edge_size,
                 self.height - self.title_height - 2*self.edge_size)
         return super().mouseMoveEvent(event)
-
-    def serialize(self) -> dict:
-        return OrderedDict([
-            ('block_type', 'code'),
-            ('metadata', OrderedDict([
-                ('width', self.width),
-                ('height', self.height),
-            ])),
-            ('sockets', OrderedDict([
-                ('inputs', [socket.serialize() for socket in self.sockets_in]),
-                ('outputs', [socket.serialize() for socket in self.sockets_out])
-            ])),
-            ('content', self.node.serialize()),
-        ])
-
-    def deserialize(self, data: dict) -> None:
-        print(data)
-

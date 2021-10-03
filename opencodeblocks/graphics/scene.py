@@ -4,13 +4,20 @@
 """ Module for the OCB Scene """
 
 import math
+import json
+from typing import OrderedDict
 
 from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
+from opencodeblocks.core.serializable import Serializable
+from opencodeblocks.graphics import edge
+from opencodeblocks.graphics.blocks.block import OCBBlock
+from opencodeblocks.graphics.edge import OCBEdge
 
-class OCBScene(QGraphicsScene):
+
+class OCBScene(QGraphicsScene, Serializable):
 
     """ Scene for the OCB Window. """
 
@@ -19,7 +26,8 @@ class OCBScene(QGraphicsScene):
             grid_color:str="#292929", grid_light_color:str="#2f2f2f",
             width:int=64000, height:int=64000,
             grid_size:int=20, grid_squares:int=5):
-        super().__init__(parent=parent)
+        Serializable.__init__(self)
+        QGraphicsScene.__init__(self, parent=parent)
 
         self._background_color = QColor(background_color)
         self._grid_color = QColor(grid_color)
@@ -70,3 +78,24 @@ class OCBScene(QGraphicsScene):
         pen.setWidth(1)
         painter.setPen(pen)
         painter.drawLines(*lines_light)
+
+    def save_to_json(self, filepath:str):
+        if not filepath.endswith('.json'):
+            filepath += '.json'
+        with open(filepath, 'w', encoding='utf-8') as file:
+            file.write(json.dumps(self.serialize(), indent=4))
+
+    def serialize(self) -> OrderedDict:
+        blocks = []
+        edges = []
+        for item in self.items():
+            if isinstance(item, OCBBlock):
+                blocks.append(item)
+            elif isinstance(item, OCBEdge):
+                edges.append(item)
+        blocks.sort(key=lambda x: x.id)
+        edges.sort(key=lambda x: x.id)
+        return OrderedDict([
+            ('blocks', [block.serialize() for block in blocks]),
+            ('edges', [edge.serialize() for edge in edges]),
+        ])

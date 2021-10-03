@@ -3,10 +3,16 @@
 
 """ Module for the Serializable base class """
 
+from typing import OrderedDict
+
+
 class Serializable():
 
-    def serialize(self) -> dict:
+    def __init__(self) -> None:
+        self.id = id(self)
+
+    def serialize(self) -> OrderedDict:
         raise NotImplementedError()
 
-    def deserialize(self, data:dict) -> None:
+    def deserialize(self, data:OrderedDict) -> None:
         raise NotImplementedError()

@@ -3,7 +3,7 @@
 
 """ Module for the base OCB Block. """
 
-from typing import Optional, Tuple
+from typing import Optional, OrderedDict, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
@@ -18,7 +18,8 @@ class OCBBlock(QGraphicsItem, Serializable):
     def __init__(self, node:Node,
             title_color:str='white', title_font:str="Ubuntu", title_size:int=10, title_padding=4.0,
             parent: Optional['QGraphicsItem']=None) -> None:
-        super().__init__(parent=parent)
+        QGraphicsItem.__init__(self, parent=parent)
+        Serializable.__init__(self)
         self.node = node
         self.sockets_in = []
         self.sockets_out = []
@@ -185,3 +186,15 @@ class OCBBlock(QGraphicsItem, Serializable):
         self._width = value
         self.update_sockets('input')
         self.update_sockets('output')
+
+    def serialize(self) -> OrderedDict:
+        data = self.node.serialize()
+        data['position'] = [self.pos().x(), self.pos().y()]
+        data['sockets'] = OrderedDict([
+            ('inputs', [socket.serialize() for socket in self.sockets_in]),
+            ('outputs', [socket.serialize() for socket in self.sockets_out])
+        ])
+        return data
+
+    def deserialize(self, data: dict) -> None:
+        print(data)

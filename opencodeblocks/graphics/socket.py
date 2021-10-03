@@ -5,23 +5,26 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, OrderedDict
 from PyQt5.QtCore import QRectF
 
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
+from opencodeblocks.core.serializable import Serializable
 
-class OCBSocket(QGraphicsItem):
+
+class OCBSocket(QGraphicsItem, Serializable):
 
     def __init__(self, block:'OCBBlock', socket_type:str='undefined', index:int=0, radius:float=6.0,
             color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
-
+        Serializable.__init__(self)
         self.block = block
+        QGraphicsItem.__init__(self, parent=self.block)
+
         self.edges = []
         self.socket_type = socket_type
         self.index = index
-        super().__init__(parent=self.block)
 
         self.radius = radius
         self._pen = QPen(QColor(linecolor))
@@ -52,3 +55,10 @@ class OCBSocket(QGraphicsItem):
     def boundingRect(self) -> QRectF:
         r = self.radius
         return QRectF(-r, -r, 2*r, 2*r)
+
+    def serialize(self) -> OrderedDict:
+        return OrderedDict([
+            ('id', self.id),
+            ('type', self.socket_type),
+            ('index', self.index),
+        ])

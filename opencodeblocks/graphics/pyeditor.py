@@ -10,7 +10,7 @@ from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.core.node import Node
 
 
-class SimplePythonEditor(QsciScintilla):
+class PythonEditor(QsciScintilla):
 
     def __init__(self, node:Node, parent=None):
         super().__init__(parent)

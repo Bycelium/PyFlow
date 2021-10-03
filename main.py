@@ -6,7 +6,7 @@ import sys
 
 from qtpy.QtWidgets import QApplication
 
-from opencodeblocks.core.node import CodeNode
+from opencodeblocks.core.node import CodeNode, Node
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock, OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.window import OCBWindow
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     wnd = OCBWindow()
 
-    test_block = OCBBlock(CodeNode(title="Test Block with a very very very long long name"))
+    test_block = OCBBlock(Node(title="Test Block with a very very very long long name"))
     for _ in range(3):
         test_block.add_socket(socket_type='input')
     wnd.scene.addItem(test_block)
@@ -47,6 +47,8 @@ if __name__ == '__main__':
             destination_socket=test_block.sockets_in[i]
         )
         wnd.scene.addItem(edge)
+
+    wnd.scene.save_to_json('test_save')
 
     wnd.show()
     sys.exit(app.exec_())

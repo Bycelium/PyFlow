@@ -5,22 +5,24 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, OrderedDict
 
 from PyQt5.QtCore import QPointF, Qt
 from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPen
 from PyQt5.QtWidgets import QGraphicsPathItem, QStyleOptionGraphicsItem, QWidget
 
+from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
 
 
-class OCBEdge(QGraphicsPathItem):
+class OCBEdge(QGraphicsPathItem, Serializable):
     def __init__(self, path_type='bezier', edge_color="#001000", edge_selected_color="#00ff00",
             edge_width:float=4.0,
             source:QPointF=QPointF(0, 0), destination:QPointF=QPointF(0, 0),
             source_socket:OCBSocket=None, destination_socket:OCBSocket=None
         ):
-        super().__init__(parent=None)
+        Serializable.__init__(self)
+        QGraphicsPathItem.__init__(self, parent=None)
         self._pen = QPen(QColor(edge_color))
         self._pen.setWidthF(edge_width)
 
@@ -100,3 +102,21 @@ class OCBEdge(QGraphicsPathItem):
     def destination(self, value):
         self._destination = value
         self.update_path()
+
+    def serialize(self) -> OrderedDict:
+        return OrderedDict([
+            ('id', self.id),
+            ('path_type', self.path_type),
+            ('source', OrderedDict([
+                ('block',
+                    self.source_socket.block.id if self.source_socket else None),
+                ('socket',
+                    self.source_socket.id if self.source_socket else None)
+            ])),
+            ('destination', OrderedDict([
+                ('block',
+                    self.destination_socket.block.id if self.destination_socket else None),
+                ('socket',
+                    self.destination_socket.id if self.destination_socket else None)
+            ]))
+        ])
