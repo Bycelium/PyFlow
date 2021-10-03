@@ -7,7 +7,7 @@ import sys
 from qtpy.QtWidgets import QApplication
 
 from opencodeblocks.core.node import CodeNode
-from opencodeblocks.graphics.block import OCBBlock
+from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock, OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.window import OCBWindow
 
@@ -29,14 +29,12 @@ if __name__ == '__main__':
     wnd = OCBWindow()
 
     test_block = OCBBlock(CodeNode(title="Test Block with a very very very long long name"))
-    for _ in range(5):
-        test_block.add_socket(socket_type='input')
     for _ in range(3):
-        test_block.add_socket(socket_type='output')
+        test_block.add_socket(socket_type='input')
     wnd.scene.addItem(test_block)
 
-    test_block_2 = OCBBlock(CodeNode(title="Test Block 2", source=SOURCE_TEST))
-    for _ in range(3):
+    test_block_2 = OCBCodeBlock(CodeNode(title="Test Block 2", source=SOURCE_TEST))
+    for _ in range(2):
         test_block_2.add_socket(socket_type='input')
     for _ in range(1):
         test_block_2.add_socket(socket_type='output')

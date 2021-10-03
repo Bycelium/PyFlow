@@ -7,14 +7,14 @@ from typing import Optional, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, \
-    QGraphicsTextItem, QStyleOptionGraphicsItem, QWidget, QApplication
+from PyQt5.QtWidgets import QGraphicsItem,QGraphicsSceneMouseEvent, QGraphicsTextItem, \
+    QStyleOptionGraphicsItem, QWidget, QApplication
 
 from opencodeblocks.core.node import Node
+from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
-from opencodeblocks.graphics.pyeditor import SimplePythonEditor
 
-class OCBBlock(QGraphicsItem):
+class OCBBlock(QGraphicsItem, Serializable):
     def __init__(self, node:Node,
             title_color:str='white', title_font:str="Ubuntu", title_size:int=10, title_padding=4.0,
             parent: Optional['QGraphicsItem']=None) -> None:
@@ -39,8 +39,6 @@ class OCBBlock(QGraphicsItem):
 
         self._brush_title = QBrush(QColor("#FF313131"))
         self._brush_background = QBrush(QColor("#E3212121"))
-
-        self.source_editor = self.init_source_editor()
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
@@ -132,7 +130,7 @@ class OCBBlock(QGraphicsItem):
 
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
         pos = event.pos()
-        if self._is_in_resize_area(pos):
+        if self._is_in_resize_area(pos) and event.buttons() == Qt.MouseButton.LeftButton:
             self.resize_start = pos
             self.resizing = True
             QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
@@ -149,6 +147,7 @@ class OCBBlock(QGraphicsItem):
             self.width = max(self.width + delta.x(), self._min_width)
             self.height = max(self.height + delta.y(), self._min_height)
             self.resize_start = event.pos()
+            self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
             self.update()
         else:
             super().mouseMoveEvent(event)
@@ -161,16 +160,6 @@ class OCBBlock(QGraphicsItem):
         title.setPos(padding, 0)
         title.setTextWidth(self.width - 2 * self.edge_size)
         return title
-
-    def init_source_editor(self):
-        source_editor_graphics = QGraphicsProxyWidget(self)
-        source_editor = SimplePythonEditor(self.node)
-        source_editor.setGeometry(self.edge_size, self.edge_size + self.title_height,
-                                  self.width - 2*self.edge_size,
-                                  self.height - self.title_height - 2*self.edge_size)
-        source_editor_graphics.setWidget(source_editor)
-        source_editor_graphics.setZValue(-1)
-        return source_editor_graphics
 
     def remove(self):
         scene = self.scene()
@@ -194,11 +183,5 @@ class OCBBlock(QGraphicsItem):
     @width.setter
     def width(self, value:float):
         self._width = value
-        if hasattr(self, 'title_graphics'):
-            self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
-        if hasattr(self, 'source_editor'):
-            self.source_editor.widget().setGeometry(self.edge_size,
-                self.edge_size + self.title_height, self.width - 2*self.edge_size,
-                self.height - self.title_height - 2*self.edge_size)
         self.update_sockets('input')
         self.update_sockets('output')
