@@ -59,6 +59,8 @@ class OCBView(QGraphicsView):
         if event.key() == Qt.Key.Key_Delete:
             if self.mode != MODE_EDITING:
                 self.delete_selected()
+        elif event.key() == Qt.Key.Key_S and event.modifiers() & Qt.Modifier.CTRL:
+            self.scene().save()
         return super().keyPressEvent(event)
 
     def mousePressEvent(self, event: QMouseEvent):
@@ -87,6 +89,46 @@ class OCBView(QGraphicsView):
             self.rightMouseButtonRelease(event)
         else:
             super().mouseReleaseEvent(event)
+
+    def middleMouseButtonPress(self, event: QMouseEvent):
+        super().mousePressEvent(event)
+
+    def middleMouseButtonRelease(self, event: QMouseEvent):
+        super().mouseReleaseEvent(event)
+
+    def leftMouseButtonPress(self, event: QMouseEvent):
+        event = self.drag_edge(event, 'press')
+        if event is not None:
+            super().mousePressEvent(event)
+
+    def leftMouseButtonRelease(self, event: QMouseEvent):
+        event = self.drag_edge(event, 'release')
+        if event is not None:
+            super().mouseReleaseEvent(event)
+
+    def rightMouseButtonPress(self, event: QMouseEvent):
+        event = self.drag_scene(event, "press")
+        super().mousePressEvent(event)
+
+    def rightMouseButtonRelease(self, event: QMouseEvent):
+        event = self.drag_scene(event, "release")
+        super().mouseReleaseEvent(event)
+        self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+
+    def wheelEvent(self, event: QWheelEvent):
+        """ Handles zooming with mouse wheel """
+        if Qt.Modifier.CTRL == int(event.modifiers()):      
+            # calculate zoom
+            if event.angleDelta().y() > 0:
+                zoom_factor = self.zoom_step
+            else:
+                zoom_factor = 1 / self.zoom_step
+
+            if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
+                self.zoom *= zoom_factor
+                self.scale(zoom_factor, zoom_factor)
+        else:
+            super().wheelEvent(event)
 
     def delete_selected(self):
         scene = self.scene()
@@ -138,46 +180,6 @@ class OCBView(QGraphicsView):
             if self.mode == MODE_EDGE_DRAG:
                 self.edge_drag.destination = self.mapToScene(event.pos())
         return event
-
-    def middleMouseButtonPress(self, event: QMouseEvent):
-        super().mousePressEvent(event)
-
-    def middleMouseButtonRelease(self, event: QMouseEvent):
-        super().mouseReleaseEvent(event)
-
-    def leftMouseButtonPress(self, event: QMouseEvent):
-        event = self.drag_edge(event, 'press')
-        if event is not None:
-            super().mousePressEvent(event)
-
-    def leftMouseButtonRelease(self, event: QMouseEvent):
-        event = self.drag_edge(event, 'release')
-        if event is not None:
-            super().mouseReleaseEvent(event)
-
-    def rightMouseButtonPress(self, event: QMouseEvent):
-        event = self.drag_scene(event, "press")
-        super().mousePressEvent(event)
-
-    def rightMouseButtonRelease(self, event: QMouseEvent):
-        event = self.drag_scene(event, "release")
-        super().mouseReleaseEvent(event)
-        self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
-
-    def wheelEvent(self, event: QWheelEvent):
-        """ Handles zooming with mouse wheel """
-        if Qt.Modifier.CTRL == int(event.modifiers()):      
-            # calculate zoom
-            if event.angleDelta().y() > 0:
-                zoom_factor = self.zoom_step
-            else:
-                zoom_factor = 1 / self.zoom_step
-
-            if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
-                self.zoom *= zoom_factor
-                self.scale(zoom_factor, zoom_factor)
-        else:
-            super().wheelEvent(event)
 
     def set_mode(self, mode:str):
         self.mode = eval(mode)

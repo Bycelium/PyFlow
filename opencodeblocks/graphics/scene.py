@@ -79,11 +79,15 @@ class OCBScene(QGraphicsScene, Serializable):
         painter.setPen(pen)
         painter.drawLines(*lines_light)
 
+    def save(self, filepath:str='scene'):
+        self.save_to_json(filepath)
+
     def save_to_json(self, filepath:str):
         if not filepath.endswith('.json'):
             filepath += '.json'
         with open(filepath, 'w', encoding='utf-8') as file:
             file.write(json.dumps(self.serialize(), indent=4))
+        print(f"Successfully saved scene at {filepath}")
 
     def serialize(self) -> OrderedDict:
         blocks = []
