@@ -4,10 +4,9 @@
 """ Module for OCB Sockets """
 
 from __future__ import annotations
-
 from typing import Optional, OrderedDict
-from PyQt5.QtCore import QRectF
 
+from PyQt5.QtCore import QPointF, QRectF
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
@@ -16,7 +15,7 @@ from opencodeblocks.core.serializable import Serializable
 
 class OCBSocket(QGraphicsItem, Serializable):
 
-    def __init__(self, block:'OCBBlock', socket_type:str='undefined', index:int=0, radius:float=6.0,
+    def __init__(self, block:'OCBBlock', socket_type:str='undefined', radius:float=6.0,
             color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
         Serializable.__init__(self)
         self.block = block
@@ -24,12 +23,18 @@ class OCBSocket(QGraphicsItem, Serializable):
 
         self.edges = []
         self.socket_type = socket_type
-        self.index = index
 
         self.radius = radius
         self._pen = QPen(QColor(linecolor))
         self._pen.setWidth(linewidth)
         self._brush = QBrush(QColor(color))
+
+        self.metadata = {
+            'radius': radius,
+            'color': color,
+            'linewidth': linewidth,
+            'linecolor': linecolor,
+        }
 
     def add_edge(self, edge):
         self.edges.append(edge)
@@ -57,8 +62,20 @@ class OCBSocket(QGraphicsItem, Serializable):
         return QRectF(-r, -r, 2*r, 2*r)
 
     def serialize(self) -> OrderedDict:
+        metadata = OrderedDict(sorted(self.metadata.items()))
         return OrderedDict([
             ('id', self.id),
             ('type', self.socket_type),
-            ('index', self.index),
+            ('position', [self.pos().x(), self.pos().y()]),
+            ('metadata', metadata)
         ])
+
+    def deserialize(self, data: OrderedDict, hashmap: dict = None):
+        self.id = data['id']
+        self.socket_type = data['type']
+        self.setPos(QPointF(*data['position']))
+
+        self.metadata = dict(data['metadata'])
+        self._pen.setColor(QColor(self.metadata['linecolor']))
+        self._pen.setWidth(self.metadata['linewidth'])
+        self._brush.setColor(QColor(self.metadata['color']))

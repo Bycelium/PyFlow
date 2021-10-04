@@ -12,8 +12,8 @@ from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
 from opencodeblocks.core.serializable import Serializable
-from opencodeblocks.graphics import edge
 from opencodeblocks.graphics.blocks.block import OCBBlock
+from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 
 
@@ -89,6 +89,20 @@ class OCBScene(QGraphicsScene, Serializable):
             file.write(json.dumps(self.serialize(), indent=4))
         print(f"Successfully saved scene at {filepath}")
 
+    def load(self, filepath:str='scene.json'):
+        if filepath.endswith('.json'):
+            data = self.load_from_json(filepath)
+        else:
+            extention_format = filepath.split('.')[-1]
+            raise NotImplementedError(f"Unsupported format {extention_format}")
+        self.deserialize(data)
+
+    def load_from_json(self, filepath:str):
+        with open(filepath, 'r', encoding='utf-8') as file:
+            data = json.loads(file.read())
+        print(f"Successfully loaded data from {filepath}")
+        return data
+
     def serialize(self) -> OrderedDict:
         blocks = []
         edges = []
@@ -103,3 +117,26 @@ class OCBScene(QGraphicsScene, Serializable):
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
+
+    def deserialize(self, data: OrderedDict, hashmap:dict=None):
+        self.clear()
+        hashmap = hashmap if hashmap is not None else {}
+
+        # Create blocks
+        for block_data in data['blocks']:
+            if block_data['block_type'] == 'base':
+                block = OCBBlock()
+            elif block_data['block_type'] == 'code':
+                block = OCBCodeBlock()
+            else:
+                raise NotImplementedError()
+            block.deserialize(block_data, hashmap)
+            self.addItem(block)
+            hashmap.update({block_data['id']: block})
+
+        # Create edges
+        for edge_data in data['edges']:
+            edge = OCBEdge()
+            edge.deserialize(edge_data, hashmap)
+            self.addItem(edge)
+            hashmap.update({edge_data['id']: edge})

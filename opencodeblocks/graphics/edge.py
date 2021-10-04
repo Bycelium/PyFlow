@@ -120,3 +120,10 @@ class OCBEdge(QGraphicsPathItem, Serializable):
                     self.destination_socket.id if self.destination_socket else None)
             ]))
         ])
+
+    def deserialize(self, data: OrderedDict, hashmap: dict = None) -> None:
+        self.id = data['id']
+        self.path_type = data['path_type']
+        self.source_socket = hashmap[data['source']['socket']]
+        self.destination_socket = hashmap[data['destination']['socket']]
+        self.update_path()

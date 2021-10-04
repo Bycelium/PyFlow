@@ -10,30 +10,33 @@ from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem,QGraphicsSceneMouseEvent, QGraphicsTextItem, \
     QStyleOptionGraphicsItem, QWidget, QApplication
 
-from opencodeblocks.core.node import Node
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
 
 class OCBBlock(QGraphicsItem, Serializable):
-    def __init__(self, node:Node,
-            title_color:str='white', title_font:str="Ubuntu", title_size:int=10, title_padding=4.0,
-            parent: Optional['QGraphicsItem']=None) -> None:
+    def __init__(self, title:str='New block', block_type:str='base', source:str='',
+            position:tuple=(0, 0), title_color:str='white', title_font:str="Ubuntu",
+            title_size:int=10, title_padding=4.0, parent: Optional['QGraphicsItem']=None):
         QGraphicsItem.__init__(self, parent=parent)
         Serializable.__init__(self)
-        self.node = node
+
+        self.block_type = block_type
+        self.source = source
+        self.setPos(QPointF(*position))
         self.sockets_in = []
         self.sockets_out = []
 
-        self.width = 300
         self._min_width = 300
+        self._min_height = 100
+
+        self.width = 300
         self.height = 200
-        self._min_height = 200
         self.edge_size = 10.0
 
+        self.title_height = 3 * title_size
         self.title_graphics = self.init_title_graphics(
             title_color, title_font, title_size, title_padding)
-        self.title = self.node.title
-        self.title_height = 3 * title_size
+        self.title = title
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
@@ -45,6 +48,16 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
         self.resizing = False
+        self.metadata = {
+            'width': self.width,
+            'height': self.height,
+            'title_metadata': {
+                'color': title_color,
+                'font': title_font,
+                'size': title_size,
+                'padding': title_padding,
+            }
+        }
 
     def boundingRect(self) -> QRectF:
         return QRectF(0, 0, self.width, self.height).normalized()
@@ -89,45 +102,38 @@ class OCBBlock(QGraphicsItem, Serializable):
             and self.height - pos.y() < 2 * self.edge_size
 
     def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
-        x = 0 if socket.socket_type == 'input' else self.width
-        y_offset = self.title_height + 2 * socket.radius
+        if socket.socket_type == 'input':
+            x = 0
+            sockets = self.sockets_in
+        else:
+            x = self.width
+            sockets = self.sockets_out
 
-        n_sockets = self.get_n_sockets(socket.socket_type)
-        if n_sockets < 2:
+        y_offset = self.title_height + 2 * socket.radius
+        if len(sockets) < 2:
             y = y_offset
         else:
             side_lenght = self.height - y_offset - 2 * socket.radius - self.edge_size
-            y = y_offset + side_lenght * socket.index / (n_sockets - 1)
+            y = y_offset + side_lenght * sockets.index(socket) / (len(sockets) - 1)
         return x, y
 
-    def get_n_sockets(self, socket_type='input'):
-        return len(self.sockets_in) if socket_type == 'input' else len(self.sockets_out)
+    def update_sockets(self):
+        for socket in self.sockets_in + self.sockets_out:
+            socket.setPos(*self.get_socket_pos(socket))
 
-    def update_sockets(self, socket_type='input'):
-        if socket_type == 'input':
-            for socket in self.sockets_in:
-                socket.setPos(*self.get_socket_pos(socket))
-        else:
-            for socket in self.sockets_out:
-                socket.setPos(*self.get_socket_pos(socket))
-
-    def add_socket(self, *args, socket_type='input', **kwargs):
-        n_sockets = self.get_n_sockets(socket_type)
-        socket = OCBSocket(block=self, socket_type=socket_type, index=n_sockets, *args, **kwargs)
-        if socket_type == 'input':
+    def add_socket(self, socket:OCBSocket):
+        if socket.socket_type == 'input':
             self.sockets_in.append(socket)
-            self.update_sockets(socket_type='input')
         else:
             self.sockets_out.append(socket)
-            self.update_sockets(socket_type='output')
+        self.update_sockets()
 
     def remove_socket(self, socket:OCBSocket):
         if socket.socket_type == 'input':
             self.sockets_in.remove(socket)
-            self.update_sockets(socket_type='input')
         else:
             self.sockets_out.remove(socket)
-            self.update_sockets(socket_type='output')
+        self.update_sockets()
 
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
         pos = event.pos()
@@ -176,7 +182,8 @@ class OCBBlock(QGraphicsItem, Serializable):
     @title.setter
     def title(self, value:str):
         self._title = value
-        self.title_graphics.setPlainText(self._title)
+        if hasattr(self, 'title_graphics'):
+            self.title_graphics.setPlainText(self._title)
 
     @property
     def width(self):
@@ -184,17 +191,29 @@ class OCBBlock(QGraphicsItem, Serializable):
     @width.setter
     def width(self, value:float):
         self._width = value
-        self.update_sockets('input')
-        self.update_sockets('output')
+        self.update_sockets()
 
     def serialize(self) -> OrderedDict:
-        data = self.node.serialize()
-        data['position'] = [self.pos().x(), self.pos().y()]
-        data['sockets'] = OrderedDict([
-            ('inputs', [socket.serialize() for socket in self.sockets_in]),
-            ('outputs', [socket.serialize() for socket in self.sockets_out])
+        metadata = OrderedDict(sorted(self.metadata.items()))
+        return OrderedDict([
+            ('id', self.id),
+            ('title', self.title),
+            ('block_type', self.block_type),
+            ('source', self.source),
+            ('position', [self.pos().x(), self.pos().y()]),
+            ('metadata', metadata),
+            ('sockets', [socket.serialize() for socket in self.sockets_in + self.sockets_out]),
         ])
-        return data
 
-    def deserialize(self, data: dict) -> None:
-        print(data)
+    def deserialize(self, data: dict, hashmap:dict=None) -> None:
+        for dataname in ('id', 'title', 'block_type', 'source'):
+            setattr(self, dataname, data[dataname])
+        self.setPos(QPointF(*data['position']))
+        self.metadata = dict(data['metadata'])
+        self.title_graphics = self.init_title_graphics(**self.metadata['title_metadata'])
+
+        for socket_data in data['sockets']:
+            socket = OCBSocket(block=self)
+            socket.deserialize(socket_data, hashmap)
+            self.add_socket(socket)
+            hashmap.update({socket_data['id']: socket})

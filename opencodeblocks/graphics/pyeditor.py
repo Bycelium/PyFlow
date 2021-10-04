@@ -7,15 +7,15 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
-from opencodeblocks.core.node import Node
+from opencodeblocks.graphics.blocks.block import OCBBlock
 
 
 class PythonEditor(QsciScintilla):
 
-    def __init__(self, node:Node, parent=None):
+    def __init__(self, block:OCBBlock, parent=None):
         super().__init__(parent)
-        self.node = node
-        self.setText(self.node.source)
+        self.block = block
+        self.setText(self.block.source)
 
         # Set the default font
         font = QFont()
@@ -98,6 +98,6 @@ class PythonEditor(QsciScintilla):
     def focusOutEvent(self, event: QFocusEvent):
         self.set_views_mode("MODE_NOOP")
         if self.isModified():
-            self.node.source = self.text()
+            self.block.source = self.text()
             self.setModified(False)
         return super().focusInEvent(event)

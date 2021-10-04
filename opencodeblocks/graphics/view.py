@@ -61,6 +61,8 @@ class OCBView(QGraphicsView):
                 self.delete_selected()
         elif event.key() == Qt.Key.Key_S and event.modifiers() & Qt.Modifier.CTRL:
             self.scene().save()
+        elif event.key() == Qt.Key.Key_L and event.modifiers() & Qt.Modifier.CTRL:
+            self.scene().load()
         return super().keyPressEvent(event)
 
     def mousePressEvent(self, event: QMouseEvent):
