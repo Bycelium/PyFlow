@@ -24,12 +24,13 @@ class OCBCodeBlock(OCBBlock):
         source_editor_graphics.setZValue(-1)
         return source_editor_graphics
 
-    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
-        if self.resizing:
-            self.source_editor.widget().setGeometry(self.edge_size,
-                self.edge_size + self.title_height, self.width - 2*self.edge_size,
+    def update_all(self):
+        if hasattr(self, 'source_editor'):
+            editor_widget = self.source_editor.widget()
+            editor_widget.setGeometry(self.edge_size,
+                self.edge_size + self.title_height, self._width - 2*self.edge_size,
                 self.height - self.title_height - 2*self.edge_size)
-        return super().mouseMoveEvent(event)
+        super().update_all()
 
     @property
     def source(self):

@@ -34,8 +34,8 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.edge_size = 10.0
 
         self.title_height = 3 * title_size
-        self.title_graphics = self.init_title_graphics(
-            title_color, title_font, title_size, title_padding)
+        self.title_graphics = QGraphicsTextItem(self)
+        self.setTitleGraphics(title_color, title_font, title_size, title_padding)
         self.title = title
 
         self._pen_outline = QPen(QColor("#7F000000"))
@@ -49,14 +49,12 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.resizing = False
         self.metadata = {
-            'width': self.width,
-            'height': self.height,
             'title_metadata': {
                 'color': title_color,
                 'font': title_font,
                 'size': title_size,
                 'padding': title_padding,
-            }
+            },
         }
 
     def boundingRect(self) -> QRectF:
@@ -159,14 +157,11 @@ class OCBBlock(QGraphicsItem, Serializable):
         else:
             super().mouseMoveEvent(event)
 
-    def init_title_graphics(self, color:str, font:str, size:int,
-            padding:float) -> QGraphicsTextItem:
-        title = QGraphicsTextItem(self)
-        title.setDefaultTextColor(QColor(color))
-        title.setFont(QFont(font, size))
-        title.setPos(padding, 0)
-        title.setTextWidth(self.width - 2 * self.edge_size)
-        return title
+    def setTitleGraphics(self, color:str, font:str, size:int, padding:float):
+        self.title_graphics.setDefaultTextColor(QColor(color))
+        self.title_graphics.setFont(QFont(font, size))
+        self.title_graphics.setPos(padding, 0)
+        self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
 
     def remove(self):
         scene = self.scene()
@@ -175,6 +170,11 @@ class OCBBlock(QGraphicsItem, Serializable):
             socket.remove()
         if scene is not None:
             scene.removeItem(self)
+
+    def update_all(self):
+        self.update_sockets()
+        if hasattr(self, 'title_graphics'):
+            self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
 
     @property
     def title(self):
@@ -191,7 +191,15 @@ class OCBBlock(QGraphicsItem, Serializable):
     @width.setter
     def width(self, value:float):
         self._width = value
-        self.update_sockets()
+        self.update_all()
+
+    @property
+    def height(self):
+        return self._height
+    @height.setter
+    def height(self, value:float):
+        self._height = value
+        self.update_all()
 
     def serialize(self) -> OrderedDict:
         metadata = OrderedDict(sorted(self.metadata.items()))
@@ -201,16 +209,18 @@ class OCBBlock(QGraphicsItem, Serializable):
             ('block_type', self.block_type),
             ('source', self.source),
             ('position', [self.pos().x(), self.pos().y()]),
+            ('width', self.width),
+            ('height', self.height),
             ('metadata', metadata),
             ('sockets', [socket.serialize() for socket in self.sockets_in + self.sockets_out]),
         ])
 
     def deserialize(self, data: dict, hashmap:dict=None) -> None:
-        for dataname in ('id', 'title', 'block_type', 'source'):
+        for dataname in ('id', 'title', 'block_type', 'source', 'width', 'height'):
             setattr(self, dataname, data[dataname])
         self.setPos(QPointF(*data['position']))
         self.metadata = dict(data['metadata'])
-        self.title_graphics = self.init_title_graphics(**self.metadata['title_metadata'])
+        self.setTitleGraphics(**self.metadata['title_metadata'])
 
         for socket_data in data['sockets']:
             socket = OCBSocket(block=self)
