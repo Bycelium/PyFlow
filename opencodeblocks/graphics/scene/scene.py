@@ -15,6 +15,7 @@ from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.scene.history import SceneHistory
 
 
 class OCBScene(QGraphicsScene, Serializable):
@@ -39,7 +40,9 @@ class OCBScene(QGraphicsScene, Serializable):
         self.setSceneRect(-self.width//2, -self.height//2, self.width, self.height)
         self.setBackgroundBrush(self._background_color)
 
-    def drawBackground(self, painter: QPainter, rect: QRectF) -> None:
+        self.history = SceneHistory(self)
+
+    def drawBackground(self, painter: QPainter, rect: QRectF):
         """ Draw the Scene background """
         super().drawBackground(painter, rect)
         self.drawGrid(painter, rect)
@@ -83,19 +86,20 @@ class OCBScene(QGraphicsScene, Serializable):
         self.save_to_json(filepath)
 
     def save_to_json(self, filepath:str):
-        if not filepath.endswith('.json'):
-            filepath += '.json'
+        if not filepath.endswith('.ipyg'):
+            filepath += '.ipyg'
         with open(filepath, 'w', encoding='utf-8') as file:
             file.write(json.dumps(self.serialize(), indent=4))
         print(f"Successfully saved scene at {filepath}")
 
-    def load(self, filepath:str='scene.json'):
-        if filepath.endswith('.json'):
+    def load(self, filepath:str='scene.ipyg'):
+        if filepath.endswith('.ipyg'):
             data = self.load_from_json(filepath)
         else:
             extention_format = filepath.split('.')[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
         self.deserialize(data)
+        self.history.checkpoint("Loaded scene")
 
     def load_from_json(self, filepath:str):
         with open(filepath, 'r', encoding='utf-8') as file:

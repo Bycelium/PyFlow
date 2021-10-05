@@ -48,5 +48,8 @@ if __name__ == '__main__':
         )
         wnd.scene.addItem(edge)
 
+    wnd.scene.save()
+    wnd.scene.load()
+
     wnd.show()
     sys.exit(app.exec_())

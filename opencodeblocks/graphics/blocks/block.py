@@ -48,6 +48,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
         self.resizing = False
+        self.moved = False
         self.metadata = {
             'title_metadata': {
                 'color': title_color,
@@ -131,6 +132,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.sockets_in.remove(socket)
         else:
             self.sockets_out.remove(socket)
+        socket.remove()
         self.update_sockets()
 
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
@@ -144,6 +146,9 @@ class OCBBlock(QGraphicsItem, Serializable):
     def mouseReleaseEvent(self, event:QGraphicsSceneMouseEvent):
         self.resizing = False
         QApplication.restoreOverrideCursor()
+        if self.moved:
+            self.moved = False
+            self.scene().history.checkpoint("Moved block")
         super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):
@@ -156,6 +161,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.update()
         else:
             super().mouseMoveEvent(event)
+            self.moved = True
 
     def setTitleGraphics(self, color:str, font:str, size:int, padding:float):
         self.title_graphics.setDefaultTextColor(QColor(color))
@@ -167,7 +173,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         scene = self.scene()
         for socket in self.sockets_in + self.sockets_out:
             self.remove_socket(socket)
-            socket.remove()
         if scene is not None:
             scene.removeItem(self)
 

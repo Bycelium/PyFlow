@@ -62,7 +62,6 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.remove_from_socket('destination')
 
     def remove(self):
-        self.remove_from_sockets()
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
@@ -125,5 +124,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.id = data['id']
         self.path_type = data['path_type']
         self.source_socket = hashmap[data['source']['socket']]
+        self.source_socket.add_edge(self)
         self.destination_socket = hashmap[data['destination']['socket']]
+        self.destination_socket.add_edge(self)
         self.update_path()

@@ -4,13 +4,17 @@
 """ Module for OCB Sockets """
 
 from __future__ import annotations
-from typing import Optional, OrderedDict
+from typing import Optional, OrderedDict, TYPE_CHECKING
 
 from PyQt5.QtCore import QPointF, QRectF
 from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
+
+if TYPE_CHECKING:
+    from opencodeblocks.graphics.edge import OCBEdge
+    from opencodeblocks.graphics.blocks.block import OCBBlock
 
 
 class OCBSocket(QGraphicsItem, Serializable):
@@ -36,12 +40,8 @@ class OCBSocket(QGraphicsItem, Serializable):
             'linecolor': linecolor,
         }
 
-    def add_edge(self, edge):
+    def add_edge(self, edge:'OCBEdge'):
         self.edges.append(edge)
-
-    def remove_edge(self, edge):
-        if edge in self.edges:
-            self.edges.remove(edge)
 
     def remove(self):
         for edge in self.edges:

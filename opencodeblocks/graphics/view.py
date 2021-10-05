@@ -3,8 +3,6 @@
 
 """ Module for the OCB View """
 
-
-
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent
 from PyQt5.QtWidgets import QGraphicsView
@@ -56,10 +54,14 @@ class OCBView(QGraphicsView):
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        if event.key() == Qt.Key.Key_Delete:
-            if self.mode != MODE_EDITING:
-                self.delete_selected()
-        elif event.key() == Qt.Key.Key_S and event.modifiers() & Qt.Modifier.CTRL:
+        if self.mode != MODE_EDITING:
+            if event.key() == Qt.Key.Key_Delete:
+                self.deleteSelected()
+            elif event.key() == Qt.Key.Key_Z and event.modifiers() & Qt.Modifier.CTRL:
+                self.scene().history.undo()
+            elif event.key() == Qt.Key.Key_Y and event.modifiers() & Qt.Modifier.CTRL:
+                self.scene().history.redo()
+        if event.key() == Qt.Key.Key_S and event.modifiers() & Qt.Modifier.CTRL:
             self.scene().save()
         elif event.key() == Qt.Key.Key_L and event.modifiers() & Qt.Modifier.CTRL:
             self.scene().load()
@@ -119,7 +121,7 @@ class OCBView(QGraphicsView):
 
     def wheelEvent(self, event: QWheelEvent):
         """ Handles zooming with mouse wheel """
-        if Qt.Modifier.CTRL == int(event.modifiers()):      
+        if Qt.Modifier.CTRL == int(event.modifiers()):
             # calculate zoom
             if event.angleDelta().y() > 0:
                 zoom_factor = self.zoom_step
@@ -132,10 +134,11 @@ class OCBView(QGraphicsView):
         else:
             super().wheelEvent(event)
 
-    def delete_selected(self):
+    def deleteSelected(self):
         scene = self.scene()
         for selected_item in scene.selectedItems():
             selected_item.remove()
+        scene.history.checkpoint("Delete selected")
 
     def drag_scene(self, event: QMouseEvent, action="press"):
         """ Drag the scene around. """
@@ -173,6 +176,7 @@ class OCBView(QGraphicsView):
                     item_at_click.add_edge(self.edge_drag)
                     self.edge_drag.destination_socket = item_at_click
                     self.edge_drag.update_path()
+                    self.scene().history.checkpoint("Created edge by dragging")
                 else:
                     self.edge_drag.remove_from_sockets()
                     self.scene().removeItem(self.edge_drag)
