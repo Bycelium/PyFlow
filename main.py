@@ -9,7 +9,7 @@ from qtpy.QtWidgets import QApplication
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock, OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.socket import OCBSocket
-from opencodeblocks.graphics.window import OCBWindow
+from opencodeblocks.graphics.widget import OCBWidget
 
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
 
-    wnd = OCBWindow()
+    wnd = OCBWidget()
 
     test_block = OCBBlock(title="Test Block with a very very very long long name")
     for _ in range(3):

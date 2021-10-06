@@ -9,7 +9,7 @@ from opencodeblocks import __appname__ as application_name
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.view import OCBView
 
-class OCBWindow(QWidget):
+class OCBWidget(QWidget):
 
     """ Window for the OCB application. """
 
