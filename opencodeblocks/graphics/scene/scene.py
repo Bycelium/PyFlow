@@ -82,17 +82,21 @@ class OCBScene(QGraphicsScene, Serializable):
         painter.setPen(pen)
         painter.drawLines(*lines_light)
 
-    def save(self, filepath:str='scene'):
+    def save(self, filepath:str):
         self.save_to_json(filepath)
 
     def save_to_json(self, filepath:str):
-        if not filepath.endswith('.ipyg'):
+        if '.' not in filepath:
             filepath += '.ipyg'
+
+        extention_format = filepath.split('.')[-1]
+        if extention_format != 'ipyg':
+            raise NotImplementedError(f"Unsupported format {extention_format}")
+
         with open(filepath, 'w', encoding='utf-8') as file:
             file.write(json.dumps(self.serialize(), indent=4))
-        print(f"Successfully saved scene at {filepath}")
 
-    def load(self, filepath:str='scene.ipyg'):
+    def load(self, filepath:str):
         if filepath.endswith('.ipyg'):
             data = self.load_from_json(filepath)
         else:
@@ -104,7 +108,6 @@ class OCBScene(QGraphicsScene, Serializable):
     def load_from_json(self, filepath:str):
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.loads(file.read())
-        print(f"Successfully loaded data from {filepath}")
         return data
 
     def serialize(self) -> OrderedDict:

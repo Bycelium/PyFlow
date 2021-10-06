@@ -43,6 +43,9 @@ class OCBSocket(QGraphicsItem, Serializable):
     def add_edge(self, edge:'OCBEdge'):
         self.edges.append(edge)
 
+    def remove_edge(self, edge:'OCBEdge'):
+        self.edges.remove(edge)
+
     def remove(self):
         for edge in self.edges:
             edge.remove()

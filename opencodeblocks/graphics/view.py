@@ -53,20 +53,6 @@ class OCBView(QGraphicsView):
         # Selection box
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        if self.mode != MODE_EDITING:
-            if event.key() == Qt.Key.Key_Delete:
-                self.deleteSelected()
-            elif event.key() == Qt.Key.Key_Z and event.modifiers() & Qt.Modifier.CTRL:
-                self.scene().history.undo()
-            elif event.key() == Qt.Key.Key_Y and event.modifiers() & Qt.Modifier.CTRL:
-                self.scene().history.redo()
-        if event.key() == Qt.Key.Key_S and event.modifiers() & Qt.Modifier.CTRL:
-            self.scene().save()
-        elif event.key() == Qt.Key.Key_L and event.modifiers() & Qt.Modifier.CTRL:
-            self.scene().load()
-        return super().keyPressEvent(event)
-
     def mousePressEvent(self, event: QMouseEvent):
         """Dispatch Qt's mousePress events to corresponding functions below"""
         if event.button() == Qt.MouseButton.MiddleButton:
