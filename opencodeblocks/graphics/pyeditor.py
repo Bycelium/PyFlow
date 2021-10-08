@@ -9,6 +9,8 @@ from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 
+from opencodeblocks.graphics.function_parsing import execute_function, extract_args
+
 
 class PythonEditor(QsciScintilla):
 
@@ -100,4 +102,28 @@ class PythonEditor(QsciScintilla):
         if self.isModified():
             self.block.source = self.text()
             self.setModified(False)
+        
+        # This is the part that parses and executes the code
+        # Predefine the args and kwargs here
+        args = ["'Hello'","10","[1,2,3]"]
+        kwargs = ["d='World'"]
+
+        print("")
+        print("args are: " + str(args))
+        print("kwargs are: " + str(kwargs))
+
+        code = str(self.text())
+        print("default args are: " + str(extract_args(code)))
+        print("")
+        print("Execution result:")
+        print(str(execute_function(code,args,kwargs)))
+
         return super().focusInEvent(event)
+
+"""
+Here is a test function:
+def test(a,b, c, d='Nope', e=20):
+    print(a + ' ' + d)
+    print(b + e)
+    return max(c)
+"""
