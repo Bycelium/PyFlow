@@ -1,3 +1,4 @@
 pyqt5>=5.15.4
 QtPy>=1.9.0
 qscintilla>=2.13.0
+Ipython>=7.27.0
