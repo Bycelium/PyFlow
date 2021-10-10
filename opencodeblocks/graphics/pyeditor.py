@@ -3,6 +3,7 @@
 
 """ Module for OCB in block python editor. """
 
+from typing import Any, Dict, List
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
@@ -99,31 +100,18 @@ class PythonEditor(QsciScintilla):
 
     def focusOutEvent(self, event: QFocusEvent):
         self.set_views_mode("MODE_NOOP")
-        if self.isModified():
-            self.block.source = self.text()
+
+        code = self.text()
+        if self.isModified() and code != self.block.source:
+            self.block.source = code
             self.setModified(False)
-        
-        # This is the part that parses and executes the code
-        # Predefine the args and kwargs here
-        args = ["'Hello'","10","[1,2,3]"]
-        kwargs = ["d='World'"]
 
-        print("")
-        print("args are: " + str(args))
-        print("kwargs are: " + str(kwargs))
+            args, kwargs = self.gatherBlockInputs()
+            self.output = execute_function(code, *args, **kwargs)
+            print(self.output)
+        return super().focusOutEvent(event)
 
-        code = str(self.text())
-        print("default args are: " + str(extract_args(code)))
-        print("")
-        print("Execution result:")
-        print(str(execute_function(code,args,kwargs)))
-
-        return super().focusInEvent(event)
-
-"""
-Here is a test function:
-def test(a,b, c, d='Nope', e=20):
-    print(a + ' ' + d)
-    print(b + e)
-    return max(c)
-"""
+    def gatherBlockInputs(self):
+        args = [2, 3]
+        kwargs = {"chicken": False}
+        return args, kwargs

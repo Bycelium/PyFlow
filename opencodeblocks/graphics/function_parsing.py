@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from IPython.testing.globalipapp import get_ipython
 from IPython.utils.io import capture_output
 ip = get_ipython()
@@ -72,24 +73,25 @@ def extract_args(code):
             break
     return sig[:kwarg_index], sig[kwarg_index:]
 
-def execute_function(code, args, kwargs):
+def execute_function(code:str, *args, **kwargs) -> str:
     """
-    Executes the function defined in code in an IPython shell and runs it fed by args and kwargs
-    Returns the execution result
-    :param cell: string containing Python code
-    :type cell: String
-    :return: execution result of function_in_code(args,kwargs)
-    :rtype: Execution Result
+    Executes the function defined in code in an IPython shell and runs it fed by args and kwargs.
+    Other arguments than the first are passed to the function when executing it.
+    Keyword arguments are passed to the function when executing it.
+
+    Args:
+        code: String representing the function code to execute.
+
+    Return:
+        String representing the output given by the IPython shell when executing the function.
+
     """
-    run_cell(code)
     function_name = get_function_name(code)
-    execution_code = function_name + "("
-    if len(args) == 0:
-        return run_cell(execution_code + ")")
+    execution_code = f'{function_name}('
     for arg in args:
-        execution_code += arg + ","
-    if len(kwargs) == 0:
-        return run_cell(execution_code[:-1] + ")")
-    for kwarg in kwargs:
-        execution_code += kwarg + ","
-    return run_cell(execution_code[:-1] + ")")
+        execution_code += f'{arg},'
+    for name, value in kwargs.items():
+        execution_code += f'{name}={value},'
+
+    run_cell(code)
+    return run_cell(execution_code + ')')

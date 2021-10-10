@@ -14,8 +14,10 @@ from opencodeblocks.graphics.window import OCBWindow
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))
 
 SOURCE_TEST = \
-'''def absolute_chicken(a, b):
+'''def absolute_chicken(a, b, chicken=False):
     """ Compute the absolute value of inputs difference. """
+    if chicken:
+        return 'chicken'
     if a > b:
         return a - b
     else:
