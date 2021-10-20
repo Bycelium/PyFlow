@@ -28,22 +28,9 @@ def get_function_name(code:str) -> str:
 
     Return:
         Name of first defined function
-
-    :param cell: string containing Python code
-    :type cell: String
-    :return: name of first defined function
-    :rtype: String
     """
-    start_of_name = 0
-    end_of_name = 0
-    for i in range(len(code)):
-        if code[i:i+3] == "def":
-            start_of_name = i+4
-            break
-    for i in range(start_of_name, len(code)):
-        if code[i] == "(":
-            end_of_name = i
-            break
+    start_of_name = code.index("def") + 4
+    end_of_name = code.index("(")
     return code[start_of_name:end_of_name]
 
 def get_signature(code:str) -> str:
@@ -66,7 +53,8 @@ def get_signature(code:str) -> str:
 def extract_args(code:str) -> tuple:
     """
     Returns the args and kwargs of a string of Python code defining a function
-    For example: for def hello(a,b,c=3) it returns (["a","b"],["c=3"])
+    Examples:
+        get_signature(def hello(a,b,c=3)) -> "(a,b,c=3)"
 
     Args:
         code: String containing Python code
@@ -75,12 +63,12 @@ def extract_args(code:str) -> tuple:
         (args, kwargs) of first defined function
 
     """
-    signature = get_signature(code)
-    signature_string = str(signature)
+    signature_string = get_signature(code)
+    # Remove parentheses
     signature_string = signature_string[1:-2]
+    signature_string = signature_string.replace(" ","")
     if signature_string == "":
         return ([], [])
-    signature_string = signature_string.replace(" ","")
     signature_couple = signature_string.split(",")
     kwarg_index = len(signature_couple)
     for i, item in enumerate(signature_couple):
