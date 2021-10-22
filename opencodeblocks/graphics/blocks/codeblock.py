@@ -3,7 +3,7 @@
 
 """ Module for the base OCB Code Block. """
 
-from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsSceneMouseEvent
+from PyQt5.QtWidgets import QGraphicsProxyWidget
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
