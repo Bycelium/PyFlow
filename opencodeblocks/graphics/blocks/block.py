@@ -220,8 +220,10 @@ class OCBBlock(QGraphicsItem, Serializable):
             ('sockets', [socket.serialize() for socket in self.sockets_in + self.sockets_out]),
         ])
 
-    def deserialize(self, data: dict, hashmap:dict=None) -> None:
-        for dataname in ('id', 'title', 'block_type', 'source', 'width', 'height'):
+    def deserialize(self, data: dict, hashmap:dict=None, restore_id=True) -> None:
+        if restore_id:
+            self.id = data['id']
+        for dataname in ('title', 'block_type', 'source', 'width', 'height'):
             setattr(self, dataname, data[dataname])
         self.setPos(QPointF(*data['position']))
         self.metadata = dict(data['metadata'])
@@ -229,6 +231,6 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         for socket_data in data['sockets']:
             socket = OCBSocket(block=self)
-            socket.deserialize(socket_data, hashmap)
+            socket.deserialize(socket_data, hashmap, restore_id)
             self.add_socket(socket)
             hashmap.update({socket_data['id']: socket})
