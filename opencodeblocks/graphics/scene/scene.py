@@ -15,6 +15,7 @@ from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.scene.clipboard import SceneClipboard
 from opencodeblocks.graphics.scene.history import SceneHistory
 
 
@@ -41,6 +42,8 @@ class OCBScene(QGraphicsScene, Serializable):
         self.setBackgroundBrush(self._background_color)
 
         self.history = SceneHistory(self)
+        self.clipboard = SceneClipboard(self)
+
     def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
         selected_blocks, selected_edges = [], []
         for item in self.selectedItems():

@@ -115,8 +115,11 @@ class OCBWindow(QMainWindow):
     def createEditmenu(self):
         """ Create the Edit menu with linked shortcuts. """
         editmenu = self.menubar.addMenu('&Edit')
-        self.addMenuAction(editmenu, '&Undo', self.onEditUndo, 'Undo last operation', 'Ctrl+Z')
+        self.addMenuAction(editmenu, '&Undo', self.onEditUndo,'Undo last operation', 'Ctrl+Z')
         self.addMenuAction(editmenu, '&Redo', self.onEditRedo, 'Redo last operation', 'Ctrl+Y')
+        self.addMenuAction(editmenu, 'Cu&t', self.onEditCut, 'Cut to clipboard', 'Ctrl+X')
+        self.addMenuAction(editmenu, '&Copy', self.onEditCopy, 'Copy to clipboard', 'Ctrl+C')
+        self.addMenuAction(editmenu, '&Paste', self.onEditPaste, 'Paste from clipboard', 'Ctrl+V')
         self.addMenuAction(editmenu, '&Del', self.onEditDelete, 'Delete selected items', 'Del')
 
     def onEditUndo(self):
@@ -127,7 +130,22 @@ class OCBWindow(QMainWindow):
     def onEditRedo(self):
         """ Redo last operation if not in edit mode. """
         if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.scene.history.undo()
+            self.ocb_widget.scene.history.redo()
+
+    def onEditCut(self):
+        """ Cut the selected items if not in edit mode. """
+        if self.ocb_widget.view.mode != MODE_EDITING:
+            self.ocb_widget.scene.clipboard.cut()
+
+    def onEditCopy(self):
+        """ Copy the selected items if not in edit mode. """
+        if self.ocb_widget.view.mode != MODE_EDITING:
+            self.ocb_widget.scene.clipboard.copy()
+
+    def onEditPaste(self):
+        """ Paste the selected items if not in edit mode. """
+        if self.ocb_widget.view.mode != MODE_EDITING:
+            self.ocb_widget.scene.clipboard.paste()
 
     def onEditDelete(self):
         """ Delete the selected items if not in edit mode. """
