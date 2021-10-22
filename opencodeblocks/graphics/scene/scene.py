@@ -5,7 +5,7 @@
 
 import math
 import json
-from typing import OrderedDict
+from typing import List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -41,6 +41,14 @@ class OCBScene(QGraphicsScene, Serializable):
         self.setBackgroundBrush(self._background_color)
 
         self.history = SceneHistory(self)
+    def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
+        selected_blocks, selected_edges = [], []
+        for item in self.selectedItems():
+            if isinstance(item, OCBBlock):
+                selected_blocks.append(item)
+            if isinstance(item, OCBEdge):
+                selected_edges.append(item)
+        return selected_blocks, selected_edges
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
         """ Draw the Scene background """
