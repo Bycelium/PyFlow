@@ -5,7 +5,7 @@
 
 import math
 import json
-from typing import OrderedDict
+from typing import List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -15,6 +15,7 @@ from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.scene.clipboard import SceneClipboard
 from opencodeblocks.graphics.scene.history import SceneHistory
 
 
@@ -41,6 +42,16 @@ class OCBScene(QGraphicsScene, Serializable):
         self.setBackgroundBrush(self._background_color)
 
         self.history = SceneHistory(self)
+        self.clipboard = SceneClipboard(self)
+
+    def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
+        selected_blocks, selected_edges = [], []
+        for item in self.selectedItems():
+            if isinstance(item, OCBBlock):
+                selected_blocks.append(item)
+            if isinstance(item, OCBEdge):
+                selected_edges.append(item)
+        return selected_blocks, selected_edges
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
         """ Draw the Scene background """
@@ -121,13 +132,16 @@ class OCBScene(QGraphicsScene, Serializable):
         blocks.sort(key=lambda x: x.id)
         edges.sort(key=lambda x: x.id)
         return OrderedDict([
+            ('id', self.id),
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
 
-    def deserialize(self, data: OrderedDict, hashmap:dict=None):
+    def deserialize(self, data: OrderedDict, hashmap:dict=None, restore_id=True):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
+        if restore_id:
+            self.id = data['id']
 
         # Create blocks
         for block_data in data['blocks']:
@@ -137,13 +151,13 @@ class OCBScene(QGraphicsScene, Serializable):
                 block = OCBCodeBlock()
             else:
                 raise NotImplementedError()
-            block.deserialize(block_data, hashmap)
+            block.deserialize(block_data, hashmap, restore_id)
             self.addItem(block)
             hashmap.update({block_data['id']: block})
 
         # Create edges
         for edge_data in data['edges']:
             edge = OCBEdge()
-            edge.deserialize(edge_data, hashmap)
+            edge.deserialize(edge_data, hashmap, restore_id)
             self.addItem(edge)
             hashmap.update({edge_data['id']: edge})

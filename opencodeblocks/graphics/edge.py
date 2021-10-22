@@ -120,8 +120,9 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             ]))
         ])
 
-    def deserialize(self, data: OrderedDict, hashmap: dict = None) -> None:
-        self.id = data['id']
+    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
+        if restore_id:
+            self.id = data['id']
         self.path_type = data['path_type']
         self.source_socket = hashmap[data['source']['socket']]
         self.source_socket.add_edge(self)

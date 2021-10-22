@@ -3,8 +3,8 @@
 
 """ Module for the OCB View """
 
-from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent
+from PyQt5.QtCore import QEvent, QPointF, Qt
+from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent
 from PyQt5.QtWidgets import QGraphicsView
 
 from opencodeblocks.graphics.scene import OCBScene
@@ -14,6 +14,12 @@ from opencodeblocks.graphics.edge import OCBEdge
 MODE_NOOP = 0
 MODE_EDGE_DRAG = 1
 MODE_EDITING = 2
+
+MODES = {
+    'MODE_NOOP': MODE_NOOP,
+    'MODE_EDGE_DRAG': MODE_EDGE_DRAG,
+    'MODE_EDITING': MODE_EDITING,
+}
 
 
 class OCBView(QGraphicsView):
@@ -28,6 +34,7 @@ class OCBView(QGraphicsView):
         self.zoom_step, self.zoom_min, self.zoom_max = zoom_step, zoom_min, zoom_max
 
         self.edge_drag = None
+        self.lastMousePos = QPointF(0, 0)
 
         self.init_ui()
         self.setScene(scene)
@@ -53,6 +60,9 @@ class OCBView(QGraphicsView):
         # Selection box
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
+    def scene(self) -> OCBScene:
+        return super().scene()
+
     def mousePressEvent(self, event: QMouseEvent):
         """Dispatch Qt's mousePress events to corresponding functions below"""
         if event.button() == Qt.MouseButton.MiddleButton:
@@ -65,6 +75,7 @@ class OCBView(QGraphicsView):
             super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        self.lastMousePos = self.mapToScene(event.pos())
         self.drag_edge(event, 'move')
         if event is not None:
             super().mouseMoveEvent(event)
@@ -124,7 +135,7 @@ class OCBView(QGraphicsView):
         scene = self.scene()
         for selected_item in scene.selectedItems():
             selected_item.remove()
-        scene.history.checkpoint("Delete selected")
+        scene.history.checkpoint("Delete selected elements")
 
     def drag_scene(self, event: QMouseEvent, action="press"):
         """ Drag the scene around. """
@@ -144,6 +155,7 @@ class OCBView(QGraphicsView):
     def drag_edge(self, event: QMouseEvent, action="press"):
         """ Create an edge by drag and drop. """
         item_at_click = self.itemAt(event.pos())
+        scene = self.scene()
         if action == "press":
             if isinstance(item_at_click, OCBSocket) and self.mode != MODE_EDGE_DRAG:
                 self.mode = MODE_EDGE_DRAG
@@ -152,7 +164,7 @@ class OCBView(QGraphicsView):
                     destination=self.mapToScene(event.pos())
                 )
                 item_at_click.add_edge(self.edge_drag)
-                self.scene().addItem(self.edge_drag)
+                scene.addItem(self.edge_drag)
                 return
         elif action == "release":
             if self.mode == MODE_EDGE_DRAG:
@@ -162,10 +174,10 @@ class OCBView(QGraphicsView):
                     item_at_click.add_edge(self.edge_drag)
                     self.edge_drag.destination_socket = item_at_click
                     self.edge_drag.update_path()
-                    self.scene().history.checkpoint("Created edge by dragging")
+                    scene.history.checkpoint("Created edge by dragging")
                 else:
                     self.edge_drag.remove_from_sockets()
-                    self.scene().removeItem(self.edge_drag)
+                    scene.removeItem(self.edge_drag)
                 self.edge_drag = None
                 self.mode = MODE_NOOP
         elif action == "move":
@@ -174,7 +186,7 @@ class OCBView(QGraphicsView):
         return event
 
     def set_mode(self, mode:str):
-        self.mode = eval(mode)
+        self.mode = MODES[mode]
 
     def is_mode(self, mode:str):
-        return self.mode == eval(mode)
+        return self.mode == MODES[mode]

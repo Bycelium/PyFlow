@@ -14,5 +14,5 @@ class Serializable():
     def serialize(self) -> OrderedDict:
         raise NotImplementedError()
 
-    def deserialize(self, data:OrderedDict, hashmap:dict=None) -> None:
+    def deserialize(self, data:OrderedDict, hashmap:dict=None, restore_id=True) -> None:
         raise NotImplementedError()

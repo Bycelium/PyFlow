@@ -73,8 +73,9 @@ class OCBSocket(QGraphicsItem, Serializable):
             ('metadata', metadata)
         ])
 
-    def deserialize(self, data: OrderedDict, hashmap: dict = None):
-        self.id = data['id']
+    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
+        if restore_id:
+            self.id = data['id']
         self.socket_type = data['type']
         self.setPos(QPointF(*data['position']))
 
