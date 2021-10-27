@@ -5,6 +5,7 @@
 
 import math
 import json
+from types import FunctionType
 from typing import List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF
@@ -41,8 +42,28 @@ class OCBScene(QGraphicsScene, Serializable):
         self.setSceneRect(-self.width//2, -self.height//2, self.width, self.height)
         self.setBackgroundBrush(self._background_color)
 
+        self._has_been_modified = False
+        self._has_been_modified_listeners = []
+
         self.history = SceneHistory(self)
         self.clipboard = SceneClipboard(self)
+
+    @property
+    def has_been_modified(self):
+        return self._has_been_modified
+    @has_been_modified.setter
+    def has_been_modified(self, value:bool):
+        if not self._has_been_modified and value:
+            self._has_been_modified = value
+
+            # Call listeners
+            for callback in self._has_been_modified_listeners:
+                callback()
+
+        self._has_been_modified = value
+
+    def addHasBeenModifiedListener(self, callback:FunctionType):
+        self._has_been_modified_listeners.append(callback)
 
     def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
         selected_blocks, selected_edges = [], []
@@ -94,9 +115,10 @@ class OCBScene(QGraphicsScene, Serializable):
         painter.drawLines(*lines_light)
 
     def save(self, filepath:str):
-        self.save_to_json(filepath)
+        self.save_to_ipyg(filepath)
+        self.has_been_modified = False
 
-    def save_to_json(self, filepath:str):
+    def save_to_ipyg(self, filepath:str):
         if '.' not in filepath:
             filepath += '.ipyg'
 
@@ -109,17 +131,22 @@ class OCBScene(QGraphicsScene, Serializable):
 
     def load(self, filepath:str):
         if filepath.endswith('.ipyg'):
-            data = self.load_from_json(filepath)
+            data = self.load_from_ipyg(filepath)
         else:
             extention_format = filepath.split('.')[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
         self.deserialize(data)
         self.history.checkpoint("Loaded scene")
+        self.has_been_modified = False
 
-    def load_from_json(self, filepath:str):
+    def load_from_ipyg(self, filepath:str):
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.loads(file.read())
         return data
+
+    def clear(self):
+        self.has_been_modified = False
+        return super().clear()
 
     def serialize(self) -> OrderedDict:
         blocks = []
