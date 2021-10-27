@@ -17,9 +17,12 @@ class OCBCodeBlock(OCBBlock):
     def init_source_editor(self):
         source_editor_graphics = QGraphicsProxyWidget(self)
         source_editor = PythonEditor(self)
-        source_editor.setGeometry(self.edge_size, self.edge_size + self.title_height,
-                                  self.width - 2*self.edge_size,
-                                  self.height - self.title_height - 2*self.edge_size)
+        source_editor.setGeometry(
+            int(self.edge_size),
+            int(self.edge_size + self.title_height),
+            int(self.width - 2*self.edge_size),
+            int(self.height - self.title_height - 2*self.edge_size)
+        )
         source_editor_graphics.setWidget(source_editor)
         source_editor_graphics.setZValue(-1)
         return source_editor_graphics
@@ -27,9 +30,12 @@ class OCBCodeBlock(OCBBlock):
     def update_all(self):
         if hasattr(self, 'source_editor'):
             editor_widget = self.source_editor.widget()
-            editor_widget.setGeometry(self.edge_size,
-                self.edge_size + self.title_height, self._width - 2*self.edge_size,
-                self.height - self.title_height - 2*self.edge_size)
+            editor_widget.setGeometry(
+                int(self.edge_size),
+                int(self.edge_size + self.title_height),
+                int(self._width - 2*self.edge_size),
+                int(self.height - self.title_height - 2*self.edge_size)
+            )
         super().update_all()
 
     @property
