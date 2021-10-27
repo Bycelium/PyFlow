@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QGraphicsView
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.blocks import OCBBlock
 
 MODE_NOOP = 0
 MODE_EDGE_DRAG = 1
@@ -35,6 +36,7 @@ class OCBView(QGraphicsView):
 
         self.edge_drag = None
         self.lastMousePos = QPointF(0, 0)
+        self.currentSelectedBlock = None
 
         self.init_ui()
         self.setScene(scene)
@@ -98,6 +100,7 @@ class OCBView(QGraphicsView):
         super().mouseReleaseEvent(event)
 
     def leftMouseButtonPress(self, event: QMouseEvent):
+        event = self.bring_forward(event)
         event = self.drag_edge(event, 'press')
         if event is not None:
             super().mousePressEvent(event)
@@ -137,6 +140,27 @@ class OCBView(QGraphicsView):
             selected_item.remove()
         scene.history.checkpoint("Delete selected elements", set_modified=True)
 
+    def bring_forward(self, event: QMouseEvent):
+        """ When a codeblock is selected, it will be drawn in front of other blocks """
+        scene = self.scene()
+        item_at_click = self.itemAt(event.pos())
+        if item_at_click is None:
+            return event
+
+        while item_at_click.parentItem() is not None:
+            if isinstance(item_at_click,OCBBlock):
+                break
+            item_at_click = item_at_click.parentItem()
+
+        if isinstance(item_at_click, OCBBlock):
+            if self.currentSelectedBlock is not None:
+                self.currentSelectedBlock.setZValue(0)
+            item_at_click.setZValue(1)
+            self.currentSelectedBlock = item_at_click
+
+        return event # This is never considered as a handling of the event.
+
+
     def drag_scene(self, event: QMouseEvent, action="press"):
         """ Drag the scene around. """
         if action == "press":
@@ -168,7 +192,6 @@ class OCBView(QGraphicsView):
                 return
         elif action == "release":
             if self.mode == MODE_EDGE_DRAG:
-                item_at_click = self.itemAt(event.pos())
                 if isinstance(item_at_click, OCBSocket) and \
                         item_at_click is not self.edge_drag.source_socket:
                     item_at_click.add_edge(self.edge_drag)
