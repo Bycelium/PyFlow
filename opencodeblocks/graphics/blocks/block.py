@@ -3,17 +3,22 @@
 
 """ Module for the base OCB Block. """
 
-from typing import Optional, OrderedDict, Tuple
+from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
-from PyQt5.QtWidgets import QGraphicsItem,QGraphicsSceneMouseEvent, QGraphicsTextItem, \
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsTextItem, \
     QStyleOptionGraphicsItem, QWidget, QApplication
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
 
+if TYPE_CHECKING:
+    from opencodeblocks.graphics.scene.scene import OCBScene
+
+
 class OCBBlock(QGraphicsItem, Serializable):
+
     def __init__(self, title:str='New block', block_type:str='base', source:str='',
             position:tuple=(0, 0), title_color:str='white', title_font:str="Ubuntu",
             title_size:int=10, title_padding=4.0, parent: Optional['QGraphicsItem']=None):
@@ -57,6 +62,9 @@ class OCBBlock(QGraphicsItem, Serializable):
                 'padding': title_padding,
             },
         }
+
+    def scene(self) -> 'OCBScene':
+        return super().scene()
 
     def boundingRect(self) -> QRectF:
         return QRectF(0, 0, self.width, self.height).normalized()
@@ -144,11 +152,13 @@ class OCBBlock(QGraphicsItem, Serializable):
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event:QGraphicsSceneMouseEvent):
+        if self.resizing:
+            self.scene().history.checkpoint("Resized block", set_modified=True)
         self.resizing = False
         QApplication.restoreOverrideCursor()
         if self.moved:
             self.moved = False
-            self.scene().history.checkpoint("Moved block")
+            self.scene().history.checkpoint("Moved block", set_modified=True)
         super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):

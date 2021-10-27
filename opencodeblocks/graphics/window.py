@@ -6,8 +6,9 @@
 import os
 from types import FunctionType
 from typing import Optional
+from PyQt5.QtCore import QEvent
 
-from PyQt5.QtWidgets import QAction, QFileDialog, QMainWindow, QMenu
+from PyQt5.QtWidgets import QAction, QFileDialog, QMainWindow, QMenu, QMessageBox
 
 from opencodeblocks import __appname__ as application_name
 from opencodeblocks.graphics.view import MODE_EDITING
@@ -27,6 +28,8 @@ class OCBWindow(QMainWindow):
 
     def __init__(self, width:int=800, height:int=600, x_offset:int=0, y_offset:int=0) -> None:
         super().__init__()
+        # Cached save path
+        self._savepath = None
 
         # Menus
         self.menubar = self.menuBar()
@@ -38,15 +41,33 @@ class OCBWindow(QMainWindow):
 
         # OCB Widget
         self.ocb_widget = OCBWidget(self)
+        self.ocb_widget.scene.addHasBeenModifiedListener(self.changeTitle)
         self.setCentralWidget(self.ocb_widget)
 
         # Window properties
         self.setGeometry(x_offset, y_offset, width, height)
-        self.setWindowTitle(application_name)
+        self.changeTitle()
         self.show()
 
-        # Cached save path
-        self.savepath = None
+    @property
+    def savepath(self):
+        """ Current cached file save path. Update window title when set."""
+        return self._savepath
+    @savepath.setter
+    def savepath(self, value:str):
+        self._savepath = value
+        self.changeTitle()
+
+    def changeTitle(self):
+        """ Update the window title. """
+        title = f"{application_name} - "
+        if self.savepath is None:
+            title += 'New'
+        else:
+            title += os.path.basename(self.savepath)
+        if self.isModified():
+            title += "*"
+        self.setWindowTitle(title)
 
     def addMenuAction(self, menu:QMenu, name:str, trigger_func:FunctionType,
             tooltip:Optional[str]=None, shortcut:Optional[str]=None):
@@ -82,35 +103,48 @@ class OCBWindow(QMainWindow):
 
     def onFileNew(self):
         """ Create a new file. """
-        self.ocb_widget.scene.clear()
-        self.savepath = None
+        if self.maybeSave():
+            self.ocb_widget.scene.clear()
+            self.savepath = None
 
     def onFileOpen(self):
         """ Open a file. """
-        filename, _ = QFileDialog.getOpenFileName(self, 'Open ipygraph from file')
-        if filename == '':
-            return
-        if os.path.isfile(filename):
-            self.ocb_widget.scene.load(filename)
-            self.statusbar.showMessage(f"Successfully loaded {filename}")
+        if self.maybeSave():
+            filename, _ = QFileDialog.getOpenFileName(self, 'Open ipygraph from file')
+            if filename == '':
+                return
+            if os.path.isfile(filename):
+                self.ocb_widget.scene.load(filename)
+                self.statusbar.showMessage(f"Successfully loaded {filename}")
+                self.savepath = filename
 
-    def onFileSave(self):
-        """ Save file. """
+    def onFileSave(self) -> bool:
+        """ Save file.
+
+        Returns:
+            True if the file was successfully saved, False otherwise.
+
+        """
         if self.savepath is None:
-            self.onFileSaveAs()
-        if self.savepath is None:
-            return
+            return self.onFileSaveAs()
         self.ocb_widget.scene.save(self.savepath)
         self.statusbar.showMessage(f"Successfully saved ipygraph {self.savepath}")
+        return True
 
-    def onFileSaveAs(self):
-        """ Save file in a given directory, caching savepath for quick save. """
+    def onFileSaveAs(self) -> bool:
+        """ Save file in a given directory, caching savepath for quick save.
+
+        Returns:
+            True if the file was successfully saved, False otherwise.
+
+        """
         filename, _ = QFileDialog.getSaveFileName(self, 'Save ipygraph to file')
         if filename == '':
-            return
+            return False
         if os.path.isfile(filename):
             self.savepath = filename
         self.onFileSave()
+        return True
 
     def createEditmenu(self):
         """ Create the Edit menu with linked shortcuts. """
@@ -152,7 +186,35 @@ class OCBWindow(QMainWindow):
         if self.ocb_widget.view.mode != MODE_EDITING:
             self.ocb_widget.view.deleteSelected()
 
-    def close(self) -> bool:
+    def closeEvent(self, event:QEvent):
         """ Save and quit the application. """
-        self.onFileSave()
-        return super().close()
+        if self.maybeSave():
+            event.accept()
+        else:
+            event.ignore()
+
+    def isModified(self) -> bool:
+        return self.centralWidget().scene.has_been_modified
+
+    def maybeSave(self) -> bool:
+        """ Ask for save and returns if the file should be closed.
+
+        Returns:
+            True if the file should be closed, False otherwise.
+
+        """
+        if not self.isModified():
+            return True
+
+        answer = QMessageBox.warning(self, "About to loose you work?",
+            "The file has been modified.\n Do you want to save your changes?",
+            QMessageBox.StandardButton.Save |
+            QMessageBox.StandardButton.Discard |
+            QMessageBox.StandardButton.Cancel
+        )
+
+        if answer == QMessageBox.StandardButton.Save:
+            return self.onFileSave()
+        if answer == QMessageBox.StandardButton.Discard:
+            return True
+        return False

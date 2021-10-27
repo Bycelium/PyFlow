@@ -135,7 +135,7 @@ class OCBView(QGraphicsView):
         scene = self.scene()
         for selected_item in scene.selectedItems():
             selected_item.remove()
-        scene.history.checkpoint("Delete selected elements")
+        scene.history.checkpoint("Delete selected elements", set_modified=True)
 
     def drag_scene(self, event: QMouseEvent, action="press"):
         """ Drag the scene around. """
@@ -174,7 +174,7 @@ class OCBView(QGraphicsView):
                     item_at_click.add_edge(self.edge_drag)
                     self.edge_drag.destination_socket = item_at_click
                     self.edge_drag.update_path()
-                    scene.history.checkpoint("Created edge by dragging")
+                    scene.history.checkpoint("Created edge by dragging", set_modified=True)
                 else:
                     self.edge_drag.remove_from_sockets()
                     scene.removeItem(self.edge_drag)

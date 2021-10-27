@@ -14,6 +14,7 @@ from opencodeblocks.graphics.edge import OCBEdge
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.scene import OCBScene
+    from opencodeblocks.graphics.view import OCBView
 
 
 class SceneClipboard():
@@ -26,6 +27,18 @@ class SceneClipboard():
 
     def __init__(self, scene:'OCBScene'):
         self.scene = scene
+
+    def views(self) -> 'OCBView':
+        return super().views()
+
+    def cut(self):
+        self._store(self._serializeSelected(delete=True))
+
+    def copy(self):
+        self._store(self._serializeSelected(delete=False))
+
+    def paste(self):
+        self._deserializeData(self._gatherData())
 
     def _serializeSelected(self, delete=False) -> OrderedDict:
         selected_blocks, selected_edges = self.scene.sortedSelectedItems()
@@ -98,7 +111,7 @@ class SceneClipboard():
             self.scene.addItem(edge)
             hashmap.update({edge_data['id']: edge})
 
-        self.scene.history.checkpoint('Desiralized elements into scene')
+        self.scene.history.checkpoint('Desiralized elements into scene', set_modified=True)
 
     def _store(self, data:OrderedDict):
         str_data = json.dumps(data, indent=4)
@@ -111,12 +124,3 @@ class SceneClipboard():
         except ValueError as valueerror:
             warn(f"Clipboard text could not be loaded into json data: {valueerror}")
             return
-
-    def cut(self):
-        self._store(self._serializeSelected(delete=True))
-
-    def copy(self):
-        self._store(self._serializeSelected(delete=False))
-
-    def paste(self):
-        self._deserializeData(self._gatherData())
