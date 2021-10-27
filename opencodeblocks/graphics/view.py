@@ -36,6 +36,7 @@ class OCBView(QGraphicsView):
 
         self.edge_drag = None
         self.lastMousePos = QPointF(0, 0)
+        self.currentSelectedBlock = None
 
         self.init_ui()
         self.setScene(scene)
@@ -139,19 +140,24 @@ class OCBView(QGraphicsView):
             selected_item.remove()
         scene.history.checkpoint("Delete selected elements")
 
-    def bring_forward(self, event: QMouseEvent, action="press"):
-        """ When a codeblock is selected, it will be drawn in front of other blocks"""
+    def bring_forward(self, event: QMouseEvent):
+        """ When a codeblock is selected, it will be drawn in front of other blocks """
         scene = self.scene()
         item_at_click = self.itemAt(event.pos())
+        if item_at_click is None:
+            return event
 
-        while item_at_click.parentItem() != None:
+        while item_at_click.parentItem() is not None:
+            if isinstance(item_at_click,OCBBlock):
+                break
             item_at_click = item_at_click.parentItem()
 
         if isinstance(item_at_click, OCBBlock):
-            for item in scene.items():
-                if isinstance(item,OCBBlock):
-                    item.setZValue(0)
-                item_at_click.setZValue(1)
+            if self.currentSelectedBlock is not None:
+                self.currentSelectedBlock.setZValue(0)
+            item_at_click.setZValue(1)
+            self.currentSelectedBlock = item_at_click
+
         return event # This is never considered as a handling of the event.
 
 
