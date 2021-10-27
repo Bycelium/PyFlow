@@ -30,7 +30,7 @@ class OCBSocket(QGraphicsItem, Serializable):
 
         self.radius = radius
         self._pen = QPen(QColor(linecolor))
-        self._pen.setWidth(linewidth)
+        self._pen.setWidth(int(linewidth))
         self._brush = QBrush(QColor(color))
 
         self.metadata = {
@@ -58,7 +58,7 @@ class OCBSocket(QGraphicsItem, Serializable):
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
-        painter.drawEllipse(-r, -r, 2*r, 2*r)
+        painter.drawEllipse(int(-r),int(-r),int(2*r),int(2*r))
 
     def boundingRect(self) -> QRectF:
         r = self.radius
@@ -81,5 +81,5 @@ class OCBSocket(QGraphicsItem, Serializable):
 
         self.metadata = dict(data['metadata'])
         self._pen.setColor(QColor(self.metadata['linecolor']))
-        self._pen.setWidth(self.metadata['linewidth'])
+        self._pen.setWidth(int(self.metadata['linewidth']))
         self._brush.setColor(QColor(self.metadata['color']))
