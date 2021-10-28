@@ -6,6 +6,7 @@
 from PyQt5.QtCore import QEvent, QPointF, Qt
 from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent
 from PyQt5.QtWidgets import QGraphicsView
+from sip import isdeleted
 
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
@@ -142,7 +143,6 @@ class OCBView(QGraphicsView):
 
     def bring_forward(self, event: QMouseEvent):
         """ When a codeblock is selected, it will be drawn in front of other blocks """
-        scene = self.scene()
         item_at_click = self.itemAt(event.pos())
         if item_at_click is None:
             return event
@@ -153,7 +153,7 @@ class OCBView(QGraphicsView):
             item_at_click = item_at_click.parentItem()
 
         if isinstance(item_at_click, OCBBlock):
-            if self.currentSelectedBlock is not None:
+            if self.currentSelectedBlock is not None and not isdeleted(self.currentSelectedBlock):
                 self.currentSelectedBlock.setZValue(0)
             item_at_click.setZValue(1)
             self.currentSelectedBlock = item_at_click
