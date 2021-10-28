@@ -43,4 +43,4 @@ If you are interested in contributing to the project, see [CONTRIBUTING.md](CONT
 
 ## License
 
-See [LICENSE.md](LICENSE.md)
+See [LICENSE](LICENSE)
