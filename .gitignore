@@ -123,3 +123,6 @@ dmypy.json
 
 # VSCode
 .vscode
+
+# Sublime text
+*.sublime-workspace
