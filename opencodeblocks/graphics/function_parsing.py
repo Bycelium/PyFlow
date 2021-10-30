@@ -130,6 +130,3 @@ def execute_function(code: str, *args, **kwargs) -> str:
 
     run_cell(code)
     return run_cell(execution_code + ')')
-
-
-print(execute_function("def function(a,b,c=10):\n return a+b+c", 10, 5))
