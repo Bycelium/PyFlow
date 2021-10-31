@@ -1,24 +1,11 @@
 from typing import Any, Dict
-from IPython.testing.globalipapp import get_ipython
-from IPython.utils.io import capture_output
-ip = get_ipython()
+from opencodeblocks.graphics.kernel import Kernel
+
+kernel = Kernel()
 
 
 def run_cell(cell: str):
-    """
-    Executes a string of code in an IPython shell and returns the execution result
-
-    Args:
-        cell: String containing Python code
-
-    Return:
-        Execution result of cell
-
-    """
-    with capture_output() as io:
-        _ = ip.run_cell(cell)
-    res_out = io.stdout
-    return res_out
+    return kernel.execute(cell)
 
 
 def get_function_name(code: str) -> str:
