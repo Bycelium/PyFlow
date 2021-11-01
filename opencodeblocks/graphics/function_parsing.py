@@ -1,3 +1,6 @@
+
+""" Module for code parsing and code execution """
+
 from typing import Any, Dict
 from opencodeblocks.graphics.kernel import Kernel
 
@@ -5,7 +8,34 @@ kernel = Kernel()
 
 
 def run_cell(cell: str):
+    """
+    Executes a piece of Python code in an ipython kernel, returns its last output
+
+    Args:
+        cell: String containing Python code
+
+    Return:
+        output in the last message sent by the kernel
+    """
     return kernel.execute(cell)
+
+
+def run_with_variable_output(cell: str):
+    """
+    This is a proof of concept to show that it is possible 
+    to collect a variable output from a kernel execution
+
+    Here the kernel executes the code and prints the output repeatedly
+    For example: if cell="model.fit(...)", this would print the progress bar progressing
+
+    Args:
+        cell: String containing Python code
+    """
+    kernel.client.execute(cell)
+    done = False
+    while done == False:
+        output, done = kernel.update_output()
+        print(output)
 
 
 def get_function_name(code: str) -> str:
