@@ -1,13 +1,13 @@
 
 """ Module for code parsing and code execution """
 
-from typing import Any, Dict
+from typing import List, Tuple
 from opencodeblocks.graphics.kernel import Kernel
 
 kernel = Kernel()
 
 
-def run_cell(cell: str):
+def run_cell(cell: str) -> str:
     """
     Executes a piece of Python code in an ipython kernel, returns its last output
 
@@ -20,7 +20,7 @@ def run_cell(cell: str):
     return kernel.execute(cell)
 
 
-def run_with_variable_output(cell: str):
+def run_with_variable_output(cell: str) -> None:
     """
     This is a proof of concept to show that it is possible 
     to collect a variable output from a kernel execution
@@ -77,7 +77,7 @@ def get_signature(code: str) -> str:
     return run_cell(f"print(signature({name}))")
 
 
-def find_kwarg_index(signature_couple):
+def find_kwarg_index(signature_couple: List[str]) -> int:
     """
     Returns the index delimiting the args and kwargs in a list of arguments
     Examples:
@@ -99,7 +99,7 @@ def find_kwarg_index(signature_couple):
     return kwarg_index
 
 
-def extract_args(code: str) -> tuple:
+def extract_args(code: str) -> Tuple[List[str], List[str]]:
     """
     Returns the args and kwargs of a string of Python code defining a function
     Examples:

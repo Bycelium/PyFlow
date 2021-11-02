@@ -2,6 +2,7 @@
 """ Module to create and manage ipython kernels """
 
 import queue
+from typing import Tuple
 from jupyter_client.manager import start_new_kernel
 
 
@@ -10,7 +11,7 @@ class Kernel():
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
 
-    def message_to_output(self, message: dict):
+    def message_to_output(self, message: dict) -> str:
         """
         Converts a message sent by the kernel into a relevant output
 
@@ -37,7 +38,7 @@ class Kernel():
             out = ''
         return out
 
-    def execute(self, code: str):
+    def execute(self, code: str) -> str:
         """
         Executes code in the kernel and returns the output of the last message sent by the kernel in return
 
@@ -65,7 +66,7 @@ class Kernel():
 
         return self.message_to_output(message)
 
-    def update_output(self):
+    def update_output(self) -> Tuple[str, bool]:
         """
         Returns the current output of the kernel
 
