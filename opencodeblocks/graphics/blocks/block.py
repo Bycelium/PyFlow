@@ -19,9 +19,29 @@ if TYPE_CHECKING:
 
 class OCBBlock(QGraphicsItem, Serializable):
 
-    def __init__(self, title:str='New block', block_type:str='base', source:str='',
-            position:tuple=(0, 0), title_color:str='white', title_font:str="Ubuntu",
+    """ Base class for blocks in OpenCodeBlocks. """
+
+    def __init__(self, block_type:str='base', source:str='', position:tuple=(0, 0),
+            width:int=300, height:int=200, edge_size:float=10.0,
+            title:str='New block', title_color:str='white', title_font:str="Ubuntu",
             title_size:int=10, title_padding=4.0, parent: Optional['QGraphicsItem']=None):
+        """ Base class for blocks in OpenCodeBlocks.
+
+        Args:
+            block_type: Block type.
+            source: Block source text.
+            position: Block position in the scene.
+            width: Block width.
+            height: Block height.
+            edge_size: Block edges size.
+            title: Block title.
+            title_color: Color of the block title.
+            title_font: Font of the block title.
+            title_size: Size of the block title.
+            title_padding: Padding of the block title.
+            parent: Parent of the block.
+
+        """
         QGraphicsItem.__init__(self, parent=parent)
         Serializable.__init__(self)
 
@@ -34,9 +54,9 @@ class OCBBlock(QGraphicsItem, Serializable):
         self._min_width = 300
         self._min_height = 100
 
-        self.width = 300
-        self.height = 200
-        self.edge_size = 10.0
+        self.width = width
+        self.height = height
+        self.edge_size = edge_size
 
         self.title_height = 3 * title_size
         self.title_graphics = QGraphicsTextItem(self)
@@ -64,13 +84,17 @@ class OCBBlock(QGraphicsItem, Serializable):
         }
 
     def scene(self) -> 'OCBScene':
+        """ Get the current OCBScene containing the block. """
         return super().scene()
 
     def boundingRect(self) -> QRectF:
+        """ Get the the block bounding box. """
         return QRectF(0, 0, self.width, self.height).normalized()
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
-            widget: Optional[QWidget]=None) -> None:
+    def paint(self, painter: QPainter,
+            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
+            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
+        """ Paint the block. """
         # title
         path_title = QPainterPath()
         path_title.setFillRule(Qt.FillRule.WindingFill)
@@ -105,10 +129,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         painter.drawPath(path_outline.simplified())
 
     def _is_in_resize_area(self, pos:QPointF):
+        """ Return True if the given position is in the block resize_area. """
         return self.width - pos.x() < 2 * self.edge_size \
             and self.height - pos.y() < 2 * self.edge_size
 
     def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
+        """ Get a socket position to place them on the block sides. """
         if socket.socket_type == 'input':
             x = 0
             sockets = self.sockets_in
@@ -125,10 +151,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         return x, y
 
     def update_sockets(self):
+        """ Update the sockets positions. """
         for socket in self.sockets_in + self.sockets_out:
             socket.setPos(*self.get_socket_pos(socket))
 
     def add_socket(self, socket:OCBSocket):
+        """ Add a socket to the block. """
         if socket.socket_type == 'input':
             self.sockets_in.append(socket)
         else:
@@ -136,6 +164,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.update_sockets()
 
     def remove_socket(self, socket:OCBSocket):
+        """ Remove a socket from the block. """
         if socket.socket_type == 'input':
             self.sockets_in.remove(socket)
         else:
@@ -144,6 +173,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.update_sockets()
 
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
+        """ OCBBlock reaction to a mousePressEvent. """
         pos = event.pos()
         if self._is_in_resize_area(pos) and event.buttons() == Qt.MouseButton.LeftButton:
             self.resize_start = pos
@@ -152,6 +182,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event:QGraphicsSceneMouseEvent):
+        """ OCBBlock reaction to a mouseReleaseEvent. """
         if self.resizing:
             self.scene().history.checkpoint("Resized block", set_modified=True)
         self.resizing = False
@@ -162,6 +193,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):
+        """ OCBBlock reaction to a mouseMoveEvent. """
         if self.resizing:
             delta = event.pos() - self.resize_start
             self.width = max(self.width + delta.x(), self._min_width)
@@ -174,12 +206,22 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.moved = True
 
     def setTitleGraphics(self, color:str, font:str, size:int, padding:float):
+        """ Set the title graphics.
+
+        Args:
+            color: title color.
+            font: title font.
+            size: title size.
+            padding: title padding.
+
+        """
         self.title_graphics.setDefaultTextColor(QColor(color))
         self.title_graphics.setFont(QFont(font, size))
         self.title_graphics.setPos(padding, 0)
         self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
 
     def remove(self):
+        """ Remove the block from the scene containing it. """
         scene = self.scene()
         for socket in self.sockets_in + self.sockets_out:
             self.remove_socket(socket)
@@ -187,12 +229,14 @@ class OCBBlock(QGraphicsItem, Serializable):
             scene.removeItem(self)
 
     def update_all(self):
+        """ Update sockets and title. """
         self.update_sockets()
         if hasattr(self, 'title_graphics'):
             self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
 
     @property
     def title(self):
+        """ Block title. """
         return self._title
     @title.setter
     def title(self, value:str):
@@ -202,6 +246,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     @property
     def width(self):
+        """ Block width. """
         return self._width
     @width.setter
     def width(self, value:float):
@@ -210,6 +255,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     @property
     def height(self):
+        """ Block height. """
         return self._height
     @height.setter
     def height(self, value:float):

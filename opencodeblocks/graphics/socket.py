@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 
 class OCBSocket(QGraphicsItem, Serializable):
 
-    """ Socket base class for OpenCodeBlocks. """
+    """ Base class for sockets in OpenCodeBlocks. """
 
     def __init__(self, block:'OCBBlock', socket_type:str='undefined', radius:float=6.0,
             color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
-        """ Socket base class for OpenCodeBlocks.
+        """ Base class for sockets in OpenCodeBlocks.
 
         Args:
             block: Block containing the socket.
