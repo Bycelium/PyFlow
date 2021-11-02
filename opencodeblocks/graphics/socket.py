@@ -19,8 +19,21 @@ if TYPE_CHECKING:
 
 class OCBSocket(QGraphicsItem, Serializable):
 
+    """ Socket base class for OpenCodeBlocks. """
+
     def __init__(self, block:'OCBBlock', socket_type:str='undefined', radius:float=6.0,
             color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
+        """ Socket base class for OpenCodeBlocks.
+
+        Args:
+            block: Block containing the socket.
+            socket_type: Type of the socket.
+            radius: Radius of the socket graphics.
+            color: Color of the socket graphics.
+            linewidth: Linewidth of the socket graphics.
+            linecolor: Linecolor of the socket graphics.
+
+        """
         Serializable.__init__(self)
         self.block = block
         QGraphicsItem.__init__(self, parent=self.block)
@@ -41,26 +54,33 @@ class OCBSocket(QGraphicsItem, Serializable):
         }
 
     def add_edge(self, edge:'OCBEdge'):
+        """ Add a given edge to the socket edges. """
         self.edges.append(edge)
 
     def remove_edge(self, edge:'OCBEdge'):
+        """ Remove a given edge from the socket edges. """
         self.edges.remove(edge)
 
     def remove(self):
+        """ Remove the socket and all its edges from the scene it is in. """
         for edge in self.edges:
             edge.remove()
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
+    def paint(self, painter: QPainter,
+            option: QStyleOptionGraphicsItem,
             widget: Optional[QWidget]=None):
+        """ Paint the socket. """
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
         painter.drawEllipse(int(-r),int(-r),int(2*r),int(2*r))
+        super().paint(painter, option, widget)
 
     def boundingRect(self) -> QRectF:
+        """ Get the socket bounding box. """
         r = self.radius
         return QRectF(-r, -r, 2*r, 2*r)
 
