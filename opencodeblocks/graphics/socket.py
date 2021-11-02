@@ -70,14 +70,13 @@ class OCBSocket(QGraphicsItem, Serializable):
             scene.removeItem(self)
 
     def paint(self, painter: QPainter,
-            option: QStyleOptionGraphicsItem,
-            widget: Optional[QWidget]=None):
+            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
+            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
         """ Paint the socket. """
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
         painter.drawEllipse(int(-r),int(-r),int(2*r),int(2*r))
-        super().paint(painter, option, widget)
 
     def boundingRect(self) -> QRectF:
         """ Get the socket bounding box. """
