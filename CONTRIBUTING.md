@@ -39,7 +39,7 @@ You should also start your commit message with one or two applicable emoji. This
  Emoji           | Description
 -----------------|-------------
 :tada: `:tada:`  | When you add a cool new feature
-:bug: `:bug:`    | When you fixed a bug
+:bug: `:beetle:`    | When you fixed a bug
 :fire: `:fire:`  | When you removed something
 :truck: `:truck:`| When you moved/renamed something
 :wrench: `:wrench:`     | When you improved/refactored a small piece of code
