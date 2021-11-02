@@ -16,11 +16,28 @@ from opencodeblocks.graphics.socket import OCBSocket
 
 
 class OCBEdge(QGraphicsPathItem, Serializable):
-    def __init__(self, path_type='bezier', edge_color="#001000", edge_selected_color="#00ff00",
-            edge_width:float=4.0,
+
+    """ Base class for directed edges in OpenCodeBlocks. """
+
+    def __init__(self, edge_width:float=4.0, path_type='bezier',
+            edge_color="#001000", edge_selected_color="#00ff00",
             source:QPointF=QPointF(0, 0), destination:QPointF=QPointF(0, 0),
             source_socket:OCBSocket=None, destination_socket:OCBSocket=None
         ):
+        """ Base class for edges in OpenCodeBlocks.
+
+        Args:
+            edge_width: Width of the edge.
+            path_type: Type of path, one of ('direct', 'bezier').
+            edge_color: Color of the edge.
+            edge_selected_color: Color of the edge when it is selected.
+            source: Source point of the directed edge.
+            destination: Destination point of the directed edge.
+            source_socket: Source socket of the directed edge, overrides source.
+            destination_socket: Destination socket of the directed edge, overrides destination.
+
+        """
+
         Serializable.__init__(self)
         QGraphicsPathItem.__init__(self, parent=None)
         self._pen = QPen(QColor(edge_color))
@@ -51,6 +68,12 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.updateSocketsPosition()
 
     def remove_from_socket(self, socket_type='source'):
+        """ Remove the edge from the sockets it is snaped to on the given socket_type.
+
+        Args:
+            socket_type: One of ('source', 'destination').
+
+        """
         socket_name = f'{socket_type}_socket'
         socket = getattr(self, socket_name, OCBSocket)
         if socket is not None:
@@ -58,15 +81,18 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             setattr(self, socket_name, None)
 
     def remove_from_sockets(self):
+        """ Remove the edge from all sockets it is snaped to. """
         self.remove_from_socket('source')
         self.remove_from_socket('destination')
 
     def remove(self):
+        """ Remove the edge from the scene in which it is drawn. """
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
 
     def updateSocketsPosition(self):
+        """ Update source and destination based on the sockets the edge is snaped to. """
         if self.source_socket is not None:
             self.source = self.source_socket.scenePos()
         if self.destination_socket is not None:
@@ -74,13 +100,16 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
     def paint(self, painter:QPainter,
             option: QStyleOptionGraphicsItem, widget: Optional[QWidget]=None):
+        """ Paint the edge. """
         self.update_path()
         pen = self._pen_dragging if self.destination_socket is None else self._pen
         painter.setPen(self._pen_selected if self.isSelected() else pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
+        super().paint(painter, option, widget)
 
     def update_path(self):
+        """ Update the edge path depending on the path_type. """
         self.updateSocketsPosition()
         path = QPainterPath(self.source)
         if self.path_type == 'direct':
@@ -96,6 +125,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
     @property
     def destination(self):
+        """ Destination point of the directed edge. """
         return self._destination
     @destination.setter
     def destination(self, value):
