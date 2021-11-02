@@ -113,7 +113,6 @@ def extract_args(code: str) -> tuple:
 
     """
     signature_string = get_signature(code)
-    print(signature_string)
     # Remove parentheses
     signature_string = signature_string[1:-2]
     signature_string = signature_string.replace(" ", "")
@@ -121,7 +120,6 @@ def extract_args(code: str) -> tuple:
         return ([], [])
     signature_list = signature_string.split(",")
     kwarg_index = find_kwarg_index(signature_list)
-    print(kwarg_index)
     return signature_list[:kwarg_index], signature_list[kwarg_index:]
 
 
