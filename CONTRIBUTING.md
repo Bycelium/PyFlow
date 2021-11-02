@@ -2,7 +2,7 @@
 
 [![Pytest badge](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml/badge.svg?branch=master)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml) [![Pylint badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_pylint_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-pylint.yml) [![Unit coverage badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_unit_coverage_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml) [![Integration coverage badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_integration_coverage_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml)
 
-Whenever you encounter a :bug: **bug** or have :tada: **feature request**, 
+Whenever you encounter a :beetle: **bug** or have :tada: **feature request**, 
 report this via [GitHub issues](https://github.com/MathisFederico/OpenCodeBlocks/issues).
 
 We are happy to receive contributions in the form of **pull requests** via GitHub.
@@ -39,7 +39,7 @@ You should also start your commit message with one or two applicable emoji. This
  Emoji           | Description
 -----------------|-------------
 :tada: `:tada:`  | When you add a cool new feature
-:bug: `:bug:`    | When you fixed a bug
+:beetle: `:beetle:`    | When you fixed a bug
 :fire: `:fire:`  | When you removed something
 :truck: `:truck:`| When you moved/renamed something
 :wrench: `:wrench:`     | When you improved/refactored a small piece of code

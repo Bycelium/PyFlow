@@ -194,6 +194,7 @@ class OCBWindow(QMainWindow):
             event.ignore()
 
     def isModified(self) -> bool:
+        """ Return True if the scene has been modified, False otherwise. """
         return self.centralWidget().scene.has_been_modified
 
     def maybeSave(self) -> bool:

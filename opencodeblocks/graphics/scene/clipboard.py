@@ -18,26 +18,28 @@ if TYPE_CHECKING:
 
 
 class SceneClipboard():
-    """ Helper object to handle clipboard operations on an OCBScene.
 
-    Args:
-        scene: Scene reference.
-
-    """
+    """ Helper object to handle clipboard operations on an OCBScene. """
 
     def __init__(self, scene:'OCBScene'):
+        """ Helper object to handle clipboard operations on an OCBScene.
+
+        Args:
+            scene: Scene reference.
+
+        """
         self.scene = scene
 
-    def views(self) -> 'OCBView':
-        return super().views()
-
     def cut(self):
+        """ Cut the selected items and put them into clipboard. """
         self._store(self._serializeSelected(delete=True))
 
     def copy(self):
+        """ Copy the selected items into clipboard. """
         self._store(self._serializeSelected(delete=False))
 
     def paste(self):
+        """ Paste the items in clipboard into the current scene. """
         self._deserializeData(self._gatherData())
 
     def _serializeSelected(self, delete=False) -> OrderedDict:
