@@ -10,11 +10,14 @@ from opencodeblocks.graphics.pyeditor import PythonEditor
 
 class OCBCodeBlock(OCBBlock):
 
+    """ Code Block. """
+
     def __init__(self, **kwargs):
         super().__init__(block_type='code', **kwargs)
         self.source_editor = self.init_source_editor()
 
     def init_source_editor(self):
+        """ Initialize the python source code editor. """
         source_editor_graphics = QGraphicsProxyWidget(self)
         source_editor = PythonEditor(self)
         source_editor.setGeometry(
@@ -28,6 +31,7 @@ class OCBCodeBlock(OCBBlock):
         return source_editor_graphics
 
     def update_all(self):
+        """ Update the code block parts. """
         if hasattr(self, 'source_editor'):
             editor_widget = self.source_editor.widget()
             editor_widget.setGeometry(
@@ -39,7 +43,8 @@ class OCBCodeBlock(OCBBlock):
         super().update_all()
 
     @property
-    def source(self):
+    def source(self) -> str:
+        """ Source code. """
         return self._source
     @source.setter
     def source(self, value:str):
