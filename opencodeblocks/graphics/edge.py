@@ -55,17 +55,11 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
         self.path_type = path_type
 
-        self.source = source
-        self._destination = destination
-
         self.source_socket = source_socket
         self.destination_socket = destination_socket
-        if self.source_socket is not None:
-            self.source_socket.add_edge(self)
-        if self.destination_socket is not None:
-            self.destination_socket.add_edge(self)
 
-        self.updateSocketsPosition()
+        self._source = source
+        self.destination = destination
 
     def remove_from_socket(self, socket_type='source'):
         """ Remove the edge from the sockets it is snaped to on the given socket_type.
@@ -89,28 +83,21 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         """ Remove the edge from the scene in which it is drawn. """
         scene = self.scene()
         if scene is not None:
+            self.remove_from_sockets()
             scene.removeItem(self)
 
-    def updateSocketsPosition(self):
-        """ Update source and destination based on the sockets the edge is snaped to. """
-        if self.source_socket is not None:
-            self.source = self.source_socket.scenePos()
-        if self.destination_socket is not None:
-            self._destination = self.destination_socket.scenePos()
-
     def paint(self, painter:QPainter,
-            option: QStyleOptionGraphicsItem, widget: Optional[QWidget]=None):
+            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
+            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
         """ Paint the edge. """
         self.update_path()
         pen = self._pen_dragging if self.destination_socket is None else self._pen
         painter.setPen(self._pen_selected if self.isSelected() else pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
-        super().paint(painter, option, widget)
 
     def update_path(self):
         """ Update the edge path depending on the path_type. """
-        self.updateSocketsPosition()
         path = QPainterPath(self.source)
         if self.path_type == 'direct':
             path.lineTo(self.destination)
@@ -124,13 +111,46 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.setPath(path)
 
     @property
-    def destination(self):
+    def source(self) -> QPointF:
+        """ Source point of the directed edge. """
+        if self.source_socket is not None:
+            return self.source_socket.scenePos()
+        return self._source
+    @source.setter
+    def source(self, value:QPointF):
+        self._source = value
+        self.update_path()
+
+    @property
+    def destination(self) -> QPointF:
         """ Destination point of the directed edge. """
+        if self.destination_socket is not None:
+            return self.destination_socket.scenePos()
         return self._destination
     @destination.setter
-    def destination(self, value):
+    def destination(self, value:QPointF):
         self._destination = value
         self.update_path()
+
+    @property
+    def destination_socket(self) -> OCBSocket:
+        """ Destination socket of the directed edge. """
+        return self._destination_socket
+    @destination_socket.setter
+    def destination_socket(self, value:OCBSocket):
+        self._destination_socket = value
+        if value is not None:
+            self.destination_socket.add_edge(self)
+
+    @property
+    def source_socket(self) -> OCBSocket:
+        """ Source socket of the directed edge. """
+        return self._source_socket
+    @source_socket.setter
+    def source_socket(self, value:OCBSocket):
+        self._source_socket = value
+        if value is not None:
+            self.source_socket.add_edge(self)
 
     def serialize(self) -> OrderedDict:
         return OrderedDict([

@@ -193,26 +193,25 @@ class OCBView(QGraphicsView):
         item_at_click = self.itemAt(event.pos())
         scene = self.scene()
         if action == "press":
-            if isinstance(item_at_click, OCBSocket) and self.mode != MODE_EDGE_DRAG:
+            if isinstance(item_at_click, OCBSocket) \
+                    and self.mode != MODE_EDGE_DRAG\
+                    and item_at_click.socket_type != 'input':
                 self.mode = MODE_EDGE_DRAG
                 self.edge_drag = OCBEdge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos())
                 )
-                item_at_click.add_edge(self.edge_drag)
                 scene.addItem(self.edge_drag)
                 return
         elif action == "release":
             if self.mode == MODE_EDGE_DRAG:
-                if isinstance(item_at_click, OCBSocket) and \
-                        item_at_click is not self.edge_drag.source_socket:
-                    item_at_click.add_edge(self.edge_drag)
+                if isinstance(item_at_click, OCBSocket) \
+                        and item_at_click is not self.edge_drag.source_socket \
+                        and item_at_click.socket_type != 'output':
                     self.edge_drag.destination_socket = item_at_click
-                    self.edge_drag.update_path()
                     scene.history.checkpoint("Created edge by dragging", set_modified=True)
                 else:
-                    self.edge_drag.remove_from_sockets()
-                    scene.removeItem(self.edge_drag)
+                    self.edge_drag.remove()
                 self.edge_drag = None
                 self.mode = MODE_NOOP
         elif action == "move":
