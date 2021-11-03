@@ -49,7 +49,7 @@ class Kernel():
             output from the last message sent by the kernel in return
         """
         _ = self.client.execute(code)
-        io_msg_content = []
+        io_msg_content = {}
         if 'execution_state' in io_msg_content and io_msg_content['execution_state'] == 'idle':
             return "no output"
 
