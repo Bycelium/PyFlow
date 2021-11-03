@@ -27,7 +27,7 @@ class OCBSocket(QGraphicsItem, Serializable):
 
         Args:
             block: Block containing the socket.
-            socket_type: Type of the socket.
+            socket_type: Type of the socket, one of ('undefined', 'input', 'output').
             radius: Radius of the socket graphics.
             color: Color of the socket graphics.
             linewidth: Linewidth of the socket graphics.
@@ -55,6 +55,9 @@ class OCBSocket(QGraphicsItem, Serializable):
 
     def add_edge(self, edge:'OCBEdge'):
         """ Add a given edge to the socket edges. """
+        if not self._allow_multiple_edges:
+            for prev_edge in self.edges:
+                prev_edge.remove()
         self.edges.append(edge)
 
     def remove_edge(self, edge:'OCBEdge'):
@@ -68,6 +71,10 @@ class OCBSocket(QGraphicsItem, Serializable):
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
+
+    @property
+    def _allow_multiple_edges(self):
+        return self.socket_type != 'input'
 
     def paint(self, painter: QPainter,
             option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
