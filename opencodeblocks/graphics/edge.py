@@ -59,7 +59,8 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.destination_socket = destination_socket
 
         self._source = source
-        self.destination = destination
+        self._destination = destination
+        self.update_path()
 
     def remove_from_socket(self, socket_type='source'):
         """ Remove the edge from the sockets it is snaped to on the given socket_type.
@@ -119,28 +120,10 @@ class OCBEdge(QGraphicsPathItem, Serializable):
     @source.setter
     def source(self, value:QPointF):
         self._source = value
-        self.update_path()
-
-    @property
-    def destination(self) -> QPointF:
-        """ Destination point of the directed edge. """
-        if self.destination_socket is not None:
-            return self.destination_socket.scenePos()
-        return self._destination
-    @destination.setter
-    def destination(self, value:QPointF):
-        self._destination = value
-        self.update_path()
-
-    @property
-    def destination_socket(self) -> OCBSocket:
-        """ Destination socket of the directed edge. """
-        return self._destination_socket
-    @destination_socket.setter
-    def destination_socket(self, value:OCBSocket):
-        self._destination_socket = value
-        if value is not None:
-            self.destination_socket.add_edge(self)
+        try:
+            self.update_path()
+        except AttributeError:
+            pass
 
     @property
     def source_socket(self) -> OCBSocket:
@@ -151,6 +134,32 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self._source_socket = value
         if value is not None:
             self.source_socket.add_edge(self)
+            self.source = value.scenePos()
+
+    @property
+    def destination(self) -> QPointF:
+        """ Destination point of the directed edge. """
+        if self.destination_socket is not None:
+            return self.destination_socket.scenePos()
+        return self._destination
+    @destination.setter
+    def destination(self, value:QPointF):
+        self._destination = value
+        try:
+            self.update_path()
+        except AttributeError:
+            pass
+
+    @property
+    def destination_socket(self) -> OCBSocket:
+        """ Destination socket of the directed edge. """
+        return self._destination_socket
+    @destination_socket.setter
+    def destination_socket(self, value:OCBSocket):
+        self._destination_socket = value
+        if value is not None:
+            self.destination_socket.add_edge(self)
+            self.destination = value.scenePos()
 
     def serialize(self) -> OrderedDict:
         return OrderedDict([
