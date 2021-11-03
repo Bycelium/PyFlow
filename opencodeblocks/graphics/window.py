@@ -322,11 +322,14 @@ class OCBWindow(QMainWindow):
         size = settings.value('size', QSize(400, 400))
         self.move(pos)
         self.resize(size)
+        if settings.value('isMaximized', False) == 'true':
+            self.showMaximized()
 
     def writeSettings(self):
         settings = QSettings('AutopIA', 'OpenCodeBlocks')
         settings.setValue('pos', self.pos())
         settings.setValue('size', self.size())
+        settings.setValue('isMaximized', self.isMaximized())
 
     def setActiveSubWindow(self, window):
         if window:
