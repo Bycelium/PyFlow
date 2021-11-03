@@ -3,20 +3,29 @@
 
 """ Module for OCB in block python editor. """
 
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
+from opencodeblocks.graphics.function_parsing import execute_function
 
-from opencodeblocks.graphics.function_parsing import execute_function, extract_args
-
+if TYPE_CHECKING:
+    from opencodeblocks.graphics.view import OCBView
 
 class PythonEditor(QsciScintilla):
 
-    def __init__(self, block:OCBBlock, parent=None):
-        super().__init__(parent)
+    """ In-block python editor for OpenCodeBlocks. """
+
+    def __init__(self, block:OCBBlock):
+        """ In-block python editor for OpenCodeBlocks.
+
+        Args:
+            block: Block in which to add the python editor widget.
+
+        """
+        super().__init__(None)
         self.block = block
         self.setText(self.block.source)
 
@@ -89,16 +98,23 @@ class PythonEditor(QsciScintilla):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
+    def views(self) -> List['OCBView']:
+        """ Get the views in which the python_editor is present. """
+        return self.graphicsProxyWidget().scene().views()
+
     def set_views_mode(self, mode:str):
-        for view in self.graphicsProxyWidget().scene().views():
+        """ Set the views in which the python_editor is present to editing mode. """
+        for view in self.views():
             if mode == "MODE_EDITING" or view.is_mode("MODE_EDITING"):
                 view.set_mode(mode)
 
     def focusInEvent(self, event: QFocusEvent):
+        """ PythonEditor reaction to PyQt focusIn events. """
         self.set_views_mode("MODE_EDITING")
         return super().focusInEvent(event)
 
     def focusOutEvent(self, event: QFocusEvent):
+        """ PythonEditor reaction to PyQt focusOut events. """
         self.set_views_mode("MODE_NOOP")
 
         code = self.text()

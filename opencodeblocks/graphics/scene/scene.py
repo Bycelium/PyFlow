@@ -5,7 +5,8 @@
 
 import math
 import json
-from typing import OrderedDict
+from types import FunctionType
+from typing import List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -15,6 +16,7 @@ from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.scene.clipboard import SceneClipboard
 from opencodeblocks.graphics.scene.history import SceneHistory
 
 
@@ -40,7 +42,40 @@ class OCBScene(QGraphicsScene, Serializable):
         self.setSceneRect(-self.width//2, -self.height//2, self.width, self.height)
         self.setBackgroundBrush(self._background_color)
 
+        self._has_been_modified = False
+        self._has_been_modified_listeners = []
+
         self.history = SceneHistory(self)
+        self.clipboard = SceneClipboard(self)
+
+    @property
+    def has_been_modified(self):
+        """ True if the scene has been modified, False otherwise. """
+        return self._has_been_modified
+    @has_been_modified.setter
+    def has_been_modified(self, value:bool):
+        if not self._has_been_modified and value:
+            self._has_been_modified = value
+
+            # Call listeners
+            for callback in self._has_been_modified_listeners:
+                callback()
+
+        self._has_been_modified = value
+
+    def addHasBeenModifiedListener(self, callback:FunctionType):
+        """ Add a callback that will trigger when the scene has been modified. """
+        self._has_been_modified_listeners.append(callback)
+
+    def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
+        """ Returns the selected blocks and selected edges in two separate lists. """
+        selected_blocks, selected_edges = [], []
+        for item in self.selectedItems():
+            if isinstance(item, OCBBlock):
+                selected_blocks.append(item)
+            if isinstance(item, OCBEdge):
+                selected_edges.append(item)
+        return selected_blocks, selected_edges
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
         """ Draw the Scene background """
@@ -83,9 +118,12 @@ class OCBScene(QGraphicsScene, Serializable):
         painter.drawLines(*lines_light)
 
     def save(self, filepath:str):
-        self.save_to_json(filepath)
+        """ Save the scene into filepath. """
+        self.save_to_ipyg(filepath)
+        self.has_been_modified = False
 
-    def save_to_json(self, filepath:str):
+    def save_to_ipyg(self, filepath:str):
+        """ Save the scene into filepath as interactive python graph (.ipyg). """
         if '.' not in filepath:
             filepath += '.ipyg'
 
@@ -97,18 +135,36 @@ class OCBScene(QGraphicsScene, Serializable):
             file.write(json.dumps(self.serialize(), indent=4))
 
     def load(self, filepath:str):
+        """ Load a saved scene.
+
+        Args:
+            filepath: Path to the file to load.
+
+        """
         if filepath.endswith('.ipyg'):
-            data = self.load_from_json(filepath)
+            data = self.load_from_ipyg(filepath)
         else:
             extention_format = filepath.split('.')[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
         self.deserialize(data)
         self.history.checkpoint("Loaded scene")
+        self.has_been_modified = False
 
-    def load_from_json(self, filepath:str):
+    def load_from_ipyg(self, filepath:str):
+        """ Load an interactive python graph (.ipyg) into the scene.
+
+        Args:
+            filepath: Path to the .ipyg file to load.
+
+        """
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.loads(file.read())
         return data
+
+    def clear(self):
+        """ Clear the scene from all items. """
+        self.has_been_modified = False
+        return super().clear()
 
     def serialize(self) -> OrderedDict:
         blocks = []
@@ -121,13 +177,16 @@ class OCBScene(QGraphicsScene, Serializable):
         blocks.sort(key=lambda x: x.id)
         edges.sort(key=lambda x: x.id)
         return OrderedDict([
+            ('id', self.id),
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
 
-    def deserialize(self, data: OrderedDict, hashmap:dict=None):
+    def deserialize(self, data: OrderedDict, hashmap:dict=None, restore_id=True):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
+        if restore_id:
+            self.id = data['id']
 
         # Create blocks
         for block_data in data['blocks']:
@@ -137,13 +196,13 @@ class OCBScene(QGraphicsScene, Serializable):
                 block = OCBCodeBlock()
             else:
                 raise NotImplementedError()
-            block.deserialize(block_data, hashmap)
+            block.deserialize(block_data, hashmap, restore_id)
             self.addItem(block)
             hashmap.update({block_data['id']: block})
 
         # Create edges
         for edge_data in data['edges']:
             edge = OCBEdge()
-            edge.deserialize(edge_data, hashmap)
+            edge.deserialize(edge_data, hashmap, restore_id)
             self.addItem(edge)
             hashmap.update({edge_data['id']: edge})

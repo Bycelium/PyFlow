@@ -19,8 +19,21 @@ if TYPE_CHECKING:
 
 class OCBSocket(QGraphicsItem, Serializable):
 
+    """ Base class for sockets in OpenCodeBlocks. """
+
     def __init__(self, block:'OCBBlock', socket_type:str='undefined', radius:float=6.0,
             color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
+        """ Base class for sockets in OpenCodeBlocks.
+
+        Args:
+            block: Block containing the socket.
+            socket_type: Type of the socket, one of ('undefined', 'input', 'output').
+            radius: Radius of the socket graphics.
+            color: Color of the socket graphics.
+            linewidth: Linewidth of the socket graphics.
+            linecolor: Linecolor of the socket graphics.
+
+        """
         Serializable.__init__(self)
         self.block = block
         QGraphicsItem.__init__(self, parent=self.block)
@@ -30,7 +43,7 @@ class OCBSocket(QGraphicsItem, Serializable):
 
         self.radius = radius
         self._pen = QPen(QColor(linecolor))
-        self._pen.setWidth(linewidth)
+        self._pen.setWidth(int(linewidth))
         self._brush = QBrush(QColor(color))
 
         self.metadata = {
@@ -41,26 +54,39 @@ class OCBSocket(QGraphicsItem, Serializable):
         }
 
     def add_edge(self, edge:'OCBEdge'):
+        """ Add a given edge to the socket edges. """
+        if not self._allow_multiple_edges:
+            for prev_edge in self.edges:
+                prev_edge.remove()
         self.edges.append(edge)
 
     def remove_edge(self, edge:'OCBEdge'):
+        """ Remove a given edge from the socket edges. """
         self.edges.remove(edge)
 
     def remove(self):
+        """ Remove the socket and all its edges from the scene it is in. """
         for edge in self.edges:
             edge.remove()
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem,
-            widget: Optional[QWidget]=None):
+    @property
+    def _allow_multiple_edges(self):
+        return self.socket_type != 'input'
+
+    def paint(self, painter: QPainter,
+            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
+            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
+        """ Paint the socket. """
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
-        painter.drawEllipse(-r, -r, 2*r, 2*r)
+        painter.drawEllipse(int(-r),int(-r),int(2*r),int(2*r))
 
     def boundingRect(self) -> QRectF:
+        """ Get the socket bounding box. """
         r = self.radius
         return QRectF(-r, -r, 2*r, 2*r)
 
@@ -73,12 +99,13 @@ class OCBSocket(QGraphicsItem, Serializable):
             ('metadata', metadata)
         ])
 
-    def deserialize(self, data: OrderedDict, hashmap: dict = None):
-        self.id = data['id']
+    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
+        if restore_id:
+            self.id = data['id']
         self.socket_type = data['type']
         self.setPos(QPointF(*data['position']))
 
         self.metadata = dict(data['metadata'])
         self._pen.setColor(QColor(self.metadata['linecolor']))
-        self._pen.setWidth(self.metadata['linewidth'])
+        self._pen.setWidth(int(self.metadata['linewidth']))
         self._brush.setColor(QColor(self.metadata['color']))

@@ -3,7 +3,6 @@
 
 """ Module for the handling an OCBScene history. """
 
-from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -37,11 +36,12 @@ class SceneHistory():
             self.current += 1
             self.restore()
 
-    def checkpoint(self, description:str):
+    def checkpoint(self, description:str, set_modified=True):
         """ Store a snapshot of the scene in the history stack.
 
         Args:
             description: Description given to this checkpoint.
+            set_modified: Whether the scene should be considered modified.
 
         """
         history_stamp = {
@@ -49,6 +49,8 @@ class SceneHistory():
             'snapshot': self.scene.serialize()
         }
         self.store(history_stamp)
+        if set_modified:
+            self.scene.has_been_modified = True
 
     def store(self, data:Any):
         """ Store new data in the history stack, updating current checkpoint.

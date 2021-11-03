@@ -3,17 +3,25 @@
 
 """ Module for the OCB View """
 
-from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent
+from PyQt5.QtCore import QEvent, QPointF, Qt
+from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent
 from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.sip import isdeleted
 
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.blocks import OCBBlock
 
 MODE_NOOP = 0
 MODE_EDGE_DRAG = 1
 MODE_EDITING = 2
+
+MODES = {
+    'MODE_NOOP': MODE_NOOP,
+    'MODE_EDGE_DRAG': MODE_EDGE_DRAG,
+    'MODE_EDITING': MODE_EDITING,
+}
 
 
 class OCBView(QGraphicsView):
@@ -28,6 +36,8 @@ class OCBView(QGraphicsView):
         self.zoom_step, self.zoom_min, self.zoom_max = zoom_step, zoom_min, zoom_max
 
         self.edge_drag = None
+        self.lastMousePos = QPointF(0, 0)
+        self.currentSelectedBlock = None
 
         self.init_ui()
         self.setScene(scene)
@@ -53,8 +63,12 @@ class OCBView(QGraphicsView):
         # Selection box
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
+    def scene(self) -> OCBScene:
+        """ Get current OCBScene. """
+        return super().scene()
+
     def mousePressEvent(self, event: QMouseEvent):
-        """Dispatch Qt's mousePress events to corresponding functions below"""
+        """ Dispatch Qt's mousePress events to corresponding functions below. """
         if event.button() == Qt.MouseButton.MiddleButton:
             self.middleMouseButtonPress(event)
         elif event.button() == Qt.MouseButton.LeftButton:
@@ -63,11 +77,6 @@ class OCBView(QGraphicsView):
             self.rightMouseButtonPress(event)
         else:
             super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        self.drag_edge(event, 'move')
-        if event is not None:
-            super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         """Dispatch Qt's mouseRelease events to corresponding functions below"""
@@ -80,33 +89,58 @@ class OCBView(QGraphicsView):
         else:
             super().mouseReleaseEvent(event)
 
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """ OCBView reaction to mouseMoveEvent. """
+        self.lastMousePos = self.mapToScene(event.pos())
+        self.drag_edge(event, 'move')
+        if event is not None:
+            super().mouseMoveEvent(event)
+
     def middleMouseButtonPress(self, event: QMouseEvent):
+        """ OCBView reaction to middleMouseButtonPress event. """
         super().mousePressEvent(event)
 
     def middleMouseButtonRelease(self, event: QMouseEvent):
+        """ OCBView reaction to middleMouseButtonRelease event. """
         super().mouseReleaseEvent(event)
 
     def leftMouseButtonPress(self, event: QMouseEvent):
+        """ OCBView reaction to leftMouseButtonPress event. """
+        # If clicked on a block, bring it forward.
+        item_at_click = self.itemAt(event.pos())
+        if item_at_click is not None:
+            while item_at_click.parentItem() is not None:
+                if isinstance(item_at_click,OCBBlock):
+                    break
+                item_at_click = item_at_click.parentItem()
+
+            if isinstance(item_at_click, OCBBlock):
+                self.bring_block_forward(item_at_click)
+
+        # If clicked on a socket, start dragging an edge.
         event = self.drag_edge(event, 'press')
         if event is not None:
             super().mousePressEvent(event)
 
     def leftMouseButtonRelease(self, event: QMouseEvent):
+        """ OCBView reaction to leftMouseButtonRelease event. """
         event = self.drag_edge(event, 'release')
         if event is not None:
             super().mouseReleaseEvent(event)
 
     def rightMouseButtonPress(self, event: QMouseEvent):
+        """ OCBView reaction to rightMouseButtonPress event. """
         event = self.drag_scene(event, "press")
         super().mousePressEvent(event)
 
     def rightMouseButtonRelease(self, event: QMouseEvent):
+        """ OCBView reaction to rightMouseButtonRelease event. """
         event = self.drag_scene(event, "release")
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
     def wheelEvent(self, event: QWheelEvent):
-        """ Handles zooming with mouse wheel """
+        """ Handles zooming with mouse wheel events. """
         if Qt.Modifier.CTRL == int(event.modifiers()):
             # calculate zoom
             if event.angleDelta().y() > 0:
@@ -121,10 +155,23 @@ class OCBView(QGraphicsView):
             super().wheelEvent(event)
 
     def deleteSelected(self):
+        """ Delete selected items from the current scene. """
         scene = self.scene()
         for selected_item in scene.selectedItems():
             selected_item.remove()
-        scene.history.checkpoint("Delete selected")
+        scene.history.checkpoint("Delete selected elements", set_modified=True)
+
+    def bring_block_forward(self, block: OCBBlock):
+        """ Move the selected block in front of other blocks.
+
+        Args:
+            block: Block to bring forward.
+
+        """
+        if self.currentSelectedBlock is not None and not isdeleted(self.currentSelectedBlock):
+            self.currentSelectedBlock.setZValue(0)
+        block.setZValue(1)
+        self.currentSelectedBlock = block
 
     def drag_scene(self, event: QMouseEvent, action="press"):
         """ Drag the scene around. """
@@ -144,28 +191,27 @@ class OCBView(QGraphicsView):
     def drag_edge(self, event: QMouseEvent, action="press"):
         """ Create an edge by drag and drop. """
         item_at_click = self.itemAt(event.pos())
+        scene = self.scene()
         if action == "press":
-            if isinstance(item_at_click, OCBSocket) and self.mode != MODE_EDGE_DRAG:
+            if isinstance(item_at_click, OCBSocket) \
+                    and self.mode != MODE_EDGE_DRAG\
+                    and item_at_click.socket_type != 'input':
                 self.mode = MODE_EDGE_DRAG
                 self.edge_drag = OCBEdge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos())
                 )
-                item_at_click.add_edge(self.edge_drag)
-                self.scene().addItem(self.edge_drag)
+                scene.addItem(self.edge_drag)
                 return
         elif action == "release":
             if self.mode == MODE_EDGE_DRAG:
-                item_at_click = self.itemAt(event.pos())
-                if isinstance(item_at_click, OCBSocket) and \
-                        item_at_click is not self.edge_drag.source_socket:
-                    item_at_click.add_edge(self.edge_drag)
+                if isinstance(item_at_click, OCBSocket) \
+                        and item_at_click is not self.edge_drag.source_socket \
+                        and item_at_click.socket_type != 'output':
                     self.edge_drag.destination_socket = item_at_click
-                    self.edge_drag.update_path()
-                    self.scene().history.checkpoint("Created edge by dragging")
+                    scene.history.checkpoint("Created edge by dragging", set_modified=True)
                 else:
-                    self.edge_drag.remove_from_sockets()
-                    self.scene().removeItem(self.edge_drag)
+                    self.edge_drag.remove()
                 self.edge_drag = None
                 self.mode = MODE_NOOP
         elif action == "move":
@@ -174,7 +220,19 @@ class OCBView(QGraphicsView):
         return event
 
     def set_mode(self, mode:str):
-        self.mode = eval(mode)
+        """ Change the view mode.
+
+        Args:
+            mode: Mode key to change to, must in present in knowed MODES.
+
+        """
+        self.mode = MODES[mode]
 
     def is_mode(self, mode:str):
-        return self.mode == eval(mode)
+        """ Return True if the view is in the given mode.
+
+        Args:
+            mode: Mode key to compare to, must in present in knowed MODES.
+
+        """
+        return self.mode == MODES[mode]
