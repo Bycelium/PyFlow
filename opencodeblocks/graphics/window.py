@@ -229,8 +229,7 @@ class OCBWindow(QMainWindow):
             filename, _ = QFileDialog.getSaveFileName(self, 'Save ipygraph to file')
             if filename == '':
                 return False
-            if os.path.isfile(filename):
-                current_window.savepath = filename
+            current_window.savepath = filename
             self.onFileSave()
             return True
         return False
