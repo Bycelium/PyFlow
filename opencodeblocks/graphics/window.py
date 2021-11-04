@@ -23,8 +23,12 @@ class OCBWindow(QMainWindow):
         super().__init__()
 
         self.mdiArea = QMdiArea()
-        self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.mdiArea.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setViewMode(QMdiArea.ViewMode.TabbedView)
+        self.mdiArea.setDocumentMode(True)
+        self.mdiArea.setTabsMovable(True)
+        self.mdiArea.setTabsClosable(True)
         self.setCentralWidget(self.mdiArea)
 
         self.mdiArea.subWindowActivated.connect(self.updateMenus)
