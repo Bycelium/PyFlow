@@ -14,6 +14,8 @@ from opencodeblocks import __appname__ as application_name
 from opencodeblocks.graphics.view import MODE_EDITING
 from opencodeblocks.graphics.widget import OCBWidget
 
+from opencodeblocks.graphics.qss import loadStylesheets
+
 
 class OCBWindow(QMainWindow):
 
@@ -21,6 +23,12 @@ class OCBWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+        self.stylesheet_filename = os.path.join(os.path.dirname(__file__), 'qss', 'ocb.qss')
+        loadStylesheets((
+            os.path.join(os.path.dirname(__file__), 'qss', 'ocb_dark.qss'),
+            self.stylesheet_filename
+        ))
 
         self.mdiArea = QMdiArea()
         self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
