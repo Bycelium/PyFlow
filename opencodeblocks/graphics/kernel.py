@@ -20,6 +20,7 @@ class Kernel():
 
         Return:
             single output found in the message in that order of priority: image > text data > text print > error > nothing
+            type: 'image' or 'text'
         """
         type = 'None'
         if 'data' in message:

@@ -123,13 +123,16 @@ class PythonEditor(QsciScintilla):
         if self.isModified() and code != self.block.source:
             self.block.source = code
             self.setModified(False)
+            # Execute the code
             kernel.client.execute(code)
             done = False
+            # While the kernel sends messages
             while done is False:
+                # Keep the GUI alive
                 QCoreApplication.processEvents()
+                # Save kernel message and display it
                 output, type, done = kernel.update_output()
                 if done is False:
-                    print(output)
                     if type == 'text':
                         self.block.stdout = output
                     elif type == 'image':
