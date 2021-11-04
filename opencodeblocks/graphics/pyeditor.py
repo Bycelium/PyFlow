@@ -4,12 +4,14 @@
 """ Module for OCB in block python editor. """
 
 from typing import TYPE_CHECKING, List
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
-from opencodeblocks.graphics.function_parsing import execute_function
+from opencodeblocks.graphics.kernel import Kernel
+
+kernel = Kernel()
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.view import OCBView
@@ -121,10 +123,17 @@ class PythonEditor(QsciScintilla):
         if self.isModified() and code != self.block.source:
             self.block.source = code
             self.setModified(False)
-
-            args, kwargs = self.gatherBlockInputs()
-            self.output = execute_function(code, *args, **kwargs)
-            print(self.output)
+            kernel.client.execute(code)
+            done = False
+            while done is False:
+                QCoreApplication.processEvents()
+                output, type, done = kernel.update_output()
+                if done is False:
+                    print(output)
+                    if type == 'text':
+                        self.block.stdout = output
+                    elif type == 'image':
+                        self.block.image = output
         return super().focusOutEvent(event)
 
     def gatherBlockInputs(self):

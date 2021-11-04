@@ -11,7 +11,7 @@ class Kernel():
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
 
-    def message_to_output(self, message: dict) -> str:
+    def message_to_output(self, message: dict) -> Tuple[str, str]:
         """
         Converts a message sent by the kernel into a relevant output
 
@@ -21,22 +21,28 @@ class Kernel():
         Return:
             single output found in the message in that order of priority: image > text data > text print > error > nothing
         """
+        type = 'None'
         if 'data' in message:
             if 'image/png' in message['data']:
+                type = 'image'
                 # output an image (from plt.plot or plt.imshow)
                 out = message['data']['image/png']
             else:
+                type = 'text'
                 # output data as str (for example if code="a=10\na")
                 out = message['data']['text/plain']
         elif 'name' in message and message['name'] == "stdout":
+            type = 'text'
             # output a print (print("Hello World"))
             out = message['text']
         elif 'traceback' in message:
+            type = 'text'
             # output an error
             out = '\n'.join(message['traceback'])
         else:
+            type = 'text'
             out = ''
-        return out
+        return out, type
 
     def execute(self, code: str) -> str:
         """
@@ -64,9 +70,9 @@ class Kernel():
             except queue.Empty:
                 break
 
-        return self.message_to_output(message)
+        return self.message_to_output(message)[0]
 
-    def update_output(self) -> Tuple[str, bool]:
+    def update_output(self) -> Tuple[str, str, bool]:
         """
         Returns the current output of the kernel
 
@@ -83,7 +89,9 @@ class Kernel():
         except queue.Empty:
             done = True
 
-        return self.message_to_output(message), done
+        out, type = self.message_to_output(message)
+
+        return out, type, done
 
     def __del__(self):
         """
