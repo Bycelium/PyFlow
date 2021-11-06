@@ -54,14 +54,9 @@ class OCBScene(QGraphicsScene, Serializable):
         return self._has_been_modified
     @has_been_modified.setter
     def has_been_modified(self, value:bool):
-        if not self._has_been_modified and value:
-            self._has_been_modified = value
-
-            # Call listeners
-            for callback in self._has_been_modified_listeners:
-                callback()
-
         self._has_been_modified = value
+        for callback in self._has_been_modified_listeners:
+            callback()
 
     def addHasBeenModifiedListener(self, callback:FunctionType):
         """ Add a callback that will trigger when the scene has been modified. """

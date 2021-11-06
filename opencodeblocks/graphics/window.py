@@ -4,119 +4,214 @@
 """ Module for the OCB Window """
 
 import os
-from types import FunctionType
-from typing import Optional
-from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import QPoint, QSettings, QSize, Qt, QSignalMapper
+from PyQt5.QtGui import QCloseEvent, QKeySequence
 
-from PyQt5.QtWidgets import QAction, QFileDialog, QMainWindow, QMenu, QMessageBox
+from PyQt5.QtWidgets import QDockWidget, QListWidget, QWidget, QAction, QFileDialog, QMainWindow,\
+    QMessageBox, QMdiArea
 
 from opencodeblocks import __appname__ as application_name
 from opencodeblocks.graphics.view import MODE_EDITING
 from opencodeblocks.graphics.widget import OCBWidget
 
+from opencodeblocks.graphics.qss import loadStylesheets
+
+
 class OCBWindow(QMainWindow):
 
-    """ Main window of the OpenCodeBlocks Qt-based application.
+    """ Main window of the OpenCodeBlocks Qt-based application. """
 
-    Args:
-        width: Initial window witdh.
-        height: Initial window height.
-        x_offset: Initial window horizonal offset.
-        y_offset: Initial window vertical offset.
-
-    """
-
-    def __init__(self, width:int=800, height:int=600, x_offset:int=0, y_offset:int=0) -> None:
+    def __init__(self):
         super().__init__()
-        # Cached save path
-        self._savepath = None
+
+        self.stylesheet_filename = os.path.join(os.path.dirname(__file__), 'qss', 'ocb.qss')
+        loadStylesheets((
+            os.path.join(os.path.dirname(__file__), 'qss', 'ocb_dark.qss'),
+            self.stylesheet_filename
+        ))
+
+        self.mdiArea = QMdiArea()
+        self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setViewMode(QMdiArea.ViewMode.TabbedView)
+        self.mdiArea.setDocumentMode(True)
+        self.mdiArea.setTabsMovable(True)
+        self.mdiArea.setTabsClosable(True)
+        self.setCentralWidget(self.mdiArea)
+
+        self.mdiArea.subWindowActivated.connect(self.updateMenus)
+        self.windowMapper = QSignalMapper(self)
+        self.windowMapper.mapped[QWidget].connect(self.setActiveSubWindow)
 
         # Menus
-        self.menubar = self.menuBar()
-        self.createFilemenu()
-        self.createEditmenu()
+        self.createActions()
+        self.createMenus()
+        self.createToolBars()
+
+        # BlocksDock
+        self.createBlocksDock()
 
         # StatusBar
         self.statusbar = self.statusBar()
 
-        # OCB Widget
-        self.ocb_widget = OCBWidget(self)
-        self.ocb_widget.scene.addHasBeenModifiedListener(self.changeTitle)
-        self.setCentralWidget(self.ocb_widget)
+        self.updateMenus()
 
         # Window properties
-        self.setGeometry(x_offset, y_offset, width, height)
-        self.changeTitle()
+        self.readSettings()
         self.show()
 
-    @property
-    def savepath(self):
-        """ Current cached file save path. Update window title when set."""
-        return self._savepath
-    @savepath.setter
-    def savepath(self, value:str):
-        self._savepath = value
-        self.changeTitle()
+    def createToolBars(self):
+        pass
 
-    def changeTitle(self):
-        """ Update the window title. """
-        title = f"{application_name} - "
-        if self.savepath is None:
-            title += 'New'
-        else:
-            title += os.path.basename(self.savepath)
-        if self.isModified():
-            title += "*"
-        self.setWindowTitle(title)
+    def createBlocksDock(self):
+        self.block_list = QListWidget()
+        self.block_list.addItem("Data loading")
+        self.block_list.addItem("Data normalization")
+        self.block_list.addItem("Data visualisation")
+        self.block_list.addItem("Data preprocessing")
+        self.block_list.addItem("Data reshape")
+        self.block_list.addItem("Model definition")
+        self.block_list.addItem("Model training")
+        self.block_list.addItem("Model prediction")
+        self.block_list.addItem("Model evaluation")
 
-    def addMenuAction(self, menu:QMenu, name:str, trigger_func:FunctionType,
-            tooltip:Optional[str]=None, shortcut:Optional[str]=None):
-        """ Add an action to a given menu.
+        self.items = QDockWidget("Blocks")
+        self.items.setWidget(self.block_list)
+        self.items.setFloating(False)
 
-        Args:
-            menu: Menu in which to add action.
-            name: Display name of the action.
-            trigger_func: Function to trigger when the action is performed.
-            tooltip: Tooltip to show when hovering action.
-            shortcut: Shortcut to perform action.
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.items)
 
-        """
-        action = QAction(name, self)
-        if shortcut is not None:
-            action.setShortcut(shortcut)
-        if tooltip is not None:
-            action.setToolTip(tooltip)
-        action.triggered.connect(trigger_func)
-        menu.addAction(action)
+    def updateMenus(self):
+        pass
 
-    def createFilemenu(self):
+    def createActions(self):
+        """ Create all menu actions. """
+        # File
+        self.actNew = QAction('&New', statusTip='Create new ipygraph',
+            shortcut='Ctrl+N', triggered=self.onFileNew)
+        self.actOpen = QAction('&Open', statusTip='Open an ipygraph',
+            shortcut='Ctrl+O', triggered=self.onFileOpen)
+        self.actSave = QAction('&Save', statusTip='Save the ipygraph',
+            shortcut='Ctrl+S', triggered=self.onFileSave)
+        self.actSaveAs = QAction('Save &As...', statusTip='Save the ipygraph as...',
+            shortcut='Ctrl+Shift+S', triggered=self.onFileSaveAs)
+        self.actQuit = QAction('&Quit', statusTip='Save and Quit the application',
+            shortcut='Ctrl+Q', triggered=self.close)
+
+        # Edit
+        self.actUndo = QAction('&Undo', statusTip='Undo last operation',
+            shortcut='Ctrl+Z', triggered=self.onEditUndo)
+        self.actRedo = QAction('&Redo', statusTip='Redo last operation',
+            shortcut='Ctrl+Y', triggered=self.onEditRedo)
+        self.actCut = QAction('Cu&t', statusTip='Cut to clipboard',
+            shortcut='Ctrl+X', triggered=self.onEditCut)
+        self.actCopy = QAction('&Copy', statusTip='Copy to clipboard',
+            shortcut='Ctrl+C', triggered=self.onEditCopy)
+        self.actPaste = QAction('&Paste', statusTip='Paste from clipboard',
+            shortcut='Ctrl+V', triggered=self.onEditPaste)
+        self.actDel = QAction('&Del', statusTip='Delete selected items',
+            shortcut='Del', triggered=self.onEditDelete)
+
+        # Window
+        self.actClose = QAction("Cl&ose", self,
+                statusTip="Close the active window",
+                triggered=self.mdiArea.closeActiveSubWindow)
+        self.actCloseAll = QAction("Close &All", self,
+                statusTip="Close all the windows",
+                triggered=self.mdiArea.closeAllSubWindows)
+        self.actTile = QAction("&Tile", self, statusTip="Tile the windows",
+                triggered=self.mdiArea.tileSubWindows)
+        self.actCascade = QAction("&Cascade", self,
+                statusTip="Cascade the windows",
+                triggered=self.mdiArea.cascadeSubWindows)
+        self.actNext = QAction("Ne&xt", self,
+                shortcut=QKeySequence.StandardKey.NextChild,
+                statusTip="Move the focus to the next window",
+                triggered=self.mdiArea.activateNextSubWindow)
+        self.actPrevious = QAction("Pre&vious", self,
+                shortcut=QKeySequence.StandardKey.PreviousChild,
+                statusTip="Move the focus to the previous window",
+                triggered=self.mdiArea.activatePreviousSubWindow)
+        self.actSeparator = QAction(self)
+        self.actSeparator.setSeparator(True)
+
+    def createMenus(self):
         """ Create the File menu with linked shortcuts. """
-        filemenu = self.menubar.addMenu('&File')
-        self.addMenuAction(filemenu, '&New', self.onFileNew, 'Create new ipygraph', 'Ctrl+N')
-        filemenu.addSeparator()
-        self.addMenuAction(filemenu, '&Open', self.onFileOpen, 'Open an ipygraph', 'Ctrl+O')
-        self.addMenuAction(filemenu, '&Save', self.onFileSave, 'Save the ipygraph', 'Ctrl+S')
-        self.addMenuAction(filemenu, 'Save &As...',
-            self.onFileSaveAs, 'Save the graph as...', 'Ctrl+Shift+S')
-        filemenu.addSeparator()
-        self.addMenuAction(filemenu, '&Quit', self.close, 'Save and Quit the application', 'Ctrl+Q')
+        self.filemenu = self.menuBar().addMenu('&File')
+        self.filemenu.addAction(self.actNew)
+        self.filemenu.addAction(self.actOpen)
+        self.filemenu.addSeparator()
+        self.filemenu.addAction(self.actSave)
+        self.filemenu.addAction(self.actSaveAs)
+        self.filemenu.addSeparator()
+        self.filemenu.addAction(self.actQuit)
+
+        self.editmenu = self.menuBar().addMenu('&Edit')
+        self.editmenu.addAction(self.actUndo)
+        self.editmenu.addAction(self.actRedo)
+        self.editmenu.addSeparator()
+        self.editmenu.addAction(self.actCut)
+        self.editmenu.addAction(self.actCopy)
+        self.editmenu.addAction(self.actPaste)
+        self.editmenu.addSeparator()
+        self.editmenu.addAction(self.actDel)
+
+        self.windowMenu = self.menuBar().addMenu("&Window")
+        self.updateWindowMenu()
+        self.windowMenu.aboutToShow.connect(self.updateWindowMenu)
+
+        self.menuBar().addSeparator()
+
+    def updateWindowMenu(self):
+        self.windowMenu.clear()
+        self.windowMenu.addAction(self.actClose)
+        self.windowMenu.addAction(self.actCloseAll)
+        self.windowMenu.addSeparator()
+        self.windowMenu.addAction(self.actTile)
+        self.windowMenu.addAction(self.actCascade)
+        self.windowMenu.addSeparator()
+        self.windowMenu.addAction(self.actNext)
+        self.windowMenu.addAction(self.actPrevious)
+        self.windowMenu.addAction(self.actSeparator)
+
+        windows = self.mdiArea.subWindowList()
+        self.actSeparator.setVisible(len(windows) != 0)
+
+        for i, window in enumerate(windows):
+            child = window.widget()
+
+            text = "%d %s" % (i + 1, child.windowTitle())
+            if i < 9:
+                text = '&' + text
+
+            action = self.windowMenu.addAction(text)
+            action.setCheckable(True)
+            action.setChecked(child is self.activeMdiChild())
+            action.triggered.connect(self.windowMapper.map)
+            self.windowMapper.setMapping(action, window)
+
+    def createNewMdiChild(self, filename:str=None):
+        """ Create a new graph subwindow loading a file if a path is given. """
+        ocb_widget = OCBWidget()
+        if filename is not None:
+            ocb_widget.scene.load(filename)
+            ocb_widget.savepath = filename
+        return self.mdiArea.addSubWindow(ocb_widget)
 
     def onFileNew(self):
         """ Create a new file. """
-        if self.maybeSave():
-            self.ocb_widget.scene.clear()
-            self.savepath = None
+        subwnd = self.createNewMdiChild()
+        subwnd.show()
 
     def onFileOpen(self):
         """ Open a file. """
-        if self.maybeSave():
-            filename, _ = QFileDialog.getOpenFileName(self, 'Open ipygraph from file')
-            if filename == '':
-                return
-            if os.path.isfile(filename):
-                self.ocb_widget.scene.load(filename)
-                self.statusbar.showMessage(f"Successfully loaded {filename}")
-                self.savepath = filename
+        filename, _ = QFileDialog.getOpenFileName(self, 'Open ipygraph from file')
+        if filename == '':
+            return
+        if os.path.isfile(filename):
+            subwnd = self.createNewMdiChild(filename)
+            subwnd.show()
+            self.statusbar.showMessage(f"Successfully loaded {filename}", 2000)
 
     def onFileSave(self) -> bool:
         """ Save file.
@@ -125,10 +220,13 @@ class OCBWindow(QMainWindow):
             True if the file was successfully saved, False otherwise.
 
         """
-        if self.savepath is None:
-            return self.onFileSaveAs()
-        self.ocb_widget.scene.save(self.savepath)
-        self.statusbar.showMessage(f"Successfully saved ipygraph {self.savepath}")
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            if current_window.savepath is None:
+                return self.onFileSaveAs()
+            current_window.save()
+            self.statusbar.showMessage(
+                f"Successfully saved ipygraph at {current_window.savepath}", 2000)
         return True
 
     def onFileSaveAs(self) -> bool:
@@ -138,64 +236,67 @@ class OCBWindow(QMainWindow):
             True if the file was successfully saved, False otherwise.
 
         """
-        filename, _ = QFileDialog.getSaveFileName(self, 'Save ipygraph to file')
-        if filename == '':
-            return False
-        if os.path.isfile(filename):
-            self.savepath = filename
-        self.onFileSave()
-        return True
-
-    def createEditmenu(self):
-        """ Create the Edit menu with linked shortcuts. """
-        editmenu = self.menubar.addMenu('&Edit')
-        self.addMenuAction(editmenu, '&Undo', self.onEditUndo,'Undo last operation', 'Ctrl+Z')
-        self.addMenuAction(editmenu, '&Redo', self.onEditRedo, 'Redo last operation', 'Ctrl+Y')
-        self.addMenuAction(editmenu, 'Cu&t', self.onEditCut, 'Cut to clipboard', 'Ctrl+X')
-        self.addMenuAction(editmenu, '&Copy', self.onEditCopy, 'Copy to clipboard', 'Ctrl+C')
-        self.addMenuAction(editmenu, '&Paste', self.onEditPaste, 'Paste from clipboard', 'Ctrl+V')
-        self.addMenuAction(editmenu, '&Del', self.onEditDelete, 'Delete selected items', 'Del')
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            filename, _ = QFileDialog.getSaveFileName(self, 'Save ipygraph to file')
+            if filename == '':
+                return False
+            current_window.savepath = filename
+            self.onFileSave()
+            return True
+        return False
 
     def onEditUndo(self):
         """ Undo last operation if not in edit mode. """
-        if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.scene.history.undo()
+        current_window = self.activeMdiChild()
+        if current_window is not None and current_window.view.mode != MODE_EDITING:
+            current_window.scene.history.undo()
 
     def onEditRedo(self):
         """ Redo last operation if not in edit mode. """
-        if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.scene.history.redo()
+        current_window = self.activeMdiChild()
+        if current_window is not None and current_window.view.mode != MODE_EDITING:
+            current_window.scene.history.redo()
 
     def onEditCut(self):
         """ Cut the selected items if not in edit mode. """
-        if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.scene.clipboard.cut()
+        current_window = self.activeMdiChild()
+        if current_window is not None and current_window.view.mode != MODE_EDITING:
+            current_window.scene.clipboard.cut()
 
     def onEditCopy(self):
         """ Copy the selected items if not in edit mode. """
-        if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.scene.clipboard.copy()
+        current_window = self.activeMdiChild()
+        if current_window is not None and current_window.view.mode != MODE_EDITING:
+            current_window.scene.clipboard.copy()
 
     def onEditPaste(self):
         """ Paste the selected items if not in edit mode. """
-        if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.scene.clipboard.paste()
+        current_window = self.activeMdiChild()
+        if current_window is not None and current_window.view.mode != MODE_EDITING:
+            current_window.scene.clipboard.paste()
 
     def onEditDelete(self):
         """ Delete the selected items if not in edit mode. """
-        if self.ocb_widget.view.mode != MODE_EDITING:
-            self.ocb_widget.view.deleteSelected()
+        current_window = self.activeMdiChild()
+        if current_window is not None and current_window.view.mode != MODE_EDITING:
+            current_window.view.deleteSelected()
 
-    def closeEvent(self, event:QEvent):
+    # def closeEvent(self, event:QEvent):
+    #     """ Save and quit the application. """
+    #     if self.maybeSave():
+    #         event.accept()
+    #     else:
+    #         event.ignore()
+
+    def closeEvent(self, event:QCloseEvent):
         """ Save and quit the application. """
-        if self.maybeSave():
-            event.accept()
-        else:
+        self.mdiArea.closeAllSubWindows()
+        if self.mdiArea.currentSubWindow():
             event.ignore()
-
-    def isModified(self) -> bool:
-        """ Return True if the scene has been modified, False otherwise. """
-        return self.centralWidget().scene.has_been_modified
+        else:
+            self.writeSettings()
+            event.accept()
 
     def maybeSave(self) -> bool:
         """ Ask for save and returns if the file should be closed.
@@ -219,3 +320,29 @@ class OCBWindow(QMainWindow):
         if answer == QMessageBox.StandardButton.Discard:
             return True
         return False
+
+    def activeMdiChild(self) -> OCBWidget:
+        """ Get the active OCBWidget if existing. """
+        activeSubWindow = self.mdiArea.activeSubWindow()
+        if activeSubWindow is not None:
+            return activeSubWindow.widget()
+        return None
+
+    def readSettings(self):
+        settings = QSettings('AutopIA', 'OpenCodeBlocks')
+        pos = settings.value('pos', QPoint(200, 200))
+        size = settings.value('size', QSize(400, 400))
+        self.move(pos)
+        self.resize(size)
+        if settings.value('isMaximized', False) == 'true':
+            self.showMaximized()
+
+    def writeSettings(self):
+        settings = QSettings('AutopIA', 'OpenCodeBlocks')
+        settings.setValue('pos', self.pos())
+        settings.setValue('size', self.size())
+        settings.setValue('isMaximized', self.isMaximized())
+
+    def setActiveSubWindow(self, window):
+        if window:
+            self.mdiArea.setActiveSubWindow(window)
