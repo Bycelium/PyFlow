@@ -34,37 +34,35 @@ if __name__ == '__main__':
     app.setStyle('Fusion')
 
     wnd = OCBWindow()
-    scene = wnd.ocb_widget.scene
+    # if hasattr(wnd, 'ocb_widget'):
+    #     scene = wnd.ocb_widget.scene
 
-    test_block = OCBBlock(title="Other kind of block")
-    scene.addItem(test_block)
-    test_block.setPos(-250, 150)
+    #     test_block = OCBBlock(title="Other kind of block")
+    #     scene.addItem(test_block)
+    #     test_block.setPos(-250, 150)
 
-    test_block_2 = OCBCodeBlock(title="Dataset", source=SOURCE_TEST)
-    for _ in range(2):
-        test_block_2.add_socket(OCBSocket(test_block_2, socket_type='input'))
-    for _ in range(1):
-        test_block_2.add_socket(OCBSocket(test_block_2, socket_type='output'))
-    test_block_2.setPos(-350, -100)
-    scene.addItem(test_block_2)
+    #     test_block_2 = OCBCodeBlock(title="Dataset", source=SOURCE_TEST)
+    #     for _ in range(2):
+    #         test_block_2.add_socket(OCBSocket(test_block_2, socket_type='input'))
+    #     for _ in range(1):
+    #         test_block_2.add_socket(OCBSocket(test_block_2, socket_type='output'))
+    #     test_block_2.setPos(-350, -100)
+    #     scene.addItem(test_block_2)
 
-    test_block_3 = OCBCodeBlock(title="Mon IA (par blocks ?)", source=SOURCE_TEST_2)
-    for _ in range(2):
-        test_block_3.add_socket(OCBSocket(test_block_3, socket_type='input'))
-    for _ in range(1):
-        test_block_3.add_socket(OCBSocket(test_block_3, socket_type='output'))
-    test_block_3.setPos(0, -100)
-    scene.addItem(test_block_3)
+    #     test_block_3 = OCBCodeBlock(title="Mon IA (par blocks ?)", source=SOURCE_TEST_2)
+    #     for _ in range(2):
+    #         test_block_3.add_socket(OCBSocket(test_block_3, socket_type='input'))
+    #     for _ in range(1):
+    #         test_block_3.add_socket(OCBSocket(test_block_3, socket_type='output'))
+    #     test_block_3.setPos(0, -100)
+    #     scene.addItem(test_block_3)
 
-    # for i in range(3):
-    #     edge = OCBEdge(
-    #         source_socket=test_block_3.sockets_out[0],
-    #         destination_socket=test_block_2.sockets_in[i]
-    #     )
-    #     scene.addItem(edge)
-
-    scene.save('scene.ipyg')
-    scene.load('scene.ipyg')
+    #     # for i in range(3):
+    #     #     edge = OCBEdge(
+    #     #         source_socket=test_block_3.sockets_out[0],
+    #     #         destination_socket=test_block_2.sockets_in[i]
+    #     #     )
+    #     #     scene.addItem(edge)
 
     wnd.show()
     sys.exit(app.exec_())
