@@ -47,10 +47,10 @@ class OCBCodeBlock(OCBBlock):
                 int(self._width - 2*self.edge_size),
                 int(self.height - self.title_height - 2*self.edge_size)
             )
-            editor_widget = self.display.widget()
-            editor_widget.setGeometry(
+            display_widget = self.display.widget()
+            display_widget.setGeometry(
                 int(self.edge_size),
-                int(self.edge_size + self.height),
+                int(self.height + self.edge_size),
                 int(self.width - 2*self.edge_size),
                 int(self.height*0.3 - 2*self.edge_size)
             )
@@ -107,11 +107,11 @@ class OCBCodeBlock(OCBBlock):
     def paint(self, painter: QPainter,
             option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
             widget: Optional[QWidget]=None): #pylint:disable=unused-argument
-        """ Paint the output panel """
+        """ Paint the code output panel """
         super().paint(painter, option, widget)
         path_title = QPainterPath()
         path_title.setFillRule(Qt.FillRule.WindingFill)
-        path_title.addRoundedRect(0, self.height, self.width, 0.3*self.height,
+        path_title.addRoundedRect(0, 0, self.width, 1.3*self.height,
             self.edge_size, self.edge_size)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(self._brush_background)

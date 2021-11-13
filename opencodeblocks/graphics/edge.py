@@ -183,8 +183,12 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         if restore_id:
             self.id = data['id']
         self.path_type = data['path_type']
-        self.source_socket = hashmap[data['source']['socket']]
-        self.source_socket.add_edge(self)
-        self.destination_socket = hashmap[data['destination']['socket']]
-        self.destination_socket.add_edge(self)
-        self.update_path()
+        try:
+            self.source_socket = hashmap[data['source']['socket']]
+            self.source_socket.add_edge(self)
+
+            self.destination_socket = hashmap[data['destination']['socket']]
+            self.destination_socket.add_edge(self)
+            self.update_path()
+        except KeyError:
+            self.remove()
