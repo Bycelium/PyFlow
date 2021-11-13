@@ -176,6 +176,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.update_sockets()
 
     def hoverMoveEvent(self, event):
+        """ Triggered when hovering over a block """
         pos = event.pos()
         if self._is_in_resize_area(pos):
             if not self.resizing_hover:
@@ -187,6 +188,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         return super().hoverMoveEvent(event)
     def hoverLeaveEvent(self, event):
+        """ Triggered when the mouse stops hovering over a block """
         if self.resizing_hover:
             self.resizing_hover = False
             QApplication.restoreOverrideCursor()
