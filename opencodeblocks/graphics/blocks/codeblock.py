@@ -30,7 +30,7 @@ class OCBCodeBlock(OCBBlock):
         output_panel_height + source_panel_height + edge_size*2 + title_height == height
         """
         super().__init__(block_type='code', **kwargs)
-        
+
 
         self.output_panel_height = 100
         self._min_output_panel_height = 20
@@ -139,7 +139,7 @@ class OCBCodeBlock(OCBBlock):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(self._brush_background)
         painter.drawPath(path_title.simplified())
-    
+
 
     def _is_in_code_output_resize_area(self, pos:QPointF):
         """ Return True if the given position is in the block resize_area. """
@@ -199,7 +199,7 @@ class OCBCodeBlock(OCBBlock):
         if self.resizing:
             delta = event.pos() - self.resize_start
             self.width = max(self.width + delta.x(), self._min_width)
-            
+
             height_delta = max(delta.y(),
                 # List of all the quantities that must remain negative.
                 # Mainly: min_height - height must be negative for all elements
