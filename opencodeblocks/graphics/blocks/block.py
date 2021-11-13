@@ -72,7 +72,10 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
+        self.setAcceptHoverEvents(True)
+
         self.resizing = False
+        self.resizing_hover = False # Is the mouse hovering over the resizing area ?
         self.moved = False
         self.metadata = {
             'title_metadata': {
@@ -171,6 +174,24 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.sockets_out.remove(socket)
         socket.remove()
         self.update_sockets()
+
+    def hoverMoveEvent(self, event):
+        pos = event.pos()
+        if self._is_in_resize_area(pos):
+            if not self.resizing_hover:
+                self.resizing_hover = True
+                QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+        elif self.resizing_hover:
+            self.resizing_hover = False
+            QApplication.restoreOverrideCursor()
+
+        return super().hoverMoveEvent(event)
+    def hoverLeaveEvent(self, event):
+        if self.resizing_hover:
+            self.resizing_hover = False
+            QApplication.restoreOverrideCursor()
+
+        return super().hoverLeaveEvent(event)
 
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
         """ OCBBlock reaction to a mousePressEvent. """
