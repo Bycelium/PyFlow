@@ -28,9 +28,6 @@ if __name__ == "__main__":
     # Only works when cwd == <stuff>/OpenCodeBlocks
     sys.path.insert(0, os.path.abspath("."))
  
-if sys.platform == "linux":
-    os.environ['DISPLAY'] = ":0.0"
-
 from qtpy.QtWidgets import QApplication
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.socket import OCBSocket
@@ -158,7 +155,7 @@ def test_move_blocks():
             test_block1.title_height//2 + 
             ocb_widget.width()//2)
         pos_block_1.setY(pos_block_1.y() + 
-            #test_block1.title_height//2 + 
+            test_block1.title_height//2 + 
             ocb_widget.height()//2)
 
         pos_block_1 = ocb_widget.mapToGlobal(pos_block_1)
