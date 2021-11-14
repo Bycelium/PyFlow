@@ -79,11 +79,13 @@ class SceneClipboard():
                 ymax = y
         return (xmin + xmax) / 2, (ymin + ymax) / 2
 
-    def _deserializeData(self, data:OrderedDict):
+    def _deserializeData(self, data:OrderedDict, set_selected=True):
         hashmap = {}
 
         view = self.scene.views()[0]
         mouse_pos = view.lastMousePos
+        if set_selected:
+            self.scene.clearSelection()
 
         # Finding pasting bbox center
         bbox_center_x, bbox_center_y = self._find_bbox_center(data['blocks'])
@@ -103,6 +105,8 @@ class SceneClipboard():
             block_pos = block.pos()
             block.setPos(block_pos.x() + offset_x, block_pos.y() + offset_y)
 
+            if set_selected:
+                block.setSelected(True)
             self.scene.addItem(block)
             hashmap.update({block.id: block})
 
@@ -110,10 +114,14 @@ class SceneClipboard():
         for edge_data in data['edges']:
             edge = OCBEdge()
             edge.deserialize(edge_data, hashmap, restore_id=False)
+
+            if set_selected:
+                edge.setSelected(True)
             self.scene.addItem(edge)
             hashmap.update({edge_data['id']: edge})
 
         self.scene.history.checkpoint('Desiralized elements into scene', set_modified=True)
+
 
     def _store(self, data:OrderedDict):
         str_data = json.dumps(data, indent=4)
