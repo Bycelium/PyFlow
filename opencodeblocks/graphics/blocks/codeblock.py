@@ -20,24 +20,17 @@ class OCBCodeBlock(OCBBlock):
 
     Features an area to edit code as well as a panel to display the output.
 
+    The following is always true:
+    output_panel_height + source_panel_height + edge_size*2 + title_height == height
+
     """
 
     def __init__(self, **kwargs):
-        """
-        Note that self.output_panel_height < self.height,
-        because the output panel is part of the display.
-        Moreover, the following is always true:
-        output_panel_height + source_panel_height + edge_size*2 + title_height == height
-        """
         super().__init__(block_type='code', **kwargs)
 
-
-        self.output_panel_height = 100
+        self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
         self._min_source_editor_height = 20
-
-        assert self.height - self.output_panel_height \
-         - self.title_height - self.edge_size*2 > 0
 
         self.source_editor = self.init_source_editor()
         self.display = self.init_display()
@@ -56,9 +49,14 @@ class OCBCodeBlock(OCBBlock):
         source_editor_graphics.setZValue(-1)
         return source_editor_graphics
 
+    @property
     def _editor_widget_height(self):
         return self.height - self.title_height - 2*self.edge_size \
                     - self.output_panel_height
+
+    @_editor_widget_height.setter
+    def _editor_widget_height(self, value: int):
+        self.output_panel_height = self.height - value - self.title_height - 2*self.edge_size
 
     def update_all(self):
         """ Update the code block parts. """
@@ -68,7 +66,7 @@ class OCBCodeBlock(OCBBlock):
                 int(self.edge_size),
                 int(self.edge_size + self.title_height),
                 int(self._width - 2*self.edge_size),
-                int(self._editor_widget_height())
+                int(self._editor_widget_height)
             )
             display_widget = self.display.widget()
             display_widget.setGeometry(
@@ -83,6 +81,7 @@ class OCBCodeBlock(OCBBlock):
     def source(self) -> str:
         """ Source code. """
         return self._source
+
     @source.setter
     def source(self, value:str):
         self._source = value
@@ -107,6 +106,7 @@ class OCBCodeBlock(OCBBlock):
     def image(self) -> str:
         """ Code output. """
         return self._image
+
     @image.setter
     def image(self, value:str):
         self._image = value
@@ -140,61 +140,40 @@ class OCBCodeBlock(OCBBlock):
         painter.setBrush(self._brush_background)
         painter.drawPath(path_title.simplified())
 
-
-    def _is_in_code_output_resize_area(self, pos:QPointF):
-        """ Return True if the given position is in the block resize_area. """
+    def _is_in_resize_source_code_area(self, pos:QPointF):
+        """
+            Return True if the given position is in the area
+            used to resize the source code widget
+        """
         source_editor_start = self.height - self.output_panel_height - self.edge_size
 
         return self.width - 2 * self.edge_size < pos.x() and \
              source_editor_start - self.edge_size < pos.y() < source_editor_start + self.edge_size
-    
-    def hoverMoveEvent(self, event):
-        """ Triggered when hovering over a block """
-        pos = event.pos()
-        if self._is_in_resize_area(pos) or self._is_in_code_output_resize_area(pos):
-            if not self.resizing_hover:
-                self.resizing_hover = True
-                QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
-        elif self.resizing_hover:
-            self.resizing_hover = False
-            QApplication.restoreOverrideCursor()
-        # Don't call super() because this might override the cursor
-    def hoverLeaveEvent(self, event):
-        """ Triggered when the mouse stops hovering over a block """
-        if self.resizing_hover:
-            self.resizing_hover = False
-            QApplication.restoreOverrideCursor()
-        # Don't call super() because this might override the cursor
 
-    def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
-        """ OCBBlock reaction to a mousePressEvent. """
-        pos = event.pos()
-        resizing_source_code = self._is_in_code_output_resize_area(pos)
-        if (self._is_in_resize_area(pos) or resizing_source_code) and \
-                event.buttons() == Qt.MouseButton.LeftButton:
-            self.resize_start = pos
-            self.resizing = True
-            self.resizing_source_code = resizing_source_code
-            QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
 
-        super().mousePressEvent(event)
+    def _is_in_resize_area(self, pos:QPointF):
+        """ Return True if the given position is in the block resize_area. """
 
-    def mouseReleaseEvent(self, event:QGraphicsSceneMouseEvent):
-        """ OCBBlock reaction to a mouseReleaseEvent. """
-        if self.resizing:
-            self.scene().history.checkpoint("Resized block", set_modified=True)
+        # This block features 2 resizing areas with 2 different behaviors        
+        is_in_bottom_left = super()._is_in_resize_area(pos)
+        return is_in_bottom_left or self._is_in_resize_source_code_area(pos)
+
+    def _start_resize(self,pos:QPointF):
+        self.resizing = True
+        self.resize_start = pos
+        if self._is_in_resize_source_code_area(pos):
+            self.resizing_source_code = True
+        QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+
+    def _stop_resize(self):
         self.resizing = False
         self.resizing_source_code = False
         QApplication.restoreOverrideCursor()
-        if self.moved:
-            self.moved = False
-            self.scene().history.checkpoint("Moved block", set_modified=True)
-        super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):
         """ 
         We override the default resizing behavior as the code part and the display part of the block
-        block can be resized. 
+        block can be resized independently.
         """
         if self.resizing:
             delta = event.pos() - self.resize_start
@@ -205,7 +184,7 @@ class OCBCodeBlock(OCBBlock):
                 # Mainly: min_height - height must be negative for all elements
                 self._min_output_panel_height - self.output_panel_height,
                 self._min_height - self.height,
-                self._min_source_editor_height - self._editor_widget_height()
+                self._min_source_editor_height - self._editor_widget_height
             )
 
             self.height += height_delta
@@ -215,9 +194,9 @@ class OCBCodeBlock(OCBBlock):
             self.resize_start = event.pos()
             self.title_graphics.setTextWidth(self.width - 2 * self.edge_size)
             self.update()
-        else:
-            super().mouseMoveEvent(event)
-            self.moved = True
+
+        self.moved = True
+        super().mouseMoveEvent(event)
 
     def init_display(self):
         """ Initialize the output display widget: QLabel """
