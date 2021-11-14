@@ -59,7 +59,9 @@ class Kernel():
         done = False
         while not done:
             # Check for messages, break the loop when the kernel stops sending messages
-            message, done = self.get_message()
+            new_message, done = self.get_message()
+            if not done:
+                message = new_message
         return self.message_to_output(message)[0]
 
     def get_message(self) -> Tuple[str, bool]:
