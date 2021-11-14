@@ -91,7 +91,7 @@ class OCBCodeBlock(OCBBlock):
 
     @property
     def stdout(self) -> str:
-        """ Code output, without errors """
+        """ Code output. Be careful, this also includes stderr """
         return self._stdout
     @stdout.setter
     def stdout(self, value:str):
