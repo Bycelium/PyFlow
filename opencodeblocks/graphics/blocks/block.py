@@ -175,7 +175,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         socket.remove()
         self.update_sockets()
 
-    def hoverMoveEvent(self, event):
+    def hoverMoveEvent(self, event:QGraphicsSceneHoverEvent):
         """ Triggered when hovering over a block """
         pos = event.pos()
         if self._is_in_resize_area(pos):
