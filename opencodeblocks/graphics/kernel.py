@@ -19,31 +19,31 @@ class Kernel():
             message: dict representing the a message sent by the kernel
 
         Return:
-            single output found in the message in that order of priority: image > text data > text print > error > nothing
-            type: 'image' or 'text'
+            single output found in the message in that order of priority:
+                image > text data > text print > error > nothing
         """
-        type = 'None'
+        message_type = 'None'
         if 'data' in message:
             if 'image/png' in message['data']:
-                type = 'image'
+                message_type = 'image'
                 # output an image (from plt.plot or plt.imshow)
                 out = message['data']['image/png']
             else:
-                type = 'text'
+                message_type = 'text'
                 # output data as str (for example if code="a=10\na")
                 out = message['data']['text/plain']
         elif 'name' in message and message['name'] == "stdout":
-            type = 'text'
+            message_type = 'text'
             # output a print (print("Hello World"))
             out = message['text']
         elif 'traceback' in message:
-            type = 'text'
+            message_type = 'text'
             # output an error
             out = '\n'.join(message['traceback'])
         else:
-            type = 'text'
+            message_type = 'text'
             out = ''
-        return out, type
+        return out, message_type
 
     def execute(self, code: str) -> str:
         """

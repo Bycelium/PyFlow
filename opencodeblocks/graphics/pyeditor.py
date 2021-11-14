@@ -131,11 +131,11 @@ class PythonEditor(QsciScintilla):
                 # Keep the GUI alive
                 QCoreApplication.processEvents()
                 # Save kernel message and display it
-                output, type, done = kernel.update_output()
+                output, output_type, done = kernel.update_output()
                 if done is False:
-                    if type == 'text':
+                    if output_type == 'text':
                         self.block.stdout = output
-                    elif type == 'image':
+                    elif output_type == 'image':
                         self.block.image = output
         return super().focusOutEvent(event)
 
