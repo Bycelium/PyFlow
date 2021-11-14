@@ -174,7 +174,6 @@ def test_move_blocks():
                 pos_block_1.y() + expected_move_amount[1] * i // iterations
             )
     
-        print("Lets move the mouse!")
         pyautogui.mouseUp(button="left")
         time.sleep(.2)
 
