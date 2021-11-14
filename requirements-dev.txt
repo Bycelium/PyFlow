@@ -5,3 +5,4 @@ pytest-check
 pytest-pspec
 pylint
 pylint-pytest
+autopep8
