@@ -19,16 +19,17 @@ this file directly with:
 python ./tests/integration/test_blocks.py
 
 """
-import time, threading, queue
+import time, threading, queue, os, sys
 import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
 if __name__ == "__main__":
-    import sys
-    import os
     # Only works when cwd == <stuff>/OpenCodeBlocks
     sys.path.insert(0, os.path.abspath("."))
+ 
+if sys.platform == "linux":
+    os.environ['DISPLAY'] = ":0"
 
 from qtpy.QtWidgets import QApplication
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
@@ -143,20 +144,21 @@ def test_move_blocks():
 
     expected_move_amount = [70,-30]
     STOP_MSG = "stop"
+    CHECK_MSG = "check"
 
     msgQueue = queue.Queue()
 
     def testing_drag(msgQueue):
         time.sleep(.4) # Wait for proper setup of app
-
+        
         # test_block1 == (0,0) but it's not crucial for this test.
         pos_block_1 = QPoint(int(test_block1.pos().x()),int(test_block1.pos().y()))
         
         pos_block_1.setX(pos_block_1.x() + 
             test_block1.title_height//2 + 
             ocb_widget.width()//2)
-        pos_block_1.setY(pos_block_1.y() - 
-            test_block1.title_height//2 + 
+        pos_block_1.setY(pos_block_1.y() + 
+            #test_block1.title_height//2 + 
             ocb_widget.height()//2)
 
         pos_block_1 = ocb_widget.mapToGlobal(pos_block_1)
@@ -172,6 +174,7 @@ def test_move_blocks():
                 pos_block_1.y() + expected_move_amount[1] * i // iterations
             )
     
+        print("Lets move the mouse!")
         pyautogui.mouseUp(button="left")
         time.sleep(.2)
 
@@ -179,11 +182,15 @@ def test_move_blocks():
         # rectify because the scene can be zoomed :
         move_amount[0] = int(move_amount[0] * ocb_widget.view.zoom)
         move_amount[1] = int(move_amount[1] * ocb_widget.view.zoom)
-        isGUILoopRunning = False
-        # Check if test_block1.pos() changed properly
-        check.equal(move_amount,expected_move_amount)
 
-        msgQueue.put(STOP_MSG)
+        msgQueue.put([
+            CHECK_MSG,
+            move_amount,
+            expected_move_amount,
+            "Block moved by the correct amound"
+        ])
+        
+        msgQueue.put([STOP_MSG])
 
     t = threading.Thread(target=testing_drag, args=(msgQueue,))
     t.start()
@@ -193,8 +200,10 @@ def test_move_blocks():
         time.sleep(0.02)
         if not msgQueue.empty():
             msg = msgQueue.get()
-            if msg == STOP_MSG:
+            if msg[0] == STOP_MSG:
                 break
+            elif msg[0] == CHECK_MSG:
+                check.equal(msg[1],msg[2],msg[3])
     t.join()
 
 if __name__ == "__main__":
