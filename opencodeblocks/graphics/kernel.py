@@ -47,31 +47,42 @@ class Kernel():
 
     def execute(self, code: str) -> str:
         """
-        Executes code in the kernel and returns the output of the last message sent by the kernel in return
+        Executes code in the kernel and returns the output of the last message sent by the kernel
 
         Args:
-            code: str representing a piece of Python code to execute
+            code: String representing a piece of Python code to execute
 
         Return:
-            output from the last message sent by the kernel in return
+            output from the last message sent by the kernel
         """
         _ = self.client.execute(code)
-        io_msg_content = {}
-        if 'execution_state' in io_msg_content and io_msg_content['execution_state'] == 'idle':
-            return "no output"
-
-        while True:
+        done = False
+        while not done:
             # Check for messages, break the loop when the kernel stops sending messages
-            message = io_msg_content
-            try:
-                io_msg_content = self.client.get_iopub_msg(timeout=1000)[
-                    'content']
-                if 'execution_state' in io_msg_content and io_msg_content['execution_state'] == 'idle':
-                    break
-            except queue.Empty:
-                break
-
+            message, done = self.get_message()
         return self.message_to_output(message)[0]
+
+    def get_message(self) -> Tuple[str, bool]:
+        """
+        Get message in the jupyter kernel
+
+        Args:
+            code: String representing a piece of Python code to execute
+
+        Return:
+            Tuple of:
+                - output from the last message sent by the kernel
+                - boolean repesenting if the kernel as any other message to send.
+        """
+        done = False
+        try:
+            message = self.client.get_iopub_msg(timeout=1000)['content']
+            if 'execution_state' in message and message['execution_state'] == 'idle':
+                done = True
+        except queue.Empty:
+            message = None
+            done = True
+        return message, done
 
     def update_output(self) -> Tuple[str, str, bool]:
         """
@@ -80,19 +91,9 @@ class Kernel():
         Return:
             current output of the kernel; done: bool, True if the kernel has no message to send
         """
-        message = None
-        done = False
-        try:
-            message = self.client.get_iopub_msg(timeout=1000)[
-                'content']
-            if 'execution_state' in message and message['execution_state'] == 'idle':
-                done = True
-        except queue.Empty:
-            done = True
-
-        out, type = self.message_to_output(message)
-
-        return out, type, done
+        message, done = self.get_message()
+        out, _ = self.message_to_output(message)
+        return out, done
 
     def __del__(self):
         """
