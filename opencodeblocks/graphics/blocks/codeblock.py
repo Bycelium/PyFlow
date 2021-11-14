@@ -15,7 +15,7 @@ from opencodeblocks.graphics.pyeditor import PythonEditor
 
 class OCBCodeBlock(OCBBlock):
 
-    """ 
+    """
     Code Block
 
     Features an area to edit code as well as a panel to display the output.
@@ -154,7 +154,7 @@ class OCBCodeBlock(OCBBlock):
     def _is_in_resize_area(self, pos:QPointF):
         """ Return True if the given position is in the block resize_area. """
 
-        # This block features 2 resizing areas with 2 different behaviors        
+        # This block features 2 resizing areas with 2 different behaviors
         is_in_bottom_left = super()._is_in_resize_area(pos)
         return is_in_bottom_left or self._is_in_resize_source_code_area(pos)
 
