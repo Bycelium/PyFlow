@@ -8,7 +8,7 @@ on: ["push"]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
@@ -33,6 +33,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install -r requirements-dev.txt
-        pytest tests
-      env:
-        DISPLAY: :0
+        pytest tests/unit
