@@ -41,6 +41,7 @@ jobs:
     - name: Build integration coverage using pytest-cov
       run: |
         pip install -r requirements-dev.txt
+        xhost +
         pytest --cov=opencodeblocks --cov-report=xml tests/integration
         score=$(python coverage_score.py --score)
         color=$(python coverage_score.py --color)
