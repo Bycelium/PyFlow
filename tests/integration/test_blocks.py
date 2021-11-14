@@ -29,7 +29,7 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.abspath("."))
  
 if sys.platform == "linux":
-    os.environ['DISPLAY'] = ":0"
+    os.environ['DISPLAY'] = ":0.0"
 
 from qtpy.QtWidgets import QApplication
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
