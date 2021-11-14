@@ -24,6 +24,12 @@ Before doing your **pull request**, check using `pylint` and `pytest` that there
 pylint .\opencodeblocks\
 ```
 
+Some `pylint` issues can be fixed automatically using `autopep8`, with the following command:
+
+```bash
+autopep8 --in-place --recursive --aggressive opencodeblocks
+```
+
 ```bash
 pytest --cov=opencodeblocks --cov-report=html tests/unit
 ```

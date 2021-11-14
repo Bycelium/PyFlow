@@ -22,7 +22,7 @@ def run_cell(cell: str) -> str:
 
 def run_with_variable_output(cell: str) -> None:
     """
-    This is a proof of concept to show that it is possible 
+    This is a proof of concept to show that it is possible
     to collect a variable output from a kernel execution
 
     Here the kernel executes the code and prints the output repeatedly
@@ -33,10 +33,9 @@ def run_with_variable_output(cell: str) -> None:
     """
     kernel.client.execute(cell)
     done = False
-    while done == False:
+    while not done:
         output, done = kernel.update_output()
         print(output)
-
 
 def get_function_name(code: str) -> str:
     """
