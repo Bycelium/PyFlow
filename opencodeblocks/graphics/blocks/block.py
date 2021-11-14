@@ -133,8 +133,8 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     def _is_in_resize_area(self, pos:QPointF):
         """ Return True if the given position is in the block resize_area. """
-        return self.width - pos.x() < 2 * self.edge_size \
-            and self.height - pos.y() < 2 * self.edge_size
+        return self.width - self.edge_size*2 < pos.x() \
+            and self.height - self.edge_size*2 <  pos.y()
 
     def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
         """ Get a socket position to place them on the block sides. """
@@ -211,7 +211,7 @@ class OCBBlock(QGraphicsItem, Serializable):
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
         """ OCBBlock reaction to a mousePressEvent. """
         pos = event.pos()
-        if self._is_in_resize_area(pos) and event.buttons() == Qt.MouseButton.LeftButton:
+        if self.resizing_hover and event.buttons() == Qt.MouseButton.LeftButton:
             self._start_resize(pos)
         super().mousePressEvent(event)
 

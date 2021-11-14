@@ -147,7 +147,7 @@ class OCBCodeBlock(OCBBlock):
         """
         source_editor_start = self.height - self.output_panel_height - self.edge_size
 
-        return self.width - 2 * self.edge_size < pos.x() and \
+        return self.width - self.edge_size/2 < pos.x() and \
              source_editor_start - self.edge_size < pos.y() < source_editor_start + self.edge_size
 
 
