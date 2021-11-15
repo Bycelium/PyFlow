@@ -32,8 +32,8 @@ jobs:
     - name: Build unit coverage using pytest-cov
       run: |
         sudo pytest --cov=opencodeblocks --cov-report=xml tests/unit
-        sudo score=$(python coverage_score.py --score)
-        sudo color=$(python coverage_score.py --color)
+        score=$(sudo python coverage_score.py --score)
+        color=$(sudo python coverage_score.py --color)
         sudo echo "COVERAGE_UNIT_SCORE=$score"
         sudo echo "COVERAGE_UNIT_COLOR=$color"
         sudo echo "COVERAGE_UNIT_SCORE=$score" >> $GITHUB_ENV
@@ -51,8 +51,8 @@ jobs:
     - name: Build integration coverage using pytest-cov
       run: |
         sudo xvfb-run -n 55 pytest --cov=opencodeblocks --cov-report=xml tests/integration
-        sudo score=$(xvfb-run python coverage_score.py --score)
-        sudo color=$(xvfb-run python coverage_score.py --color)
+        score=$(sudo xvfb-run python coverage_score.py --score)
+        color=$(sudo xvfb-run python coverage_score.py --color)
         sudo echo "COVERAGE_INTEGRATION_SCORE=$score"
         sudo echo "COVERAGE_INTEGRATION_COLOR=$color"
         sudo echo "COVERAGE_INTEGRATION_SCORE=$score" >> $GITHUB_ENV
