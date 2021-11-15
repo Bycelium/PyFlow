@@ -166,6 +166,4 @@ def test_open_file():
     file_example_path = "./tests/testing_assets/example_graph1.ipyg"
     subwnd = wnd.createNewMdiChild(os.path.abspath(file_example_path))
     subwnd.show()
-    QApplication.processEvents()
-
     wnd.close()
