@@ -1,78 +1,40 @@
 """
 Integration tests for OCB.
 
-Every test describes a thing the user might try to do.
+We use xvfb to perform the tests without opening any windows.
+We use pyautogui to move the mouse and interact with the application.
 
-Important note:
-Due to a bug in pytest, if an error occurs in a test, pytest might crash and report an error
-that looks like this:
-
-    Windows fatal exception: access violation
-
-    Thread 0x000002a4 (most recent call first):
-    <Stack Trace involving native python libraries related to asyncio>
-
-This behavior is not consistent because the crash depends on the memory layout of the program.
-If this occurs, you can check what the real error is (with the proper error message), by running
-this file directly with:
-
-python ./tests/integration/test_blocks.py
-
+To pass the tests on windows, you need to not move the mouse.
+To pass the tests on linux, you just need to install xvfb and it's dependencies.
+On linux, no windows are opened to the user during the test.
 """
+
+# Imports needed for testing
 import time, threading, queue, os, sys
 import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
-
-if __name__ == "__main__":
-    # Only works when cwd == <stuff>/OpenCodeBlocks
-    sys.path.insert(0, os.path.abspath("."))
+import pyautogui
  
-from qtpy.QtWidgets import QApplication
+# Packages tested
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.window import OCBWindow
 from opencodeblocks.graphics.widget import OCBWidget
 
+from qtpy.QtWidgets import QApplication
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QFocusEvent, QMouseEvent
 from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF, QPoint
 from PyQt5 import QtTest
 
-# Used to move mouse and other high level actions
-# We need to use this instead of QTest because of a Qt5 bug (fixed in Qt6) that prevents
-# us from simulating mouse dragging
-import pyautogui
-
-# The window and app variable used by every test.
-# The same app is used for every test.
-wnd = None
-
-@pytest.fixture
-def clean_up():
-    global wnd
-
-    if wnd != None:
-        wnd.close()
-        wnd = None
-
-@pytest.mark.usefixtures('clean_up')
 def test_window_opening(qtbot):
     """ The OCBWindow should open and close correctly """
-    global wnd
-
-    from qtpy.QtWidgets import QApplication
-    from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock, OCBBlock
-    from opencodeblocks.graphics.socket import OCBSocket
-    from opencodeblocks.graphics.window import OCBWindow
-
     wnd = OCBWindow()
+    wnd.close()
 
-@pytest.mark.usefixtures('clean_up')
 def test_running_python(qtbot):
     """ The blocks should run arbitrary python when unfocused """
-    global wnd
-
     wnd = OCBWindow()
     
     EXPRESSION = "3 + 5 * 2"
@@ -107,14 +69,13 @@ def test_running_python(qtbot):
     result = test_block.stdout.strip()
     
     check.equal(expected_result,result)
+    wnd.close()
 
-@pytest.mark.usefixtures('clean_up')
 def test_move_blocks(qtbot):
     """ 
     Newly created blocks are displayed in the center.
     They can be dragged around with the mouse.
     """
-    global wnd
     wnd = OCBWindow()
     
     ocb_widget = OCBWidget()
@@ -190,6 +151,4 @@ def test_move_blocks(qtbot):
             elif msg[0] == CHECK_MSG:
                 check.equal(msg[1],msg[2],msg[3])
     t.join()
-
-if __name__ == "__main__":
-    test_running_python(None)
+    wnd.close()
