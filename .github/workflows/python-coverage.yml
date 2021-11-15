@@ -56,7 +56,7 @@ jobs:
         style: plastic
     - name: Build integration coverage using pytest-cov
       run: |
-        sudo xvfb-run -n 55 pytest --cov=opencodeblocks --cov-report=xml tests/integration
+        sudo xvfb-run -n 55 pytest -s --cov=opencodeblocks --cov-report=xml tests/integration
         score=$(sudo xvfb-run python coverage_score.py --score)
         color=$(sudo xvfb-run python coverage_score.py --color)
         sudo echo "COVERAGE_INTEGRATION_SCORE=$score"
