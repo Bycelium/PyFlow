@@ -16,34 +16,25 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        sudo mkdir /usr/bin/platforms
-        
         sudo apt-get update
         sudo apt-get install python3-tk python3-dev
         sudo apt-get install xvfb
-        sudo apt-get install --reinstall libxcb-icccm4
-        sudo apt-get install --reinstall libxcb-image0
-        sudo apt-get install --reinstall libxcb-keysyms1
-        sudo apt-get install --reinstall libxcb-render-util0
-        sudo apt-get install --reinstall libxcb-xkb1
-        sudo apt-get install --reinstall libxkbcommon-x11-0
+        sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
 
-        sudo ln -s /our/local/libqxcb.so /usr/bin/platforms/libqxcb.so
-        
-        sudo python -m pip install --upgrade pip
-        sudo pip install -r requirements.txt
-        sudo pip install -r requirements-dev.txt
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
 
 
     - name: Build unit coverage using pytest-cov
       run: |
-        sudo pytest --cov=opencodeblocks --cov-report=xml tests/unit
-        score=$(sudo python coverage_score.py --score)
-        color=$(sudo python coverage_score.py --color)
-        sudo echo "COVERAGE_UNIT_SCORE=$score"
-        sudo echo "COVERAGE_UNIT_COLOR=$color"
-        sudo echo "COVERAGE_UNIT_SCORE=$score" >> $GITHUB_ENV
-        sudo echo "COVERAGE_UNIT_COLOR=$color" >> $GITHUB_ENV
+        pytest --cov=opencodeblocks --cov-report=xml tests/unit
+        score=$(python coverage_score.py --score)
+        color=$(python coverage_score.py --color)
+        echo "COVERAGE_UNIT_SCORE=$score"
+        echo "COVERAGE_UNIT_COLOR=$color"
+        echo "COVERAGE_UNIT_SCORE=$score" >> $GITHUB_ENV
+        echo "COVERAGE_UNIT_COLOR=$color" >> $GITHUB_ENV
     - name: Create unit coverage badge
       uses: schneegans/dynamic-badges-action@v1.1.0
       with:
@@ -56,15 +47,17 @@ jobs:
         style: plastic
     - name: Build integration coverage using pytest-cov
       run: |
-        sudo xvfb-run -n 55 pytest -s --cov=opencodeblocks --cov-report=xml tests/integration
-        score=$(sudo xvfb-run python coverage_score.py --score)
-        color=$(sudo xvfb-run python coverage_score.py --color)
-        sudo echo "COVERAGE_INTEGRATION_SCORE=$score"
-        sudo echo "COVERAGE_INTEGRATION_COLOR=$color"
-        sudo echo "COVERAGE_INTEGRATION_SCORE=$score" >> $GITHUB_ENV
-        sudo echo "COVERAGE_INTEGRATION_COLOR=$color" >> $GITHUB_ENV
+        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1080x24 -ac +extension GLX
+
+        pytest -s --cov=opencodeblocks --cov-report=xml tests/integration
+        score=$(python coverage_score.py --score)
+        color=$(python coverage_score.py --color)
+        echo "COVERAGE_INTEGRATION_SCORE=$score"
+        echo "COVERAGE_INTEGRATION_COLOR=$color"
+        echo "COVERAGE_INTEGRATION_SCORE=$score" >> $GITHUB_ENV
+        echo "COVERAGE_INTEGRATION_COLOR=$color" >> $GITHUB_ENV
       env:
-        DISPLAY: :55
+        DISPLAY: :99
         QT_DEBUG_PLUGINS: 1
     - name: Create integration coverage badge
       uses: schneegans/dynamic-badges-action@v1.1.0
