@@ -3,6 +3,7 @@ pytest-cov
 pytest-mock
 pytest-check
 pytest-pspec
+pytest-qt
 pyautogui
 pylint
 pylint-pytest

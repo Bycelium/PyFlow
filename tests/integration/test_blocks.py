@@ -45,42 +45,34 @@ from PyQt5 import QtTest
 import pyautogui
 
 # The window and app variable used by every test.
+# The same app is used for every test.
 wnd = None
-app = None
-
 
 @pytest.fixture
 def clean_up():
-    global wnd,app
+    global wnd
 
     if wnd != None:
         wnd.close()
         wnd = None
-    if app != None:
-        app.quit()
-        app = None
 
 @pytest.mark.usefixtures('clean_up')
-def test_window_opening():
+def test_window_opening(qtbot):
     """ The OCBWindow should open and close correctly """
-    global wnd,app
+    global wnd
 
     from qtpy.QtWidgets import QApplication
     from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock, OCBBlock
     from opencodeblocks.graphics.socket import OCBSocket
     from opencodeblocks.graphics.window import OCBWindow
 
-    app = QApplication([])
-    app.setStyle('Fusion')
     wnd = OCBWindow()
 
 @pytest.mark.usefixtures('clean_up')
-def test_running_python():
+def test_running_python(qtbot):
     """ The blocks should run arbitrary python when unfocused """
-    global app,wnd
+    global wnd
 
-    app = QApplication([])
-    app.setStyle('Fusion')
     wnd = OCBWindow()
     
     EXPRESSION = "3 + 5 * 2"
@@ -117,25 +109,24 @@ def test_running_python():
     check.equal(expected_result,result)
 
 @pytest.mark.usefixtures('clean_up')
-def test_move_blocks():
+def test_move_blocks(qtbot):
     """ 
     Newly created blocks are displayed in the center.
     They can be dragged around with the mouse.
     """
-    global app,wnd
-
-    app = QApplication([])
-    app.setStyle('Fusion')
+    global wnd
     wnd = OCBWindow()
     
     ocb_widget = OCBWidget()
-    wnd.mdiArea.addSubWindow(ocb_widget)
+    subwnd = wnd.mdiArea.addSubWindow(ocb_widget)
 
     test_block1 = OCBCodeBlock(title="Testing block 1", source="print(1)")
     ocb_widget.scene.addItem(test_block1)
 
     test_block2 = OCBCodeBlock(title="Testing block 2", source="print(2)")
     ocb_widget.scene.addItem(test_block2)
+
+    subwnd.show()
 
     QApplication.processEvents()
 
@@ -154,7 +145,6 @@ def test_move_blocks():
         pos_block_1.setX(pos_block_1.x() + test_block1.title_height//2)
         pos_block_1.setY(pos_block_1.y() + test_block1.title_height//2)
 
-        sr = ocb_widget.view.sceneRect()        
         pos_block_1 = ocb_widget.view.mapFromScene(pos_block_1)
         pos_block_1 = ocb_widget.view.mapToGlobal(pos_block_1)
         
@@ -190,8 +180,6 @@ def test_move_blocks():
     t = threading.Thread(target=testing_drag, args=(msgQueue,))
     t.start()
 
-    ocb_widget.view.repaint()
-
     while True:
         QApplication.processEvents()
         time.sleep(0.02)
@@ -204,4 +192,4 @@ def test_move_blocks():
     t.join()
 
 if __name__ == "__main__":
-    test_running_python()
+    test_running_python(None)
