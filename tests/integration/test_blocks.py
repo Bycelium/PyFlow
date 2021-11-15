@@ -146,19 +146,17 @@ def test_move_blocks():
     msgQueue = queue.Queue()
 
     def testing_drag(msgQueue):
-        time.sleep(.4) # Wait for proper setup of app
+        time.sleep(1) # Wait for proper setup of app
         
         # test_block1 == (0,0) but it's not crucial for this test.
         pos_block_1 = QPoint(int(test_block1.pos().x()),int(test_block1.pos().y()))
         
-        pos_block_1.setX(pos_block_1.x() + 
-            test_block1.title_height//2 + 
-            ocb_widget.width()//2)
-        pos_block_1.setY(pos_block_1.y() + 
-            test_block1.title_height//2 + 
-            ocb_widget.height()//2)
+        pos_block_1.setX(pos_block_1.x() + test_block1.title_height//2)
+        pos_block_1.setY(pos_block_1.y() + test_block1.title_height//2)
 
-        pos_block_1 = ocb_widget.mapToGlobal(pos_block_1)
+        sr = ocb_widget.view.sceneRect()        
+        pos_block_1 = ocb_widget.view.mapFromScene(pos_block_1)
+        pos_block_1 = ocb_widget.view.mapToGlobal(pos_block_1)
         
         pyautogui.moveTo(pos_block_1.x(),pos_block_1.y())
         pyautogui.mouseDown(button="left")
@@ -188,8 +186,11 @@ def test_move_blocks():
         
         msgQueue.put([STOP_MSG])
 
+
     t = threading.Thread(target=testing_drag, args=(msgQueue,))
     t.start()
+
+    ocb_widget.view.repaint()
 
     while True:
         QApplication.processEvents()

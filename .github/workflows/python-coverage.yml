@@ -16,6 +16,8 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
+        sudo mkdir /usr/bin/platforms
+        
         sudo apt-get update
         sudo apt-get install python3-tk python3-dev
         sudo apt-get install xvfb
@@ -25,9 +27,13 @@ jobs:
         sudo apt-get install --reinstall libxcb-render-util0
         sudo apt-get install --reinstall libxcb-xkb1
         sudo apt-get install --reinstall libxkbcommon-x11-0
+
+        sudo ln -s /our/local/libqxcb.so /usr/bin/platforms/libqxcb.so
+        
         sudo python -m pip install --upgrade pip
         sudo pip install -r requirements.txt
         sudo pip install -r requirements-dev.txt
+
 
     - name: Build unit coverage using pytest-cov
       run: |
