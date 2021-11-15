@@ -1,0 +1,9 @@
+{
+	"comment_color":"#797979",
+	"string_color":"#CE9178",
+	"function_color":"#DCDCAA",
+	"keyword_color":"#569CD6",
+	"classname_color":"#4EC9B0",
+	"literal_color":"#7FB347",
+	"operator_color":"#D8D8D8"
+}
