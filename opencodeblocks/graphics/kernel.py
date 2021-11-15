@@ -94,8 +94,8 @@ class Kernel():
             current output of the kernel; done: bool, True if the kernel has no message to send
         """
         message, done = self.get_message()
-        out, _ = self.message_to_output(message)
-        return out, done
+        out, output_type = self.message_to_output(message)
+        return out, output_type, done
 
     def __del__(self):
         """
