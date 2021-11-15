@@ -5,8 +5,12 @@ We use xvfb to perform the tests without opening any windows.
 We use pyautogui to move the mouse and interact with the application.
 
 To pass the tests on windows, you need to not move the mouse.
+Use this if you need to understand why a test fails.
+
 To pass the tests on linux, you just need to install xvfb and it's dependencies.
 On linux, no windows are opened to the user during the test.
+To understand why a test fails, pass the flag "--no-xvfb" and use your own X server
+to see the test running live.
 """
 
 # Imports needed for testing
@@ -98,7 +102,7 @@ def test_move_blocks(qtbot):
     msgQueue = queue.Queue()
 
     def testing_drag(msgQueue):
-        time.sleep(1) # Wait for proper setup of app
+        time.sleep(.4) # Wait for proper setup of app
         
         # test_block1 == (0,0) but it's not crucial for this test.
         pos_block_1 = QPoint(int(test_block1.pos().x()),int(test_block1.pos().y()))
@@ -151,4 +155,17 @@ def test_move_blocks(qtbot):
             elif msg[0] == CHECK_MSG:
                 check.equal(msg[1],msg[2],msg[3])
     t.join()
+    wnd.close()
+
+def test_open_file():
+    """
+        The application loads files properly. 
+    """
+
+    wnd = OCBWindow()
+    file_example_path = "./tests/testing_assets/example_graph1.ipyg"
+    subwnd = wnd.createNewMdiChild(os.path.abspath(file_example_path))
+    subwnd.show()
+    QApplication.processEvents()
+
     wnd.close()
