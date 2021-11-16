@@ -24,9 +24,7 @@ class Theme:
                 setattr(self,p,json_obj[p])
             else:
                 setattr(self,p,known_properties[p])
-        self._name = name
-    def name(self):
-        return self._name
+        self.name = name
 
     def apply_to_lexer(self, lexer: QsciLexerPython):
         lexer.setDefaultPaper(QColor("#1E1E1E"))
@@ -68,10 +66,9 @@ class ThemeManager:
                 break
 
         self._themes = []
-        self._selected_theme = 0
+        self.selected_theme_index = 0
         theme_path = "./themes"
         theme_paths = os.listdir(theme_path)
-        print(theme_paths)
         for p in theme_paths:
             full_path = os.path.join(theme_path,p)
             if os.path.isfile(full_path) and full_path.endswith(".theme"):
@@ -80,14 +77,9 @@ class ThemeManager:
                 self._themes.append(theme)
 
     def list_themes(self) -> list[str]:
-        return [theme.name for theme in self._theme_list]
-
-    def select_theme(self, i: int) -> Theme:
-        self._selected_theme = i
-        return self._themes[i]
-
+        return [theme.name for theme in self._themes]
     def current_theme(self) -> Theme:
-        return self._themes[self._selected_theme]
+        return self._themes[self.selected_theme_index]
 
 theme_handle = None
 def theme_manager():
