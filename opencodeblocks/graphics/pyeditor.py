@@ -7,8 +7,10 @@ from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
+from opencodeblocks.graphics.theme_manager import theme_manager
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
+
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.view import OCBView
@@ -16,8 +18,8 @@ if TYPE_CHECKING:
 class PythonEditor(QsciScintilla):
 
     """ In-block python editor for OpenCodeBlocks. """
-
-    def __init__(self, block:OCBBlock):
+    
+    def __init__(self, block: OCBBlock):
         """ In-block python editor for OpenCodeBlocks.
 
         Args:
@@ -28,50 +30,8 @@ class PythonEditor(QsciScintilla):
         self.block = block
         self.setText(self.block.source)
 
-        # Set the default font
-        font = QFont()
-        font.setFamily('Courier')
-        font.setFixedPitch(True)
-        font.setPointSize(1)
-        self.setFont(font)
-
-        # Margin 0 is used for line numbers
-        fontmetrics = QFontMetrics(font)
-        foreground_color = QColor("#dddddd")
-        background_color = QColor("#212121")
-        self.setMarginsFont(font)
-        self.setMarginWidth(2, fontmetrics.width("00") + 6)
-        self.setMarginLineNumbers(2, True)
-        self.setMarginsForegroundColor(foreground_color)
-        self.setMarginsBackgroundColor(background_color)
-
-        # Set Python lexer
-        lexer = QsciLexerPython()
-        lexer.setDefaultFont(font)
-        lexer.setDefaultPaper(QColor("#1E1E1E"))
-        lexer.setDefaultColor(QColor("#D4D4D4"))
-
-        string_types = [
-            QsciLexerPython.SingleQuotedString,
-            QsciLexerPython.DoubleQuotedString,
-            QsciLexerPython.UnclosedString,
-            QsciLexerPython.SingleQuotedFString,
-            QsciLexerPython.TripleSingleQuotedString,
-            QsciLexerPython.TripleDoubleQuotedString,
-            QsciLexerPython.TripleSingleQuotedFString,
-            QsciLexerPython.TripleDoubleQuotedFString,
-        ]
-
-        for string_type in string_types:
-            lexer.setColor(QColor('#CE9178'), string_type)
-
-        lexer.setColor(QColor('#DCDCAA'), QsciLexerPython.FunctionMethodName)
-        lexer.setColor(QColor('#569CD6'), QsciLexerPython.Keyword)
-        lexer.setColor(QColor('#4EC9B0'), QsciLexerPython.ClassName)
-        lexer.setColor(QColor('#7FB347'), QsciLexerPython.Number)
-        lexer.setColor(QColor('#D8D8D8'), QsciLexerPython.Operator)
-
-        self.setLexer(lexer)
+        self.update_theme()
+        theme_manager().themeChanged.connect(self.update_theme)
 
         # Set caret
         self.setCaretForegroundColor(QColor("#D4D4D4"))
@@ -96,6 +56,29 @@ class PythonEditor(QsciScintilla):
         self.setStyleSheet("background:transparent")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+
+    def update_theme(self):
+        """ Change the font and colors of the editor to match the current theme """
+        font = QFont()
+        font.setFamily(theme_manager().recommended_font_family)
+        font.setFixedPitch(True)
+        font.setPointSize(11)
+        self.setFont(font)
+
+        # Margin 0 is used for line numbers
+        fontmetrics = QFontMetrics(font)
+        foreground_color = QColor("#dddddd")
+        background_color = QColor("#212121")
+        self.setMarginsFont(font)
+        self.setMarginWidth(2, fontmetrics.width("00") + 6)
+        self.setMarginLineNumbers(2, True)
+        self.setMarginsForegroundColor(foreground_color)
+        self.setMarginsBackgroundColor(background_color)
+
+        lexer = QsciLexerPython()
+        theme_manager().current_theme().apply_to_lexer(lexer)
+        lexer.setFont(font)
+        self.setLexer(lexer)
 
     def views(self) -> List['OCBView']:
         """ Get the views in which the python_editor is present. """

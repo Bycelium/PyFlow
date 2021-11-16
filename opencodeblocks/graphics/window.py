@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QDockWidget, QListWidget, QWidget, QAction, QFileDia
 from opencodeblocks import __appname__ as application_name
 from opencodeblocks.graphics.view import MODE_EDITING
 from opencodeblocks.graphics.widget import OCBWidget
+from opencodeblocks.graphics.theme_manager import theme_manager
 
 from opencodeblocks.graphics.qss import loadStylesheets
 
@@ -42,6 +43,9 @@ class OCBWindow(QMainWindow):
         self.mdiArea.subWindowActivated.connect(self.updateMenus)
         self.windowMapper = QSignalMapper(self)
         self.windowMapper.mapped[QWidget].connect(self.setActiveSubWindow)
+
+        self.themeMapper = QSignalMapper(self)
+        self.themeMapper.mapped[int].connect(self.setTheme)
 
         # Menus
         self.createActions()
@@ -156,11 +160,25 @@ class OCBWindow(QMainWindow):
         self.editmenu.addSeparator()
         self.editmenu.addAction(self.actDel)
 
+        self.viewmenu = self.menuBar().addMenu('&View')
+        self.thememenu = self.viewmenu.addMenu('Theme')
+        self.thememenu.aboutToShow.connect(self.updateThemeMenu)
+
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
         self.windowMenu.aboutToShow.connect(self.updateWindowMenu)
 
         self.menuBar().addSeparator()
+
+    def updateThemeMenu(self):
+        self.thememenu.clear()
+        theme_names = theme_manager().list_themes()
+        for i in range(len(theme_names)):
+            action = self.thememenu.addAction(theme_names[i])
+            action.setCheckable(True)
+            action.setChecked(i == theme_manager().selected_theme_index)
+            action.triggered.connect(self.themeMapper.map)
+            self.themeMapper.setMapping(action, i)
 
     def updateWindowMenu(self):
         self.windowMenu.clear()
@@ -346,3 +364,5 @@ class OCBWindow(QMainWindow):
     def setActiveSubWindow(self, window):
         if window:
             self.mdiArea.setActiveSubWindow(window)
+    def setTheme(self, theme_index):
+        theme_manager().selected_theme_index = theme_index
