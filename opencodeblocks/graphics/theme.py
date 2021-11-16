@@ -1,3 +1,8 @@
+"""
+This module defined Theme, a class that
+contains the details of the theme
+"""
+
 import json
 from PyQt5.Qsci import QsciLexerPython
 from PyQt5.QtGui import QColor
