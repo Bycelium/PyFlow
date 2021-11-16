@@ -3,75 +3,21 @@ This module provides several functions to define the
 appearance of the editing sections
 """
 import os
-import json
 from typing import List
 
-from PyQt5.QtGui import QFontDatabase, QColor
-from PyQt5.Qsci import QsciLexerPython
+from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtCore import pyqtSignal, QObject
 
-class Theme:
-    """ Class holding the details of a specific theme"""
+from opencodeblocks.graphics.theme import Theme
 
-    def __init__(self, name: str, json_str: str = "{}"):
-        """
-        Create a new theme
-        """
-        json_obj = json.loads(json_str)
-        known_properties = {
-            "comment_color": "#797979",
-            "string_color": "#CE9178",
-            "function_color": "#DCDCAA",
-            "keyword_color": "#569CD6",
-            "classname_color": "#4EC9B0",
-            "literal_color": "#7FB347",
-            "operator_color": "#D8D8D8"
-        }
-        for (property_name, property_value) in known_properties.items():
-            if property_name in json_obj:
-                setattr(self, property_name, json_obj[property_name])
-            else:
-                setattr(self, property_name, property_value)
-        self.name = name
-
-    def apply_to_lexer(self, lexer: QsciLexerPython):
-        """ Make the given lexer follow the theme """
-        lexer.setDefaultPaper(QColor("#1E1E1E"))
-        lexer.setDefaultColor(QColor("#D4D4D4"))
-
-        string_types = [
-            QsciLexerPython.SingleQuotedString,
-            QsciLexerPython.DoubleQuotedString,
-            QsciLexerPython.UnclosedString,
-            QsciLexerPython.SingleQuotedFString,
-            QsciLexerPython.TripleSingleQuotedString,
-            QsciLexerPython.TripleDoubleQuotedString,
-            QsciLexerPython.TripleSingleQuotedFString,
-            QsciLexerPython.TripleDoubleQuotedFString,
-        ]
-
-        for string_type in string_types:
-            lexer.setColor(QColor(self.string_color), string_type)
-
-        lexer.setColor(
-            QColor(
-                self.function_color),
-            QsciLexerPython.FunctionMethodName)
-        lexer.setColor(QColor(self.keyword_color), QsciLexerPython.Keyword)
-        lexer.setColor(QColor(self.classname_color), QsciLexerPython.ClassName)
-        lexer.setColor(QColor(self.literal_color), QsciLexerPython.Number)
-        lexer.setColor(QColor(self.operator_color), QsciLexerPython.Operator)
-        lexer.setColor(
-            QColor(
-                self.comment_color),
-            QsciLexerPython.CommentBlock)
-        lexer.setColor(QColor(self.comment_color), QsciLexerPython.Comment)
-
-
-class ThemeManager:
+class ThemeManager(QObject):
     """ Class loading theme files and providing the options set in those files """
 
-    def __init__(self):
+    themeChanged = pyqtSignal()
+
+    def __init__(self, parent = None):
         """ Load the default themes and the fonts available to construct the ThemeManager """
+        super().__init__(parent)
         self._preferred_fonts = ["Inconsolata", "Roboto Mono", "Courier"]
         self.recommended_font_family = "Monospace"
         qfd = QFontDatabase()
@@ -80,9 +26,9 @@ class ThemeManager:
             if font in available_fonts:
                 self.recommended_font_family = font
                 break
-
+        
         self._themes = []
-        self.selected_theme_index = 0
+        self._selected_theme_index = 0
         theme_path = "./themes"
         theme_paths = os.listdir(theme_path)
         for p in theme_paths:
@@ -92,6 +38,14 @@ class ThemeManager:
                 with open(full_path, 'r', encoding="utf-8") as f:
                     theme = Theme(name, f.read())
                     self._themes.append(theme)
+    @property
+    def selected_theme_index(self):
+        return self._selected_theme_index
+
+    @selected_theme_index.setter
+    def selected_theme_index(self, value: int):
+        self._selected_theme_index = value
+        self.themeChanged.emit()
 
     def list_themes(self) -> List[str]:
         """ List the themes """

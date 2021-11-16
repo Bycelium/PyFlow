@@ -5,7 +5,7 @@
 
 from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor, QFontDatabase
+from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.graphics.theme_manager import theme_manager
 
@@ -31,6 +31,7 @@ class PythonEditor(QsciScintilla):
         self.setText(self.block.source)
 
         self.update_theme()
+        theme_manager().themeChanged.connect(self.update_theme)
 
         # Set caret
         self.setCaretForegroundColor(QColor("#D4D4D4"))
