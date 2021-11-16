@@ -1,20 +1,12 @@
+# OpenCodeBlock an open-source tool for modular visual programing in python
+# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
 """
-Integration tests for OCB.
-
-We use xvfb to perform the tests without opening any windows.
-We use pyautogui to move the mouse and interact with the application.
-
-To pass the tests on windows, you need to not move the mouse.
-Use this if you need to understand why a test fails.
-
-To pass the tests on linux, you just need to install xvfb and it's dependencies.
-On linux, no windows are opened to the user during the test.
-To understand why a test fails, pass the flag "--no-xvfb" and use your own X server
-to see the test running live.
+Integration tests for the OCBBlocks.
 """
 
 # Imports needed for testing
-import time, threading, queue, os, sys
+import threading, queue
 import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
@@ -22,20 +14,90 @@ import pyautogui
  
 # Packages tested
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
-from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.window import OCBWindow
 from opencodeblocks.graphics.widget import OCBWidget
 
 from qtpy.QtWidgets import QApplication
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QFocusEvent, QMouseEvent
-from PyQt5.QtCore import QCoreApplication, QEvent, Qt, QPointF, QPoint
-from PyQt5 import QtTest
+from PyQt5.QtCore import QPointF
 
-def test_window_opening(qtbot):
-    """ The OCBWindow should open and close correctly """
-    wnd = OCBWindow()
-    wnd.close()
+class TestBlocks:
+
+    @pytest.fixture(autouse=True)
+    def setup(self, mocker:MockerFixture):
+        """ Setup reused variables. """
+        self.window = OCBWindow()
+        self.ocb_widget = OCBWidget()
+        self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
+
+        self.block1 = OCBCodeBlock(title="Testing block 1", source="print(1)")
+        self.block2 = OCBCodeBlock(title="Testing block 2", source="print(2)")
+
+    def test_create_blocks(self, qtbot):
+        """ can be added to the scene. """
+        self.ocb_widget.scene.addItem(self.block1)
+
+    def test_move_blocks(self, qtbot):
+        """ can be dragged around with the mouse. """
+        self.ocb_widget.scene.addItem(self.block1)
+        self.subwindow.show()
+
+        QApplication.processEvents()
+
+        expected_move_amount = [70,-30]
+        STOP_MSG = "stop"
+        CHECK_MSG = "check"
+
+        msgQueue = queue.Queue()
+
+        def testing_drag(msgQueue):
+            pos_block = QPointF(self.block1.pos().x(),self.block1.pos().y())
+
+            pos_block.setX(pos_block.x() + self.block1.title_height/2)
+            pos_block.setY(pos_block.y() + self.block1.title_height/2)
+
+            pos_block = self.ocb_widget.view.mapFromScene(pos_block)
+            pos_block = self.ocb_widget.view.mapToGlobal(pos_block)
+
+            pyautogui.moveTo(pos_block.x(),pos_block.y())
+            pyautogui.mouseDown(button="left")
+
+            iterations = 5
+            for i in range(iterations+1):
+                pyautogui.moveTo(
+                    pos_block.x() + expected_move_amount[0] * i / iterations,
+                    pos_block.y() + expected_move_amount[1] * i / iterations
+                )
+
+            pyautogui.mouseUp(button="left")
+
+            move_amount = [self.block1.pos().x(),self.block1.pos().y()]
+            # rectify because the scene can be zoomed :
+            move_amount[0] = move_amount[0] * self.ocb_widget.view.zoom
+            move_amount[1] = move_amount[1] * self.ocb_widget.view.zoom
+
+            msgQueue.put([
+                CHECK_MSG,
+                move_amount,
+                expected_move_amount,
+                "Block moved by the correct amound"
+            ])
+
+            msgQueue.put([STOP_MSG])
+
+
+        t = threading.Thread(target=testing_drag, args=(msgQueue,))
+        t.start()
+
+        while True:
+            QApplication.processEvents()
+            if not msgQueue.empty():
+                msg = msgQueue.get()
+                if msg[0] == STOP_MSG:
+                    break
+                elif msg[0] == CHECK_MSG:
+                    check.equal(msg[1],msg[2],msg[3])
+        t.join()
+        self.window.close()
 
 """
 def test_running_python(qtbot):
@@ -76,96 +138,3 @@ def test_running_python(qtbot):
     check.equal(expected_result,result)
     wnd.close()
 """
-
-def test_move_blocks(qtbot):
-    """ 
-    Newly created blocks are displayed in the center.
-    They can be dragged around with the mouse.
-    """
-    wnd = OCBWindow()
-    
-    ocb_widget = OCBWidget()
-    subwnd = wnd.mdiArea.addSubWindow(ocb_widget)
-
-    test_block1 = OCBCodeBlock(title="Testing block 1", source="print(1)")
-    ocb_widget.scene.addItem(test_block1)
-
-    test_block2 = OCBCodeBlock(title="Testing block 2", source="print(2)")
-    ocb_widget.scene.addItem(test_block2)
-
-    subwnd.show()
-
-    QApplication.processEvents()
-
-    expected_move_amount = [70,-30]
-    STOP_MSG = "stop"
-    CHECK_MSG = "check"
-
-    msgQueue = queue.Queue()
-
-    def testing_drag(msgQueue):
-        time.sleep(.4) # Wait for proper setup of app
-        
-        # test_block1 == (0,0) but it's not crucial for this test.
-        pos_block_1 = QPoint(int(test_block1.pos().x()),int(test_block1.pos().y()))
-        
-        pos_block_1.setX(pos_block_1.x() + test_block1.title_height//2)
-        pos_block_1.setY(pos_block_1.y() + test_block1.title_height//2)
-
-        pos_block_1 = ocb_widget.view.mapFromScene(pos_block_1)
-        pos_block_1 = ocb_widget.view.mapToGlobal(pos_block_1)
-        
-        pyautogui.moveTo(pos_block_1.x(),pos_block_1.y())
-        pyautogui.mouseDown(button="left")
-
-        iterations = 5
-        for i in range(iterations+1):
-            time.sleep(0.05)
-            pyautogui.moveTo(
-                pos_block_1.x() + expected_move_amount[0] * i // iterations,
-                pos_block_1.y() + expected_move_amount[1] * i // iterations
-            )
-    
-        pyautogui.mouseUp(button="left")
-        time.sleep(.2)
-
-        move_amount = [test_block2.pos().x(),test_block2.pos().y()]
-        # rectify because the scene can be zoomed :
-        move_amount[0] = int(move_amount[0] * ocb_widget.view.zoom)
-        move_amount[1] = int(move_amount[1] * ocb_widget.view.zoom)
-
-        msgQueue.put([
-            CHECK_MSG,
-            move_amount,
-            expected_move_amount,
-            "Block moved by the correct amound"
-        ])
-        
-        msgQueue.put([STOP_MSG])
-
-
-    t = threading.Thread(target=testing_drag, args=(msgQueue,))
-    t.start()
-
-    while True:
-        QApplication.processEvents()
-        time.sleep(0.02)
-        if not msgQueue.empty():
-            msg = msgQueue.get()
-            if msg[0] == STOP_MSG:
-                break
-            elif msg[0] == CHECK_MSG:
-                check.equal(msg[1],msg[2],msg[3])
-    t.join()
-    wnd.close()
-
-def test_open_file():
-    """
-        The application loads files properly. 
-    """
-
-    wnd = OCBWindow()
-    file_example_path = "./tests/testing_assets/example_graph1.ipyg"
-    subwnd = wnd.createNewMdiChild(os.path.abspath(file_example_path))
-    subwnd.show()
-    wnd.close()
