@@ -8,7 +8,7 @@ on: ["push"]
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
@@ -21,16 +21,18 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install python3-tk python3-dev
+        sudo apt-get install xvfb
+        sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        pip install -r requirements-dev.txt
+        touch /home/runner/.Xauthority
     - name: Test with pytest
       run: |
-        pip install -r requirements-dev.txt
+        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1080x24 -ac +extension GLX
         pytest tests
+      env:
+        DISPLAY: :99
