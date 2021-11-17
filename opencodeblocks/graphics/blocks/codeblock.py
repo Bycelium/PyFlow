@@ -3,6 +3,8 @@
 
 """ Module for the base OCB Code Block. """
 
+import re
+
 from typing import Optional
 
 from PyQt5.QtCore import QCoreApplication, Qt, QByteArray, QPointF
@@ -12,6 +14,8 @@ from PyQt5.QtWidgets import QStyleOptionGraphicsItem, QWidget, QGraphicsProxyWid
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
+
+ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
 class OCBCodeBlock(OCBBlock):
 
@@ -108,7 +112,11 @@ class OCBCodeBlock(OCBBlock):
             # If there is a text output, erase the image output and display the text output
             self.image = ""
             editor_widget = self.display.widget()
-            editor_widget.setText(self._stdout)
+            # Remove ANSI color codes
+            text = ansi_escape.sub('', value)
+            # Remove backspaces (tf loading bars)
+            text = text.replace('\x08', '')
+            editor_widget.setText(text)
 
     @property
     def image(self) -> str:
@@ -179,7 +187,7 @@ class OCBCodeBlock(OCBBlock):
         QApplication.restoreOverrideCursor()
 
     def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):
-        """ 
+        """
         We override the default resizing behavior as the code part and the display part of the block
         block can be resized independently.
         """
@@ -214,7 +222,7 @@ class OCBCodeBlock(OCBBlock):
         display_graphics.setWidget(display)
         display_graphics.setZValue(-1)
         return display_graphics
-    
+
     def init_run_button(self):
         """ Initialize the run button """
         run_button_graphics = QGraphicsProxyWidget(self)
@@ -223,7 +231,7 @@ class OCBCodeBlock(OCBBlock):
         run_button_graphics.setWidget(run_button)
         run_button.clicked.connect(self.run_code)
         return run_button_graphics
-    
+
     def run_code(self):
         """Run the code in the block"""
         code = self.source_editor.widget().text()
