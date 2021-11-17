@@ -7,3 +7,4 @@ pytest-qt
 pyautogui
 pylint
 pylint-pytest
+autopep8

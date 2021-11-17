@@ -5,10 +5,6 @@ import os
 import sys
 
 from qtpy.QtWidgets import QApplication
-
-from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock, OCBBlock
-from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.window import OCBWindow
 
 sys.path.insert(0, os.path.join( os.path.dirname(__file__), "..", ".." ))

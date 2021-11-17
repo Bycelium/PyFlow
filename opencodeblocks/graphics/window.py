@@ -198,7 +198,7 @@ class OCBWindow(QMainWindow):
         for i, window in enumerate(windows):
             child = window.widget()
 
-            text = "%d %s" % (i + 1, child.windowTitle())
+            text = f"{i + 1} {child.windowTitle()}"
             if i < 9:
                 text = '&' + text
 

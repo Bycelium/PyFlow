@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsTextItem, \
-    QStyleOptionGraphicsItem, QWidget, QApplication
+    QStyleOptionGraphicsItem, QWidget, QApplication, QGraphicsSceneHoverEvent
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
@@ -72,7 +72,10 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
 
+        self.setAcceptHoverEvents(True)
+
         self.resizing = False
+        self.resizing_hover = False # Is the mouse hovering over the resizing area ?
         self.moved = False
         self.metadata = {
             'title_metadata': {
@@ -130,8 +133,8 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     def _is_in_resize_area(self, pos:QPointF):
         """ Return True if the given position is in the block resize_area. """
-        return self.width - pos.x() < 2 * self.edge_size \
-            and self.height - pos.y() < 2 * self.edge_size
+        return self.width - self.edge_size*2 < pos.x() \
+            and self.height - self.edge_size*2 <  pos.y()
 
     def get_socket_pos(self, socket:OCBSocket) -> Tuple[float]:
         """ Get a socket position to place them on the block sides. """
@@ -172,21 +175,51 @@ class OCBBlock(QGraphicsItem, Serializable):
         socket.remove()
         self.update_sockets()
 
+    def hoverMoveEvent(self, event:QGraphicsSceneHoverEvent):
+        """ Triggered when hovering over a block """
+        pos = event.pos()
+        if self._is_in_resize_area(pos):
+            if not self.resizing_hover:
+                self._start_hovering()
+        elif self.resizing_hover:
+            self._stop_hovering()
+        return super().hoverMoveEvent(event)
+
+    def _start_hovering(self):
+        self.resizing_hover = True
+        QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+
+    def _stop_hovering(self):
+        self.resizing_hover = False
+        QApplication.restoreOverrideCursor()
+
+    def _start_resize(self,pos:QPointF):
+        self.resizing = True
+        self.resize_start = pos
+        QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+
+    def _stop_resize(self):
+        self.resizing = False
+        QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+
+    def hoverLeaveEvent(self, event:QGraphicsSceneHoverEvent):
+        """ Triggered when the mouse stops hovering over a block """
+        if self.resizing_hover:
+            self._stop_hovering()
+        return super().hoverLeaveEvent(event)
+
     def mousePressEvent(self, event:QGraphicsSceneMouseEvent):
         """ OCBBlock reaction to a mousePressEvent. """
         pos = event.pos()
-        if self._is_in_resize_area(pos) and event.buttons() == Qt.MouseButton.LeftButton:
-            self.resize_start = pos
-            self.resizing = True
-            QApplication.setOverrideCursor(Qt.CursorShape.SizeFDiagCursor)
+        if self.resizing_hover and event.buttons() == Qt.MouseButton.LeftButton:
+            self._start_resize(pos)
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event:QGraphicsSceneMouseEvent):
         """ OCBBlock reaction to a mouseReleaseEvent. """
         if self.resizing:
             self.scene().history.checkpoint("Resized block", set_modified=True)
-        self.resizing = False
-        QApplication.restoreOverrideCursor()
+        self._stop_resize()
         if self.moved:
             self.moved = False
             self.scene().history.checkpoint("Moved block", set_modified=True)
