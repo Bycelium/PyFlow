@@ -13,8 +13,8 @@ Feel free to fork the repository, implement your changes and create a merge requ
 
 First, make sure you have `python` installed. You will need to install all the `requirements` and the `requirements-dev` using the following commands: 
 
-* `pip install -r requirements.txt`
-* `pip install -r requirements-dev.txt`
+*   `pip install -r requirements.txt`
+*   `pip install -r requirements-dev.txt`
 
 You can run the program with `python main.py`
 
