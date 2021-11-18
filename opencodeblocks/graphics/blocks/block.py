@@ -5,8 +5,8 @@
 
 from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 
-from PyQt5.QtCore import QEvent, QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath, QResizeEvent
+from PyQt5.QtCore import QPointF, QRectF, Qt
+from PyQt5.QtGui import QBrush, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
     QGraphicsSceneMouseEvent, QLabel, QSplitter, QSplitterHandle, \
     QStyleOptionGraphicsItem, QWidget
@@ -91,7 +91,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        if type(self) == OCBBlock:
+        if type(self) == OCBBlock: # DO NOT TRUST codacy !!! isinstance != type
             # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
@@ -343,4 +343,5 @@ class OCBSplitter(QSplitter):
         self.block = block
 
     def createHandle(self):
+        """ Return the middle handle of the splitter """
         return OCBSplitterHandle(self.orientation(), self)
