@@ -41,6 +41,7 @@ class BlockSizeGrip(QSizeGrip):
         transformed_pt2 = self.block.mapFromScene(QPoint(1,1))
 
         pt = transformed_pt2 - transformed_pt1
+        pt /= self.block.scene().views()[0].zoom
 
         delta_x = (mouseEvent.globalX() - self.mouseX) * pt.x()
         delta_y = (mouseEvent.globalY() - self.mouseY) * pt.y()
