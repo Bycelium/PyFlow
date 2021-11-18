@@ -6,12 +6,13 @@ Integration tests for the OCBBlocks.
 """
 
 # Imports needed for testing
-import threading, queue
+import threading
+import queue
 import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 import pyautogui
- 
+
 # Packages tested
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.window import OCBWindow
@@ -20,10 +21,11 @@ from opencodeblocks.graphics.widget import OCBWidget
 from qtpy.QtWidgets import QApplication
 from PyQt5.QtCore import QPointF
 
+
 class TestBlocks:
 
     @pytest.fixture(autouse=True)
-    def setup(self, mocker:MockerFixture):
+    def setup(self, mocker: MockerFixture):
         """ Setup reused variables. """
         self.window = OCBWindow()
         self.ocb_widget = OCBWidget()
@@ -43,14 +45,14 @@ class TestBlocks:
 
         QApplication.processEvents()
 
-        expected_move_amount = [70,-30]
+        expected_move_amount = [70, -30]
         STOP_MSG = "stop"
         CHECK_MSG = "check"
 
         msgQueue = queue.Queue()
 
         def testing_drag(msgQueue):
-            pos_block = QPointF(self.block1.pos().x(),self.block1.pos().y())
+            pos_block = QPointF(self.block1.pos().x(), self.block1.pos().y())
 
             pos_block.setX(pos_block.x() + self.block1.title_height/2)
             pos_block.setY(pos_block.y() + self.block1.title_height/2)
@@ -58,7 +60,7 @@ class TestBlocks:
             pos_block = self.ocb_widget.view.mapFromScene(pos_block)
             pos_block = self.ocb_widget.view.mapToGlobal(pos_block)
 
-            pyautogui.moveTo(pos_block.x(),pos_block.y())
+            pyautogui.moveTo(pos_block.x(), pos_block.y())
             pyautogui.mouseDown(button="left")
 
             iterations = 5
@@ -70,7 +72,7 @@ class TestBlocks:
 
             pyautogui.mouseUp(button="left")
 
-            move_amount = [self.block1.pos().x(),self.block1.pos().y()]
+            move_amount = [self.block1.pos().x(), self.block1.pos().y()]
             # rectify because the scene can be zoomed :
             move_amount[0] = move_amount[0] * self.ocb_widget.view.zoom
             move_amount[1] = move_amount[1] * self.ocb_widget.view.zoom
@@ -84,7 +86,6 @@ class TestBlocks:
 
             msgQueue.put([STOP_MSG])
 
-
         t = threading.Thread(target=testing_drag, args=(msgQueue,))
         t.start()
 
@@ -95,9 +96,10 @@ class TestBlocks:
                 if msg[0] == STOP_MSG:
                     break
                 elif msg[0] == CHECK_MSG:
-                    check.equal(msg[1],msg[2],msg[3])
+                    check.equal(msg[1], msg[2], msg[3])
         t.join()
         self.window.close()
+
 
 """
 def test_running_python(qtbot):

@@ -18,10 +18,11 @@ kernel = Kernel()
 if TYPE_CHECKING:
     from opencodeblocks.graphics.view import OCBView
 
+
 class PythonEditor(QsciScintilla):
 
     """ In-block python editor for OpenCodeBlocks. """
-    
+
     def __init__(self, block: OCBBlock):
         """ In-block python editor for OpenCodeBlocks.
 
@@ -88,7 +89,7 @@ class PythonEditor(QsciScintilla):
         """ Get the views in which the python_editor is present. """
         return self.graphicsProxyWidget().scene().views()
 
-    def set_views_mode(self, mode:str):
+    def set_views_mode(self, mode: str):
         """ Set the views in which the python_editor is present to editing mode. """
         for view in self.views():
             if mode == "MODE_EDITING" or view.is_mode("MODE_EDITING"):

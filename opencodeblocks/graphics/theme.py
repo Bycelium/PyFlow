@@ -7,6 +7,7 @@ import json
 from PyQt5.Qsci import QsciLexerPython
 from PyQt5.QtGui import QColor
 
+
 class Theme:
     """ Class holding the details of a specific theme"""
 
