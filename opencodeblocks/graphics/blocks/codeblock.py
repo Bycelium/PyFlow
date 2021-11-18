@@ -37,7 +37,7 @@ class OCBCodeBlock(OCBBlock):
         self._min_source_editor_height = 20
 
         self.source_editor = self.init_source_editor()
-        self.display = self.init_display()
+        self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
         self.stdout = ""
         self.image = ""
@@ -51,17 +51,6 @@ class OCBCodeBlock(OCBBlock):
         source_editor = PythonEditor(self)
         self.splitter.addWidget(source_editor)
         return source_editor
-
-
-    @property
-    def _editor_widget_height(self):
-        return self.height - self.title_height - 2*self.edge_size \
-            - self.output_panel_height
-
-    @_editor_widget_height.setter
-    def _editor_widget_height(self, value: int):
-        self.output_panel_height = self.height - \
-            value - self.title_height - 2*self.edge_size
 
     def update_all(self):
         """ Update the code block parts. """
@@ -98,12 +87,11 @@ class OCBCodeBlock(OCBBlock):
             # text output
             self.image = ""
 
-            editor_widget = self.display
             # Remove ANSI color codes
             text = ansi_escape.sub('', value)
             # Remove backspaces (tf loading bars)
             text = text.replace('\x08', '')
-            editor_widget.setText(text)
+            self.output_panel.setText(text)
 
     @property
     def image(self) -> str:
@@ -116,13 +104,11 @@ class OCBCodeBlock(OCBBlock):
         if hasattr(self, 'source_editor') and self.image != "":
             # If there is an image output, erase the text output and display
             # the image output
-            editor_widget = self.display
-            editor_widget.setText("")
-            qlabel = editor_widget
+            self.output_panel.setText("")
             ba = QByteArray.fromBase64(str.encode(self.image))
             pixmap = QPixmap()
             pixmap.loadFromData(ba)
-            qlabel.setPixmap(pixmap)
+            self.output_panel.setPixmap(pixmap)
 
     @source.setter
     def source(self, value: str):
@@ -132,13 +118,13 @@ class OCBCodeBlock(OCBBlock):
             editor_widget.setText(self._source)
 
 
-    def init_display(self):
+    def init_output_panel(self):
         """ Initialize the output display widget: QLabel """
-        display = QLabel()
-        display.setText("")
+        output_panel = QLabel()
+        output_panel.setText("")
 
-        self.splitter.addWidget(display)
-        return display
+        self.splitter.addWidget(output_panel)
+        return output_panel
 
     def init_run_button(self):
         """ Initialize the run button """
