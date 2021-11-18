@@ -87,7 +87,7 @@ class PythonEditor(QsciScintilla):
 
     def views(self) -> List['OCBView']:
         """ Get the views in which the python_editor is present. """
-        return self.graphicsProxyWidget().scene().views()
+        return self.block.scene().views()
 
     def set_views_mode(self, mode: str):
         """ Set the views in which the python_editor is present to editing mode. """

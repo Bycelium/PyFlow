@@ -54,7 +54,9 @@ class TestBlocks:
         def testing_drag(msgQueue):
             pos_block = QPointF(self.block1.pos().x(), self.block1.pos().y())
 
-            pos_block.setX(pos_block.x() + self.block1.title_height/2)
+            pos_block.setX(
+                pos_block.x() + self.block1.title_height + self.block1.edge_size
+            )
             pos_block.setY(pos_block.y() + self.block1.title_height/2)
 
             pos_block = self.ocb_widget.view.mapFromScene(pos_block)

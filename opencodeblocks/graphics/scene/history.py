@@ -18,7 +18,7 @@ class SceneHistory():
 
     """
 
-    def __init__(self, scene:'OCBScene', max_stack:int=20):
+    def __init__(self, scene:'OCBScene', max_stack:int = 50):
         self.scene = scene
         self.history_stack = []
         self.current = -1
