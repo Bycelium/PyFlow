@@ -20,24 +20,6 @@ def run_cell(cell: str) -> str:
     return kernel.execute(cell)
 
 
-def run_with_variable_output(cell: str) -> None:
-    """
-    This is a proof of concept to show that it is possible
-    to collect a variable output from a kernel execution
-
-    Here the kernel executes the code and prints the output repeatedly
-    For example: if cell="model.fit(...)", this would print the progress bar progressing
-
-    Args:
-        cell: String containing Python code
-    """
-    kernel.client.execute(cell)
-    done = False
-    while not done:
-        output, done = kernel.update_output()
-        print(output)
-
-
 def get_function_name(code: str) -> str:
     """
     Parses a string of code and returns the first function name it finds
