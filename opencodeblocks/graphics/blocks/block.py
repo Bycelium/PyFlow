@@ -127,7 +127,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         """
         self.title_widget.setMargin(int(padding))
-        self.title_widget.setStyleSheet("QLabel { color : %s; }" % color)
+        self.title_widget.setStyleSheet(f"QLabel \{ color : {color}\}")
         self.title_widget.setFont(QFont(font, size))
 
     def paint(self, painter: QPainter,
