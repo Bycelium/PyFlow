@@ -83,13 +83,17 @@ class OCBBlock(QGraphicsItem, Serializable):
             title_color,
             title_font,
             title_size,
-            title_padding)
+            title_padding
+        )
 
         self.splitter = QSplitter(Qt.Vertical, self.root)
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        self.holder.setWidget(self.root)
+        if type(self) == OCBBlock:
+            # This has to be done at the end of the constructor of
+            # every class inheriting this.
+            self.holder.setWidget(self.root)
 
         self.edge_size = edge_size
         self._min_width = 300

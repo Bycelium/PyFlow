@@ -42,6 +42,8 @@ class OCBCodeBlock(OCBBlock):
         self.stdout = ""
         self.image = ""
 
+        self.holder.setWidget(self.root)
+
         self.update_all()  # Set the geometry of display and source_editor
 
     def init_source_editor(self):
@@ -143,13 +145,14 @@ class OCBCodeBlock(OCBBlock):
         run_button = QPushButton(">",self.root)
         run_button.setMinimumWidth(int(self.edge_size))
         run_button.clicked.connect(self.run_code)
+        run_button.raise_()
 
         return run_button
 
     def run_code(self):
         """Run the code in the block"""
-        code = self.source_editor.widget().text()
-        kernel = self.source_editor.widget().kernel
+        code = self.source_editor.text()
+        kernel = self.source_editor.kernel
         self.source = code
         # Execute the code
         kernel.client.execute(code)

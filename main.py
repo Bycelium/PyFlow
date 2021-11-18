@@ -1,8 +1,10 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-import os
-import sys
+import os,sys,asyncio
+
+if os.name == "nt": # If on windows
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from qtpy.QtWidgets import QApplication
 from opencodeblocks.graphics.window import OCBWindow
