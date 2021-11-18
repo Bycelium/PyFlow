@@ -24,27 +24,43 @@ class RootSizeGrip(QSizeGrip):
         self.container = container
         self.resizing = False
     def mousePressEvent(self, mouseEvent: QMouseEvent):
-        self.mouseX = mouseEvent.x()
-        self.mouseY = mouseEvent.y()
+        self.mouseX = mouseEvent.globalX()
+        self.mouseY = mouseEvent.globalY()
         self.resizing = True
     def mouseReleaseEvent(self, mouseEvent: QMouseEvent):
         self.resizing = False
     def mouseMoveEvent(self, mouseEvent: QMouseEvent):
-        # Perform resizing of the root widget
-        rootWidget = self.parent()
-        deltaX = mouseEvent.x() - self.mouseX
-        deltaY = mouseEvent.y() - self.mouseY
-        rootWidget.setGeometry(
+        """ Performs resizing of the root widget """
+        """
+            Here, we use globalx and globaly instead of x() and y().
+            This is because when using x() and y(), the mouse position is taken
+            relative to the grip, so if the grip moves, the deltaX and deltaY changes.
+
+            This creates a shaking effect when resizing. We use global to not have this effect.
+        """
+        deltaX = mouseEvent.globalX() - self.mouseX
+        deltaY = mouseEvent.globalY() - self.mouseY
+
+        new_width = max(
+            self.container.width + deltaX,
+            self.container._min_width
+        )
+        new_height = max(
+            self.container.height + deltaY,
+            self.container._min_height
+        )
+
+        self.parent().setGeometry(
             0,
             0,
-            rootWidget.width() + deltaX,
-            rootWidget.height() + deltaY
+            new_width,
+            new_height
         )
         # Update the underlying OCBBlock
         self.container.update_all()
 
-        self.mouseX = mouseEvent.x()
-        self.mouseY = mouseEvent.y()
+        self.mouseX = mouseEvent.globalX()
+        self.mouseY = mouseEvent.globalY()
 
 class OCBBlock(QGraphicsItem, Serializable):
 
@@ -80,13 +96,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.sockets_in = []
         self.sockets_out = []
 
-        self._min_width = 300
-        self._min_height = 100
-
-        self.width = width
-        self.height = height
-        self.edge_size = edge_size
-
         self.title_height = 3 * title_size
         self.title = title
 
@@ -110,7 +119,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             int(height)
         )
 
-
         self.title_widget = QLabel(self.title,self.root)
         self.title_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
@@ -123,8 +131,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.holder.setWidget(self.root)
         # self.holder.setZValue(-1)
 
-        self.resizing = False
-        self.resizing_hover = False # Is the mouse hovering over the resizing area ?
+        self.edge_size = edge_size
+        self._min_width = 300
+        self._min_height = 100
+        self.width = width
+        self.height = height
+
         self.moved = False
         self.metadata = {
             'title_metadata': {
@@ -266,6 +278,7 @@ class OCBBlock(QGraphicsItem, Serializable):
                 int(self.edge_size*1.7),
                 int(self.edge_size*1.7)
             )
+            print("Updated with: ",self.width)
 
     @property
     def title(self):
@@ -283,9 +296,8 @@ class OCBBlock(QGraphicsItem, Serializable):
         return self.root.width()
     @width.setter
     def width(self, value:float):
-        pass
-        # self._width = value
-        # self.update_all()
+        self.root.setGeometry(0,0,int(value),self.root.height())
+        self.update_all()
 
     @property
     def height(self):
@@ -293,9 +305,8 @@ class OCBBlock(QGraphicsItem, Serializable):
         return self.root.height()
     @height.setter
     def height(self, value:float):
-        pass
-        # self._height = value
-        # self.update_all()
+        self.root.setGeometry(0,0,self.root.width(),int(value))
+        self.update_all()
 
     def serialize(self) -> OrderedDict:
         metadata = OrderedDict(sorted(self.metadata.items()))
@@ -316,11 +327,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.id = data['id']
         for dataname in ('title', 'block_type', 'source', 'width', 'height'):
             setattr(self, dataname, data[dataname])
-        self.root.setGeometry(
-            0,0,
-            int(self.width),
-            int(self.height)
-        )
 
         self.setPos(QPointF(*data['position']))
         self.metadata = dict(data['metadata'])
