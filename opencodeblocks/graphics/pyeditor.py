@@ -103,8 +103,3 @@ class PythonEditor(QsciScintilla):
         """ PythonEditor reaction to PyQt focusOut events. """
         self.set_views_mode("MODE_NOOP")
         return super().focusOutEvent(event)
-        
-    def gatherBlockInputs(self):
-        args = [2, 3]
-        kwargs = {"chicken": False}
-        return args, kwargs

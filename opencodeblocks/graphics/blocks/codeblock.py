@@ -4,7 +4,6 @@
 """ Module for the base OCB Code Block. """
 
 import re
-
 from typing import Optional
 
 from PyQt5.QtCore import QCoreApplication, Qt, QByteArray, QPointF
