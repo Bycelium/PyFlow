@@ -4,7 +4,7 @@
 """ Module for OCB in block python editor. """
 
 from typing import TYPE_CHECKING, List
-from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.graphics.theme_manager import theme_manager
@@ -31,6 +31,7 @@ class PythonEditor(QsciScintilla):
         """
         super().__init__(None)
         self.block = block
+        self.kernel = kernel
         self.setText(self.block.source)
 
         self.update_theme()
@@ -101,28 +102,4 @@ class PythonEditor(QsciScintilla):
     def focusOutEvent(self, event: QFocusEvent):
         """ PythonEditor reaction to PyQt focusOut events. """
         self.set_views_mode("MODE_NOOP")
-
-        code = self.text()
-        if self.isModified() and code != self.block.source:
-            self.block.source = code
-            self.setModified(False)
-            # Execute the code
-            kernel.client.execute(code)
-            done = False
-            # While the kernel sends messages
-            while done is False:
-                # Keep the GUI alive
-                QCoreApplication.processEvents()
-                # Save kernel message and display it
-                output, output_type, done = kernel.update_output()
-                if done is False:
-                    if output_type == 'text':
-                        self.block.stdout = output
-                    elif output_type == 'image':
-                        self.block.image = output
         return super().focusOutEvent(event)
-
-    def gatherBlockInputs(self):
-        args = [2, 3]
-        kwargs = {"chicken": False}
-        return args, kwargs
