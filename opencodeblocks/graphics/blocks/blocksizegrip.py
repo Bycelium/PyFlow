@@ -13,6 +13,7 @@ from PyQt5.QtGui import QMouseEvent
 
 class BlockSizeGrip(QSizeGrip):
     """ A grip to resize a block """
+
     def __init__(self, block: QGraphicsItem, parent: QWidget = None):
         """
             Constructor for BlockSizeGrip
@@ -35,6 +36,7 @@ class BlockSizeGrip(QSizeGrip):
     def mouseReleaseEvent(self, mouseEvent: QMouseEvent):
         """ Stop the resizing """
         self.resizing = False
+        self.block.scene().history.checkpoint("Resized block", set_modified=True)
 
     @property
     def _zoom(self) -> float:
@@ -43,8 +45,8 @@ class BlockSizeGrip(QSizeGrip):
 
     def mouseMoveEvent(self, mouseEvent: QMouseEvent):
         """ Performs resizing of the root widget """
-        transformed_pt1 = self.block.mapFromScene(QPoint(0,0))
-        transformed_pt2 = self.block.mapFromScene(QPoint(1,1))
+        transformed_pt1 = self.block.mapFromScene(QPoint(0, 0))
+        transformed_pt2 = self.block.mapFromScene(QPoint(1, 1))
 
         pt = transformed_pt2 - transformed_pt1
         pt /= self._zoom
@@ -58,11 +60,11 @@ class BlockSizeGrip(QSizeGrip):
         # have this effect.
         new_width = max(
             self.block.width + int(delta_x),
-            self.block._min_width
+            self.block.min_width
         )
         new_height = max(
             self.block.height + int(delta_y),
-            self.block._min_height
+            self.block.min_height
         )
 
         self.parent().setGeometry(0, 0, new_width, new_height)

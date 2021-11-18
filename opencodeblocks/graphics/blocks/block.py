@@ -5,10 +5,10 @@
 
 from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 
-from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
+from PyQt5.QtCore import QEvent, QPointF, QRectF, Qt
+from PyQt5.QtGui import QBrush, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath, QResizeEvent
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
-    QGraphicsSceneMouseEvent, QLabel, QSplitter, \
+    QGraphicsSceneMouseEvent, QLabel, QSplitter, QSplitterHandle, \
     QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
@@ -55,6 +55,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.title_height = 3 * title_size
         self.title = title
+        self.title_left_offset = 0
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
@@ -86,18 +87,18 @@ class OCBBlock(QGraphicsItem, Serializable):
             title_padding
         )
 
-        self.splitter = QSplitter(Qt.Vertical, self.root)
+        self.splitter = OCBSplitter(self, Qt.Vertical, self.root)
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        if type(self) == OCBBlock:
-            # This has to be done at the end of the constructor of
+        if isinstance(self, OCBBlock):
+            # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
 
         self.edge_size = edge_size
-        self._min_width = 300
-        self._min_height = 100
+        self.min_width = 300
+        self.min_height = 100
         self.width = width
         self.height = height
 
@@ -242,8 +243,8 @@ class OCBBlock(QGraphicsItem, Serializable):
                 self.splitter.setSizes(sizes)
 
             self.title_widget.setGeometry(
-                int(self.edge_size),
-                int(0),
+                int(self.edge_size + self.title_left_offset),
+                int(self.edge_size / 2),
                 int(self.width - 2 * self.edge_size),
                 int(self.title_height)
             )
@@ -292,6 +293,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             ('title', self.title),
             ('block_type', self.block_type),
             ('source', self.source),
+            ('splitter_pos', self.splitter.sizes()),
             ('position', [self.pos().x(), self.pos().y()]),
             ('width', self.width),
             ('height', self.height),
@@ -311,8 +313,34 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.metadata = dict(data['metadata'])
         self.setTitleGraphics(**self.metadata['title_metadata'])
 
+        if 'splitter_pos' in data:
+            self.splitter.setSizes(data['splitter_pos'])
+
         for socket_data in data['sockets']:
             socket = OCBSocket(block=self)
             socket.deserialize(socket_data, hashmap, restore_id)
             self.add_socket(socket)
             hashmap.update({socket_data['id']: socket})
+
+
+class OCBSplitterHandle(QSplitterHandle):
+    """ A handle for splitters with undoable events """
+
+    def mouseReleaseEvent(self, evt: QMouseEvent):
+        """ When releasing the handle, save the state to history """
+        scene = self.parent().block.scene()
+        if scene is not None:
+            scene.history.checkpoint("Resize block", set_modified=True)
+        return super().mouseReleaseEvent(evt)
+
+
+class OCBSplitter(QSplitter):
+    """ A spliter with undoable events """
+
+    def __init__(self, block: OCBBlock, orientation: int, parent: QWidget):
+        """ Create a new OCBSplitter """
+        super().__init__(orientation, parent)
+        self.block = block
+
+    def createHandle(self):
+        return OCBSplitterHandle(self.orientation(), self)

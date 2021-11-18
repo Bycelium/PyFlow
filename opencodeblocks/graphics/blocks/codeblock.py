@@ -41,6 +41,7 @@ class OCBCodeBlock(OCBBlock):
         self.run_button = self.init_run_button()
         self.stdout = ""
         self.image = ""
+        self.title_left_offset = 3 * self.edge_size
 
         self.holder.setWidget(self.root)
 
@@ -58,9 +59,9 @@ class OCBCodeBlock(OCBBlock):
         if hasattr(self, 'run_button'):
             self.run_button.setGeometry(
                 int(self.edge_size),
-                int(self.edge_size + self.title_height),
-                int(2.5*self.edge_size),
-                int(2.5*self.edge_size)
+                int(self.edge_size / 2),
+                int(2.5 * self.edge_size),
+                int(2.5 * self.edge_size)
             )
 
     @property
@@ -117,7 +118,6 @@ class OCBCodeBlock(OCBBlock):
             editor_widget = self.source_editor
             editor_widget.setText(self._source)
 
-
     def init_output_panel(self):
         """ Initialize the output display widget: QLabel """
         output_panel = QLabel()
@@ -128,7 +128,7 @@ class OCBCodeBlock(OCBBlock):
 
     def init_run_button(self):
         """ Initialize the run button """
-        run_button = QPushButton(">",self.root)
+        run_button = QPushButton(">", self.root)
         run_button.setMinimumWidth(int(self.edge_size))
         run_button.clicked.connect(self.run_code)
         run_button.raise_()
