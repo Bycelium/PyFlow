@@ -14,8 +14,13 @@ OpenCodeBlocks is an open-source tool for modular visual programing in python.
 
 ## Features
 
-* Put your python code in small independent blocks
-* Export and Import your blocks and share them with other people
+* Put your python code in small interconnected blocks
+
+
+* Export and Import your graphs and share them with other people in the new Interactive PYthon
+  Graph format (.ipyg)
+
+
 * Chain your blocks to perform complex functions.
 
 ## Installation
