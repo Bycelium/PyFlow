@@ -3,37 +3,42 @@ name: Codacy coverage
 on: ["push"]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install python3-tk python3-dev
+        sudo apt-get install xvfb
+        sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        touch /home/runner/.Xauthority
+
+    - name: Build unit coverage using pytest-cov
+      run: |
+        pytest --cov=opencodeblocks --cov-report=xml:coverage_unit.xml tests/unit
+    - name: Build integration coverage using pytest-cov
+      run: |
+        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1080x24 -ac +extension GLX
+        pytest -s --cov=opencodeblocks --cov-report=xml:coverage_integration.xml tests/integration
+      env:
+        DISPLAY: :99
   codacy-coverage-reporter:
     runs-on: ubuntu-latest
     name: codacy-coverage-reporter
     steps:
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install python3-tk python3-dev
-          sudo apt-get install xvfb
-          sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
-
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          touch /home/runner/.Xauthority
-      - name: Test with pytest
-        run: |
-          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1080x24 -ac +extension GLX
-          pytest tests
-        env:
-          DISPLAY: :99
-      - name: Build unit coverage using pytest-cov
-        run: |
-          pytest --cov=opencodeblocks --cov-report=xml:coverage_unit.xml tests/unit
       - uses: actions/checkout@v2
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage_unit.xml
+          coverage-reports: coverage_unit.xml coverage_integration.xml
