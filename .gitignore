@@ -126,3 +126,6 @@ dmypy.json
 
 # Sublime text
 *.sublime-workspace
+
+# Pyright config
+pyrightconfig.json
