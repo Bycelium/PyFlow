@@ -6,9 +6,9 @@
 from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath, QResizeEvent
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, QGraphicsTextItem, QLabel, QSizeGrip, QSplitter, \
-    QStyleOptionGraphicsItem, QWidget, QApplication, QGraphicsSceneHoverEvent
+from PyQt5.QtGui import QBrush, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, QLabel, QSizeGrip, QSplitter, \
+    QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
@@ -16,15 +16,35 @@ from opencodeblocks.graphics.socket import OCBSocket
 if TYPE_CHECKING:
     from opencodeblocks.graphics.scene.scene import OCBScene
 
-class RootWidget(QWidget):
-    def __init__(self, parent: QWidget = None):
+class RootSizeGrip(QSizeGrip):
+    def __init__(self, container: QGraphicsItem, parent: QWidget = None):
         super().__init__(parent)
-    def resizeEvent(self, evt: QResizeEvent):
-        # super().resizeEvent(evt)
-        print("r evt")
-        print(evt.size().width(),evt.size().height())
-        print(evt.oldSize().width(),evt.oldSize().height())
+        self.mouseX = 0
+        self.mouseY = 0
+        self.container = container
+        self.resizing = False
+    def mousePressEvent(self, mouseEvent: QMouseEvent):
+        self.mouseX = mouseEvent.x()
+        self.mouseY = mouseEvent.y()
+        self.resizing = True
+    def mouseReleaseEvent(self, mouseEvent: QMouseEvent):
+        self.resizing = False
+    def mouseMoveEvent(self, mouseEvent: QMouseEvent):
+        # Perform resizing of the root widget
+        rootWidget = self.parent()
+        deltaX = mouseEvent.x() - self.mouseX
+        deltaY = mouseEvent.y() - self.mouseY
+        rootWidget.setGeometry(
+            0,
+            0,
+            rootWidget.width() + deltaX,
+            rootWidget.height() + deltaY
+        )
+        # Update the underlying OCBBlock
+        self.container.update_all()
 
+        self.mouseX = mouseEvent.x()
+        self.mouseY = mouseEvent.y()
 
 class OCBBlock(QGraphicsItem, Serializable):
 
@@ -67,8 +87,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.height = height
         self.edge_size = edge_size
 
-        # self.title_graphics = QGraphicsTextItem(self)
-        # self.setTitleGraphics(title_color, title_font, title_size, title_padding)
         self.title_height = 3 * title_size
         self.title = title
 
@@ -84,12 +102,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.setAcceptHoverEvents(True)
 
         self.holder = QGraphicsProxyWidget(self)
-        self.root = RootWidget()
+        self.root = QWidget()
         self.root.setAttribute(Qt.WA_TranslucentBackground)
         self.root.setGeometry(
             0,0,
-            int(self.width),
-            int(self.height)
+            int(width),
+            int(height)
         )
 
 
@@ -100,7 +118,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.splitter = QSplitter(Qt.Vertical,self.root) 
 
-        self.size_grip = QSizeGrip(self.root)
+        self.size_grip = RootSizeGrip(self,self.root)
 
         self.holder.setWidget(self.root)
         # self.holder.setZValue(-1)
@@ -248,11 +266,6 @@ class OCBBlock(QGraphicsItem, Serializable):
                 int(self.edge_size*1.7),
                 int(self.edge_size*1.7)
             )
-            # self.root.setGeometry(
-                # 0,0,
-                # int(self.width),
-                # int(self.height)
-            # )
 
     @property
     def title(self):
@@ -261,26 +274,28 @@ class OCBBlock(QGraphicsItem, Serializable):
     @title.setter
     def title(self, value:str):
         self._title = value
-        # if hasattr(self, 'title_graphics'):
-            # self.title_graphics.setPlainText(self._title)
+        if hasattr(self, 'title_widget'):
+            self.title_widget.setText(self._title)
 
     @property
     def width(self):
         """ Block width. """
-        return self._width
+        return self.root.width()
     @width.setter
     def width(self, value:float):
-        self._width = value
-        self.update_all()
+        pass
+        # self._width = value
+        # self.update_all()
 
     @property
     def height(self):
         """ Block height. """
-        return self._height
+        return self.root.height()
     @height.setter
     def height(self, value:float):
-        self._height = value
-        self.update_all()
+        pass
+        # self._height = value
+        # self.update_all()
 
     def serialize(self) -> OrderedDict:
         metadata = OrderedDict(sorted(self.metadata.items()))
@@ -306,8 +321,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             int(self.width),
             int(self.height)
         )
-        self.root.setMaximumWidth(int(self.width*2));
-        self.root.setMaximumHeight(int(self.height*2));
 
         self.setPos(QPointF(*data['position']))
         self.metadata = dict(data['metadata'])
