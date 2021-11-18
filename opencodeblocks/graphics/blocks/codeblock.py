@@ -16,6 +16,7 @@ from opencodeblocks.graphics.pyeditor import PythonEditor
 
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
+
 class OCBCodeBlock(OCBBlock):
 
     """
@@ -43,7 +44,7 @@ class OCBCodeBlock(OCBBlock):
 
         self.resizing_source_code = False
 
-        self.update_all() # Set the geometry of display and source_editor
+        self.update_all()  # Set the geometry of display and source_editor
 
     def init_source_editor(self):
         """ Initialize the python source code editor. """
@@ -56,11 +57,12 @@ class OCBCodeBlock(OCBBlock):
     @property
     def _editor_widget_height(self):
         return self.height - self.title_height - 2*self.edge_size \
-                    - self.output_panel_height
+            - self.output_panel_height
 
     @_editor_widget_height.setter
     def _editor_widget_height(self, value: int):
-        self.output_panel_height = self.height - value - self.title_height - 2*self.edge_size
+        self.output_panel_height = self.height - \
+            value - self.title_height - 2*self.edge_size
 
     def update_all(self):
         """ Update the code block parts. """
@@ -94,7 +96,7 @@ class OCBCodeBlock(OCBBlock):
         return self._source
 
     @source.setter
-    def source(self, value:str):
+    def source(self, value: str):
         self._source = value
         if hasattr(self, 'source_editor'):
             editor_widget = self.source_editor.widget()
@@ -104,8 +106,9 @@ class OCBCodeBlock(OCBBlock):
     def stdout(self) -> str:
         """ Code output. Be careful, this also includes stderr """
         return self._stdout
+
     @stdout.setter
-    def stdout(self, value:str):
+    def stdout(self, value: str):
         self._stdout = value
         if hasattr(self, 'source_editor'):
             # If there is a text output, erase the image output and display the text output
@@ -123,7 +126,7 @@ class OCBCodeBlock(OCBBlock):
         return self._image
 
     @image.setter
-    def image(self, value:str):
+    def image(self, value: str):
         self._image = value
         if hasattr(self, 'source_editor') and self.image != "":
             # If there is an image output, erase the text output and display the image output
@@ -136,26 +139,26 @@ class OCBCodeBlock(OCBBlock):
             qlabel.setPixmap(pixmap)
 
     @source.setter
-    def source(self, value:str):
+    def source(self, value: str):
         self._source = value
         if hasattr(self, 'source_editor'):
             editor_widget = self.source_editor.widget()
             editor_widget.setText(self._source)
 
     def paint(self, painter: QPainter,
-            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
-            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
+              option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
+              widget: Optional[QWidget] = None):  # pylint:disable=unused-argument
         """ Paint the code output panel """
         super().paint(painter, option, widget)
         path_title = QPainterPath()
         path_title.setFillRule(Qt.FillRule.WindingFill)
         path_title.addRoundedRect(0, 0, self.width, self.height,
-            self.edge_size, self.edge_size)
+                                  self.edge_size, self.edge_size)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(self._brush_background)
         painter.drawPath(path_title.simplified())
 
-    def _is_in_resize_source_code_area(self, pos:QPointF):
+    def _is_in_resize_source_code_area(self, pos: QPointF):
         """
             Return True if the given position is in the area
             used to resize the source code widget
@@ -163,17 +166,17 @@ class OCBCodeBlock(OCBBlock):
         source_editor_start = self.height - self.output_panel_height - self.edge_size
 
         return self.width - self.edge_size/2 < pos.x() and \
-             source_editor_start - self.edge_size < pos.y() < source_editor_start + self.edge_size
+            source_editor_start - self.edge_size < pos.y() < source_editor_start + \
+            self.edge_size
 
-
-    def _is_in_resize_area(self, pos:QPointF):
+    def _is_in_resize_area(self, pos: QPointF):
         """ Return True if the given position is in the block resize_area. """
 
         # This block features 2 resizing areas with 2 different behaviors
         is_in_bottom_left = super()._is_in_resize_area(pos)
         return is_in_bottom_left or self._is_in_resize_source_code_area(pos)
 
-    def _start_resize(self,pos:QPointF):
+    def _start_resize(self, pos: QPointF):
         self.resizing = True
         self.resize_start = pos
         if self._is_in_resize_source_code_area(pos):
@@ -185,7 +188,7 @@ class OCBCodeBlock(OCBBlock):
         self.resizing_source_code = False
         QApplication.restoreOverrideCursor()
 
-    def mouseMoveEvent(self, event:QGraphicsSceneMouseEvent):
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
         """
         We override the default resizing behavior as the code part and the display part of the block
         block can be resized independently.
@@ -195,12 +198,12 @@ class OCBCodeBlock(OCBBlock):
             self.width = max(self.width + delta.x(), self._min_width)
 
             height_delta = max(delta.y(),
-                # List of all the quantities that must remain negative.
-                # Mainly: min_height - height must be negative for all elements
-                self._min_output_panel_height - self.output_panel_height,
-                self._min_height - self.height,
-                self._min_source_editor_height - self._editor_widget_height
-            )
+                               # List of all the quantities that must remain negative.
+                               # Mainly: min_height - height must be negative for all elements
+                               self._min_output_panel_height - self.output_panel_height,
+                               self._min_height - self.height,
+                               self._min_source_editor_height - self._editor_widget_height
+                               )
 
             self.height += height_delta
             if not self.resizing_source_code:

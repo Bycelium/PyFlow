@@ -11,6 +11,7 @@ from PyQt5.QtCore import Qt
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.view import OCBView
 
+
 class OCBWidget(QWidget):
 
     """ Window for the OCB application. """
@@ -51,14 +52,15 @@ class OCBWidget(QWidget):
     def savepath(self):
         """ Current cached file save path. Update window title when set."""
         return self._savepath
+
     @savepath.setter
-    def savepath(self, value:str):
+    def savepath(self, value: str):
         self._savepath = value
         self.updateTitle()
 
     def save(self):
         self.scene.save(self.savepath)
 
-    def load(self, filepath:str):
+    def load(self, filepath: str):
         self.scene.load(filepath)
         self.savepath = filepath

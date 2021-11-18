@@ -5,8 +5,10 @@
 
 from colorsys import hsv_to_rgb
 
+
 def interpolate(weight, x, y):
     return x * weight + (1-weight) * y
+
 
 def score_to_rgb_color(score, score_min, score_max):
     normalized_score = max(0, (score - score_min) / (score_max - score_min))

@@ -37,6 +37,7 @@ def run_with_variable_output(cell: str) -> None:
         output, done = kernel.update_output()
         print(output)
 
+
 def get_function_name(code: str) -> str:
     """
     Parses a string of code and returns the first function name it finds
