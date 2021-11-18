@@ -38,8 +38,6 @@ class OCBScene(QGraphicsScene, Serializable):
         self.grid_size = grid_size
         self.grid_squares = grid_squares
 
-        self.children = [] # List of widgets
-
         self.width, self.height = width, height
         self.setSceneRect(-self.width//2, -self.height//2, self.width, self.height)
         self.setBackgroundBrush(self._background_color)

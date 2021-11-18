@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, QGraphicsSceneMouseEvent, QLabel, QSplitter, \
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
+    QGraphicsSceneMouseEvent, QLabel, QSplitter, \
     QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
@@ -221,12 +222,21 @@ class OCBBlock(QGraphicsItem, Serializable):
         """ Update sockets and title. """
         self.update_sockets()
         if hasattr(self, 'title_widget'):
+            # We make the resizing of splitter only affect
+            # the last element of the split view
+            sizes = self.splitter.sizes()
+            old_height = self.splitter.height()
             self.splitter.setGeometry(
                 int(self.edge_size),
                 int(self.edge_size + self.title_height),
                 int(self.width - self.edge_size * 2),
                 int(self.height - self.edge_size * 2 - self.title_height)
             )
+            if len(sizes) > 1:
+                height_delta = self.splitter.height() - old_height
+                sizes[-1] += height_delta
+                self.splitter.setSizes(sizes)
+
             self.title_widget.setGeometry(
                 int(self.edge_size),
                 int(0),
