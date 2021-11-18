@@ -1,5 +1,6 @@
 # OpenCodeBlocks
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f08529c1a7c9414f909270d3d0d599e1)](https://app.codacy.com/gh/MathisFederico/OpenCodeBlocks?utm_source=github.com&utm_medium=referral&utm_content=MathisFederico/OpenCodeBlocks&utm_campaign=Badge_Grade_Settings)
 [![Pytest badge](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml/badge.svg?branch=master)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml)
 [![Pylint badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_pylint_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-pylint.yml)
 [![Unit coverage badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_unit_coverage_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml)
