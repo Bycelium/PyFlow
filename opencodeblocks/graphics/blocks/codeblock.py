@@ -3,15 +3,13 @@
 
 """ Module for the base OCB Code Block. """
 
-from typing import Optional
-
-from PyQt5.QtCore import Qt, QByteArray, QPointF
-from PyQt5.QtGui import QPainter, QPainterPath, QPixmap
-from PyQt5.QtWidgets import QStyleOptionGraphicsItem, QWidget, QLabel, \
-    QGraphicsSceneMouseEvent, QApplication
+from PyQt5.QtCore import QByteArray
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLabel
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
+
 
 class OCBCodeBlock(OCBBlock):
 
@@ -37,7 +35,7 @@ class OCBCodeBlock(OCBBlock):
         self.stdout = ""
         self.image = ""
 
-        self.update_all() # Set the geometry of display and source_editor
+        self.update_all()  # Set the geometry of display and source_editor
 
     def init_source_editor(self):
         """ Initialize the python source code editor. """
@@ -51,7 +49,7 @@ class OCBCodeBlock(OCBBlock):
         return self._source
 
     @source.setter
-    def source(self, value:str):
+    def source(self, value: str):
         self._source = value
         if hasattr(self, 'source_editor'):
             self.source_editor.setText(self._source)
@@ -60,11 +58,13 @@ class OCBCodeBlock(OCBBlock):
     def stdout(self) -> str:
         """ Code output. Be careful, this also includes stderr """
         return self._stdout
+
     @stdout.setter
-    def stdout(self, value:str):
+    def stdout(self, value: str):
         self._stdout = value
         if hasattr(self, 'source_editor'):
-            # If there is a text output, erase the image output and display the text output
+            # If there is a text output, erase the image output and display the
+            # text output
             self.image = ""
             self.display.setText(self._stdout)
 
@@ -74,10 +74,11 @@ class OCBCodeBlock(OCBBlock):
         return self._image
 
     @image.setter
-    def image(self, value:str):
+    def image(self, value: str):
         self._image = value
         if hasattr(self, 'source_editor') and self.image != "":
-            # If there is an image output, erase the text output and display the image output
+            # If there is an image output, erase the text output and display
+            # the image output
             editor_widget = self.display
             editor_widget.setText("")
             qlabel = editor_widget
@@ -87,7 +88,7 @@ class OCBCodeBlock(OCBBlock):
             qlabel.setPixmap(pixmap)
 
     @source.setter
-    def source(self, value:str):
+    def source(self, value: str):
         self._source = value
         if hasattr(self, 'source_editor'):
             editor_widget = self.source_editor

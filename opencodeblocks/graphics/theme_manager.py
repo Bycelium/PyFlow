@@ -12,12 +12,13 @@ from PyQt5.QtCore import pyqtSignal, QObject
 
 from opencodeblocks.graphics.theme import Theme
 
+
 class ThemeManager(QObject):
     """ Class loading theme files and providing the options set in those files """
 
     themeChanged = pyqtSignal()
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         """ Load the default themes and the fonts available to construct the ThemeManager """
         super().__init__(parent)
         self._preferred_fonts = ["Inconsolata", "Roboto Mono", "Courier"]
@@ -28,7 +29,7 @@ class ThemeManager(QObject):
             if font in available_fonts:
                 self.recommended_font_family = font
                 break
-        
+
         self._themes = []
         self._selected_theme_index = 0
         theme_path = "./themes"
@@ -40,6 +41,7 @@ class ThemeManager(QObject):
                 with open(full_path, 'r', encoding="utf-8") as f:
                     theme = Theme(name, f.read())
                     self._themes.append(theme)
+
     @property
     def selected_theme_index(self):
         return self._selected_theme_index
