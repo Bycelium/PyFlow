@@ -8,6 +8,8 @@ from jupyter_client.manager import start_new_kernel
 
 class Kernel():
 
+    """jupyter_client kernel used to execute code and return output"""
+
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
 
