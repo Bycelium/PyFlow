@@ -36,13 +36,18 @@ class BlockSizeGrip(QSizeGrip):
         """ Stop the resizing """
         self.resizing = False
 
+    @property
+    def _zoom(self) -> float:
+        """ Returns how much the scene is """
+        return self.block.scene().views()[0].zoom
+
     def mouseMoveEvent(self, mouseEvent: QMouseEvent):
         """ Performs resizing of the root widget """
         transformed_pt1 = self.block.mapFromScene(QPoint(0,0))
         transformed_pt2 = self.block.mapFromScene(QPoint(1,1))
 
         pt = transformed_pt2 - transformed_pt1
-        pt /= self.block.scene().views()[0].zoom
+        pt /= self._zoom
 
         delta_x = (mouseEvent.globalX() - self.mouseX) * pt.x()
         delta_y = (mouseEvent.globalY() - self.mouseY) * pt.y()
