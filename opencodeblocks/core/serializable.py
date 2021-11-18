@@ -17,7 +17,7 @@ class Serializable():
         """ Serialize the object as an ordered dictionary. """
         raise NotImplementedError()
 
-    def deserialize(self, data:OrderedDict, hashmap:dict=None, restore_id=True) -> None:
+    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True) -> None:
         """ Deserialize the object from an ordered dictionary.
 
         Args:

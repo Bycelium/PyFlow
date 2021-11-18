@@ -2,7 +2,8 @@
 This module provides `theme_manager()`,
 a method that returns a handle to the theme manager of the application.
 
-The theme manager provides the color scheme for the syntax highlighting of the text areas containing code.
+The theme manager provides the color scheme for the syntax highlighting
+of the text areas containing code.
 """
 import os
 from typing import List

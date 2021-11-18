@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import QApplication
 
 from opencodeblocks.graphics.qss import dark_resources
 
-def loadStylesheets(filenames:List[str]):
+
+def loadStylesheets(filenames: List[str]):
     styles = ''
     for filename in filenames:
         file = QFile(filename)

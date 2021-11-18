@@ -11,10 +11,11 @@ import pytest
 from pytest_mock import MockerFixture
 from opencodeblocks.graphics.window import OCBWindow
 
+
 class TestWindow:
 
     @pytest.fixture(autouse=True)
-    def setup(self, mocker:MockerFixture):
+    def setup(self, mocker: MockerFixture):
         """ Setup reused variables. """
         self.window = OCBWindow()
 

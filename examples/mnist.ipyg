@@ -1,0 +1,401 @@
+{
+    "id": 2205665405400,
+    "blocks": [
+        {
+            "id": 2443477874008,
+            "title": "Model Train",
+            "block_type": "code",
+            "source": "model.fit(x=x_train,y=y_train, epochs=10)\r\n\r\n",
+            "position": [
+                2022.4804687499986,
+                -313.02343749999983
+            ],
+            "width": 641.5,
+            "height": 223.25,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2443477875016,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#e02c2c",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 2443477875160,
+                    "type": "output",
+                    "position": [
+                        641.5,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#35bc31",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2443477924600,
+            "title": "Keras Model Predict",
+            "block_type": "code",
+            "source": "prediction = np.argmax(model.predict(x_test[9].reshape(1, 28, 28, 1)))\r\nplt.imshow(x_test[9], cmap='gray')\r\nplt.title(\"Predicted: \" + str(prediction))",
+            "position": [
+                2771.796874999998,
+                -145.09374999999983
+            ],
+            "width": 627.1875,
+            "height": 479.3749999999999,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2443477925608,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 2443477925752,
+                    "type": "output",
+                    "position": [
+                        627.1875,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2443477997032,
+            "title": "Keras Model eval",
+            "block_type": "code",
+            "source": "model.evaluate(x_test, y_test)\r\n",
+            "position": [
+                2779.039062499998,
+                -401.77343749999955
+            ],
+            "width": 647.75,
+            "height": 221.75,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2443477997896,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 2443477998184,
+                    "type": "output",
+                    "position": [
+                        647.75,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2443478874872,
+            "title": "Load MNIST Dataset",
+            "block_type": "code",
+            "source": "from tensorflow.keras.datasets import mnist\r\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\r\n",
+            "position": [
+                -710.2500000000002,
+                -384.25
+            ],
+            "width": 787.0000000000001,
+            "height": 240.83333333333337,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2443478910728,
+                    "type": "output",
+                    "position": [
+                        787.0000000000001,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2443478982728,
+            "title": "Normalize Image Dataset",
+            "block_type": "code",
+            "source": "x_train = x_train.astype('float32') / 255.0\r\nx_test = x_test.astype('float32') / 255.0\r\n\r\nx_train = x_train.reshape(x_train.shape[0], 28, 28, 1)\r\nx_test = x_test.reshape(x_test.shape[0], 28, 28, 1)\r\n\r\nprint('train:', x_train.shape, '|test:', x_test.shape)",
+            "position": [
+                256.50000000000045,
+                -538.7499999999998
+            ],
+            "width": 733.2499999999995,
+            "height": 309.0,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2443478983592,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 2443478983880,
+                    "type": "output",
+                    "position": [
+                        733.2499999999995,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2443479017656,
+            "title": "Build Keras CNN",
+            "block_type": "code",
+            "source": "import tensorflow as tf\r\nfrom tensorflow.keras.layers import (Dense, Flatten,\r\nConv2D, MaxPooling2D, Dropout)\r\nfrom tensorflow.keras.models import Sequential\r\n\r\nmodel = Sequential()\r\nmodel.add(Conv2D(28, kernel_size=(3,3), input_shape=x_train.shape[1:]))\r\nmodel.add(MaxPooling2D(pool_size=(2, 2)))\r\nmodel.add(Flatten())\r\nmodel.add(Dense(128, activation=tf.nn.relu))\r\nmodel.add(Dropout(0.2))\r\nmodel.add(Dense(10,activation=tf.nn.softmax))\r\n\r\nmodel.compile(optimizer='adam', \r\n              loss='sparse_categorical_crossentropy', \r\n              metrics=['accuracy'])\r\n",
+            "position": [
+                1039.5,
+                -350.7499999999999
+            ],
+            "width": 863.0,
+            "height": 509.75,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2443479018520,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 2443479018808,
+                    "type": "output",
+                    "position": [
+                        863.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2828158533848,
+            "title": "Plot Image Dataset Example",
+            "block_type": "code",
+            "source": "import matplotlib.pyplot as plt\r\nimport numpy as np\r\n\r\n# Display an example from the dataset\r\nrd_index = np.random.randint(len(x_train))\r\nplt.imshow(x_train[rd_index], cmap='gray')\r\nplt.title('Class '+ str(y_train[0]))\r\n\r\n",
+            "position": [
+                328.75,
+                -174.25
+            ],
+            "width": 574.0,
+            "height": 565.5,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2828158535432,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "id": 1643571233840,
+            "path_type": "bezier",
+            "source": {
+                "block": 2443479017656,
+                "socket": 2443479018808
+            },
+            "destination": {
+                "block": 2443477874008,
+                "socket": 2443477875016
+            }
+        },
+        {
+            "id": 2006783605056,
+            "path_type": "bezier",
+            "source": {
+                "block": 2443478874872,
+                "socket": 2443478910728
+            },
+            "destination": {
+                "block": 2828158533848,
+                "socket": 2828158535432
+            }
+        },
+        {
+            "id": 2006783606064,
+            "path_type": "bezier",
+            "source": {
+                "block": 2443477874008,
+                "socket": 2443477875160
+            },
+            "destination": {
+                "block": 2443477924600,
+                "socket": 2443477925608
+            }
+        },
+        {
+            "id": 2111730223424,
+            "path_type": "bezier",
+            "source": {
+                "block": 2443478982728,
+                "socket": 2443478983880
+            },
+            "destination": {
+                "block": 2443479017656,
+                "socket": 2443479018520
+            }
+        },
+        {
+            "id": 2111730224144,
+            "path_type": "bezier",
+            "source": {
+                "block": 2443477874008,
+                "socket": 2443477875160
+            },
+            "destination": {
+                "block": 2443477997032,
+                "socket": 2443477997896
+            }
+        },
+        {
+            "id": 2111730844864,
+            "path_type": "bezier",
+            "source": {
+                "block": 2443478874872,
+                "socket": 2443478910728
+            },
+            "destination": {
+                "block": 2443478982728,
+                "socket": 2443478983592
+            }
+        }
+    ]
+}

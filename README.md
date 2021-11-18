@@ -9,6 +9,8 @@
 
 OpenCodeBlocks is an open-source tool for modular visual programing in python.
 
+![](media/mnist_example.gif)
+
 ## Features
 
 * Put your python code in small independent blocks

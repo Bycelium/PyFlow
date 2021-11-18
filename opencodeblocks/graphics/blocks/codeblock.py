@@ -3,12 +3,18 @@
 
 """ Module for the base OCB Code Block. """
 
-from PyQt5.QtCore import QByteArray
+
+import re
+
+from PyQt5.QtCore import QCoreApplication, QByteArray
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QPushButton
+
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
+
+ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
 
 class OCBCodeBlock(OCBBlock):
@@ -32,6 +38,7 @@ class OCBCodeBlock(OCBBlock):
 
         self.source_editor = self.init_source_editor()
         self.display = self.init_display()
+        self.run_button = self.init_run_button()
         self.stdout = ""
         self.image = ""
 
@@ -42,6 +49,28 @@ class OCBCodeBlock(OCBBlock):
         source_editor = PythonEditor(self)
         self.splitter.addWidget(source_editor)
         return source_editor
+
+
+    @property
+    def _editor_widget_height(self):
+        return self.height - self.title_height - 2*self.edge_size \
+            - self.output_panel_height
+
+    @_editor_widget_height.setter
+    def _editor_widget_height(self, value: int):
+        self.output_panel_height = self.height - \
+            value - self.title_height - 2*self.edge_size
+
+    def update_all(self):
+        """ Update the code block parts. """
+        super().update_all()
+        if hasattr(self, 'run_button'):
+            self.run_button.setGeometry(
+                int(self.edge_size),
+                int(self.edge_size + self.title_height),
+                int(2.5*self.edge_size),
+                int(2.5*self.edge_size)
+            )
 
     @property
     def source(self) -> str:
@@ -66,7 +95,13 @@ class OCBCodeBlock(OCBBlock):
             # If there is a text output, erase the image output and display the
             # text output
             self.image = ""
-            self.display.setText(self._stdout)
+
+            editor_widget = self.display
+            # Remove ANSI color codes
+            text = ansi_escape.sub('', value)
+            # Remove backspaces (tf loading bars)
+            text = text.replace('\x08', '')
+            editor_widget.setText(text)
 
     @property
     def image(self) -> str:
@@ -94,9 +129,39 @@ class OCBCodeBlock(OCBBlock):
             editor_widget = self.source_editor
             editor_widget.setText(self._source)
 
+
     def init_display(self):
         """ Initialize the output display widget: QLabel """
         display = QLabel()
         display.setText("")
+
         self.splitter.addWidget(display)
         return display
+
+    def init_run_button(self):
+        """ Initialize the run button """
+        run_button = QPushButton(">",self.root)
+        run_button.setMinimumWidth(int(self.edge_size))
+        run_button.clicked.connect(self.run_code)
+
+        return run_button
+
+    def run_code(self):
+        """Run the code in the block"""
+        code = self.source_editor.widget().text()
+        kernel = self.source_editor.widget().kernel
+        self.source = code
+        # Execute the code
+        kernel.client.execute(code)
+        done = False
+        # While the kernel sends messages
+        while done is False:
+            # Keep the GUI alive
+            QCoreApplication.processEvents()
+            # Save kernel message and display it
+            output, output_type, done = kernel.update_output()
+            if done is False:
+                if output_type == 'text':
+                    self.stdout = output
+                elif output_type == 'image':
+                    self.image = output
