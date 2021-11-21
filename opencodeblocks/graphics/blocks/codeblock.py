@@ -4,17 +4,16 @@
 """ Module for the base OCB Code Block. """
 
 
-import re
-
 from PyQt5.QtCore import QCoreApplication, QByteArray
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel, QPushButton
+from PyQt5.QtWidgets import QPushButton, QTextEdit
 
+from ansi2html import Ansi2HTMLConverter
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
 
-ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+conv = Ansi2HTMLConverter()
 
 
 class OCBCodeBlock(OCBBlock):
@@ -88,10 +87,14 @@ class OCBCodeBlock(OCBBlock):
             # text output
             self.image = ""
 
-            # Remove ANSI color codes
-            text = ansi_escape.sub('', value)
-            # Remove backspaces (tf loading bars)
-            text = text.replace('\x08', '')
+            # Remove ANSI backspaces
+            text = value.replace("\x08", "")
+            # Convert ANSI escape codes to HTML
+            text = conv.convert(text)
+            # Replace background color
+            text = text.replace('background-color: #000000',
+                                'background-color: #434343')
+
             self.output_panel.setText(text)
 
     @property
@@ -105,11 +108,12 @@ class OCBCodeBlock(OCBBlock):
         if hasattr(self, 'source_editor') and self.image != "":
             # If there is an image output, erase the text output and display
             # the image output
-            self.output_panel.setText("")
+            text = ""
             ba = QByteArray.fromBase64(str.encode(self.image))
             pixmap = QPixmap()
             pixmap.loadFromData(ba)
-            self.output_panel.setPixmap(pixmap)
+            text = '<img src="data:image/png;base64,{}">'.format(self.image)
+            self.output_panel.setText(text)
 
     @source.setter
     def source(self, value: str):
@@ -120,9 +124,11 @@ class OCBCodeBlock(OCBBlock):
 
     def init_output_panel(self):
         """ Initialize the output display widget: QLabel """
-        output_panel = QLabel()
-        output_panel.setText("")
-
+        output_panel = QTextEdit()
+        output_panel.setReadOnly(True)
+        output_panel.setStyleSheet(
+            "QTextEdit { background-color: #434343; }"
+        )
         self.splitter.addWidget(output_panel)
         return output_panel
 
