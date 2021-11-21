@@ -49,6 +49,8 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.block_type = block_type
         self.source = source
+        self.stdout = ""
+        self.image = ""
         self.setPos(QPointF(*position))
         self.sockets_in = []
         self.sockets_out = []
@@ -91,7 +93,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        if type(self) == OCBBlock: # DO NOT TRUST codacy !!! isinstance != type
+        if type(self) == OCBBlock:  # DO NOT TRUST codacy !!! isinstance != type
             # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
@@ -293,6 +295,8 @@ class OCBBlock(QGraphicsItem, Serializable):
             ('title', self.title),
             ('block_type', self.block_type),
             ('source', self.source),
+            ('stdout', self.stdout),
+            ('image', self.image),
             ('splitter_pos', self.splitter.sizes()),
             ('position', [self.pos().x(), self.pos().y()]),
             ('width', self.width),
@@ -306,7 +310,8 @@ class OCBBlock(QGraphicsItem, Serializable):
                     restore_id=True) -> None:
         if restore_id:
             self.id = data['id']
-        for dataname in ('title', 'block_type', 'source', 'width', 'height'):
+        for dataname in ('title', 'block_type', 'source', 'stdout',
+                         'image', 'width', 'height'):
             setattr(self, dataname, data[dataname])
 
         self.setPos(QPointF(*data['position']))
