@@ -3,8 +3,7 @@
 
 """ Module for the base OCB Code Block. """
 
-
-from PyQt5.QtCore import QCoreApplication, QByteArray
+from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
@@ -12,6 +11,7 @@ from ansi2html import Ansi2HTMLConverter
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
+from opencodeblocks.graphics.worker import Worker
 
 conv = Ansi2HTMLConverter()
 
@@ -144,19 +144,17 @@ class OCBCodeBlock(OCBBlock):
     def run_code(self):
         """Run the code in the block"""
         code = self.source_editor.text()
-        kernel = self.source_editor.kernel
         self.source = code
-        # Execute the code
-        kernel.client.execute(code)
-        done = False
-        # While the kernel sends messages
-        while done is False:
-            # Keep the GUI alive
-            QCoreApplication.processEvents()
-            # Save kernel message and display it
-            output, output_type, done = kernel.update_output()
-            if done is False:
-                if output_type == 'text':
-                    self.stdout = output
-                elif output_type == 'image':
-                    self.image = output
+        # Create a worker to handle execution
+        worker = Worker(self.source_editor.kernel, self.source)
+        worker.signals.stdout.connect(self.handle_stdout)
+        worker.signals.image.connect(self.handle_image)
+        self.source_editor.threadpool.start(worker)
+
+    def handle_stdout(self, stdout):
+        """ Handle the stdout signal """
+        self.stdout = stdout
+
+    def handle_image(self, image):
+        """ Handle the image signal """
+        self.image = image
