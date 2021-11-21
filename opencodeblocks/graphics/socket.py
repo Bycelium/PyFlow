@@ -58,11 +58,16 @@ class OCBSocket(QGraphicsItem, Serializable):
             'linecolor': linecolor,
         }
 
-    def add_edge(self, edge: 'OCBEdge'):
+    def add_edge(self, edge: 'OCBEdge', is_destination: bool):
         """ Add a given edge to the socket edges. """
         if not self._allow_multiple_edges:
             for prev_edge in self.edges:
                 prev_edge.remove()
+        if self.flow_type == 'exe':
+            if ((is_destination and self.socket_type != 'input') or
+                    (not is_destination and self.socket_type != 'output')):
+                edge.remove()
+                return
         self.edges.append(edge)
 
     def remove_edge(self, edge: 'OCBEdge'):

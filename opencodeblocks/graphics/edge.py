@@ -19,11 +19,11 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
     """ Base class for directed edges in OpenCodeBlocks. """
 
-    def __init__(self, edge_width:float=4.0, path_type='bezier',
-            edge_color="#001000", edge_selected_color="#00ff00",
-            source:QPointF=QPointF(0, 0), destination:QPointF=QPointF(0, 0),
-            source_socket:OCBSocket=None, destination_socket:OCBSocket=None
-        ):
+    def __init__(self, edge_width: float = 4.0, path_type='bezier',
+                 edge_color="#001000", edge_selected_color="#00ff00",
+                 source: QPointF = QPointF(0, 0), destination: QPointF = QPointF(0, 0),
+                 source_socket: OCBSocket = None, destination_socket: OCBSocket = None
+                 ):
         """ Base class for edges in OpenCodeBlocks.
 
         Args:
@@ -87,9 +87,9 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.remove_from_sockets()
             scene.removeItem(self)
 
-    def paint(self, painter:QPainter,
-            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
-            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
+    def paint(self, painter: QPainter,
+              option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
+              widget: Optional[QWidget] = None):  # pylint:disable=unused-argument
         """ Paint the edge. """
         self.update_path()
         pen = self._pen_dragging if self.destination_socket is None else self._pen
@@ -117,8 +117,9 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         if self.source_socket is not None:
             return self.source_socket.scenePos()
         return self._source
+
     @source.setter
-    def source(self, value:QPointF):
+    def source(self, value: QPointF):
         self._source = value
         try:
             self.update_path()
@@ -129,11 +130,12 @@ class OCBEdge(QGraphicsPathItem, Serializable):
     def source_socket(self) -> OCBSocket:
         """ Source socket of the directed edge. """
         return self._source_socket
+
     @source_socket.setter
-    def source_socket(self, value:OCBSocket):
+    def source_socket(self, value: OCBSocket):
         self._source_socket = value
         if value is not None:
-            self.source_socket.add_edge(self)
+            self.source_socket.add_edge(self, is_destination=False)
             self.source = value.scenePos()
 
     @property
@@ -142,8 +144,9 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         if self.destination_socket is not None:
             return self.destination_socket.scenePos()
         return self._destination
+
     @destination.setter
-    def destination(self, value:QPointF):
+    def destination(self, value: QPointF):
         self._destination = value
         try:
             self.update_path()
@@ -154,11 +157,12 @@ class OCBEdge(QGraphicsPathItem, Serializable):
     def destination_socket(self) -> OCBSocket:
         """ Destination socket of the directed edge. """
         return self._destination_socket
+
     @destination_socket.setter
-    def destination_socket(self, value:OCBSocket):
+    def destination_socket(self, value: OCBSocket):
         self._destination_socket = value
         if value is not None:
-            self.destination_socket.add_edge(self)
+            self.destination_socket.add_edge(self, is_destination=True)
             self.destination = value.scenePos()
 
     def serialize(self) -> OrderedDict:
@@ -185,10 +189,10 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.path_type = data['path_type']
         try:
             self.source_socket = hashmap[data['source']['socket']]
-            self.source_socket.add_edge(self)
+            self.source_socket.add_edge(self, is_destination=False)
 
             self.destination_socket = hashmap[data['destination']['socket']]
-            self.destination_socket.add_edge(self)
+            self.destination_socket.add_edge(self, is_destination=True)
             self.update_path()
         except KeyError:
             self.remove()
