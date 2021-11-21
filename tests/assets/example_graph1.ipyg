@@ -6,6 +6,8 @@
             "title": "Model Train",
             "block_type": "code",
             "source": "print(\"training \")\r\nmodel.fit(x=x_train,y=y_train, epochs=10)\r\n\r\n",
+            "stdout": "",
+            "image": "",
             "position": [
                 2202.0742187499986,
                 -346.82031249999983
@@ -56,6 +58,8 @@
             "title": "Keras Model Predict",
             "block_type": "code",
             "source": "prediction = model.predict(x_test[9].reshape(1, 28, 28, 1))",
+            "stdout": "",
+            "image": "",
             "position": [
                 4207.046874999999,
                 -244.57812499999991
@@ -106,6 +110,8 @@
             "title": "Keras Model eval",
             "block_type": "code",
             "source": "model.evaluate(x_test, y_test)\r\n",
+            "stdout": "",
+            "image": "",
             "position": [
                 4204.085937499997,
                 -707.0546874999997
@@ -156,6 +162,8 @@
             "title": "Load MNIST Dataset",
             "block_type": "code",
             "source": "print(\"Hello, world\")\r\nfrom tensorflow.keras.datasets import mnist\r\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\r\n",
+            "stdout": "",
+            "image": "",
             "position": [
                 -535.75,
                 -687.0625
@@ -192,6 +200,8 @@
             "title": "Normalize Image Dataset",
             "block_type": "code",
             "source": "x_train = x_train.astype('float32') / 255.0\r\nx_test = x_test.astype('float32') / 255.0\r\n\r\n\r\nx_train = x_train.reshape(x_train.shape[0], 28, 28, 1)\r\nx_test = x_test.reshape(x_test.shape[0], 28, 28, 1)\r\n\r\nprint('train:', x_train.shape, '|test:', x_test.shape)",
+            "stdout": "",
+            "image": "",
             "position": [
                 281.2500000000002,
                 -149.74999999999977
@@ -242,6 +252,8 @@
             "title": "Build Keras CNN",
             "block_type": "code",
             "source": "import tensorflow as tf\r\nfrom tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout\r\nfrom tensorflow.keras.models import Sequential\r\n\r\nmodel = Sequential()\r\nmodel.add(Conv2D(28, kernel_size=(3,3), input_shape=x_train.shape[1:]))\r\nmodel.add(MaxPooling2D(pool_size=(2, 2)))\r\nmodel.add(Flatten())\r\nmodel.add(Dense(128, activation=tf.nn.relu))\r\nmodel.add(Dropout(0.2))\r\nmodel.add(Dense(10,activation=tf.nn.softmax))\r\nprint(\"..\")\r\nmodel.compile(optimizer='adam', \r\n              loss='sparse_categorical_crossentropy', \r\n              metrics=['accuracy'])\r\n",
+            "stdout": "",
+            "image": "",
             "position": [
                 1316.25,
                 -517.6249999999998
@@ -292,6 +304,8 @@
             "title": "Plot Image Dataset Example",
             "block_type": "code",
             "source": "import matplotlib.pyplot as plt\r\nimport numpy as np\r\n\r\n# Display an example from the dataset\r\nrd_index = np.random.randint(len(x_train))\r\nplt.imshow(x_train[rd_index], cmap='gray')\r\nplt.title('Class '+ str(y_train[0]))\r\n",
+            "stdout": "",
+            "image": "",
             "position": [
                 433.375,
                 -1221.75
