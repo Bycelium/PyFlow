@@ -9,8 +9,8 @@
             "stdout": "<keras.callbacks.History at 0x29d1523f7f0>",
             "image": "",
             "splitter_pos": [
-                88,
-                41
+                64,
+                64
             ],
             "position": [
                 964.3749999999993,
@@ -33,20 +33,6 @@
                     "position": [
                         0.0,
                         42.0
-                    ],
-                    "metadata": {
-                        "color": "#e02c2c",
-                        "linecolor": "#FF000000",
-                        "linewidth": 1.0,
-                        "radius": 6.0
-                    }
-                },
-                {
-                    "id": 2443467875017,
-                    "type": "input",
-                    "position": [
-                        0.0,
-                        162.0
                     ],
                     "metadata": {
                         "color": "#e02c2c",
@@ -110,20 +96,6 @@
                         "linewidth": 1.0,
                         "radius": 6.0
                     }
-                },
-                {
-                    "id": 2443477925752,
-                    "type": "output",
-                    "position": [
-                        300.0,
-                        42.0
-                    ],
-                    "metadata": {
-                        "color": "#FF55FFF0",
-                        "linecolor": "#FF000000",
-                        "linewidth": 1.0,
-                        "radius": 6.0
-                    }
                 }
             ]
         },
@@ -135,8 +107,8 @@
             "stdout": "mean_loss:0.05184061825275421, mean_acc:0.9848999977111816\n",
             "image": "",
             "splitter_pos": [
-                66,
-                32
+                49,
+                49
             ],
             "position": [
                 1701.42578125,
@@ -191,8 +163,8 @@
             "stdout": "",
             "image": "",
             "splitter_pos": [
-                85,
-                44
+                64,
+                64
             ],
             "position": [
                 -678.5742187500001,
@@ -233,8 +205,8 @@
             "stdout": "train: (60000, 28, 28, 1) |test: (10000, 28, 28, 1)\n",
             "image": "",
             "splitter_pos": [
-                160,
-                46
+                121,
+                85
             ],
             "position": [
                 0.7382812500006821,
@@ -293,8 +265,8 @@
                 85
             ],
             "position": [
-                -130.81249999999977,
-                -35.32031249999997
+                -127.06249999999977,
+                -30.320312499999975
             ],
             "width": 1002,
             "height": 473,
@@ -368,7 +340,7 @@
     ],
     "edges": [
         {
-            "id": 1575284436416,
+            "id": 1296325604832,
             "path_type": "bezier",
             "source": {
                 "block": 2443479017656,
@@ -376,7 +348,7 @@
             },
             "destination": {
                 "block": 2443477874008,
-                "socket": 2443467875017
+                "socket": 2443477875016
             }
         },
         {
