@@ -4,8 +4,8 @@
 """ Module for the OCB View """
 
 from PyQt5.QtCore import QEvent, QPointF, Qt
-from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent
-from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
+from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
 from opencodeblocks.graphics.scene import OCBScene
@@ -138,6 +138,15 @@ class OCBView(QGraphicsView):
         event = self.drag_scene(event, "release")
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+
+
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        menu = QMenu(self)
+        newAction = menu.addAction("New Empty Block")
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        if action == newAction:
+            p = self.mapToScene(event.pos())
+            self.scene().create_block_from_file("blocks/empty.ocbb", p.x(), p.y())
 
     def wheelEvent(self, event: QWheelEvent):
         """ Handles zooming with mouse wheel events. """

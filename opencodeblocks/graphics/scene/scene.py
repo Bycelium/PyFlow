@@ -176,8 +176,31 @@ class OCBScene(QGraphicsScene, Serializable):
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
+    
+    def create_block_from_file(self, filepath:str, x: float = 0, y: float = 0):
+        with open(filepath, 'r', encoding='utf-8') as file:
+            data = json.loads(file.read())
+            data["position"] = [x,y]
+            data["sockets"] = {}
+            data["id"] = -1
+            b = self.create_block(data,None,False)
 
-    def deserialize(self, data: OrderedDict, hashmap:dict=None, restore_id=True):
+
+    def create_block(self, data: OrderedDict, hashmap: dict = None, restore_id:bool = True) -> OCBBlock:
+        block = None
+        if data['block_type'] == 'base':
+            block = OCBBlock()
+        elif data['block_type'] == 'code':
+            block = OCBCodeBlock()
+        else:
+            raise NotImplementedError()
+        block.deserialize(data, hashmap, restore_id)
+        self.addItem(block)
+        if hashmap is not None:
+            hashmap.update({data['id']: block})
+        return block
+
+    def deserialize(self, data: OrderedDict, hashmap: dict=None, restore_id:bool = True):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
         if restore_id:
@@ -185,15 +208,7 @@ class OCBScene(QGraphicsScene, Serializable):
 
         # Create blocks
         for block_data in data['blocks']:
-            if block_data['block_type'] == 'base':
-                block = OCBBlock()
-            elif block_data['block_type'] == 'code':
-                block = OCBCodeBlock()
-            else:
-                raise NotImplementedError()
-            block.deserialize(block_data, hashmap, restore_id)
-            self.addItem(block)
-            hashmap.update({block_data['id']: block})
+            self.create_block(block_data, hashmap, restore_id)
 
         # Create edges
         for edge_data in data['edges']:
