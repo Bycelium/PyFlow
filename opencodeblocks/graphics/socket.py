@@ -4,10 +4,11 @@
 """ Module for OCB Sockets """
 
 from __future__ import annotations
-from typing import Optional, OrderedDict, TYPE_CHECKING
+from typing import List, Optional, OrderedDict, TYPE_CHECKING
+import math
 
-from PyQt5.QtCore import QPointF, QRectF
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
+from PyQt5.QtCore import QPoint, QPointF, QRectF
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPolygon
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
@@ -21,13 +22,16 @@ class OCBSocket(QGraphicsItem, Serializable):
 
     """ Base class for sockets in OpenCodeBlocks. """
 
-    def __init__(self, block:'OCBBlock', socket_type:str='undefined', radius:float=6.0,
-            color:str='#FF55FFF0', linewidth:float=1.0, linecolor:str='#FF000000'):
+    def __init__(self, block: 'OCBBlock',
+                 socket_type: str = 'undefined', flow_type: str = 'exe',
+                 radius: float = 6.0, color: str = '#FF55FFF0',
+                 linewidth: float = 1.0, linecolor: str = '#FF000000'):
         """ Base class for sockets in OpenCodeBlocks.
 
         Args:
             block: Block containing the socket.
             socket_type: Type of the socket, one of ('undefined', 'input', 'output').
+            flow_type: Type of flow that the socket is linked to, one of ('exe', 'var').
             radius: Radius of the socket graphics.
             color: Color of the socket graphics.
             linewidth: Linewidth of the socket graphics.
@@ -38,8 +42,9 @@ class OCBSocket(QGraphicsItem, Serializable):
         self.block = block
         QGraphicsItem.__init__(self, parent=self.block)
 
-        self.edges = []
+        self.edges: List['OCBEdge'] = []
         self.socket_type = socket_type
+        self.flow_type = flow_type
 
         self.radius = radius
         self._pen = QPen(QColor(linecolor))
@@ -53,14 +58,19 @@ class OCBSocket(QGraphicsItem, Serializable):
             'linecolor': linecolor,
         }
 
-    def add_edge(self, edge:'OCBEdge'):
+    def add_edge(self, edge: 'OCBEdge', is_destination: bool):
         """ Add a given edge to the socket edges. """
         if not self._allow_multiple_edges:
             for prev_edge in self.edges:
                 prev_edge.remove()
+        if self.flow_type == 'exe':
+            if ((is_destination and self.socket_type != 'input') or
+                    (not is_destination and self.socket_type != 'output')):
+                edge.remove()
+                return
         self.edges.append(edge)
 
-    def remove_edge(self, edge:'OCBEdge'):
+    def remove_edge(self, edge: 'OCBEdge'):
         """ Remove a given edge from the socket edges. """
         self.edges.remove(edge)
 
@@ -74,16 +84,26 @@ class OCBSocket(QGraphicsItem, Serializable):
 
     @property
     def _allow_multiple_edges(self):
-        return self.socket_type != 'input'
+        if self.flow_type == 'exe':
+            return True
+        raise NotImplementedError
 
     def paint(self, painter: QPainter,
-            option: QStyleOptionGraphicsItem, #pylint:disable=unused-argument
-            widget: Optional[QWidget]=None): #pylint:disable=unused-argument
+              option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
+              widget: Optional[QWidget] = None):  # pylint:disable=unused-argument
         """ Paint the socket. """
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
-        painter.drawEllipse(int(-r),int(-r),int(2*r),int(2*r))
+        if self.flow_type == 'exe':
+            angles = [0, 2*math.pi/3, -2*math.pi/3]
+            right_triangle_points = [
+                QPoint(int(r*math.cos(angle)), int(r*math.sin(angle)))
+                for angle in angles
+            ]
+            painter.drawPolygon(QPolygon(right_triangle_points))
+        else:
+            painter.drawEllipse(int(-r), int(-r), int(2*r), int(2*r))
 
     def boundingRect(self) -> QRectF:
         """ Get the socket bounding box. """
