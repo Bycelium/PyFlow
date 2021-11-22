@@ -141,6 +141,7 @@ class OCBView(QGraphicsView):
 
 
     def contextMenuEvent(self, event: QContextMenuEvent):
+        """ Displays the context menu when inside a view """
         menu = QMenu(self)
         newAction = menu.addAction("New Empty Block")
         action = menu.exec_(self.mapToGlobal(event.pos()))

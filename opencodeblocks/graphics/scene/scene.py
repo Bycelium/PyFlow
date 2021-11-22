@@ -25,10 +25,10 @@ class OCBScene(QGraphicsScene, Serializable):
     """ Scene for the OCB Window. """
 
     def __init__(self, parent=None,
-            background_color:str="#393939",
-            grid_color:str="#292929", grid_light_color:str="#2f2f2f",
-            width:int=64000, height:int=64000,
-            grid_size:int=20, grid_squares:int=5):
+                 background_color: str = "#393939",
+                 grid_color: str = "#292929", grid_light_color: str = "#2f2f2f",
+                 width: int = 64000, height: int = 64000,
+                 grid_size: int = 20, grid_squares: int = 5):
         Serializable.__init__(self)
         QGraphicsScene.__init__(self, parent=parent)
 
@@ -39,7 +39,8 @@ class OCBScene(QGraphicsScene, Serializable):
         self.grid_squares = grid_squares
 
         self.width, self.height = width, height
-        self.setSceneRect(-self.width//2, -self.height//2, self.width, self.height)
+        self.setSceneRect(-self.width // 2, -self.height //
+                          2, self.width, self.height)
         self.setBackgroundBrush(self._background_color)
 
         self._has_been_modified = False
@@ -52,13 +53,14 @@ class OCBScene(QGraphicsScene, Serializable):
     def has_been_modified(self):
         """ True if the scene has been modified, False otherwise. """
         return self._has_been_modified
+
     @has_been_modified.setter
-    def has_been_modified(self, value:bool):
+    def has_been_modified(self, value: bool):
         self._has_been_modified = value
         for callback in self._has_been_modified_listeners:
             callback()
 
-    def addHasBeenModifiedListener(self, callback:FunctionType):
+    def addHasBeenModifiedListener(self, callback: FunctionType):
         """ Add a callback that will trigger when the scene has been modified. """
         self._has_been_modified_listeners.append(callback)
 
@@ -112,12 +114,12 @@ class OCBScene(QGraphicsScene, Serializable):
         painter.setPen(pen)
         painter.drawLines(*lines_light)
 
-    def save(self, filepath:str):
+    def save(self, filepath: str):
         """ Save the scene into filepath. """
         self.save_to_ipyg(filepath)
         self.has_been_modified = False
 
-    def save_to_ipyg(self, filepath:str):
+    def save_to_ipyg(self, filepath: str):
         """ Save the scene into filepath as interactive python graph (.ipyg). """
         if '.' not in filepath:
             filepath += '.ipyg'
@@ -129,7 +131,7 @@ class OCBScene(QGraphicsScene, Serializable):
         with open(filepath, 'w', encoding='utf-8') as file:
             file.write(json.dumps(self.serialize(), indent=4))
 
-    def load(self, filepath:str):
+    def load(self, filepath: str):
         """ Load a saved scene.
 
         Args:
@@ -145,7 +147,7 @@ class OCBScene(QGraphicsScene, Serializable):
         self.history.checkpoint("Loaded scene")
         self.has_been_modified = False
 
-    def load_from_ipyg(self, filepath:str):
+    def load_from_ipyg(self, filepath: str):
         """ Load an interactive python graph (.ipyg) into the scene.
 
         Args:
@@ -176,17 +178,18 @@ class OCBScene(QGraphicsScene, Serializable):
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
-    
-    def create_block_from_file(self, filepath:str, x: float = 0, y: float = 0):
+
+    def create_block_from_file(
+            self, filepath: str, x: float = 0, y: float = 0):
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.loads(file.read())
-            data["position"] = [x,y]
+            data["position"] = [x, y]
             data["sockets"] = {}
             data["id"] = -1
-            b = self.create_block(data,None,False)
+            b = self.create_block(data, None, False)
 
-
-    def create_block(self, data: OrderedDict, hashmap: dict = None, restore_id:bool = True) -> OCBBlock:
+    def create_block(self, data: OrderedDict, hashmap: dict = None,
+                     restore_id: bool = True) -> OCBBlock:
         block = None
         if data['block_type'] == 'base':
             block = OCBBlock()
@@ -200,7 +203,8 @@ class OCBScene(QGraphicsScene, Serializable):
             hashmap.update({data['id']: block})
         return block
 
-    def deserialize(self, data: OrderedDict, hashmap: dict=None, restore_id:bool = True):
+    def deserialize(self, data: OrderedDict,
+                    hashmap: dict = None, restore_id: bool = True):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
         if restore_id:
