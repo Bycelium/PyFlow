@@ -181,15 +181,18 @@ class OCBScene(QGraphicsScene, Serializable):
 
     def create_block_from_file(
             self, filepath: str, x: float = 0, y: float = 0):
+        """ Create a new block from a .ocbb file """
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.loads(file.read())
             data["position"] = [x, y]
             data["sockets"] = {}
             data["id"] = -1
-            b = self.create_block(data, None, False)
+            self.create_block(data, None, False)
 
     def create_block(self, data: OrderedDict, hashmap: dict = None,
                      restore_id: bool = True) -> OCBBlock:
+        """ Create a new block from an OrderedDict """
+
         block = None
         if data['block_type'] == 'base':
             block = OCBBlock()

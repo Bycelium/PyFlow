@@ -3,6 +3,10 @@
 
 """ Module for the OCB View """
 
+import json
+import os
+import time
+
 from PyQt5.QtCore import QEvent, QPointF, Qt
 from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
 from PyQt5.QtWidgets import QGraphicsView, QMenu
@@ -12,6 +16,8 @@ from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.blocks import OCBBlock
+
+RIGHT_CLICK_SPEED = 0.5  # In seconds
 
 MODE_NOOP = 0
 MODE_EDGE_DRAG = 1
@@ -28,8 +34,8 @@ class OCBView(QGraphicsView):
 
     """ View for the OCB Window. """
 
-    def __init__(self, scene:OCBScene, parent=None,
-            zoom_step:float=1.25, zoom_min:float=0.2, zoom_max:float=5):
+    def __init__(self, scene: OCBScene, parent=None,
+                 zoom_step: float = 1.25, zoom_min: float = 0.2, zoom_max: float = 5):
         super().__init__(parent=parent)
         self.mode = MODE_NOOP
         self.zoom = 1
@@ -38,6 +44,8 @@ class OCBView(QGraphicsView):
         self.edge_drag = None
         self.lastMousePos = QPointF(0, 0)
         self.currentSelectedBlock = None
+
+        self.right_click_time = 0
 
         self.init_ui()
         self.setScene(scene)
@@ -56,10 +64,12 @@ class OCBView(QGraphicsView):
             QGraphicsView.ViewportUpdateMode.FullViewportUpdate
         )
         # Remove scroll bars
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # Zoom on cursor
-        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        self.setTransformationAnchor(
+            QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         # Selection box
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
@@ -110,7 +120,7 @@ class OCBView(QGraphicsView):
         item_at_click = self.itemAt(event.pos())
         if item_at_click is not None:
             while item_at_click.parentItem() is not None:
-                if isinstance(item_at_click,OCBBlock):
+                if isinstance(item_at_click, OCBBlock):
                     break
                 item_at_click = item_at_click.parentItem()
 
@@ -131,6 +141,7 @@ class OCBView(QGraphicsView):
     def rightMouseButtonPress(self, event: QMouseEvent):
         """ OCBView reaction to rightMouseButtonPress event. """
         event = self.drag_scene(event, "press")
+        self.right_click_time = time.time()
         super().mousePressEvent(event)
 
     def rightMouseButtonRelease(self, event: QMouseEvent):
@@ -138,16 +149,36 @@ class OCBView(QGraphicsView):
         event = self.drag_scene(event, "release")
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+        if time.time() - self.right_click_time < RIGHT_CLICK_SPEED:
+            self.fastContextMenuEvent(event)
 
+    def fastContextMenuEvent(self, event: QContextMenuEvent):
+        """
+        Displays the context menu when inside a view
 
-    def contextMenuEvent(self, event: QContextMenuEvent):
-        """ Displays the context menu when inside a view """
+        We don't use the default contextMenuEvent method to avoid
+        displaying a context menu when moving around the view.
+
+        For this method to be triggered, the click has to last less than RIGHT_CLICK_SPEED.
+        """
         menu = QMenu(self)
-        newAction = menu.addAction("New Empty Block")
-        action = menu.exec_(self.mapToGlobal(event.pos()))
-        if action == newAction:
-            p = self.mapToScene(event.pos())
-            self.scene().create_block_from_file("blocks/empty.ocbb", p.x(), p.y())
+        actionPool = []
+        blockTypes = os.listdir("blocks")
+        for b in blockTypes:
+            filepath = os.path.join("blocks", b)
+            with open(filepath, "r", encoding="utf-8") as file:
+                data = json.loads(file.read())
+                if "title" not in data:
+                    actionPool.append((filepath, menu.addAction(f"New Block")))
+                else:
+                    actionPool.append(
+                        (filepath, menu.addAction(f"New {data['title']} Block")))
+
+        selectedAction = menu.exec_(self.mapToGlobal(event.pos()))
+        for filepath, action in actionPool:
+            if action == selectedAction:
+                p = self.mapToScene(event.pos())
+                self.scene().create_block_from_file(filepath, p.x(), p.y())
 
     def wheelEvent(self, event: QWheelEvent):
         """ Handles zooming with mouse wheel events. """
@@ -178,7 +209,8 @@ class OCBView(QGraphicsView):
             block: Block to bring forward.
 
         """
-        if self.currentSelectedBlock is not None and not isdeleted(self.currentSelectedBlock):
+        if self.currentSelectedBlock is not None and not isdeleted(
+                self.currentSelectedBlock):
             self.currentSelectedBlock.setZValue(0)
         block.setZValue(1)
         self.currentSelectedBlock = block
@@ -187,16 +219,16 @@ class OCBView(QGraphicsView):
         """ Drag the scene around. """
         if action == "press":
             releaseEvent = QMouseEvent(QEvent.Type.MouseButtonRelease,
-                event.localPos(), event.screenPos(),
-                Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
+                                       event.localPos(), event.screenPos(),
+                                       Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
             super().mouseReleaseEvent(releaseEvent)
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
             return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
-                event.modifiers())
+                               Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
+                               event.modifiers())
         return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-            Qt.MouseButton.LeftButton,event.buttons() & ~Qt.MouseButton.LeftButton,
-            event.modifiers())
+                           Qt.MouseButton.LeftButton, event.buttons() & ~Qt.MouseButton.LeftButton,
+                           event.modifiers())
 
     def drag_edge(self, event: QMouseEvent, action="press"):
         """ Create an edge by drag and drop. """
@@ -219,7 +251,8 @@ class OCBView(QGraphicsView):
                         and item_at_click is not self.edge_drag.source_socket \
                         and item_at_click.socket_type != 'output':
                     self.edge_drag.destination_socket = item_at_click
-                    scene.history.checkpoint("Created edge by dragging", set_modified=True)
+                    scene.history.checkpoint(
+                        "Created edge by dragging", set_modified=True)
                 else:
                     self.edge_drag.remove()
                 self.edge_drag = None
@@ -229,7 +262,7 @@ class OCBView(QGraphicsView):
                 self.edge_drag.destination = self.mapToScene(event.pos())
         return event
 
-    def set_mode(self, mode:str):
+    def set_mode(self, mode: str):
         """ Change the view mode.
 
         Args:
@@ -238,7 +271,7 @@ class OCBView(QGraphicsView):
         """
         self.mode = MODES[mode]
 
-    def is_mode(self, mode:str):
+    def is_mode(self, mode: str):
         """ Return True if the view is in the given mode.
 
         Args:
