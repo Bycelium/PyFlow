@@ -321,11 +321,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         if 'splitter_pos' in data:
             self.splitter.setSizes(data['splitter_pos'])
 
-        for socket_data in data['sockets']:
-            socket = OCBSocket(block=self)
-            socket.deserialize(socket_data, hashmap, restore_id)
-            self.add_socket(socket)
-            hashmap.update({socket_data['id']: socket})
+        if hashmap is not None:
+            for socket_data in data['sockets']:
+                socket = OCBSocket(block=self)
+                socket.deserialize(socket_data, hashmap, restore_id)
+                self.add_socket(socket)
+                hashmap.update({socket_data['id']: socket})
 
 
 class OCBSplitterHandle(QSplitterHandle):

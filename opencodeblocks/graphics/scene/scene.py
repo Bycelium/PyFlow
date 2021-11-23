@@ -186,7 +186,6 @@ class OCBScene(QGraphicsScene, Serializable):
             data = json.loads(file.read())
             data["position"] = [x, y]
             data["sockets"] = {}
-            data["id"] = -1
             self.create_block(data, None, False)
 
     def create_block(self, data: OrderedDict, hashmap: dict = None,

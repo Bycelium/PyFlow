@@ -83,8 +83,6 @@ class OCBView(QGraphicsView):
             self.middleMouseButtonPress(event)
         elif event.button() == Qt.MouseButton.LeftButton:
             self.leftMouseButtonPress(event)
-        elif event.button() == Qt.MouseButton.RightButton:
-            self.rightMouseButtonPress(event)
         else:
             super().mousePressEvent(event)
 
@@ -94,8 +92,6 @@ class OCBView(QGraphicsView):
             self.middleMouseButtonRelease(event)
         elif event.button() == Qt.MouseButton.LeftButton:
             self.leftMouseButtonRelease(event)
-        elif event.button() == Qt.MouseButton.RightButton:
-            self.rightMouseButtonRelease(event)
         else:
             super().mouseReleaseEvent(event)
 
@@ -105,14 +101,6 @@ class OCBView(QGraphicsView):
         self.drag_edge(event, 'move')
         if event is not None:
             super().mouseMoveEvent(event)
-
-    def middleMouseButtonPress(self, event: QMouseEvent):
-        """ OCBView reaction to middleMouseButtonPress event. """
-        super().mousePressEvent(event)
-
-    def middleMouseButtonRelease(self, event: QMouseEvent):
-        """ OCBView reaction to middleMouseButtonRelease event. """
-        super().mouseReleaseEvent(event)
 
     def leftMouseButtonPress(self, event: QMouseEvent):
         """ OCBView reaction to leftMouseButtonPress event. """
@@ -138,29 +126,19 @@ class OCBView(QGraphicsView):
         if event is not None:
             super().mouseReleaseEvent(event)
 
-    def rightMouseButtonPress(self, event: QMouseEvent):
-        """ OCBView reaction to rightMouseButtonPress event. """
+    def middleMouseButtonPress(self, event: QMouseEvent):
+        """ OCBView reaction to middleMouseButtonPress event. """
         event = self.drag_scene(event, "press")
-        self.right_click_time = time.time()
         super().mousePressEvent(event)
 
-    def rightMouseButtonRelease(self, event: QMouseEvent):
-        """ OCBView reaction to rightMouseButtonRelease event. """
+    def middleMouseButtonRelease(self, event: QMouseEvent):
+        """ OCBView reaction to middleMouseButtonRelease event. """
         event = self.drag_scene(event, "release")
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
-        if time.time() - self.right_click_time < RIGHT_CLICK_SPEED:
-            self.fastContextMenuEvent(event)
 
-    def fastContextMenuEvent(self, event: QContextMenuEvent):
-        """
-        Displays the context menu when inside a view
-
-        We don't use the default contextMenuEvent method to avoid
-        displaying a context menu when moving around the view.
-
-        For this method to be triggered, the click has to last less than RIGHT_CLICK_SPEED.
-        """
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        """  Displays the context menu when inside a view  """
         menu = QMenu(self)
         actionPool = []
         blockTypes = os.listdir("blocks")
