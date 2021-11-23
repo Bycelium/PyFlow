@@ -308,6 +308,9 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     def deserialize(self, data: dict, hashmap: dict = None,
                     restore_id=True) -> None:
+        if hashmap is None:
+            hashmap = {}
+
         if restore_id:
             self.id = data['id']
         for dataname in ('title', 'block_type', 'source', 'stdout',
@@ -321,12 +324,11 @@ class OCBBlock(QGraphicsItem, Serializable):
         if 'splitter_pos' in data:
             self.splitter.setSizes(data['splitter_pos'])
 
-        if hashmap is not None:
-            for socket_data in data['sockets']:
-                socket = OCBSocket(block=self)
-                socket.deserialize(socket_data, hashmap, restore_id)
-                self.add_socket(socket)
-                hashmap.update({socket_data['id']: socket})
+        for socket_data in data['sockets']:
+            socket = OCBSocket(block=self)
+            socket.deserialize(socket_data, hashmap, restore_id)
+            self.add_socket(socket)
+            hashmap.update({socket_data['id']: socket})
 
 
 class OCBSplitterHandle(QSplitterHandle):
