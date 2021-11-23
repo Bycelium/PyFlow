@@ -1,0 +1,18 @@
+{
+    "title": "Imports for ML",
+    "block_type": "code",
+    "source": "import tensorflow as tf\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.models import Sequential",
+    "stdout": "",
+    "image": "",
+    "splitter_pos": [80,50],
+    "width": 600,
+    "height": 400,
+    "metadata": {
+        "title_metadata": {
+            "color": "white",
+            "font": "Ubuntu",
+            "size": 10,
+            "padding": 4.0
+        }
+    }
+}

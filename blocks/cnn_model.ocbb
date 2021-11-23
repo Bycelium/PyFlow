@@ -1,0 +1,18 @@
+{
+    "title": "CNN",
+    "block_type": "code",
+    "source": "input_size = 28\r\nclasses = 5\r\nmodel = Sequential()\r\nmodel.add(layers.Conv2D(input_size, kernel_size=(3,3), input_shape=(input_size,input_size,1)))\r\nmodel.add(layers.MaxPooling2D(pool_size=(2, 2)))\r\nmodel.add(layers.Flatten())\r\nmodel.add(layers.Dense(128, activation=tf.nn.relu))\r\nmodel.add(layers.Dropout(0.2))\r\nmodel.add(layers.Dense(classes,activation=tf.nn.softmax))\r\n\r\nmodel.compile(optimizer='adam', \r\n              loss='sparse_categorical_crossentropy')",
+    "stdout": "",
+    "image": "",
+    "splitter_pos": [80,50],
+    "width": 600,
+    "height": 400,
+    "metadata": {
+        "title_metadata": {
+            "color": "white",
+            "font": "Ubuntu",
+            "size": 10,
+            "padding": 4.0
+        }
+    }
+}

@@ -325,7 +325,8 @@ class OCBBlock(QGraphicsItem, Serializable):
             socket = OCBSocket(block=self)
             socket.deserialize(socket_data, hashmap, restore_id)
             self.add_socket(socket)
-            hashmap.update({socket_data['id']: socket})
+            if hashmap is not None:
+                hashmap.update({socket_data['id']: socket})
 
 
 class OCBSplitterHandle(QSplitterHandle):

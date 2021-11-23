@@ -33,7 +33,7 @@ class BlockSizeGrip(QSizeGrip):
         self.mouseY = mouseEvent.globalY()
         self.resizing = True
 
-    def mouseReleaseEvent(self, mouseEvent: QMouseEvent):
+    def mouseReleaseEvent(self, mouseEvent: QMouseEvent):  # pylint:disable=unused-argument
         """ Stop the resizing """
         self.resizing = False
         self.block.scene().history.checkpoint("Resized block", set_modified=True)

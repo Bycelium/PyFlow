@@ -18,7 +18,7 @@ class Worker(QRunnable):
 
     def __init__(self, kernel, code):
         """ Initialize the worker object. """
-        super(Worker, self).__init__()
+        super().__init__()
 
         self.kernel = kernel
         self.code = code

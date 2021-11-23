@@ -3,10 +3,15 @@
 
 """ Module for the OCB View """
 
+import json
+import os
+from typing import List, Tuple
+
 from PyQt5.QtCore import QEvent, QPointF, Qt
-from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent
-from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
+from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
+
 
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
@@ -28,8 +33,8 @@ class OCBView(QGraphicsView):
 
     """ View for the OCB Window. """
 
-    def __init__(self, scene:OCBScene, parent=None,
-            zoom_step:float=1.25, zoom_min:float=0.2, zoom_max:float=5):
+    def __init__(self, scene: OCBScene, parent=None,
+                 zoom_step: float = 1.25, zoom_min: float = 0.2, zoom_max: float = 5):
         super().__init__(parent=parent)
         self.mode = MODE_NOOP
         self.zoom = 1
@@ -56,10 +61,12 @@ class OCBView(QGraphicsView):
             QGraphicsView.ViewportUpdateMode.FullViewportUpdate
         )
         # Remove scroll bars
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # Zoom on cursor
-        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        self.setTransformationAnchor(
+            QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         # Selection box
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
@@ -73,8 +80,6 @@ class OCBView(QGraphicsView):
             self.middleMouseButtonPress(event)
         elif event.button() == Qt.MouseButton.LeftButton:
             self.leftMouseButtonPress(event)
-        elif event.button() == Qt.MouseButton.RightButton:
-            self.rightMouseButtonPress(event)
         else:
             super().mousePressEvent(event)
 
@@ -84,8 +89,6 @@ class OCBView(QGraphicsView):
             self.middleMouseButtonRelease(event)
         elif event.button() == Qt.MouseButton.LeftButton:
             self.leftMouseButtonRelease(event)
-        elif event.button() == Qt.MouseButton.RightButton:
-            self.rightMouseButtonRelease(event)
         else:
             super().mouseReleaseEvent(event)
 
@@ -96,21 +99,13 @@ class OCBView(QGraphicsView):
         if event is not None:
             super().mouseMoveEvent(event)
 
-    def middleMouseButtonPress(self, event: QMouseEvent):
-        """ OCBView reaction to middleMouseButtonPress event. """
-        super().mousePressEvent(event)
-
-    def middleMouseButtonRelease(self, event: QMouseEvent):
-        """ OCBView reaction to middleMouseButtonRelease event. """
-        super().mouseReleaseEvent(event)
-
     def leftMouseButtonPress(self, event: QMouseEvent):
         """ OCBView reaction to leftMouseButtonPress event. """
         # If clicked on a block, bring it forward.
         item_at_click = self.itemAt(event.pos())
         if item_at_click is not None:
             while item_at_click.parentItem() is not None:
-                if isinstance(item_at_click,OCBBlock):
+                if isinstance(item_at_click, OCBBlock):
                     break
                 item_at_click = item_at_click.parentItem()
 
@@ -128,16 +123,42 @@ class OCBView(QGraphicsView):
         if event is not None:
             super().mouseReleaseEvent(event)
 
-    def rightMouseButtonPress(self, event: QMouseEvent):
-        """ OCBView reaction to rightMouseButtonPress event. """
+    def middleMouseButtonPress(self, event: QMouseEvent):
+        """ OCBView reaction to middleMouseButtonPress event. """
         event = self.drag_scene(event, "press")
         super().mousePressEvent(event)
 
-    def rightMouseButtonRelease(self, event: QMouseEvent):
-        """ OCBView reaction to rightMouseButtonRelease event. """
+    def middleMouseButtonRelease(self, event: QMouseEvent):
+        """ OCBView reaction to middleMouseButtonRelease event. """
         event = self.drag_scene(event, "release")
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+
+    def retreiveBlockTypes(self) -> List[Tuple[str]]:
+        block_type_files = os.listdir("blocks")
+        block_types = []
+        for b in block_type_files:
+            filepath = os.path.join("blocks", b)
+            with open(filepath, "r", encoding="utf-8") as file:
+                data = json.loads(file.read())
+                title = "New Block"
+                if "title" in data:
+                    title = f"New {data['title']} Block"
+                block_types.append((filepath, title))
+        return block_types
+
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        """  Displays the context menu when inside a view  """
+        menu = QMenu(self)
+        actionPool = []
+        for filepath, block_name in self.retreiveBlockTypes():
+            actionPool.append((filepath, menu.addAction(block_name)))
+
+        selectedAction = menu.exec_(self.mapToGlobal(event.pos()))
+        for filepath, action in actionPool:
+            if action == selectedAction:
+                p = self.mapToScene(event.pos())
+                self.scene().create_block_from_file(filepath, p.x(), p.y())
 
     def wheelEvent(self, event: QWheelEvent):
         """ Handles zooming with mouse wheel events. """
@@ -168,7 +189,8 @@ class OCBView(QGraphicsView):
             block: Block to bring forward.
 
         """
-        if self.currentSelectedBlock is not None and not isdeleted(self.currentSelectedBlock):
+        if self.currentSelectedBlock is not None and not isdeleted(
+                self.currentSelectedBlock):
             self.currentSelectedBlock.setZValue(0)
         block.setZValue(1)
         self.currentSelectedBlock = block
@@ -177,16 +199,19 @@ class OCBView(QGraphicsView):
         """ Drag the scene around. """
         if action == "press":
             releaseEvent = QMouseEvent(QEvent.Type.MouseButtonRelease,
-                event.localPos(), event.screenPos(),
-                Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
+                                       event.localPos(), event.screenPos(),
+                                       Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton,
+                                       event.modifiers())
             super().mouseReleaseEvent(releaseEvent)
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
             return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
-                event.modifiers())
+                               Qt.MouseButton.LeftButton,
+                               event.buttons() | Qt.MouseButton.LeftButton,
+                               event.modifiers())
         return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-            Qt.MouseButton.LeftButton,event.buttons() & ~Qt.MouseButton.LeftButton,
-            event.modifiers())
+                           Qt.MouseButton.LeftButton,
+                           event.buttons() & ~Qt.MouseButton.LeftButton,
+                           event.modifiers())
 
     def drag_edge(self, event: QMouseEvent, action="press"):
         """ Create an edge by drag and drop. """
@@ -209,7 +234,8 @@ class OCBView(QGraphicsView):
                         and item_at_click is not self.edge_drag.source_socket \
                         and item_at_click.socket_type != 'output':
                     self.edge_drag.destination_socket = item_at_click
-                    scene.history.checkpoint("Created edge by dragging", set_modified=True)
+                    scene.history.checkpoint(
+                        "Created edge by dragging", set_modified=True)
                 else:
                     self.edge_drag.remove()
                 self.edge_drag = None
@@ -219,7 +245,7 @@ class OCBView(QGraphicsView):
                 self.edge_drag.destination = self.mapToScene(event.pos())
         return event
 
-    def set_mode(self, mode:str):
+    def set_mode(self, mode: str):
         """ Change the view mode.
 
         Args:
@@ -228,7 +254,7 @@ class OCBView(QGraphicsView):
         """
         self.mode = MODES[mode]
 
-    def is_mode(self, mode:str):
+    def is_mode(self, mode: str):
         """ Return True if the view is in the given mode.
 
         Args:
