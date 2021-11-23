@@ -176,8 +176,8 @@ class OCBWindow(QMainWindow):
     def updateThemeMenu(self):
         self.thememenu.clear()
         theme_names = theme_manager().list_themes()
-        for i in range(len(theme_names)):
-            action = self.thememenu.addAction(theme_names[i])
+        for i, theme in enumerate(theme_names):
+            action = self.thememenu.addAction(theme)
             action.setCheckable(True)
             action.setChecked(i == theme_manager().selected_theme_index)
             action.triggered.connect(self.themeMapper.map)

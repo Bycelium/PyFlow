@@ -112,7 +112,7 @@ class OCBCodeBlock(OCBBlock):
             ba = QByteArray.fromBase64(str.encode(self.image))
             pixmap = QPixmap()
             pixmap.loadFromData(ba)
-            text = '<img src="data:image/png;base64,{}">'.format(self.image)
+            text = f'<img src="data:image/png;base64,{self.image}">'
             self.output_panel.setText(text)
 
     @source.setter

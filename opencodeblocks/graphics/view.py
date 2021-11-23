@@ -144,7 +144,7 @@ class OCBView(QGraphicsView):
                 title = "New Block"
                 if "title" in data:
                     title = f"New {data['title']} Block"
-                block_types.append((filepath,title))
+                block_types.append((filepath, title))
         return block_types
 
     def contextMenuEvent(self, event: QContextMenuEvent):
@@ -200,14 +200,17 @@ class OCBView(QGraphicsView):
         if action == "press":
             releaseEvent = QMouseEvent(QEvent.Type.MouseButtonRelease,
                                        event.localPos(), event.screenPos(),
-                                       Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
+                                       Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton,
+                                       event.modifiers())
             super().mouseReleaseEvent(releaseEvent)
             self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
             return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                               Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
+                               Qt.MouseButton.LeftButton,
+                               event.buttons() | Qt.MouseButton.LeftButton,
                                event.modifiers())
         return QMouseEvent(event.type(), event.localPos(), event.screenPos(),
-                           Qt.MouseButton.LeftButton, event.buttons() & ~Qt.MouseButton.LeftButton,
+                           Qt.MouseButton.LeftButton,
+                           event.buttons() & ~Qt.MouseButton.LeftButton,
                            event.modifiers())
 
     def drag_edge(self, event: QMouseEvent, action="press"):
