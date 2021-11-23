@@ -5,19 +5,18 @@
 
 import json
 import os
-import time
+from typing import List, Tuple
 
 from PyQt5.QtCore import QEvent, QPointF, Qt
 from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
+
 from opencodeblocks.graphics.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.blocks import OCBBlock
-
-RIGHT_CLICK_SPEED = 0.5  # In seconds
 
 MODE_NOOP = 0
 MODE_EDGE_DRAG = 1
@@ -44,8 +43,6 @@ class OCBView(QGraphicsView):
         self.edge_drag = None
         self.lastMousePos = QPointF(0, 0)
         self.currentSelectedBlock = None
-
-        self.right_click_time = 0
 
         self.init_ui()
         self.setScene(scene)
@@ -137,20 +134,25 @@ class OCBView(QGraphicsView):
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
+    def retreiveBlockTypes(self) -> List[Tuple[str]]:
+        block_type_files = os.listdir("blocks")
+        block_types = []
+        for b in block_type_files:
+            filepath = os.path.join("blocks", b)
+            with open(filepath, "r", encoding="utf-8") as file:
+                data = json.loads(file.read())
+                title = "New Block"
+                if "title" in data:
+                    title = f"New {data['title']} Block"
+                block_types.append((filepath,title))
+        return block_types
+
     def contextMenuEvent(self, event: QContextMenuEvent):
         """  Displays the context menu when inside a view  """
         menu = QMenu(self)
         actionPool = []
-        blockTypes = os.listdir("blocks")
-        for b in blockTypes:
-            filepath = os.path.join("blocks", b)
-            with open(filepath, "r", encoding="utf-8") as file:
-                data = json.loads(file.read())
-                if "title" not in data:
-                    actionPool.append((filepath, menu.addAction(f"New Block")))
-                else:
-                    actionPool.append(
-                        (filepath, menu.addAction(f"New {data['title']} Block")))
+        for filepath, block_name in self.retreiveBlockTypes():
+            actionPool.append((filepath, menu.addAction(block_name)))
 
         selectedAction = menu.exec_(self.mapToGlobal(event.pos()))
         for filepath, action in actionPool:
