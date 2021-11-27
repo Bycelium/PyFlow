@@ -1,4 +1,4 @@
-pytest
+pytest==2.11.1
 pytest-cov
 pytest-mock
 pytest-check
