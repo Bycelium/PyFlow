@@ -7,6 +7,36 @@
     "splitter_pos": [88,41],
     "width": 618,
     "height": 184,
+    "sockets": [
+                {
+                    "id": 2443478983592,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 2443478983880,
+                    "type": "output",
+                    "position": [
+                        855.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ],
     "metadata": {
         "title_metadata": {
             "color": "white",
