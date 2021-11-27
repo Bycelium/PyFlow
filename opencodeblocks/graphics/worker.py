@@ -11,6 +11,7 @@ class WorkerSignals(QObject):
     """ Defines the signals available from a running worker thread. """
     stdout = pyqtSignal(str)
     image = pyqtSignal(str)
+    finished = pyqtSignal()
 
 
 class Worker(QRunnable):
@@ -38,6 +39,7 @@ class Worker(QRunnable):
                     self.signals.stdout.emit(output)
                 elif output_type == 'image':
                     self.signals.image.emit(output)
+        self.signals.finished.emit()
 
     def run(self):
         """ Execute the run_code method asynchronously. """

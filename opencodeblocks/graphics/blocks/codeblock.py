@@ -11,7 +11,6 @@ from ansi2html import Ansi2HTMLConverter
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
-from opencodeblocks.graphics.worker import Worker
 
 conv = Ansi2HTMLConverter()
 
@@ -142,14 +141,13 @@ class OCBCodeBlock(OCBBlock):
         return run_button
 
     def run_code(self):
-        """Run the code in the block"""
+        """ Run the code in the block """
         code = self.source_editor.text()
         self.source = code
-        # Create a worker to handle execution
-        worker = Worker(self.source_editor.kernel, self.source)
-        worker.signals.stdout.connect(self.handle_stdout)
-        worker.signals.image.connect(self.handle_image)
-        self.source_editor.threadpool.start(worker)
+        kernel = self.source_editor.kernel
+        kernel.execution_queue.append((self, code))
+        if kernel.busy == False:
+            kernel.run_queue()
 
     def handle_stdout(self, stdout):
         """ Handle the stdout signal """
