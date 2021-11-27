@@ -172,7 +172,7 @@ class OCBCodeBlock(OCBBlock):
         Runs the block and all blocks connected to it
         in topological order.
         """
-        graph = self.create_graph()
+        graph = self.create_graph([])
         block_generator = topological_sort(graph)
         kernel = self.source_editor.kernel
         for block in block_generator:
@@ -204,7 +204,7 @@ class OCBCodeBlock(OCBBlock):
                     input_blocks.append(edge.source_socket.block)
         return input_blocks
 
-    def create_graph(self, explored_blocks=[]):
+    def create_graph(self, explored_blocks):
         """
         Browse all of the connected blocks recursively
         and create a directed graph

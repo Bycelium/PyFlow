@@ -1,0 +1,335 @@
+{
+    "id": 1784539565944,
+    "blocks": [
+        {
+            "id": 1782463089112,
+            "title": "Empty",
+            "block_type": "code",
+            "source": "e= 5\r\na+b+c+d+e",
+            "stdout": "",
+            "image": "",
+            "splitter_pos": [
+                70,
+                134
+            ],
+            "position": [
+                615.2343749999998,
+                100.09765624999996
+            ],
+            "width": 300,
+            "height": 258,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 1782463279320,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 1782463279464,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 1782464634456,
+            "title": "Empty",
+            "block_type": "code",
+            "source": "c=3",
+            "stdout": "",
+            "image": "",
+            "splitter_pos": [
+                53,
+                53
+            ],
+            "position": [
+                -156.24999999999994,
+                126.95312499999994
+            ],
+            "width": 300,
+            "height": 161,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 1782464656728,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 1782464656872,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 1782464734264,
+            "title": "Empty",
+            "block_type": "code",
+            "source": "b=2",
+            "stdout": "",
+            "image": "",
+            "splitter_pos": [
+                70,
+                102
+            ],
+            "position": [
+                -632.3242187499997,
+                307.6171874999999
+            ],
+            "width": 300,
+            "height": 226,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 1782464735992,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 1782464736136,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 1782465657448,
+            "title": "Empty",
+            "block_type": "code",
+            "source": "d=4",
+            "stdout": "",
+            "image": "",
+            "splitter_pos": [
+                70,
+                82
+            ],
+            "position": [
+                163.57421875,
+                -170.89843749999994
+            ],
+            "width": 300,
+            "height": 206,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 1782475514216,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 1782475514360,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        },
+        {
+            "id": 1784539702328,
+            "title": "Empty",
+            "block_type": "code",
+            "source": "a=1",
+            "stdout": "",
+            "image": "",
+            "splitter_pos": [
+                70,
+                94
+            ],
+            "position": [
+                -579.421875,
+                -178.85546875
+            ],
+            "width": 303,
+            "height": 218,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10,
+                    "padding": 4.0
+                }
+            },
+            "sockets": [
+                {
+                    "id": 1784538678184,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                },
+                {
+                    "id": 1784539704344,
+                    "type": "output",
+                    "position": [
+                        303.0,
+                        42.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 6.0
+                    }
+                }
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "id": 1782475473832,
+            "path_type": "bezier",
+            "source": {
+                "block": 1784539702328,
+                "socket": 1784539704344
+            },
+            "destination": {
+                "block": 1782464634456,
+                "socket": 1782464656728
+            }
+        },
+        {
+            "id": 1782475528520,
+            "path_type": "bezier",
+            "source": {
+                "block": 1782464734264,
+                "socket": 1782464736136
+            },
+            "destination": {
+                "block": 1782464634456,
+                "socket": 1782464656728
+            }
+        },
+        {
+            "id": 1782475575656,
+            "path_type": "bezier",
+            "source": {
+                "block": 1782464634456,
+                "socket": 1782464656872
+            },
+            "destination": {
+                "block": 1782463089112,
+                "socket": 1782463279320
+            }
+        },
+        {
+            "id": 1782475594200,
+            "path_type": "bezier",
+            "source": {
+                "block": 1782465657448,
+                "socket": 1782475514360
+            },
+            "destination": {
+                "block": 1782463089112,
+                "socket": 1782463279320
+            }
+        }
+    ]
+}
