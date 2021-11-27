@@ -127,7 +127,7 @@ class OCBCodeBlock(OCBBlock):
         output_panel = QTextEdit()
         output_panel.setReadOnly(True)
         output_panel.setStyleSheet(
-            "QTextEdit { background-color: #434343; }"
+            "QTextEdit { background-color: #434343; font-size: 11pt}"
         )
         self.splitter.addWidget(output_panel)
         return output_panel
