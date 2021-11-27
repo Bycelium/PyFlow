@@ -8,6 +8,9 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
+import networkx as nx
+from networkx.algorithms.dag import topological_sort
+import matplotlib.pyplot as plt
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
@@ -37,6 +40,7 @@ class OCBCodeBlock(OCBBlock):
         self.source_editor = self.init_source_editor()
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
+        self.run_all_button = self.init_run_all_button()
         self.stdout = ""
         self.image = ""
         self.title_left_offset = 3 * self.edge_size
@@ -58,6 +62,13 @@ class OCBCodeBlock(OCBBlock):
             self.run_button.setGeometry(
                 int(self.edge_size),
                 int(self.edge_size / 2),
+                int(2.5 * self.edge_size),
+                int(2.5 * self.edge_size)
+            )
+        if hasattr(self, 'run_all_button'):
+            self.run_all_button.setGeometry(
+                int(self.edge_size),
+                int(self.edge_size / 2 + 2.5 * self.edge_size),
                 int(2.5 * self.edge_size),
                 int(2.5 * self.edge_size)
             )
@@ -140,6 +151,15 @@ class OCBCodeBlock(OCBBlock):
 
         return run_button
 
+    def init_run_all_button(self):
+        """ Initialize the run all button """
+        run_all_button = QPushButton(">>", self.root)
+        run_all_button.setMinimumWidth(int(self.edge_size))
+        run_all_button.clicked.connect(self.run_all_code)
+        run_all_button.raise_()
+
+        return run_all_button
+
     def run_code(self):
         """ Run the code in the block """
         code = self.source_editor.text()
@@ -148,6 +168,75 @@ class OCBCodeBlock(OCBBlock):
         kernel.execution_queue.append((self, code))
         if kernel.busy == False:
             kernel.run_queue()
+
+    def run_all_code(self):
+        """
+        Runs the block and all blocks connected to it
+        in topological order.
+        """
+        graph = self.create_graph()
+        block_generator = topological_sort(graph)
+        kernel = self.source_editor.kernel
+        for block in block_generator:
+            kernel.execution_queue.append((block, block.source))
+        if kernel.busy == False:
+            kernel.run_queue()
+
+    def gather_output_blocks(self):
+        """
+        Check all output sockets for connected blocks and return a list of
+        connected blocks.
+        """
+        output_blocks = []
+        for output_socket in self.sockets_out:
+            if output_socket.edges != []:
+                for edge in output_socket.edges:
+                    output_blocks.append(edge.destination_socket.block)
+        return output_blocks
+
+    def gather_input_blocks(self):
+        """
+        Check all input sockets for connected blocks and return a list of
+        connected blocks.
+        """
+        input_blocks = []
+        for input_socket in self.sockets_in:
+            if input_socket.edges != []:
+                for edge in input_socket.edges:
+                    input_blocks.append(edge.source_socket.block)
+        return input_blocks
+
+    def create_graph(self, explored_blocks=[]):
+        """
+        Browse all of the connected blocks recursively
+        and create a directed graph
+        """
+        graph = nx.DiGraph()
+        graph.add_node(self)
+        if self not in explored_blocks:
+            explored_blocks.append(self)
+            for block in self.gather_output_blocks():
+                graph.add_node(block)
+                graph.add_edge(self, block)
+                graph.add_edges_from(block.create_graph(explored_blocks).edges)
+
+            for block in self.gather_input_blocks():
+                graph.add_node(block)
+                graph.add_edge(block, self)
+                graph.add_edges_from(block.create_graph(explored_blocks).edges)
+
+        return graph
+
+    def plot_graph(self, graph):
+        """
+        Plot a graph using matplotlib
+        """
+        pos = nx.spring_layout(graph)
+        labels = {}
+        for node in graph.nodes:
+            labels[node] = node.title
+        nx.draw(graph, pos, labels=labels, font_size=8, node_size=500)
+        plt.show()
 
     def handle_stdout(self, stdout):
         """ Handle the stdout signal """
