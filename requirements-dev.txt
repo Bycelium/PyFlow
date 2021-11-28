@@ -5,6 +5,6 @@ pytest-check
 pytest-pspec
 pytest-qt
 pyautogui
-pylint==2.11.1
+pylint>=2.12
 pylint-pytest
 autopep8
