@@ -40,7 +40,7 @@ class OCBCodeBlock(OCBBlock):
         self.source_editor = self.init_source_editor()
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
-        self.run_all_button = self.init_run_all_button()
+        self.run_right_button = self.init_run_right_button()
         self.stdout = ""
         self.image = ""
         self.title_left_offset = 3 * self.edge_size
@@ -65,10 +65,10 @@ class OCBCodeBlock(OCBBlock):
                 int(2.5 * self.edge_size),
                 int(2.5 * self.edge_size)
             )
-        if hasattr(self, 'run_all_button'):
-            self.run_all_button.setGeometry(
-                int(self.edge_size),
-                int(self.edge_size / 2 + 2.5 * self.edge_size),
+        if hasattr(self, 'run_right_button'):
+            self.run_right_button.setGeometry(
+                int(self.width - self.edge_size - 2.5 * self.edge_size),
+                int(self.edge_size / 2),
                 int(2.5 * self.edge_size),
                 int(2.5 * self.edge_size)
             )
@@ -144,35 +144,40 @@ class OCBCodeBlock(OCBBlock):
         """ Initialize the run button """
         run_button = QPushButton(">", self.root)
         run_button.setMinimumWidth(int(self.edge_size))
-        run_button.clicked.connect(self.run_code)
+        run_button.clicked.connect(self.run_left)
         run_button.raise_()
 
         return run_button
 
-    def init_run_all_button(self):
+    def init_run_right_button(self):
         """ Initialize the run all button """
         run_all_button = QPushButton(">>", self.root)
         run_all_button.setMinimumWidth(int(self.edge_size))
-        run_all_button.clicked.connect(self.run_all_code)
+        run_all_button.clicked.connect(self.run_right)
         run_all_button.raise_()
 
         return run_all_button
 
-    def run_code(self):
-        """ Run the code in the block """
-        code = self.source_editor.text()
-        self.source = code
+    def run_left(self):
+        """
+        Runs the block and every block connected to its input
+        in topological order
+        """
+        graph = self.create_graph([], self, "left")
+        block_generator = topological_sort(graph)
         kernel = self.source_editor.kernel
-        kernel.execution_queue.append((self, code))
+        for block in block_generator:
+            kernel.execution_queue.append((block, block.source))
         if kernel.busy == False:
             kernel.run_queue()
 
-    def run_all_code(self):
+    def run_right(self):
         """
-        Runs the block and all blocks connected to it
-        in topological order.
+        Runs the block and every block connected to its output
+        in topological order
         """
-        graph = self.create_graph([])
+        self.run_left()
+        graph = self.create_graph([], self, "right")
         block_generator = topological_sort(graph)
         kernel = self.source_editor.kernel
         for block in block_generator:
@@ -204,24 +209,39 @@ class OCBCodeBlock(OCBBlock):
                     input_blocks.append(edge.source_socket.block)
         return input_blocks
 
-    def create_graph(self, explored_blocks):
+    def create_graph(self, explored_blocks, source, direction):
         """
         Browse all of the connected blocks recursively
         and create a directed graph
+
+        Args:
+            explored_blocks: list of blocks already explored
+            source: the initial block
+            direction: "left" or "right"
+                if "left", the graph is built from the output blocks of source
+                if "right", the graph is built from the input blocks of source
+
+        Returns:
+            graph: a directed NetworkX graph
         """
+
         graph = nx.DiGraph()
         graph.add_node(self)
         if self not in explored_blocks:
             explored_blocks.append(self)
-            for block in self.gather_output_blocks():
-                graph.add_node(block)
-                graph.add_edge(self, block)
-                graph.add_edges_from(block.create_graph(explored_blocks).edges)
+            if not (self == source and direction == "left"):
+                for block in self.gather_output_blocks():
+                    graph.add_node(block)
+                    graph.add_edge(self, block)
+                    graph.add_edges_from(block.create_graph(
+                        explored_blocks, source, direction).edges)
 
-            for block in self.gather_input_blocks():
-                graph.add_node(block)
-                graph.add_edge(block, self)
-                graph.add_edges_from(block.create_graph(explored_blocks).edges)
+            if not (self == source and direction == "right"):
+                for block in self.gather_input_blocks():
+                    graph.add_node(block)
+                    graph.add_edge(block, self)
+                    graph.add_edges_from(block.create_graph(
+                        explored_blocks, source, direction).edges)
 
         return graph
 
