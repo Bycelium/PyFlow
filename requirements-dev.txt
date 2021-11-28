@@ -1,10 +1,10 @@
-pytest==2.11.1
+pytest
 pytest-cov
 pytest-mock
 pytest-check
 pytest-pspec
 pytest-qt
 pyautogui
-pylint
+pylint==2.11.1
 pylint-pytest
 autopep8
