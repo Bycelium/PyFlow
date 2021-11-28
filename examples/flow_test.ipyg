@@ -6,7 +6,7 @@
             "title": "Empty",
             "block_type": "code",
             "source": "e= 5\r\na+b+c+d+e",
-            "stdout": "",
+            "stdout": "15",
             "image": "",
             "splitter_pos": [
                 70,
@@ -61,8 +61,8 @@
             "id": 1782464634456,
             "title": "Empty",
             "block_type": "code",
-            "source": "c=3",
-            "stdout": "",
+            "source": "c=3\r\na+b",
+            "stdout": "3",
             "image": "",
             "splitter_pos": [
                 53,
