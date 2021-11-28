@@ -253,7 +253,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.title_widget.setGeometry(
                 int(self.edge_size + self.title_left_offset),
                 int(self.edge_size / 2),
-                int(self.width / 3),
+                int(self.width / 2),
                 int(self.title_height)
             )
             self.size_grip.setGeometry(

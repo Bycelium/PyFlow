@@ -62,7 +62,7 @@ class TestBlocks:
             pos_block = QPointF(self.block1.pos().x(), self.block1.pos().y())
 
             pos_block.setX(
-                pos_block.x() + self.block1.width/2
+                pos_block.x() + self.block1.width*2/3
             )
             pos_block.setY(pos_block.y() + self.block1.title_height/2)
 
