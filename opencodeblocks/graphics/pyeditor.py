@@ -5,7 +5,7 @@
 
 from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import QThreadPool, Qt
-from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor
+from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor, QMouseEvent, QWheelEvent
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.graphics.theme_manager import theme_manager
 
@@ -31,6 +31,7 @@ class PythonEditor(QsciScintilla):
 
         """
         super().__init__(None)
+        self._mode = "NOOP"
         self.block = block
         self.kernel = kernel
         self.threadpool = threadpool
@@ -90,19 +91,31 @@ class PythonEditor(QsciScintilla):
         """ Get the views in which the python_editor is present. """
         return self.block.scene().views()
 
-    def set_views_mode(self, mode: str):
-        """ Set the views in which the python_editor is present to editing mode. """
-        for view in self.views():
-            if mode == "MODE_EDITING" or view.is_mode("MODE_EDITING"):
-                view.set_mode(mode)
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        """ How PythonEditor handles wheel events """
+        if self.mode == "EDITING" and event.angleDelta().x() == 0:
+            event.accept()
+            return super().wheelEvent(event)
 
-    def focusInEvent(self, event: QFocusEvent):
-        """ PythonEditor reaction to PyQt focusIn events. """
-        self.set_views_mode("MODE_EDITING")
-        return super().focusInEvent(event)
+    @property
+    def mode(self) -> int:
+        """ PythonEditor current mode """
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: str):
+        self._mode = value
+        for view in self.views():
+            view.set_mode(value)
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """ PythonEditor reaction to PyQt mousePressEvent events. """
+        if event.buttons() & Qt.MouseButton.LeftButton:
+            self.mode = "EDITING"
+        return super().mousePressEvent(event)
 
     def focusOutEvent(self, event: QFocusEvent):
         """ PythonEditor reaction to PyQt focusOut events. """
-        self.set_views_mode("MODE_NOOP")
+        self.mode = "NOOP"
         self.block.source = self.text()
         return super().focusOutEvent(event)
