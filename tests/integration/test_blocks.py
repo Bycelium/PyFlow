@@ -45,7 +45,7 @@ class TestBlocks:
 
         QApplication.processEvents()
 
-        expected_move_amount = [-20, -30]
+        expected_move_amount = [20, -30]
         STOP_MSG = "stop"
         CHECK_MSG = "check"
 
