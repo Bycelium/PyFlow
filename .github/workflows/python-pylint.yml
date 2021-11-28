@@ -20,7 +20,7 @@ jobs:
         pip install -r requirements.txt
     - name: Lint with pylint
       run: |
-        pip install -r .\requirements-dev.txt
+        pip install -r requirements-dev.txt
         score=$(python pylint_score.py --score)
         color=$(python pylint_score.py --color)
         echo "PYLINT_SCORE=$score/10.00"
