@@ -59,7 +59,7 @@ if __name__ == '__main__':
         "--output-format=pylint_score.MyReporterClass"
     ]
     results = Run(options, exit=False)
-    score = results.linter.stats['global_note']
+    score = results.linter.stats.global_note
     score_min = 8.0
     score_max = 10
     if sys.argv[1] == '--score':
