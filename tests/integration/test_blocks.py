@@ -43,6 +43,13 @@ class TestBlocks:
         self.ocb_widget.scene.addItem(self.block1)
         self.subwindow.show()
 
+        # put block1 at the bottom left
+        # This line works because the zoom is 1 by default.
+        self.ocb_widget.view.horizontalScrollBar().setValue(self.block1.x())
+        self.ocb_widget.view.verticalScrollBar().setValue(
+            self.block1.y() - self.ocb_widget.view.height() + self.block1.height
+            )
+
         QApplication.processEvents()
 
         expected_move_amount = [20, -30]
