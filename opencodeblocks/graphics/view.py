@@ -136,6 +136,7 @@ class OCBView(QGraphicsView):
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
 
     def retreiveBlockTypes(self) -> List[Tuple[str]]:
+        """ Retreive the list of stored blocks. """
         block_type_files = os.listdir("blocks")
         block_types = []
         for b in block_type_files:
@@ -145,7 +146,10 @@ class OCBView(QGraphicsView):
                 title = "New Block"
                 if "title" in data:
                     title = f"New {data['title']} Block"
-                block_types.append((filepath, title))
+                    if data['title'] == "Empty":
+                        block_types[:0] = [(filepath, title)]
+                    else:
+                        block_types.append((filepath, title))
         return block_types
 
     def contextMenuEvent(self, event: QContextMenuEvent):
