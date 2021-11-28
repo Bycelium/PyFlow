@@ -5,6 +5,8 @@
 Utilities functions for integration testing.
 """
 
+import os
+import asyncio
 from typing import Callable
 
 import threading
@@ -28,6 +30,10 @@ class CheckingQueue(Queue):
 
 
 def apply_function_inapp(window: OCBWindow, run_func: Callable):
+
+    if os.name == "nt":  # If on windows
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     QApplication.processEvents()
     msgQueue = CheckingQueue()
     t = threading.Thread(target=run_func, args=(msgQueue,))

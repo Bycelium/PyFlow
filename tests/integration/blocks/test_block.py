@@ -5,18 +5,15 @@
 Integration tests for the OCBBlocks.
 """
 
-# Imports needed for testing
 import pytest
-from pytest_mock import MockerFixture
-import pytest_check as check
 import pyautogui
-
-# Packages tested
-from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
-from opencodeblocks.graphics.window import OCBWindow
-from opencodeblocks.graphics.widget import OCBWidget
+from pytestqt.qtbot import QtBot
 
 from PyQt5.QtCore import QPointF
+
+from opencodeblocks.graphics.blocks.codeblock import OCBBlock
+from opencodeblocks.graphics.window import OCBWindow
+from opencodeblocks.graphics.widget import OCBWidget
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue
 
@@ -24,27 +21,26 @@ from tests.integration.utils import apply_function_inapp, CheckingQueue
 class TestBlocks:
 
     @pytest.fixture(autouse=True)
-    def setup(self, mocker: MockerFixture):
+    def setup(self):
         """ Setup reused variables. """
         self.window = OCBWindow()
         self.ocb_widget = OCBWidget()
         self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
+        self.subwindow.show()
 
-        self.block1 = OCBCodeBlock(title="Testing block 1", source="print(1)")
-        self.block2 = OCBCodeBlock(title="Testing block 2", source="print(2)")
+        self.block1 = OCBBlock(title="Testing block 1")
+        self.block2 = OCBBlock(title="Testing block 2")
 
-    def test_create_blocks(self, qtbot):
+    def test_create_blocks(self, qtbot: QtBot):
         """ can be added to the scene. """
         self.ocb_widget.scene.addItem(self.block1)
 
-    def test_move_blocks(self, qtbot):
+    def test_move_blocks(self, qtbot: QtBot):
         """ can be dragged around with the mouse. """
         self.ocb_widget.scene.addItem(self.block1)
-        self.subwindow.show()
-
-        expected_move_amount = [70, -30]
 
         def testing_drag(msgQueue: CheckingQueue):
+            expected_move_amount = [70, -30]
             pos_block = QPointF(self.block1.pos().x(), self.block1.pos().y())
 
             pos_block.setX(
@@ -77,44 +73,3 @@ class TestBlocks:
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_drag)
-
-
-"""
-def test_running_python(qtbot):
-    # The blocks should run arbitrary python when unfocused
-    wnd = OCBWindow()
-    
-    EXPRESSION = "3 + 5 * 2"
-    SOURCE_TEST = \
-        '''
-            print(%s)
-        ''' % EXPRESSION
-    expected_result = str(eval(EXPRESSION))
-
-    # Let's add a block with the source to the window !
-    ocb_widget = OCBWidget()
-    test_block = OCBCodeBlock(title="Testing block", source=SOURCE_TEST)
-    ocb_widget.scene.addItem(test_block)
-    wnd.mdiArea.addSubWindow(ocb_widget)
-
-    # Let's run the block !
-    pyeditor = test_block.source_editor.widget()
-    # pyeditor.setModified(True)
-    # test_block._source = ""
-    QApplication.processEvents()
-    QtTest.QTest.mouseClick(pyeditor,Qt.MouseButton.LeftButton)
-    QApplication.processEvents()
-    QtTest.QTest.keyPress(pyeditor," ")
-    QApplication.processEvents()
-    
-    # Click outside the block to lose focus of the previous block.
-    # This will need to be changed by the click to the run button.
-    QtTest.QTest.mouseClick(ocb_widget,Qt.MouseButton.LeftButton)
-    QApplication.processEvents()
-
-    # When the execution becomes non-blocking for the UI, a refactor will be needed here.
-    result = test_block.stdout.strip()
-    
-    check.equal(expected_result,result)
-    wnd.close()
-"""

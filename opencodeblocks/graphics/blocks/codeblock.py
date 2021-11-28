@@ -141,8 +141,7 @@ class OCBCodeBlock(OCBBlock):
 
     def run_code(self):
         """Run the code in the block"""
-        code = self.source_editor.text()
-        self.source = code
+        self.source = self.source_editor.text()
         # Create a worker to handle execution
         worker = Worker(self.source_editor.kernel, self.source)
         worker.signals.stdout.connect(self.handle_stdout)
