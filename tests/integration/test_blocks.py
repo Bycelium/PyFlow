@@ -6,8 +6,6 @@ Integration tests for the OCBBlocks.
 """
 
 # Imports needed for testing
-import threading
-import queue
 import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
@@ -18,8 +16,9 @@ from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.window import OCBWindow
 from opencodeblocks.graphics.widget import OCBWidget
 
-from qtpy.QtWidgets import QApplication
 from PyQt5.QtCore import QPointF
+
+from tests.integration.utils import apply_function_inapp, CheckingQueue
 
 
 class TestBlocks:
@@ -43,15 +42,9 @@ class TestBlocks:
         self.ocb_widget.scene.addItem(self.block1)
         self.subwindow.show()
 
-        QApplication.processEvents()
-
         expected_move_amount = [70, -30]
-        STOP_MSG = "stop"
-        CHECK_MSG = "check"
 
-        msgQueue = queue.Queue()
-
-        def testing_drag(msgQueue):
+        def testing_drag(msgQueue: CheckingQueue):
             pos_block = QPointF(self.block1.pos().x(), self.block1.pos().y())
 
             pos_block.setX(
@@ -79,28 +72,11 @@ class TestBlocks:
             move_amount[0] = move_amount[0] * self.ocb_widget.view.zoom
             move_amount[1] = move_amount[1] * self.ocb_widget.view.zoom
 
-            msgQueue.put([
-                CHECK_MSG,
-                move_amount,
-                expected_move_amount,
-                "Block moved by the correct amound"
-            ])
+            msgQueue.check_equal(
+                move_amount, expected_move_amount, "Block moved by the correct amound")
+            msgQueue.stop()
 
-            msgQueue.put([STOP_MSG])
-
-        t = threading.Thread(target=testing_drag, args=(msgQueue,))
-        t.start()
-
-        while True:
-            QApplication.processEvents()
-            if not msgQueue.empty():
-                msg = msgQueue.get()
-                if msg[0] == STOP_MSG:
-                    break
-                elif msg[0] == CHECK_MSG:
-                    check.equal(msg[1], msg[2], msg[3])
-        t.join()
-        self.window.close()
+        apply_function_inapp(self.window, testing_drag)
 
 
 """
