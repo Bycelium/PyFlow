@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
-    QGraphicsSceneMouseEvent, QLabel, QSplitter, QSplitterHandle, \
+    QGraphicsSceneMouseEvent, QLineEdit, QSplitter, QSplitterHandle, \
     QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
@@ -18,6 +18,7 @@ from opencodeblocks.graphics.blocks.blocksizegrip import BlockSizeGrip
 if TYPE_CHECKING:
     from opencodeblocks.graphics.scene.scene import OCBScene
 
+BACKGROUND_COLOR = QColor("#E3212121")
 
 class OCBBlock(QGraphicsItem, Serializable):
 
@@ -55,15 +56,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.sockets_in = []
         self.sockets_out = []
 
-        self.title_height = 3 * title_size
-        self.title = title
+        self.title_height = 3.5 * title_size
         self.title_left_offset = 0
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
-
-        self._brush_title = QBrush(QColor("#FF313131"))
-        self._brush_background = QBrush(QColor("#E3212121"))
+        self._brush_background = QBrush(BACKGROUND_COLOR)
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
@@ -79,8 +77,8 @@ class OCBBlock(QGraphicsItem, Serializable):
             int(height)
         )
 
-        self.title_widget = QLabel(self.title, self.root)
-        self.title_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.title_widget = QLineEdit(title, self.root)
+        # self.title_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
         self.setTitleGraphics(
             title_color,
@@ -133,8 +131,16 @@ class OCBBlock(QGraphicsItem, Serializable):
             padding: title padding.
 
         """
-        self.title_widget.setMargin(int(padding))
-        self.title_widget.setStyleSheet(f"QLabel {{ color : {color} }}")
+        # self.title_widget.setMargin(int(padding))
+        self.title_widget.setStyleSheet(
+            f"""
+            QLineEdit {{
+                color : {color};
+                background-color: #E3212121;
+                border:none;
+                padding: {padding}px;
+            }}"""
+        )
         self.title_widget.setFont(QFont(font, size))
 
     def paint(self, painter: QPainter,
@@ -247,7 +253,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.title_widget.setGeometry(
                 int(self.edge_size + self.title_left_offset),
                 int(self.edge_size / 2),
-                int(self.width - 2 * self.edge_size),
+                int(self.width / 3),
                 int(self.title_height)
             )
             self.size_grip.setGeometry(
@@ -260,13 +266,12 @@ class OCBBlock(QGraphicsItem, Serializable):
     @property
     def title(self):
         """ Block title. """
-        return self._title
+        return self.title_widget.text()
 
     @title.setter
     def title(self, value: str):
-        self._title = value
         if hasattr(self, 'title_widget'):
-            self.title_widget.setText(self._title)
+            self.title_widget.setText(value)
 
     @property
     def width(self):
