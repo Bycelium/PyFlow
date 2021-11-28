@@ -18,25 +18,25 @@ from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.blocks import OCBBlock
 
-MODE_NOOP = 0
-MODE_EDGE_DRAG = 1
-MODE_EDITING = 2
-
-MODES = {
-    'MODE_NOOP': MODE_NOOP,
-    'MODE_EDGE_DRAG': MODE_EDGE_DRAG,
-    'MODE_EDITING': MODE_EDITING,
-}
-
 
 class OCBView(QGraphicsView):
 
     """ View for the OCB Window. """
 
+    MODE_NOOP = 0
+    MODE_EDGE_DRAG = 1
+    MODE_EDITING = 2
+
+    MODES = {
+        'NOOP': MODE_NOOP,
+        'EDGE_DRAG': MODE_EDGE_DRAG,
+        'EDITING': MODE_EDITING,
+    }
+
     def __init__(self, scene: OCBScene, parent=None,
                  zoom_step: float = 1.25, zoom_min: float = 0.2, zoom_max: float = 5):
         super().__init__(parent=parent)
-        self.mode = MODE_NOOP
+        self.mode = self.MODE_NOOP
         self.zoom = 1
         self.zoom_step, self.zoom_min, self.zoom_max = zoom_step, zoom_min, zoom_max
 
@@ -125,7 +125,8 @@ class OCBView(QGraphicsView):
 
     def middleMouseButtonPress(self, event: QMouseEvent):
         """ OCBView reaction to middleMouseButtonPress event. """
-        event = self.drag_scene(event, "press")
+        if self.itemAt(event.pos()) is None:
+            event = self.drag_scene(event, "press")
         super().mousePressEvent(event)
 
     def middleMouseButtonRelease(self, event: QMouseEvent):
@@ -219,9 +220,9 @@ class OCBView(QGraphicsView):
         scene = self.scene()
         if action == "press":
             if isinstance(item_at_click, OCBSocket) \
-                    and self.mode != MODE_EDGE_DRAG\
+                    and self.mode != self.MODE_EDGE_DRAG\
                     and item_at_click.socket_type != 'input':
-                self.mode = MODE_EDGE_DRAG
+                self.mode = self.MODE_EDGE_DRAG
                 self.edge_drag = OCBEdge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos())
@@ -229,7 +230,7 @@ class OCBView(QGraphicsView):
                 scene.addItem(self.edge_drag)
                 return
         elif action == "release":
-            if self.mode == MODE_EDGE_DRAG:
+            if self.mode == self.MODE_EDGE_DRAG:
                 if isinstance(item_at_click, OCBSocket) \
                         and item_at_click is not self.edge_drag.source_socket \
                         and item_at_click.socket_type != 'output':
@@ -239,9 +240,9 @@ class OCBView(QGraphicsView):
                 else:
                     self.edge_drag.remove()
                 self.edge_drag = None
-                self.mode = MODE_NOOP
+                self.mode = self.MODE_NOOP
         elif action == "move":
-            if self.mode == MODE_EDGE_DRAG:
+            if self.mode == self.MODE_EDGE_DRAG:
                 self.edge_drag.destination = self.mapToScene(event.pos())
         return event
 
@@ -249,16 +250,16 @@ class OCBView(QGraphicsView):
         """ Change the view mode.
 
         Args:
-            mode: Mode key to change to, must in present in knowed MODES.
+            mode: Mode key to change to, must in present in MODES.
 
         """
-        self.mode = MODES[mode]
+        self.mode = self.MODES[mode]
 
     def is_mode(self, mode: str):
         """ Return True if the view is in the given mode.
 
         Args:
-            mode: Mode key to compare to, must in present in knowed MODES.
+            mode: Mode key to compare to, must in present in MODES.
 
         """
-        return self.mode == MODES[mode]
+        return self.mode == self.MODES[mode]
