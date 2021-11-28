@@ -10,8 +10,6 @@ from PyQt5.QtGui import QCloseEvent, QKeySequence
 from PyQt5.QtWidgets import QDockWidget, QListWidget, QWidget, QAction, QFileDialog, QMainWindow,\
     QMessageBox, QMdiArea
 
-from opencodeblocks import __appname__ as application_name
-from opencodeblocks.graphics.view import MODE_EDITING
 from opencodeblocks.graphics.widget import OCBWidget
 from opencodeblocks.graphics.theme_manager import theme_manager
 
@@ -269,40 +267,45 @@ class OCBWindow(QMainWindow):
             return True
         return False
 
+    @staticmethod
+    def is_not_editing(current_window: OCBWidget):
+        """ True if current_window exists and is not in editing mode. """
+        return current_window is not None and not current_window.view.is_mode('EDITING')
+
     def onEditUndo(self):
         """ Undo last operation if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.history.undo()
 
     def onEditRedo(self):
         """ Redo last operation if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.history.redo()
 
     def onEditCut(self):
         """ Cut the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.clipboard.cut()
 
     def onEditCopy(self):
         """ Copy the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.clipboard.copy()
 
     def onEditPaste(self):
         """ Paste the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.clipboard.paste()
 
     def onEditDelete(self):
         """ Delete the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.view.deleteSelected()
 
     # def closeEvent(self, event:QEvent):
