@@ -35,6 +35,9 @@ class OCBCodeBlock(OCBBlock):
         self._min_output_panel_height = 20
         self._min_source_editor_height = 20
 
+        self.output_closed = False
+        self.previous_splitter_size = [0, 0]
+
         self.source_editor = self.init_source_editor()
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
@@ -63,6 +66,12 @@ class OCBCodeBlock(OCBBlock):
                 int(2.5 * self.edge_size)
             )
 
+        # Close output panel if no output
+        if self.stdout == "" and self.image == "":
+            self.previous_splitter_size = self.splitter.sizes()
+            self.output_closed = True
+            self.splitter.setSizes([1, 0])
+
     @property
     def source(self) -> str:
         """ Source code. """
@@ -82,6 +91,16 @@ class OCBCodeBlock(OCBBlock):
     @stdout.setter
     def stdout(self, value: str):
         self._stdout = value
+        if hasattr(self, 'output_closed'):
+            # If output panel is closed and there is output, open it
+            if self.output_closed == True and value != "":
+                self.output_closed = False
+                self.splitter.setSizes(self.previous_splitter_size)
+            # If output panel is open and there is no output, close it
+            elif self.output_closed == False and value == "":
+                self.previous_splitter_size = self.splitter.sizes()
+                self.output_closed = True
+                self.splitter.setSizes([1, 0])
         if hasattr(self, 'source_editor'):
             # If there is a text output, erase the image output and display the
             # text output
@@ -105,6 +124,15 @@ class OCBCodeBlock(OCBBlock):
     @image.setter
     def image(self, value: str):
         self._image = value
+        # open or close output panel, same as stdout
+        if hasattr(self, 'output_closed') and value != "":
+            if self.output_closed == True and value != "":
+                self.output_closed = False
+                self.splitter.setSizes(self.previous_splitter_size)
+            elif self.output_closed == False and value == "":
+                self.previous_splitter_size = self.splitter.sizes()
+                self.output_closed = True
+                self.splitter.setSizes([1, 0])
         if hasattr(self, 'source_editor') and self.image != "":
             # If there is an image output, erase the text output and display
             # the image output

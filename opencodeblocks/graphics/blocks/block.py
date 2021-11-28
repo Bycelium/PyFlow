@@ -328,6 +328,8 @@ class OCBBlock(QGraphicsItem, Serializable):
             if hashmap is not None:
                 hashmap.update({socket_data['id']: socket})
 
+        self.update_all()
+
 
 class OCBSplitterHandle(QSplitterHandle):
     """ A handle for splitters with undoable events """
