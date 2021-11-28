@@ -126,9 +126,7 @@ class OCBCodeBlock(OCBBlock):
         """ Initialize the output display widget: QLabel """
         output_panel = QTextEdit()
         output_panel.setReadOnly(True)
-        output_panel.setStyleSheet(
-            "QTextEdit { background-color: #434343; }"
-        )
+        output_panel.setFont(self.source_editor.font())
         self.splitter.addWidget(output_panel)
         return output_panel
 
