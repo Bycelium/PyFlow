@@ -8,7 +8,7 @@ import os
 from typing import List, Tuple
 
 from PyQt5.QtCore import QEvent, QPointF, Qt
-from PyQt5.QtGui import QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
+from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
@@ -134,6 +134,85 @@ class OCBView(QGraphicsView):
         event = self.drag_scene(event, "release")
         super().mouseReleaseEvent(event)
         self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+
+    def centerView(self, x: float, y: float):
+        """ Move the view so that the position (x,y) is centered. """
+        hsb = self.horizontalScrollBar()
+        vsb = self.verticalScrollBar()
+        hsb.setValue(x * self.zoom - self.width() / 2)
+        vsb.setValue(y * self.zoom - self.height() / 2)
+
+    def getDistanceToCenter(self, x: float, y: float) -> Tuple[float]:
+        """ Return the vector from the (x,y) position given to the center of the view """
+        ypos = self.verticalScrollBar().value()
+        xpos = self.horizontalScrollBar().value()
+        return (
+            xpos - x * self.zoom + self.width() / 2,
+            ypos - y * self.zoom + self.height() / 2
+        )
+
+    def moveViewOnArrow(self, event: QKeyEvent) -> bool:
+        """
+            OCBView reaction to an arrow key being pressed.
+            Returns True if the event was handled.
+        """
+        # The focusItem has priority for this event
+        if self.scene().focusItem() is not None:
+            return False
+        if len(self.scene().selectedItems()) > 0:
+            return False
+
+        key_id = event.key()
+        items = self.scene().items()
+        code_blocks = [i for i in items if isinstance(i, OCBBlock)]
+
+        # Pick the block with the center distance (x,y) such that:
+        # ||(x,y)|| is minimal but not too close to 0, where ||.|| is the infinity norm
+        # This norm was choosen because the movements it generates feel natural.
+        # x or y has the correct sign (depends on the key pressed)
+
+        dist_array = []
+        for block in code_blocks:
+            block_center_x = block.x() + block.width / 2
+            block_center_y = block.y() + block.height / 2
+            xdist, ydist = self.getDistanceToCenter(
+                block_center_x, block_center_y)
+            dist_array.append((
+                block_center_x,
+                block_center_y,
+                xdist,
+                ydist,
+                max(abs(xdist), abs(ydist))
+
+            ))
+
+        if key_id == Qt.Key.Key_Up:
+            dist_array = filter(lambda pos: pos[3] > 1, dist_array)
+        if key_id == Qt.Key.Key_Down:
+            dist_array = filter(lambda pos: pos[3] < -1, dist_array)
+        if key_id == Qt.Key.Key_Right:
+            dist_array = filter(lambda pos: pos[2] < -1, dist_array)
+        if key_id == Qt.Key.Key_Left:
+            dist_array = filter(lambda pos: pos[2] > 1, dist_array)
+        dist_array = list(dist_array)
+
+        if len(dist_array) <= 0:
+            return False
+        dist_array.sort(key=lambda d: d[4])
+
+        block_center_x, block_center_y, _, _, _ = dist_array[0]
+
+        self.centerView(block_center_x, block_center_y)
+        return True
+
+    def keyPressEvent(self, event: QKeyEvent):
+        """ OCBView reaction to a key being pressed """
+        key_id = event.key()
+        if key_id in [Qt.Key.Key_Up, Qt.Key.Key_Down,
+                      Qt.Key.Key_Left, Qt.Key.Key_Right]:
+            if self.moveViewOnArrow(event):
+                return
+        super().keyPressEvent(event)
 
     def retreiveBlockTypes(self) -> List[Tuple[str]]:
         """ Retreive the list of stored blocks. """
