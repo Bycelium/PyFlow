@@ -35,15 +35,13 @@ class OCBCodeBlock(OCBBlock):
         self._min_output_panel_height = 20
         self._min_source_editor_height = 20
 
-        self.output_closed = False
-        self.previous_splitter_size = [0, 0]
+        self.output_closed = True
+        self._splitter_size = [0, 0]
+        self._cached_stdout = ""
 
         self.source_editor = self.init_source_editor()
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
-        self.previous_stdout = ""
-        self.stdout = ""
-        self.image = ""
         self.title_left_offset = 3 * self.edge_size
 
         self.holder.setWidget(self.root)
@@ -68,7 +66,7 @@ class OCBCodeBlock(OCBBlock):
             )
 
         # Close output panel if no output
-        if self.stdout == "" and self.image == "":
+        if self.stdout == "":
             self.previous_splitter_size = self.splitter.sizes()
             self.output_closed = True
             self.splitter.setSizes([1, 0])
@@ -76,93 +74,11 @@ class OCBCodeBlock(OCBBlock):
     @property
     def source(self) -> str:
         """ Source code. """
-        return self._source
+        return self.source_editor.text()
 
     @source.setter
     def source(self, value: str):
-        self._source = value
-        if hasattr(self, 'source_editor'):
-            self.source_editor.setText(self._source)
-
-    @property
-    def stdout(self) -> str:
-        """ Code output. Be careful, this also includes stderr """
-        return self._stdout
-
-    @stdout.setter
-    def stdout(self, value: str):
-        self._stdout = value
-
-        if hasattr(self, 'output_closed'):
-            # If output panel is closed and there is output, open it
-            if self.output_closed is True and value != "":
-                self.output_closed = False
-                self.splitter.setSizes(self.previous_splitter_size)
-            # If output panel is open and there is no output, close it
-            elif self.output_closed is False and value == "":
-                self.previous_splitter_size = self.splitter.sizes()
-                self.output_closed = True
-                self.splitter.setSizes([1, 0])
-
-        if hasattr(self, 'source_editor'):
-            # If there is a text output, erase the image output and display the
-            # text output
-            self.image = ""
-
-        # If there is a new line
-        # Save every line but the last one
-        if value.find('\n') != -1:
-            lines = value.split('\n')
-            self.previous_stdout += '\n'.join(lines[:-1]) + '\n'
-            value = lines[-1]
-
-        # Update the last line only
-        if hasattr(self, 'previous_stdout'):
-            to_display = self.previous_stdout + value
-        else:
-            to_display = value
-
-        # If there is a text output, erase the image output
-        self.image = ""
-
-        if hasattr(self, 'output_panel'):
-            # Remove carriage returns and backspaces
-            text = to_display.replace("\x08", "")
-            text = text.replace("\r", "")
-            # Convert ANSI escape codes to HTML
-            text = conv.convert(text)
-            # Replace background color
-            text = text.replace('background-color: #000000',
-                                'background-color: #434343')
-
-            self.output_panel.setText(text)
-
-    @property
-    def image(self) -> str:
-        """ Code output. """
-        return self._image
-
-    @image.setter
-    def image(self, value: str):
-        self._image = value
-        # open or close output panel, same as stdout
-        if hasattr(self, 'output_closed') and value != "":
-            if self.output_closed == True and value != "":
-                self.output_closed = False
-                self.splitter.setSizes(self.previous_splitter_size)
-            elif self.output_closed == False and value == "":
-                self.previous_splitter_size = self.splitter.sizes()
-                self.output_closed = True
-                self.splitter.setSizes([1, 0])
-        if hasattr(self, 'source_editor') and self.image != "":
-            # If there is an image output, erase the text output and display
-            # the image output
-            text = ""
-            ba = QByteArray.fromBase64(str.encode(self.image))
-            pixmap = QPixmap()
-            pixmap.loadFromData(ba)
-            text = f'<img src="data:image/png;base64,{self.image}">'
-            self.output_panel.setText(text)
+        self.source_editor.setText(value)
 
     @source.setter
     def source(self, value: str):
@@ -191,7 +107,8 @@ class OCBCodeBlock(OCBBlock):
     def run_code(self):
         """Run the code in the block"""
         # Erase previous output
-        self.previous_stdout = ""
+        self.stdout = ""
+        self._cached_stdout = ""
         self.source = self.source_editor.text()
         # Create a worker to handle execution
         worker = Worker(self.source_editor.kernel, self.source)
@@ -199,10 +116,58 @@ class OCBCodeBlock(OCBBlock):
         worker.signals.image.connect(self.handle_image)
         self.source_editor.threadpool.start(worker)
 
-    def handle_stdout(self, stdout):
-        """ Handle the stdout signal """
-        self.stdout = stdout
+    @property
+    def stdout(self) -> str:
+        return self._stdout
 
-    def handle_image(self, image):
+    @stdout.setter
+    def stdout(self, value: str):
+        self._stdout = value
+        if hasattr(self, 'output_panel'):
+            if value.startswith('<img>'):
+                display_text = self.b64_to_html(value[5:])
+            else:
+                display_text = self.str_to_html(value)
+            self.output_panel.setText(display_text)
+            # If output panel is closed and there is output, open it
+            if self.output_closed and value != "":
+                self.output_closed = False
+                self.splitter.setSizes(self._splitter_size)
+            # If output panel is open and there is no output, close it
+            elif not self.output_closed and value == "":
+                self._splitter_size = self.splitter.sizes()
+                self.output_closed = True
+                self.splitter.setSizes([1, 0])
+
+    @staticmethod
+    def str_to_html(text: str):
+        # Remove carriage returns and backspaces
+        text = text.replace("\x08", "")
+        text = text.replace("\r", "")
+        # Convert ANSI escape codes to HTML
+        text = conv.convert(text)
+        # Replace background color
+        text = text.replace('background-color: #000000',
+                            'background-color: transparent')
+        return text
+
+    def handle_stdout(self, value: str):
+        """ Handle the stdout signal """
+        # If there is a new line
+        # Save every line but the last one
+
+        if value.find('\n') != -1:
+            lines = value.split('\n')
+            self._cached_stdout += '\n'.join(lines[:-1]) + '\n'
+            value = lines[-1]
+
+        # Update the last line only
+        self.stdout = self._cached_stdout + value
+
+    @staticmethod
+    def b64_to_html(image: str):
+        return f'<img src="data:image/png;base64,{image}">'
+
+    def handle_image(self, image: str):
         """ Handle the image signal """
-        self.image = image
+        self.stdout = '<img>' + image

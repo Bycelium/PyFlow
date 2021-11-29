@@ -35,7 +35,6 @@ class PythonEditor(QsciScintilla):
         self.block = block
         self.kernel = kernel
         self.threadpool = threadpool
-        self.setText(self.block.source)
 
         self.update_theme()
         theme_manager().themeChanged.connect(self.update_theme)
@@ -117,5 +116,4 @@ class PythonEditor(QsciScintilla):
     def focusOutEvent(self, event: QFocusEvent):
         """ PythonEditor reaction to PyQt focusOut events. """
         self.mode = "NOOP"
-        self.block.source = self.text()
         return super().focusOutEvent(event)

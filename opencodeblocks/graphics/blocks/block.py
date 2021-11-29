@@ -50,7 +50,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.block_type = block_type
         self.source = source
         self.stdout = ""
-        self.image = ""
         self.setPos(QPointF(*position))
         self.sockets_in = []
         self.sockets_out = []
@@ -296,7 +295,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             ('block_type', self.block_type),
             ('source', self.source),
             ('stdout', self.stdout),
-            ('image', self.image),
             ('splitter_pos', self.splitter.sizes()),
             ('position', [self.pos().x(), self.pos().y()]),
             ('width', self.width),
@@ -310,8 +308,7 @@ class OCBBlock(QGraphicsItem, Serializable):
                     restore_id=True) -> None:
         if restore_id:
             self.id = data['id']
-        for dataname in ('title', 'block_type', 'source', 'stdout',
-                         'image', 'width', 'height'):
+        for dataname in ('title', 'block_type', 'source', 'stdout', 'width', 'height'):
             setattr(self, dataname, data[dataname])
 
         self.setPos(QPointF(*data['position']))
