@@ -17,5 +17,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
     wnd = OCBWindow()
+    if len(sys.argv) > 1:
+        wnd.createNewMdiChild(sys.argv[1])
     wnd.show()
     sys.exit(app.exec_())
