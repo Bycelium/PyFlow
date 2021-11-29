@@ -5,8 +5,10 @@
 
 from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 
+import time
+
 from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath
+from PyQt5.QtGui import QBrush, QFocusEvent, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
     QGraphicsSceneMouseEvent, QLineEdit, QSplitter, QSplitterHandle, \
     QStyleOptionGraphicsItem, QWidget
@@ -19,6 +21,35 @@ if TYPE_CHECKING:
     from opencodeblocks.graphics.scene.scene import OCBScene
 
 BACKGROUND_COLOR = QColor("#E3212121")
+
+
+class OCBTitle(QLineEdit):
+    """ The title of an OCBBlock. Needs to be double clicked to interact """
+
+    def __init__(self, content: str, parent: QWidget = None):
+        """ Create a new title for an OCBBlock """
+        super().__init__(content, parent)
+        self.clickTime = None
+        self.setReadOnly(True)
+
+    def mousePressEvent(self, event: QMouseEvent):
+        if self.clickTime is not None and self.isReadOnly() and time.time() - self.clickTime > 0.3:
+            self.parent().mousePressEvent(event)
+        else:
+            self.mouseDoubleClickEvent(event)
+        self.clickTime = time.time()
+
+    def focusOutEvent(self, event: QFocusEvent):
+        """ The title is read-only when focused is lost """
+        self.setReadOnly(True)
+        self.deselect()
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent):
+        """ Toggle readonly mode when double clicking """
+        self.setReadOnly(not self.isReadOnly())
+        if not self.isReadOnly():
+            self.setFocus(Qt.MouseFocusReason)
+
 
 class OCBBlock(QGraphicsItem, Serializable):
 
@@ -77,7 +108,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             int(height)
         )
 
-        self.title_widget = QLineEdit(title, self.root)
+        self.title_widget = OCBTitle(title, self.root)
         # self.title_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
         self.setTitleGraphics(
@@ -91,7 +122,8 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        if type(self) == OCBBlock:  # DO NOT TRUST codacy !!! isinstance != type
+        if isinstance(
+                self, OCBBlock):  # DO NOT TRUST codacy !!! isinstance != type
             # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
@@ -253,7 +285,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.title_widget.setGeometry(
                 int(self.edge_size + self.title_left_offset),
                 int(self.edge_size / 2),
-                int(self.width / 2),
+                int(self.width - self.edge_size * 3),
                 int(self.title_height)
             )
             self.size_grip.setGeometry(
