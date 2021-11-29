@@ -41,8 +41,11 @@ class OCBTitle(QLineEdit):
         if self.clickTime is None or (
                 self.isReadOnly() and time.time() - self.clickTime > 0.3):
             self.parent().mousePressEvent(event)
-        else:
+        elif self.isReadOnly():
             self.mouseDoubleClickEvent(event)
+            super().mousePressEvent(event)
+        else:
+            super().mousePressEvent(event)
         self.clickTime = time.time()
 
     def focusOutEvent(self, event: QFocusEvent):
