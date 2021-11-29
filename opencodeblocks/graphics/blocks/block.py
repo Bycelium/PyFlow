@@ -118,7 +118,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         )
 
         self.title_widget = OCBTitle(title, self.root)
-        # self.title_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
         self.setTitleGraphics(
             title_color,
