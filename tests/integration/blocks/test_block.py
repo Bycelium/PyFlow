@@ -27,26 +27,24 @@ class TestBlocks:
         self.ocb_widget = OCBWidget()
         self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
         self.subwindow.show()
-
-        self.block1 = OCBBlock(title="Testing block 1")
-        self.block2 = OCBBlock(title="Testing block 2")
+        self.block = OCBBlock(title="Testing block")
 
     def test_create_blocks(self, qtbot: QtBot):
         """ can be added to the scene. """
-        self.ocb_widget.scene.addItem(self.block1)
+        self.ocb_widget.scene.addItem(self.block)
 
     def test_move_blocks(self, qtbot: QtBot):
         """ can be dragged around with the mouse. """
-        self.ocb_widget.scene.addItem(self.block1)
+        self.ocb_widget.scene.addItem(self.block)
 
         def testing_drag(msgQueue: CheckingQueue):
             expected_move_amount = [70, -30]
-            pos_block = QPointF(self.block1.pos().x(), self.block1.pos().y())
+            pos_block = QPointF(self.block.pos().x(), self.block.pos().y())
 
             pos_block.setX(
-                pos_block.x() + self.block1.title_height + self.block1.edge_size
+                pos_block.x() + self.block.title_height + self.block.edge_size
             )
-            pos_block.setY(pos_block.y() + self.block1.title_height/2)
+            pos_block.setY(pos_block.y() + self.block.title_height/2)
 
             pos_block = self.ocb_widget.view.mapFromScene(pos_block)
             pos_block = self.ocb_widget.view.mapToGlobal(pos_block)
@@ -63,7 +61,7 @@ class TestBlocks:
 
             pyautogui.mouseUp(button="left")
 
-            move_amount = [self.block1.pos().x(), self.block1.pos().y()]
+            move_amount = [self.block.pos().x(), self.block.pos().y()]
             # rectify because the scene can be zoomed :
             move_amount[0] = move_amount[0] * self.ocb_widget.view.zoom
             move_amount[1] = move_amount[1] * self.ocb_widget.view.zoom
