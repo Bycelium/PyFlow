@@ -131,8 +131,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        if isinstance(
-                self, OCBBlock):  # DO NOT TRUST codacy !!! isinstance != type
+        if type(self) == OCBBlock:  # DO NOT TRUST codacy !!! type(self) should be used, not isinstance.
             # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
