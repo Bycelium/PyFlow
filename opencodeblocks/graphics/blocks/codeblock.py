@@ -38,6 +38,7 @@ class OCBCodeBlock(OCBBlock):
         self.source_editor = self.init_source_editor()
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
+        self.previous_stdout = ""
         self.stdout = ""
         self.image = ""
         self.title_left_offset = 3 * self.edge_size
@@ -82,13 +83,26 @@ class OCBCodeBlock(OCBBlock):
     @stdout.setter
     def stdout(self, value: str):
         self._stdout = value
-        if hasattr(self, 'source_editor'):
-            # If there is a text output, erase the image output and display the
-            # text output
-            self.image = ""
+        # If there is a new line
+        # Save every line but the last one
+        if value.find('\n') != -1:
+            lines = value.split('\n')
+            self.previous_stdout += '\n'.join(lines[:-1]) + '\n'
+            value = lines[-1]
 
-            # Remove ANSI backspaces
-            text = value.replace("\x08", "")
+        # Update the last line only
+        if hasattr(self, 'previous_stdout'):
+            to_display = self.previous_stdout + value
+        else:
+            to_display = value
+
+        # If there is a text output, erase the image output
+        self.image = ""
+
+        if hasattr(self, 'output_panel'):
+            # Remove carriage returns and backspaces
+            text = to_display.replace("\x08", "")
+            text = text.replace("\r", "")
             # Convert ANSI escape codes to HTML
             text = conv.convert(text)
             # Replace background color
@@ -141,8 +155,9 @@ class OCBCodeBlock(OCBBlock):
 
     def run_code(self):
         """Run the code in the block"""
-        code = self.source_editor.text()
-        self.source = code
+        # Erase previous output
+        self.previous_stdout = ""
+        self.source = self.source_editor.text()
         # Create a worker to handle execution
         worker = Worker(self.source_editor.kernel, self.source)
         worker.signals.stdout.connect(self.handle_stdout)
