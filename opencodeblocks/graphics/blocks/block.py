@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
 import time
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QFocusEvent, QMouseEvent, QPen, QColor, QFont, QPainter, QPainterPath
+from PyQt5.QtGui import QBrush, QFocusEvent, QMouseEvent, QPen, QColor, QFont, \
+                QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
     QGraphicsSceneMouseEvent, QLineEdit, QSplitter, QSplitterHandle, \
     QStyleOptionGraphicsItem, QWidget
@@ -33,7 +34,12 @@ class OCBTitle(QLineEdit):
         self.setReadOnly(True)
 
     def mousePressEvent(self, event: QMouseEvent):
-        if self.clickTime is not None and self.isReadOnly() and time.time() - self.clickTime > 0.3:
+        """
+        Detect double clicks and single clicks are react accordingly by
+        dispatching the event to the parent or the current widget
+        """
+        if self.clickTime is None or (
+                self.isReadOnly() and time.time() - self.clickTime > 0.3):
             self.parent().mousePressEvent(event)
         else:
             self.mouseDoubleClickEvent(event)
