@@ -157,8 +157,7 @@ class OCBCodeBlock(OCBBlock):
         """Run the code in the block"""
         # Erase previous output
         self.previous_stdout = ""
-        code = self.source_editor.text()
-        self.source = code
+        self.source = self.source_editor.text()
         # Create a worker to handle execution
         worker = Worker(self.source_editor.kernel, self.source)
         worker.signals.stdout.connect(self.handle_stdout)
