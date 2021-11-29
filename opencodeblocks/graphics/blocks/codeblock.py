@@ -29,6 +29,9 @@ class OCBCodeBlock(OCBBlock):
     """
 
     def __init__(self, **kwargs):
+
+        self.source_editor = PythonEditor(self)
+
         super().__init__(block_type='code', **kwargs)
 
         self.output_panel_height = self.height / 3
@@ -39,20 +42,44 @@ class OCBCodeBlock(OCBBlock):
         self._splitter_size = [0, 0]
         self._cached_stdout = ""
 
-        self.source_editor = self.init_source_editor()
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
+
+        self.splitter.addWidget(self.source_editor)
+        self.splitter.addWidget(self.output_panel)
+
         self.title_left_offset = 3 * self.edge_size
 
         self.holder.setWidget(self.root)
 
         self.update_all()  # Set the geometry of display and source_editor
 
-    def init_source_editor(self):
-        """ Initialize the python source code editor. """
-        source_editor = PythonEditor(self)
-        self.splitter.addWidget(source_editor)
-        return source_editor
+    def init_output_panel(self):
+        """ Initialize the output display widget: QLabel """
+        output_panel = QTextEdit()
+        output_panel.setReadOnly(True)
+        output_panel.setFont(self.source_editor.font())
+        return output_panel
+
+    def init_run_button(self):
+        """ Initialize the run button """
+        run_button = QPushButton(">", self.root)
+        run_button.setMinimumWidth(int(self.edge_size))
+        run_button.clicked.connect(self.run_code)
+        run_button.raise_()
+        return run_button
+
+    def run_code(self):
+        """Run the code in the block"""
+        # Erase previous output
+        self.stdout = ""
+        self._cached_stdout = ""
+        self.source = self.source_editor.text()
+        # Create a worker to handle execution
+        worker = Worker(self.source_editor.kernel, self.source)
+        worker.signals.stdout.connect(self.handle_stdout)
+        worker.signals.image.connect(self.handle_image)
+        self.source_editor.threadpool.start(worker)
 
     def update_all(self):
         """ Update the code block parts. """
@@ -79,42 +106,6 @@ class OCBCodeBlock(OCBBlock):
     @source.setter
     def source(self, value: str):
         self.source_editor.setText(value)
-
-    @source.setter
-    def source(self, value: str):
-        self._source = value
-        if hasattr(self, 'source_editor'):
-            editor_widget = self.source_editor
-            editor_widget.setText(self._source)
-
-    def init_output_panel(self):
-        """ Initialize the output display widget: QLabel """
-        output_panel = QTextEdit()
-        output_panel.setReadOnly(True)
-        output_panel.setFont(self.source_editor.font())
-        self.splitter.addWidget(output_panel)
-        return output_panel
-
-    def init_run_button(self):
-        """ Initialize the run button """
-        run_button = QPushButton(">", self.root)
-        run_button.setMinimumWidth(int(self.edge_size))
-        run_button.clicked.connect(self.run_code)
-        run_button.raise_()
-
-        return run_button
-
-    def run_code(self):
-        """Run the code in the block"""
-        # Erase previous output
-        self.stdout = ""
-        self._cached_stdout = ""
-        self.source = self.source_editor.text()
-        # Create a worker to handle execution
-        worker = Worker(self.source_editor.kernel, self.source)
-        worker.signals.stdout.connect(self.handle_stdout)
-        worker.signals.image.connect(self.handle_image)
-        self.source_editor.threadpool.start(worker)
 
     @property
     def stdout(self) -> str:
