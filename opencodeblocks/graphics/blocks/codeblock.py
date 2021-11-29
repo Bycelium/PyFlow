@@ -95,11 +95,11 @@ class OCBCodeBlock(OCBBlock):
 
         if hasattr(self, 'output_closed'):
             # If output panel is closed and there is output, open it
-            if self.output_closed == True and value != "":
+            if self.output_closed is True and value != "":
                 self.output_closed = False
                 self.splitter.setSizes(self.previous_splitter_size)
             # If output panel is open and there is no output, close it
-            elif self.output_closed == False and value == "":
+            elif self.output_closed is False and value == "":
                 self.previous_splitter_size = self.splitter.sizes()
                 self.output_closed = True
                 self.splitter.setSizes([1, 0])
