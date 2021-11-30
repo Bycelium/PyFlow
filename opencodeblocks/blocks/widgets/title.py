@@ -93,7 +93,7 @@ class OCBTitle(QLineEdit, Serializable):
 
     def serialize(self) -> OrderedDict:
         """Serialize the object as an ordered dictionary."""
-        OrderedDict(
+        return OrderedDict(
             [
                 ("id", self.id),
                 ("color", self.color),
