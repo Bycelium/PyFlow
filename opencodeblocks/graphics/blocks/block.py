@@ -47,7 +47,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         Serializable.__init__(self)
 
         self.block_type = type(self).__name__
-        print("Type: ",self.block_type)
         self.source = source
         self.stdout = ""
         self.setPos(QPointF(*position))
