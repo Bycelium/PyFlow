@@ -12,13 +12,14 @@ from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
-from opencodeblocks.graphics import blocks
+from opencodeblocks import blocks
 
 from opencodeblocks.core.serializable import Serializable
-from opencodeblocks.graphics.blocks.block import OCBBlock
+from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.graphics.scene.clipboard import SceneClipboard
-from opencodeblocks.graphics.scene.history import SceneHistory
+from opencodeblocks.scene.clipboard import SceneClipboard
+from opencodeblocks.scene.history import SceneHistory
 
 
 class OCBScene(QGraphicsScene, Serializable):

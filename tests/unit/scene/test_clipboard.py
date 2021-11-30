@@ -7,7 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
-from opencodeblocks.graphics.scene.clipboard import SceneClipboard
+from opencodeblocks.scene.clipboard import SceneClipboard
 
 
 class TestSerializeSelected:

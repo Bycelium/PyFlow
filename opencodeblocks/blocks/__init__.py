@@ -3,6 +3,6 @@
 
 """ Module for the OCB Blocks of different types. """
 
-from opencodeblocks.graphics.blocks.block import OCBBlock
-from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
-from opencodeblocks.graphics.blocks.sliderblock import OCBSliderBlock
+from opencodeblocks.blocks.sliderblock import OCBSliderBlock
+from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.codeblock import OCBCodeBlock

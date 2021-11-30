@@ -61,6 +61,7 @@ confidence=
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
 disable=inconsistent-return-statements,
+        unidiomatic-typecheck,
         attribute-defined-outside-init,
         pointless-statement,
         no-self-use,

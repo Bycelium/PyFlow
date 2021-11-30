@@ -7,7 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
-from opencodeblocks.graphics.scene.history import SceneHistory
+from opencodeblocks.scene.history import SceneHistory
 
 
 class TestUndo:
@@ -23,7 +23,7 @@ class TestUndo:
 
     def test_undo(self, mocker:MockerFixture):
         """ should allow for undo without breaking the history stack."""
-        mocker.patch('opencodeblocks.graphics.scene.history.SceneHistory.restore')
+        mocker.patch('opencodeblocks.scene.history.SceneHistory.restore')
 
         check.equal(self.history.history_stack, ['A', 'B', 'C', 'D'])
         check.equal(self.history.history_stack[self.history.current], 'D')
@@ -36,7 +36,7 @@ class TestUndo:
 
     def test_undo_nostack(self, mocker:MockerFixture):
         """ should allow to undo without any change if the history stack is empty."""
-        mocker.patch('opencodeblocks.graphics.scene.history.SceneHistory.restore')
+        mocker.patch('opencodeblocks.scene.history.SceneHistory.restore')
 
         self.history.history_stack = []
         self.history.current = -1
@@ -49,7 +49,7 @@ class TestUndo:
 
     def test_undo_end_of_stack(self, mocker:MockerFixture):
         """ should allow to undo without any change if at the end of the history stack."""
-        mocker.patch('opencodeblocks.graphics.scene.history.SceneHistory.restore')
+        mocker.patch('opencodeblocks.scene.history.SceneHistory.restore')
 
         self.history.current = 0
         check.equal(self.history.history_stack, ['A', 'B', 'C', 'D'])
@@ -75,7 +75,7 @@ class TestRedo:
 
     def test_redo(self, mocker:MockerFixture):
         """ should allow for redo without changing the history stack."""
-        mocker.patch('opencodeblocks.graphics.scene.history.SceneHistory.restore')
+        mocker.patch('opencodeblocks.scene.history.SceneHistory.restore')
 
         check.equal(self.history.history_stack, ['A', 'B', 'C', 'D'])
         check.equal(self.history.history_stack[self.history.current], 'B')
@@ -88,7 +88,7 @@ class TestRedo:
 
     def test_redo_nostack(self, mocker:MockerFixture):
         """ should allow to redo without any change if the history stack is empty."""
-        mocker.patch('opencodeblocks.graphics.scene.history.SceneHistory.restore')
+        mocker.patch('opencodeblocks.scene.history.SceneHistory.restore')
 
         self.history.history_stack = []
         self.history.current = -1
@@ -101,7 +101,7 @@ class TestRedo:
 
     def test_redo_end_of_stack(self, mocker:MockerFixture):
         """ should allow to redo without any change if at the beggining of the history stack."""
-        mocker.patch('opencodeblocks.graphics.scene.history.SceneHistory.restore')
+        mocker.patch('opencodeblocks.scene.history.SceneHistory.restore')
 
         self.history.current = 3
         check.equal(self.history.history_stack, ['A', 'B', 'C', 'D'])
