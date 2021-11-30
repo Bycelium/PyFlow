@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
-from opencodeblocks.graphics.blocks.widgets import OCBSplitter, OCBSizeGrip, OCBTitle
+from opencodeblocks.blocks.widgets import OCBSplitter, OCBSizeGrip, OCBTitle
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.scene.scene import OCBScene

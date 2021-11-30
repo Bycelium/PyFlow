@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
 
-from opencodeblocks.graphics.blocks.block import OCBBlock
+from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.pyeditor import PythonEditor
 from opencodeblocks.graphics.worker import Worker
 

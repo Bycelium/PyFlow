@@ -9,7 +9,7 @@ from warnings import warn
 import json
 from PyQt5.QtWidgets import QApplication
 
-from opencodeblocks.graphics.blocks import OCBBlock, OCBCodeBlock
+from opencodeblocks.blocks import OCBBlock, OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 
 if TYPE_CHECKING:
