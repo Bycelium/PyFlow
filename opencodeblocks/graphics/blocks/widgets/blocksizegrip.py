@@ -6,22 +6,27 @@ The size grip is the little icon at the bottom right of a block that is used to
 resize a block.
 """
 
+from typing import TYPE_CHECKING
+
 from PyQt5.QtCore import QPoint
-from PyQt5.QtWidgets import QGraphicsItem, QSizeGrip, QWidget
+from PyQt5.QtWidgets import QSizeGrip
 from PyQt5.QtGui import QMouseEvent
+
+if TYPE_CHECKING:
+    from opencodeblocks.graphics.blocks.block import OCBBlock
 
 
 class BlockSizeGrip(QSizeGrip):
     """ A grip to resize a block """
 
-    def __init__(self, block: QGraphicsItem, parent: QWidget = None):
-        """
-            Constructor for BlockSizeGrip
+    def __init__(self, block: 'OCBBlock'):
+        """ Constructor for BlockSizeGrip
 
-            block is the QGraphicsItem holding the QSizeGrip.
-            It's usually an OCBBlock
+        Args:
+            block: OCBBlock holding the QSizeGrip.
+
         """
-        super().__init__(parent)
+        super().__init__(block.root)
         self.mouseX = 0
         self.mouseY = 0
         self.block = block

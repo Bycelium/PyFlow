@@ -13,8 +13,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
-from opencodeblocks.graphics.blocks.blocksizegrip import BlockSizeGrip
-from opencodeblocks.graphics.blocks.widgets import OCBTitle, OCBSplitter
+from opencodeblocks.graphics.blocks.widgets import OCBTitle, OCBSplitter, BlockSizeGrip
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.scene.scene import OCBScene
@@ -39,6 +38,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             width: Block width.
             height: Block height.
             edge_size: Block edges size.
+            title: Block Title.
             parent: Parent of the block.
 
         """
@@ -79,8 +79,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.splitter = OCBSplitter(self, Qt.Orientation.Vertical, self.root)
-
-        self.size_grip = BlockSizeGrip(self, self.root)
+        self.size_grip = BlockSizeGrip(self)
 
         # DO NOT TRUST codacy !!! type(self) should be used, not isinstance.
         if type(self) == OCBBlock:
@@ -129,11 +128,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             self._pen_outline_selected if self.isSelected() else self._pen_outline)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
-
-    def _is_in_resize_area(self, pos: QPointF):
-        """ Return True if the given position is in the block resize_area. """
-        return self.width - self.edge_size < pos.x() \
-            and self.height - self.edge_size < pos.y()
 
     def get_socket_pos(self, socket: OCBSocket) -> Tuple[float]:
         """ Get a socket position to place them on the block sides. """
@@ -214,13 +208,19 @@ class OCBBlock(QGraphicsItem, Serializable):
             sizes[-1] += height_delta
             self.splitter.setSizes(sizes)
 
-        if hasattr(self, 'title_widget'):
-            self.title_widget.setGeometry(
-                int(self.edge_size + self.title_widget.left_offset),
-                int(self.edge_size / 2),
-                int(self.width - self.edge_size * 3),
-                int(self.title_widget.height())
-            )
+        self.title_widget.setGeometry(
+            int(self.edge_size + self.title_widget.left_offset),
+            int(self.edge_size / 2),
+            int(self.width - self.edge_size * 3),
+            int(self.title_widget.height())
+        )
+
+        self.size_grip.setGeometry(
+            int(self.width - self.edge_size * 2),
+            int(self.height - self.edge_size * 2),
+            int(self.edge_size * 1.7),
+            int(self.edge_size * 1.7)
+        )
 
     @property
     def title(self):

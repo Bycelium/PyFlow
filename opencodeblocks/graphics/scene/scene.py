@@ -6,7 +6,7 @@
 import math
 import json
 from types import FunctionType
-from typing import List, OrderedDict, Union
+from typing import TYPE_CHECKING, List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -18,6 +18,9 @@ from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.graphics.scene.clipboard import SceneClipboard
 from opencodeblocks.graphics.scene.history import SceneHistory
+
+if TYPE_CHECKING:
+    from opencodeblocks.graphics.view import OCBView
 
 
 class OCBScene(QGraphicsScene, Serializable):
@@ -187,6 +190,9 @@ class OCBScene(QGraphicsScene, Serializable):
             data["position"] = [x, y]
             data["sockets"] = {}
             self.create_block(data, None, False)
+
+    def views(self) -> List['OCBView']:
+        return super().views()
 
     def create_block(self, data: OrderedDict, hashmap: dict = None,
                      restore_id: bool = True) -> OCBBlock:

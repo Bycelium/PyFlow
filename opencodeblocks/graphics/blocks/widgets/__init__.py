@@ -5,3 +5,4 @@
 
 from opencodeblocks.graphics.blocks.widgets.title import OCBTitle
 from opencodeblocks.graphics.blocks.widgets.splitter import OCBSplitter
+from opencodeblocks.graphics.blocks.widgets.blocksizegrip import BlockSizeGrip
