@@ -196,6 +196,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             scene.removeItem(self)
 
     def update_splitter(self):
+        """ Change the geometry of the splitter to match the block """
         # We make the resizing of splitter only affect
         # the last element of the split view
         sizes = self.splitter.sizes()
@@ -212,6 +213,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.splitter.setSizes(sizes)
 
     def update_title(self):
+        """ Change the geometry of the title to match the block """
         self.title_widget.setGeometry(
             int(self.edge_size),
             int(self.edge_size / 2),
@@ -220,6 +222,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         )
 
     def update_size_grip(self):
+        """ Change the geometry of the size grip to match the block"""
         self.size_grip.setGeometry(
             int(self.width - self.edge_size * 2),
             int(self.height - self.edge_size * 2),
@@ -228,7 +231,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         )
 
     def update_all(self):
-        """Update sockets and title."""
+        """ Update sockets and title."""
         self.update_sockets()
         self.update_splitter()
         self.update_title()
@@ -263,6 +266,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.root.setGeometry(0, 0, self.root.width(), int(value))
 
     def serialize(self) -> OrderedDict:
+        """ Return a serialized version of this widget """
         self.metadata.update({"title_metadata": self.title_widget.serialize()})
         metadata = OrderedDict(sorted(self.metadata.items()))
         return OrderedDict(
@@ -288,6 +292,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         )
 
     def deserialize(self, data: dict, hashmap: dict = None, restore_id=True) -> None:
+        """ Restore the block from serialized data """
         if restore_id:
             self.id = data["id"]
         for dataname in ("title", "block_type", "source", "stdout", "width", "height"):

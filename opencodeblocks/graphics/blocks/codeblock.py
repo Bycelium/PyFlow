@@ -29,7 +29,10 @@ class OCBCodeBlock(OCBBlock):
     """
 
     def __init__(self, **kwargs):
-
+        """ 
+            Create a new OCBCodeBlock. 
+            Initialize all the child widgets specific to this block type
+        """
         self.source_editor = PythonEditor(self)
 
         super().__init__(block_type="code", **kwargs)
