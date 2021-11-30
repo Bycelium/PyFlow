@@ -11,18 +11,17 @@ from pytestqt.qtbot import QtBot
 
 from PyQt5.QtCore import QPointF
 
-from opencodeblocks.graphics.blocks.codeblock import OCBBlock
-from opencodeblocks.graphics.window import OCBWindow
-from opencodeblocks.graphics.widget import OCBWidget
+from opencodeblocks.blocks.codeblock import OCBBlock
+from opencodeblocks.window import OCBWindow
+from opencodeblocks.widget import OCBWidget
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue
 
 
 class TestBlocks:
-
     @pytest.fixture(autouse=True)
     def setup(self):
-        """ Setup reused variables. """
+        """Setup reused variables."""
         self.window = OCBWindow()
         self.ocb_widget = OCBWidget()
         self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
@@ -30,11 +29,11 @@ class TestBlocks:
         self.block = OCBBlock(title="Testing block")
 
     def test_create_blocks(self, qtbot: QtBot):
-        """ can be added to the scene. """
+        """can be added to the scene."""
         self.ocb_widget.scene.addItem(self.block)
 
     def test_move_blocks(self, qtbot: QtBot):
-        """ can be dragged around with the mouse. """
+        """can be dragged around with the mouse."""
         self.ocb_widget.scene.addItem(self.block)
         self.ocb_widget.view.horizontalScrollBar().setValue(self.block.x())
         self.ocb_widget.view.verticalScrollBar().setValue(
@@ -51,7 +50,7 @@ class TestBlocks:
             pos_block.setX(
                 pos_block.x() + self.block.title_widget.height() + self.block.edge_size
             )
-            pos_block.setY(pos_block.y() + self.block.title_widget.height()/2)
+            pos_block.setY(pos_block.y() + self.block.title_widget.height() / 2)
 
             pos_block = self.ocb_widget.view.mapFromScene(pos_block)
             pos_block = self.ocb_widget.view.mapToGlobal(pos_block)
@@ -60,10 +59,10 @@ class TestBlocks:
             pyautogui.mouseDown(button="left")
 
             iterations = 5
-            for i in range(iterations+1):
+            for i in range(iterations + 1):
                 pyautogui.moveTo(
                     pos_block.x() + expected_move_amount[0] * i / iterations,
-                    pos_block.y() + expected_move_amount[1] * i / iterations
+                    pos_block.y() + expected_move_amount[1] * i / iterations,
                 )
 
             pyautogui.mouseUp(button="left")
@@ -74,7 +73,8 @@ class TestBlocks:
             move_amount[1] = move_amount[1] * self.ocb_widget.view.zoom
 
             msgQueue.check_equal(
-                move_amount, expected_move_amount, "Block moved by the correct amound")
+                move_amount, expected_move_amount, "Block moved by the correct amound"
+            )
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_drag)

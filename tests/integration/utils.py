@@ -14,14 +14,13 @@ from queue import Queue
 from qtpy.QtWidgets import QApplication
 import pytest_check as check
 
-from opencodeblocks.graphics.window import OCBWindow
+from opencodeblocks.window import OCBWindow
 
 STOP_MSG = "stop"
 CHECK_MSG = "check"
 
 
 class CheckingQueue(Queue):
-
     def check_equal(self, a, b, msg=""):
         self.put([CHECK_MSG, a, b, msg])
 

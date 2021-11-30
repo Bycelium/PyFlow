@@ -7,7 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
-from opencodeblocks.graphics.scene.clipboard import SceneClipboard
+from opencodeblocks.scene.clipboard import SceneClipboard
 
 
 class TestSerializeSelected:
@@ -15,7 +15,7 @@ class TestSerializeSelected:
     """SceneClipboard._serializeSelected"""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mocker:MockerFixture):
+    def setup(self, mocker: MockerFixture):
         self.scene = mocker.MagicMock()
         self.view = mocker.MagicMock()
 
@@ -44,23 +44,23 @@ class TestSerializeSelected:
         self.scene.sortedSelectedItems.return_value = self.blocks, self.edges
         self.clipboard = SceneClipboard(self.scene)
 
-    def test_serialize_selected_blocks(self, mocker:MockerFixture):
-        """ should allow for blocks serialization."""
+    def test_serialize_selected_blocks(self, mocker: MockerFixture):
+        """should allow for blocks serialization."""
         data = self.clipboard._serializeSelected()
-        check.equal(data['blocks'], [block.serialize() for block in self.blocks])
+        check.equal(data["blocks"], [block.serialize() for block in self.blocks])
 
-    def test_serialize_selected_edges(self, mocker:MockerFixture):
-        """ should allow for edges serialization."""
+    def test_serialize_selected_edges(self, mocker: MockerFixture):
+        """should allow for edges serialization."""
         data = self.clipboard._serializeSelected()
-        check.equal(data['edges'], [edge.serialize() for edge in self.edges])
+        check.equal(data["edges"], [edge.serialize() for edge in self.edges])
 
-    def test_serialize_partially_selected_edges(self, mocker:MockerFixture):
-        """ should not allow for partially selected edges serialization."""
+    def test_serialize_partially_selected_edges(self, mocker: MockerFixture):
+        """should not allow for partially selected edges serialization."""
         self.scene.sortedSelectedItems.return_value = self.blocks[0], self.edges
         data = self.clipboard._serializeSelected()
-        check.equal(data['edges'], [self.edges[0].serialize()])
+        check.equal(data["edges"], [self.edges[0].serialize()])
 
-    def test_serialize_delete(self, mocker:MockerFixture):
-        """ should allow for items deletion after serialization."""
+    def test_serialize_delete(self, mocker: MockerFixture):
+        """should allow for items deletion after serialization."""
         self.clipboard._serializeSelected(delete=True)
         check.is_true(self.view.deleteSelected.called)
