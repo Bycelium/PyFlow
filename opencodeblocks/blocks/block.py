@@ -99,7 +99,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.moved = False
         self.metadata = {
-            "title_metadata": self.title_widget.metadatas,
+            "title_metadata": self.title_widget.serialize(),
         }
 
     def scene(self) -> "OCBScene":
@@ -198,10 +198,26 @@ class OCBBlock(QGraphicsItem, Serializable):
         if scene is not None:
             scene.removeItem(self)
 
-    def update_all(self):
-        """Update sockets and title."""
-        self.update_sockets()
+    def update_title(self):
+        """Update the block title position."""
+        self.title_widget.setGeometry(
+            int(self.edge_size + self.title_widget.left_offset),
+            int(self.edge_size / 2),
+            int(self.width - self.edge_size * 3),
+            int(self.title_widget.height()),
+        )
 
+    def update_grip(self):
+        """Update the block title position."""
+        self.size_grip.setGeometry(
+            int(self.width - self.edge_size * 2),
+            int(self.height - self.edge_size * 2),
+            int(self.edge_size * 1.7),
+            int(self.edge_size * 1.7),
+        )
+
+    def update_splitter(self):
+        """Update the block splitter."""
         # We make the resizing of splitter only affect
         # the last element of the split view
         sizes = self.splitter.sizes()
@@ -217,19 +233,12 @@ class OCBBlock(QGraphicsItem, Serializable):
             sizes[-1] += height_delta
             self.splitter.setSizes(sizes)
 
-        self.title_widget.setGeometry(
-            int(self.edge_size + self.title_widget.left_offset),
-            int(self.edge_size / 2),
-            int(self.width - self.edge_size * 3),
-            int(self.title_widget.height()),
-        )
-
-        self.size_grip.setGeometry(
-            int(self.width - self.edge_size * 2),
-            int(self.height - self.edge_size * 2),
-            int(self.edge_size * 1.7),
-            int(self.edge_size * 1.7),
-        )
+    def update_all(self):
+        """Update everything."""
+        self.update_sockets()
+        self.update_splitter()
+        self.update_grip()
+        self.update_title()
 
     @property
     def title(self):
@@ -249,7 +258,6 @@ class OCBBlock(QGraphicsItem, Serializable):
     @width.setter
     def width(self, value: float):
         self.root.setGeometry(0, 0, int(value), self.root.height())
-        self.update_all()
 
     @property
     def height(self):
@@ -259,7 +267,6 @@ class OCBBlock(QGraphicsItem, Serializable):
     @height.setter
     def height(self, value: float):
         self.root.setGeometry(0, 0, self.root.width(), int(value))
-        self.update_all()
 
     def serialize(self) -> OrderedDict:
         metadata = OrderedDict(sorted(self.metadata.items()))
@@ -293,7 +300,11 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.setPos(QPointF(*data["position"]))
         self.metadata = dict(data["metadata"])
-        self.title_widget = OCBTitle(data["title"], **self.metadata["title_metadata"])
+
+        self.title_widget = OCBTitle(data["title"])
+        self.title_widget.deserialize(
+            self.metadata["title_metadata"], hashmap, restore_id
+        )
 
         if "splitter_pos" in data:
             self.splitter.setSizes(data["splitter_pos"])

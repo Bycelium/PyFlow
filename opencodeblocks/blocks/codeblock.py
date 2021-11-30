@@ -63,9 +63,9 @@ class OCBCodeBlock(OCBBlock):
     def init_run_button(self):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
-        run_button.setMinimumWidth(int(self.edge_size))
+        run_button.setFixedSize(int(2.5 * self.edge_size), int(2.5 * self.edge_size))
+        run_button.move(self.edge_size // 2, self.edge_size // 2)
         run_button.clicked.connect(self.run_code)
-        run_button.raise_()
         return run_button
 
     def run_code(self):
@@ -80,9 +80,22 @@ class OCBCodeBlock(OCBBlock):
         worker.signals.image.connect(self.handle_image)
         self.source_editor.threadpool.start(worker)
 
-    def update_all(self):
-        """Update the code block parts."""
-        super().update_all()
+    def update_title(self):
+        """Update the block title position."""
+        button_pos = self.run_button.mapToParent(self.run_button.pos()).x()
+        offset = self.edge_size + button_pos + self.run_button.width()
+        # self.title_widget.setMaximumWidth(self.width)
+        self.title_widget.move(offset, 0)
+        self.title_widget.setFixedWidth(self.width - 2 * offset)
+        # self.title_widget.setGeometry(
+        #     int(offset + self.run_button.widthMM()),
+        #     int(self.edge_size / 2),
+        #     int(self.width),
+        #     int(self.title_widget.height()),
+        # )
+
+    def update_run_button(self):
+        """Update the run button"""
         if hasattr(self, "run_button"):
             self.run_button.setGeometry(
                 int(self.edge_size),
@@ -91,11 +104,19 @@ class OCBCodeBlock(OCBBlock):
                 int(2.5 * self.edge_size),
             )
 
+    def update_output_panel(self):
+        """Update the output panel"""
         # Close output panel if no output
         if self.stdout == "":
             self.previous_splitter_size = self.splitter.sizes()
             self.output_closed = True
             self.splitter.setSizes([1, 0])
+
+    def update_all(self):
+        """Update the code block parts."""
+        super().update_all()
+        self.update_run_button()
+        self.update_output_panel()
 
     @property
     def source(self) -> str:
