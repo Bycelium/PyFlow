@@ -35,7 +35,7 @@ class OCBTitle(QLineEdit):
             f"""
             QLineEdit {{
                 color : {self.color};
-                background-color: #E3212121;
+                background-color: transparent;
                 border:none;
                 padding: {self.padding}px;
             }}"""
