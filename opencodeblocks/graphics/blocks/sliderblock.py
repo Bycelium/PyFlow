@@ -1,5 +1,6 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSlider
 from opencodeblocks.graphics.blocks.block import OCBBlock
 
@@ -10,7 +11,7 @@ class OCBSliderBlock(OCBBlock):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
-        self.slider = QSlider()
+        self.slider = QSlider(Qt.Horizontal)
 
         self.splitter.addWidget(self.slider)
         
@@ -19,3 +20,10 @@ class OCBSliderBlock(OCBBlock):
     def update_all(self):
         """ Update the slider. """
         super().update_all()
+        if hasattr(self, 'slider'):
+            self.slider.setGeometry(
+                int(2 * self.edge_size),
+                int(self.title_height + 2 * self.edge_size),
+                int(self.width - 8 * self.edge_size),
+                int(2 * self.edge_size)
+            )

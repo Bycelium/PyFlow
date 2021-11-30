@@ -201,7 +201,6 @@ class OCBScene(QGraphicsScene, Serializable):
         for block_name in block_files:
             block_module = getattr(blocks,block_name)
             if isinstance(block_module, ModuleType):
-                print(block_module.__dict__.keys())
                 if hasattr(block_module, data['block_type']):
                     block_constructor = getattr(blocks,data['block_type'])
 
