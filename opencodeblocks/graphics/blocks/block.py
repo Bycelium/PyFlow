@@ -174,7 +174,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             f"""
             QLineEdit {{
                 color : {color};
-                background-color: #E3212121;
+                background-color: transparent;
                 border:none;
                 padding: {padding}px;
             }}"""
