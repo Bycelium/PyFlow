@@ -49,9 +49,9 @@ class TestBlocks:
             pos_block = QPointF(self.block.pos().x(), self.block.pos().y())
 
             pos_block.setX(
-                pos_block.x() + self.block.title_height + self.block.edge_size
+                pos_block.x() + self.block.title_widget.height() + self.block.edge_size
             )
-            pos_block.setY(pos_block.y() + self.block.title_height/2)
+            pos_block.setY(pos_block.y() + self.block.title_widget.height()/2)
 
             pos_block = self.ocb_widget.view.mapFromScene(pos_block)
             pos_block = self.ocb_widget.view.mapToGlobal(pos_block)

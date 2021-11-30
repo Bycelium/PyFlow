@@ -3,71 +3,33 @@
 
 """ Module for the base OCB Block. """
 
-from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
-
-import time
+from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple, Union
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QFocusEvent, QMouseEvent, QPen, QColor, QFont, \
-                QPainter, QPainterPath
+from PyQt5.QtGui import QBrush, QPen, QColor, \
+    QPainter, QPainterPath
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsProxyWidget, \
-    QGraphicsSceneMouseEvent, QLineEdit, QSplitter, QSplitterHandle, \
-    QStyleOptionGraphicsItem, QWidget
+    QGraphicsSceneMouseEvent, QStyleOptionGraphicsItem, QWidget
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.blocks.blocksizegrip import BlockSizeGrip
+from opencodeblocks.graphics.blocks.widgets import OCBTitle, OCBSplitter
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.scene.scene import OCBScene
-
-BACKGROUND_COLOR = QColor("#E3212121")
-
-
-class OCBTitle(QLineEdit):
-    """ The title of an OCBBlock. Needs to be double clicked to interact """
-
-    def __init__(self, content: str, parent: QWidget = None):
-        """ Create a new title for an OCBBlock """
-        super().__init__(content, parent)
-        self.clickTime = None
-        self.setReadOnly(True)
-
-    def mousePressEvent(self, event: QMouseEvent):
-        """
-        Detect double clicks and single clicks are react accordingly by
-        dispatching the event to the parent or the current widget
-        """
-        if self.clickTime is None or (
-                self.isReadOnly() and time.time() - self.clickTime > 0.3):
-            self.parent().mousePressEvent(event)
-        elif self.isReadOnly():
-            self.mouseDoubleClickEvent(event)
-            super().mousePressEvent(event)
-        else:
-            super().mousePressEvent(event)
-        self.clickTime = time.time()
-
-    def focusOutEvent(self, event: QFocusEvent):
-        """ The title is read-only when focused is lost """
-        self.setReadOnly(True)
-        self.deselect()
-
-    def mouseDoubleClickEvent(self, event: QMouseEvent):
-        """ Toggle readonly mode when double clicking """
-        self.setReadOnly(not self.isReadOnly())
-        if not self.isReadOnly():
-            self.setFocus(Qt.MouseFocusReason)
 
 
 class OCBBlock(QGraphicsItem, Serializable):
 
     """ Base class for blocks in OpenCodeBlocks. """
 
-    def __init__(self, block_type: str = 'base', source: str = '', position: tuple = (0, 0),
-                 width: int = 300, height: int = 200, edge_size: float = 10.0,
-                 title: str = 'New block', title_color: str = 'white', title_font: str = "Ubuntu",
-                 title_size: int = 10, title_padding=4.0, parent: Optional['QGraphicsItem'] = None):
+    def __init__(self, block_type: str = 'base',
+                 source: str = '', position: tuple = (0, 0),
+                 width: int = 300, height: int = 200,
+                 edge_size: float = 10.0,
+                 title: Union[OCBTitle, str] = 'New block',
+                 parent: Optional['QGraphicsItem'] = None):
         """ Base class for blocks in OpenCodeBlocks.
 
         Args:
@@ -77,11 +39,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             width: Block width.
             height: Block height.
             edge_size: Block edges size.
-            title: Block title.
-            title_color: Color of the block title.
-            title_font: Font of the block title.
-            title_size: Size of the block title.
-            title_padding: Padding of the block title.
             parent: Parent of the block.
 
         """
@@ -95,12 +52,9 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.sockets_in = []
         self.sockets_out = []
 
-        self.title_height = 3.5 * title_size
-        self.title_left_offset = 0
-
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
-        self._brush_background = QBrush(BACKGROUND_COLOR)
+        self._brush_background = QBrush(QColor("#E3212121"))
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
@@ -109,27 +63,27 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.holder = QGraphicsProxyWidget(self)
         self.root = QWidget()
-        self.root.setAttribute(Qt.WA_TranslucentBackground)
+        self.root.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.root.setGeometry(
             0, 0,
             int(width),
             int(height)
         )
 
-        self.title_widget = OCBTitle(title, self.root)
-        self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
-        self.setTitleGraphics(
-            title_color,
-            title_font,
-            title_size,
-            title_padding
-        )
+        if isinstance(title, OCBTitle):
+            self.title_widget = title
+        else:
+            self.title_widget = OCBTitle(title)
+        self.title_widget.setParent(self.root)
+        self.title_widget.setAttribute(
+            Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        self.splitter = OCBSplitter(self, Qt.Vertical, self.root)
+        self.splitter = OCBSplitter(self, Qt.Orientation.Vertical, self.root)
 
         self.size_grip = BlockSizeGrip(self, self.root)
 
-        if type(self) == OCBBlock:  # DO NOT TRUST codacy !!! type(self) should be used, not isinstance.
+        # DO NOT TRUST codacy !!! type(self) should be used, not isinstance.
+        if type(self) == OCBBlock:
             # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
@@ -142,12 +96,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.moved = False
         self.metadata = {
-            'title_metadata': {
-                'color': title_color,
-                'font': title_font,
-                'size': title_size,
-                'padding': title_padding,
-            },
+            'title_metadata': self.title_widget.metadatas,
         }
 
     def scene(self) -> 'OCBScene':
@@ -157,29 +106,6 @@ class OCBBlock(QGraphicsItem, Serializable):
     def boundingRect(self) -> QRectF:
         """ Get the the block bounding box. """
         return QRectF(0, 0, self.width, self.height).normalized()
-
-    def setTitleGraphics(self, color: str, font: str,
-                         size: int, padding: float):
-        """ Set the title graphics.
-
-        Args:
-            color: title color.
-            font: title font.
-            size: title size.
-            padding: title padding.
-
-        """
-        # self.title_widget.setMargin(int(padding))
-        self.title_widget.setStyleSheet(
-            f"""
-            QLineEdit {{
-                color : {color};
-                background-color: #E3212121;
-                border:none;
-                padding: {padding}px;
-            }}"""
-        )
-        self.title_widget.setFont(QFont(font, size))
 
     def paint(self, painter: QPainter,
               option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
@@ -218,7 +144,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             x = self.width
             sockets = self.sockets_out
 
-        y_offset = self.title_height + 2 * socket.radius
+        y_offset = self.title_widget.height() + 2 * socket.radius
         if len(sockets) < 2:
             y = y_offset
         else:
@@ -272,33 +198,28 @@ class OCBBlock(QGraphicsItem, Serializable):
     def update_all(self):
         """ Update sockets and title. """
         self.update_sockets()
-        if hasattr(self, 'title_widget'):
-            # We make the resizing of splitter only affect
-            # the last element of the split view
-            sizes = self.splitter.sizes()
-            old_height = self.splitter.height()
-            self.splitter.setGeometry(
-                int(self.edge_size),
-                int(self.edge_size + self.title_height),
-                int(self.width - self.edge_size * 2),
-                int(self.height - self.edge_size * 2 - self.title_height)
-            )
-            if len(sizes) > 1:
-                height_delta = self.splitter.height() - old_height
-                sizes[-1] += height_delta
-                self.splitter.setSizes(sizes)
 
+        # We make the resizing of splitter only affect
+        # the last element of the split view
+        sizes = self.splitter.sizes()
+        old_height = self.splitter.height()
+        self.splitter.setGeometry(
+            int(self.edge_size),
+            int(self.edge_size + self.title_widget.height()),
+            int(self.width - self.edge_size * 2),
+            int(self.height - self.edge_size * 2 - self.title_widget.height())
+        )
+        if len(sizes) > 1:
+            height_delta = self.splitter.height() - old_height
+            sizes[-1] += height_delta
+            self.splitter.setSizes(sizes)
+
+        if hasattr(self, 'title_widget'):
             self.title_widget.setGeometry(
-                int(self.edge_size + self.title_left_offset),
+                int(self.edge_size + self.title_widget.left_offset),
                 int(self.edge_size / 2),
                 int(self.width - self.edge_size * 3),
-                int(self.title_height)
-            )
-            self.size_grip.setGeometry(
-                int(self.width - self.edge_size * 2),
-                int(self.height - self.edge_size * 2),
-                int(self.edge_size * 1.7),
-                int(self.edge_size * 1.7)
+                int(self.title_widget.height())
             )
 
     @property
@@ -357,7 +278,8 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.setPos(QPointF(*data['position']))
         self.metadata = dict(data['metadata'])
-        self.setTitleGraphics(**self.metadata['title_metadata'])
+        self.title_widget = OCBTitle(
+            data['title'], **self.metadata['title_metadata'])
 
         if 'splitter_pos' in data:
             self.splitter.setSizes(data['splitter_pos'])
@@ -370,27 +292,3 @@ class OCBBlock(QGraphicsItem, Serializable):
                 hashmap.update({socket_data['id']: socket})
 
         self.update_all()
-
-
-class OCBSplitterHandle(QSplitterHandle):
-    """ A handle for splitters with undoable events """
-
-    def mouseReleaseEvent(self, evt: QMouseEvent):
-        """ When releasing the handle, save the state to history """
-        scene = self.parent().block.scene()
-        if scene is not None:
-            scene.history.checkpoint("Resize block", set_modified=True)
-        return super().mouseReleaseEvent(evt)
-
-
-class OCBSplitter(QSplitter):
-    """ A spliter with undoable events """
-
-    def __init__(self, block: OCBBlock, orientation: int, parent: QWidget):
-        """ Create a new OCBSplitter """
-        super().__init__(orientation, parent)
-        self.block = block
-
-    def createHandle(self):
-        """ Return the middle handle of the splitter """
-        return OCBSplitterHandle(self.orientation(), self)
