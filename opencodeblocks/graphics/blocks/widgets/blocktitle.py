@@ -13,6 +13,7 @@ class OCBTitle(QLineEdit):
         super().__init__(content, parent)
         self.clickTime = None
         self.setReadOnly(True)
+        self.setCursorPosition(0)
 
     def mousePressEvent(self, event: QMouseEvent):
         """
@@ -32,6 +33,7 @@ class OCBTitle(QLineEdit):
     def focusOutEvent(self, event: QFocusEvent):
         """ The title is read-only when focused is lost """
         self.setReadOnly(True)
+        self.setCursorPosition(0)
         self.deselect()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
