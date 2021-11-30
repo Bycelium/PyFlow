@@ -1,14 +1,13 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# pylint:disable=unused-argument
 
 """ Module for the base OCB Block. """
 
-from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
-
-import time
+from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple, Union
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
-from PyQt5.QtGui import QBrush, QPen, QColor, QFont, QPainter, QPainterPath
+from PyQt5.QtGui import QBrush, QPen, QColor, QPainter, QPainterPath
 from PyQt5.QtWidgets import (
     QGraphicsItem,
     QGraphicsProxyWidget,
@@ -39,11 +38,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         width: int = 300,
         height: int = 200,
         edge_size: float = 10.0,
-        title: str = "New block",
-        title_color: str = "white",
-        title_font: str = "Ubuntu",
-        title_size: int = 10,
-        title_padding=4.0,
+        title: Union[OCBTitle, str] = "New block",
         parent: Optional["QGraphicsItem"] = None,
     ):
         """Base class for blocks in OpenCodeBlocks.
@@ -56,10 +51,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             height: Block height.
             edge_size: Block edges size.
             title: Block title.
-            title_color: Color of the block title.
-            title_font: Font of the block title.
-            title_size: Size of the block title.
-            title_padding: Padding of the block title.
             parent: Parent of the block.
 
         """
@@ -72,9 +63,6 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.setPos(QPointF(*position))
         self.sockets_in = []
         self.sockets_out = []
-
-        self.title_height = 3.5 * title_size
-        self.title_left_offset = 0
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
@@ -90,9 +78,8 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.root.setAttribute(Qt.WA_TranslucentBackground)
         self.root.setGeometry(0, 0, int(width), int(height))
 
-        self.title_widget = OCBTitle(title, self.root)
+        self.title_widget = OCBTitle(title, parent=self.root)
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
-        self.setTitleGraphics(title_color, title_font, title_size, title_padding)
 
         self.splitter = OCBSplitter(self, Qt.Vertical, self.root)
 
@@ -112,14 +99,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.height = height
 
         self.moved = False
-        self.metadata = {
-            "title_metadata": {
-                "color": title_color,
-                "font": title_font,
-                "size": title_size,
-                "padding": title_padding,
-            },
-        }
+        self.metadata = {}
 
     def scene(self) -> "OCBScene":
         """Get the current OCBScene containing the block."""
@@ -129,34 +109,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         """Get the the block bounding box."""
         return QRectF(0, 0, self.width, self.height).normalized()
 
-    def setTitleGraphics(self, color: str, font: str, size: int, padding: float):
-        """Set the title graphics.
-
-        Args:
-            color: title color.
-            font: title font.
-            size: title size.
-            padding: title padding.
-
-        """
-        # self.title_widget.setMargin(int(padding))
-        self.title_widget.setStyleSheet(
-            f"""
-            QLineEdit {{
-                color : {color};
-                background-color: #FF0000;
-                border:none;
-                padding: {padding}px;
-            }}"""
-        )
-        self.title_widget.setFont(QFont(font, size))
-
     def paint(
         self,
         painter: QPainter,
-        option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
+        option: QStyleOptionGraphicsItem,
         widget: Optional[QWidget] = None,
-    ):  # pylint:disable=unused-argument
+    ):
         """Paint the block."""
 
         # content
@@ -189,7 +147,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             x = self.width
             sockets = self.sockets_out
 
-        y_offset = self.title_height + 2 * socket.radius
+        y_offset = self.title_widget.height() + 2 * socket.radius
         if len(sockets) < 2:
             y = y_offset
         else:
@@ -246,9 +204,9 @@ class OCBBlock(QGraphicsItem, Serializable):
         old_height = self.splitter.height()
         self.splitter.setGeometry(
             int(self.edge_size),
-            int(self.edge_size + self.title_height),
+            int(self.edge_size + self.title_widget.height()),
             int(self.width - self.edge_size * 2),
-            int(self.height - self.edge_size * 2 - self.title_height),
+            int(self.height - self.edge_size * 2 - self.title_widget.height()),
         )
         if len(sizes) > 1:
             height_delta = self.splitter.height() - old_height
@@ -257,9 +215,9 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     def update_title(self):
         self.title_widget.setGeometry(
-            int(self.edge_size + self.title_left_offset),
+            int(self.edge_size),
             int(self.edge_size / 2),
-            int(self.width - self.edge_size * 3 - self.title_left_offset),
+            int(self.width - self.edge_size * 3),
             int(self.title_widget.height()),
         )
 
@@ -307,6 +265,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.root.setGeometry(0, 0, self.root.width(), int(value))
 
     def serialize(self) -> OrderedDict:
+        self.metadata.update({"title_metadata": self.title_widget.serialize()})
         metadata = OrderedDict(sorted(self.metadata.items()))
         return OrderedDict(
             [
@@ -338,7 +297,9 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self.setPos(QPointF(*data["position"]))
         self.metadata = dict(data["metadata"])
-        self.setTitleGraphics(**self.metadata["title_metadata"])
+        self.title_widget.deserialize(
+            self.metadata["title_metadata"], hashmap, restore_id
+        )
 
         if "splitter_pos" in data:
             self.splitter.setSizes(data["splitter_pos"])

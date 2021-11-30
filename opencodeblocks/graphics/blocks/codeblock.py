@@ -81,6 +81,14 @@ class OCBCodeBlock(OCBBlock):
         worker.signals.image.connect(self.handle_image)
         self.source_editor.threadpool.start(worker)
 
+    def update_title(self):
+        self.title_widget.setGeometry(
+            int(self.edge_size) + self.run_button.width(),
+            int(self.edge_size / 2),
+            int(self.width - self.edge_size * 3 - self.run_button.width()),
+            int(self.title_widget.height()),
+        )
+
     def update_output_panel(self):
         # Close output panel if no output
         if self.stdout == "":
