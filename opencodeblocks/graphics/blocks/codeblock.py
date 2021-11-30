@@ -3,6 +3,7 @@
 
 """ Module for the base OCB Code Block. """
 
+from typing import OrderedDict
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QPushButton, QTextEdit
@@ -32,7 +33,7 @@ class OCBCodeBlock(OCBBlock):
 
         self.source_editor = PythonEditor(self)
 
-        super().__init__(block_type='code', **kwargs)
+        super().__init__(**kwargs)
 
         self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
@@ -162,3 +163,9 @@ class OCBCodeBlock(OCBBlock):
     def handle_image(self, image: str):
         """ Handle the image signal """
         self.stdout = '<img>' + image
+
+    def deserialize(self, data: OrderedDict,
+                    hashmap: dict = None, restore_id: bool = True):
+        for dataname in ('source', 'stdout'):
+            setattr(self, dataname, data[dataname])
+        super().deserialize(data,hashmap,restore_id)

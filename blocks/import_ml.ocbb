@@ -1,6 +1,6 @@
 {
     "title": "Imports for ML",
-    "block_type": "code",
+    "block_type": "OCBCodeBlock",
     "source": "import tensorflow as tf\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nfrom tensorflow import keras\nfrom tensorflow.keras import layers\nfrom tensorflow.keras.models import Sequential",
     "stdout": "",
     "image": "",

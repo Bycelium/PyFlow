@@ -23,14 +23,13 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     """ Base class for blocks in OpenCodeBlocks. """
 
-    def __init__(self, block_type: str = 'base', source: str = '', position: tuple = (0, 0),
+    def __init__(self, source: str = '', position: tuple = (0, 0),
                  width: int = 300, height: int = 200, edge_size: float = 10.0,
                  title: str = 'New block', title_color: str = 'white', title_font: str = "Ubuntu",
                  title_size: int = 10, title_padding=4.0, parent: Optional['QGraphicsItem'] = None):
         """ Base class for blocks in OpenCodeBlocks.
 
         Args:
-            block_type: Block type.
             source: Block source text.
             position: Block position in the scene.
             width: Block width.
@@ -47,7 +46,8 @@ class OCBBlock(QGraphicsItem, Serializable):
         QGraphicsItem.__init__(self, parent=parent)
         Serializable.__init__(self)
 
-        self.block_type = block_type
+        self.block_type = type(self).__name__
+        print("Type: ",self.block_type)
         self.source = source
         self.stdout = ""
         self.setPos(QPointF(*position))
@@ -305,10 +305,10 @@ class OCBBlock(QGraphicsItem, Serializable):
         ])
 
     def deserialize(self, data: dict, hashmap: dict = None,
-                    restore_id=True) -> None:
+                    restore_id=True):
         if restore_id:
             self.id = data['id']
-        for dataname in ('title', 'block_type', 'source', 'stdout', 'width', 'height'):
+        for dataname in ('title', 'block_type', 'width', 'height'):
             setattr(self, dataname, data[dataname])
 
         self.setPos(QPointF(*data['position']))

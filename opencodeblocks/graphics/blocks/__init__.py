@@ -5,8 +5,4 @@
 
 from opencodeblocks.graphics.blocks.block import OCBBlock
 from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
-
-BLOCKS = {
-    'base': OCBBlock,
-    'code': OCBCodeBlock
-}
+from opencodeblocks.graphics.blocks.sliderblock import OCBSliderBlock
