@@ -11,11 +11,18 @@ from PyQt5.QtWidgets import QLineEdit
 
 
 class OCBTitle(QLineEdit):
-    """ The title of an OCBBlock. Needs to be double clicked to interact """
+    """The title of an OCBBlock. Needs to be double clicked to interact"""
 
-    def __init__(self, text: str, color: str = 'white', font: str = "Ubuntu",
-                 size: int = 12, padding=4.0, left_offset=4):
-        """ Create a new title for an OCBBlock
+    def __init__(
+        self,
+        text: str,
+        color: str = "white",
+        font: str = "Ubuntu",
+        size: int = 12,
+        padding=4.0,
+        left_offset=4,
+    ):
+        """Create a new title for an OCBBlock
 
         Args:
             text: Block title.
@@ -46,10 +53,10 @@ class OCBTitle(QLineEdit):
     @property
     def metadatas(self) -> dict:
         return {
-            'color': self.color,
-            'font': self.font().family(),
-            'size': self.font().pointSize(),
-            'padding': self.padding,
+            "color": self.color,
+            "font": self.font().family(),
+            "size": self.font().pointSize(),
+            "padding": self.padding,
         }
 
     def mousePressEvent(self, event: QMouseEvent):
@@ -58,7 +65,8 @@ class OCBTitle(QLineEdit):
         dispatching the event to the parent or the current widget
         """
         if self.clickTime is None or (
-                self.isReadOnly() and time.time() - self.clickTime > 0.3):
+            self.isReadOnly() and time.time() - self.clickTime > 0.3
+        ):
             self.parent().mousePressEvent(event)
         elif self.isReadOnly():
             self.mouseDoubleClickEvent(event)
@@ -68,12 +76,12 @@ class OCBTitle(QLineEdit):
         self.clickTime = time.time()
 
     def focusOutEvent(self, event: QFocusEvent):
-        """ The title is read-only when focused is lost """
+        """The title is read-only when focused is lost"""
         self.setReadOnly(True)
         self.deselect()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
-        """ Toggle readonly mode when double clicking """
+        """Toggle readonly mode when double clicking"""
         self.setReadOnly(not self.isReadOnly())
         if not self.isReadOnly():
             self.setFocus(Qt.FocusReason.MouseFocusReason)

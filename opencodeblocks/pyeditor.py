@@ -4,27 +4,35 @@
 """ Module for OCB in block python editor. """
 
 from typing import TYPE_CHECKING, List
-from PyQt5.QtCore import QThreadPool, Qt
-from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor, QMouseEvent, QWheelEvent
-from PyQt5.Qsci import QsciScintilla, QsciLexerPython
-from opencodeblocks.graphics.theme_manager import theme_manager
 
-from opencodeblocks.graphics.blocks.block import OCBBlock
-from opencodeblocks.graphics.kernel import Kernel
+from PyQt5.QtCore import QThreadPool, Qt
+from PyQt5.QtGui import (
+    QFocusEvent,
+    QFont,
+    QFontMetrics,
+    QColor,
+    QMouseEvent,
+    QWheelEvent,
+)
+from PyQt5.Qsci import QsciScintilla, QsciLexerPython
+
+from opencodeblocks.theme_manager import theme_manager
+from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.kernel import Kernel
 
 kernel = Kernel()
 threadpool = QThreadPool()
 
 if TYPE_CHECKING:
-    from opencodeblocks.graphics.view import OCBView
+    from opencodeblocks.view import OCBView
 
 
 class PythonEditor(QsciScintilla):
 
-    """ In-block python editor for OpenCodeBlocks. """
+    """In-block python editor for OpenCodeBlocks."""
 
     def __init__(self, block: OCBBlock):
-        """ In-block python editor for OpenCodeBlocks.
+        """In-block python editor for OpenCodeBlocks.
 
         Args:
             block: Block in which to add the python editor widget.
@@ -64,7 +72,7 @@ class PythonEditor(QsciScintilla):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
     def update_theme(self):
-        """ Change the font and colors of the editor to match the current theme """
+        """Change the font and colors of the editor to match the current theme"""
         font = QFont()
         font.setFamily(theme_manager().recommended_font_family)
         font.setFixedPitch(True)
@@ -86,19 +94,19 @@ class PythonEditor(QsciScintilla):
         lexer.setFont(font)
         self.setLexer(lexer)
 
-    def views(self) -> List['OCBView']:
-        """ Get the views in which the python_editor is present. """
+    def views(self) -> List["OCBView"]:
+        """Get the views in which the python_editor is present."""
         return self.block.scene().views()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        """ How PythonEditor handles wheel events """
+        """How PythonEditor handles wheel events"""
         if self.mode == "EDITING" and event.angleDelta().x() == 0:
             event.accept()
             return super().wheelEvent(event)
 
     @property
     def mode(self) -> int:
-        """ PythonEditor current mode """
+        """PythonEditor current mode"""
         return self._mode
 
     @mode.setter
@@ -108,12 +116,12 @@ class PythonEditor(QsciScintilla):
             view.set_mode(value)
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
-        """ PythonEditor reaction to PyQt mousePressEvent events. """
+        """PythonEditor reaction to PyQt mousePressEvent events."""
         if event.buttons() & Qt.MouseButton.LeftButton:
             self.mode = "EDITING"
         return super().mousePressEvent(event)
 
     def focusOutEvent(self, event: QFocusEvent):
-        """ PythonEditor reaction to PyQt focusOut events. """
+        """PythonEditor reaction to PyQt focusOut events."""
         self.mode = "NOOP"
         return super().focusOutEvent(event)

@@ -1,8 +1,7 @@
-
 """ Module for code parsing and code execution """
 
 from typing import List, Tuple
-from opencodeblocks.graphics.kernel import Kernel
+from opencodeblocks.kernel import Kernel
 
 kernel = Kernel()
 
@@ -119,11 +118,11 @@ def execute_function(code: str, *args, **kwargs) -> str:
 
     """
     function_name = get_function_name(code)
-    execution_code = f'{function_name}('
+    execution_code = f"{function_name}("
     for arg in args:
-        execution_code += f'{arg},'
+        execution_code += f"{arg},"
     for name, value in kwargs.items():
-        execution_code += f'{name}={value},'
+        execution_code += f"{name}={value},"
 
     run_cell(code)
-    return run_cell(execution_code + ')')
+    return run_cell(execution_code + ")")

@@ -1,4 +1,3 @@
-
 """ Module to create and manage ipython kernels """
 
 import queue
@@ -6,7 +5,7 @@ from typing import Tuple
 from jupyter_client.manager import start_new_kernel
 
 
-class Kernel():
+class Kernel:
 
     """jupyter_client kernel used to execute code and return output"""
 
@@ -24,27 +23,27 @@ class Kernel():
             single output found in the message in that order of priority:
                 image > text data > text print > error > nothing
         """
-        message_type = 'None'
-        if 'data' in message:
-            if 'image/png' in message['data']:
-                message_type = 'image'
+        message_type = "None"
+        if "data" in message:
+            if "image/png" in message["data"]:
+                message_type = "image"
                 # output an image (from plt.plot or plt.imshow)
-                out = message['data']['image/png']
+                out = message["data"]["image/png"]
             else:
-                message_type = 'text'
+                message_type = "text"
                 # output data as str (for example if code="a=10\na")
-                out = message['data']['text/plain']
-        elif 'name' in message and message['name'] == "stdout":
-            message_type = 'text'
+                out = message["data"]["text/plain"]
+        elif "name" in message and message["name"] == "stdout":
+            message_type = "text"
             # output a print (print("Hello World"))
-            out = message['text']
-        elif 'traceback' in message:
-            message_type = 'text'
+            out = message["text"]
+        elif "traceback" in message:
+            message_type = "text"
             # output an error
-            out = '\n'.join(message['traceback'])
+            out = "\n".join(message["traceback"])
         else:
-            message_type = 'text'
-            out = ''
+            message_type = "text"
+            out = ""
         return out, message_type
 
     def execute(self, code: str) -> str:
@@ -80,8 +79,8 @@ class Kernel():
         """
         done = False
         try:
-            message = self.client.get_iopub_msg(timeout=1000)['content']
-            if 'execution_state' in message and message['execution_state'] == 'idle':
+            message = self.client.get_iopub_msg(timeout=1000)["content"]
+            if "execution_state" in message and message["execution_state"] == "idle":
                 done = True
         except queue.Empty:
             message = None
