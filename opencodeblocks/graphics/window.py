@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QDockWidget, QListWidget, QWidget, QAction, QFileDia
 from opencodeblocks.graphics.widget import OCBWidget
 from opencodeblocks.graphics.theme_manager import theme_manager
 
-from opencodeblocks.graphics.qss import loadStylesheets
+from opencodeblocks.qss import loadStylesheets
 
 
 class OCBWindow(QMainWindow):
@@ -24,9 +24,9 @@ class OCBWindow(QMainWindow):
         super().__init__()
 
         self.stylesheet_filename = os.path.join(
-            os.path.dirname(__file__), 'qss', 'ocb.qss')
+            os.path.dirname(__file__),'..', 'qss', 'ocb.qss')
         loadStylesheets((
-            os.path.join(os.path.dirname(__file__), 'qss', 'ocb_dark.qss'),
+            os.path.join(os.path.dirname(__file__),'..', 'qss', 'ocb_dark.qss'),
             self.stylesheet_filename
         ))
 

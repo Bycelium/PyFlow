@@ -13,10 +13,10 @@ from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
 
-from opencodeblocks.graphics.scene import OCBScene
+from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.graphics.blocks import OCBBlock
+from opencodeblocks.blocks import OCBBlock
 
 
 class OCBView(QGraphicsView):

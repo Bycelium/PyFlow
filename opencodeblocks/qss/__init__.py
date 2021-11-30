@@ -8,7 +8,7 @@ from typing import List
 from PyQt5.QtCore import QFile
 from PyQt5.QtWidgets import QApplication
 
-from opencodeblocks.graphics.qss import dark_resources
+from opencodeblocks.qss import dark_resources
 
 
 def loadStylesheets(filenames: List[str]):

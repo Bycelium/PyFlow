@@ -15,7 +15,7 @@ from opencodeblocks.core.serializable import Serializable
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.edge import OCBEdge
-    from opencodeblocks.graphics.blocks.block import OCBBlock
+    from opencodeblocks.blocks.block import OCBBlock
 
 
 class OCBSocket(QGraphicsItem, Serializable):

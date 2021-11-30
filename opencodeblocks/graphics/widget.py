@@ -8,7 +8,7 @@ import os
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 
-from opencodeblocks.graphics.scene import OCBScene
+from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.view import OCBView
 
 

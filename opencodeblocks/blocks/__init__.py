@@ -3,8 +3,8 @@
 
 """ Module for the OCB Blocks of different types. """
 
-from opencodeblocks.graphics.blocks.block import OCBBlock
-from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
+from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.codeblock import OCBCodeBlock
 
 BLOCKS = {
     'base': OCBBlock,

@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFocusEvent, QFont, QFontMetrics, QColor, QMouseEvent, Q
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.graphics.theme_manager import theme_manager
 
-from opencodeblocks.graphics.blocks.block import OCBBlock
+from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.kernel import Kernel
 
 kernel = Kernel()

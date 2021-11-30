@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QSizeGrip, QWidget
 from PyQt5.QtGui import QMouseEvent
 
 
-class BlockSizeGrip(QSizeGrip):
+class OCBSizeGrip(QSizeGrip):
     """ A grip to resize a block """
 
     def __init__(self, block: QGraphicsItem, parent: QWidget = None):

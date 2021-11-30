@@ -3,4 +3,4 @@
 
 """ Module for the OCBScene creation and manipulations. """
 
-from opencodeblocks.graphics.scene.scene import OCBScene
+from opencodeblocks.scene.scene import OCBScene
