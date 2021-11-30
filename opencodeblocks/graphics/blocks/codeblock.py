@@ -29,28 +29,57 @@ class OCBCodeBlock(OCBBlock):
     """
 
     def __init__(self, **kwargs):
+
+        self.source_editor = PythonEditor(self)
+
         super().__init__(block_type='code', **kwargs)
 
         self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
         self._min_source_editor_height = 20
 
-        self.source_editor = self.init_source_editor()
+        self.output_closed = True
+        self._splitter_size = [0, 0]
+        self._cached_stdout = ""
+
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
-        self.stdout = ""
-        self.image = ""
+
+        self.splitter.addWidget(self.source_editor)
+        self.splitter.addWidget(self.output_panel)
+
         self.title_left_offset = 3 * self.edge_size
 
         self.holder.setWidget(self.root)
 
         self.update_all()  # Set the geometry of display and source_editor
 
-    def init_source_editor(self):
-        """ Initialize the python source code editor. """
-        source_editor = PythonEditor(self)
-        self.splitter.addWidget(source_editor)
-        return source_editor
+    def init_output_panel(self):
+        """ Initialize the output display widget: QLabel """
+        output_panel = QTextEdit()
+        output_panel.setReadOnly(True)
+        output_panel.setFont(self.source_editor.font())
+        return output_panel
+
+    def init_run_button(self):
+        """ Initialize the run button """
+        run_button = QPushButton(">", self.root)
+        run_button.setMinimumWidth(int(self.edge_size))
+        run_button.clicked.connect(self.run_code)
+        run_button.raise_()
+        return run_button
+
+    def run_code(self):
+        """Run the code in the block"""
+        # Erase previous output
+        self.stdout = ""
+        self._cached_stdout = ""
+        self.source = self.source_editor.text()
+        # Create a worker to handle execution
+        worker = Worker(self.source_editor.kernel, self.source)
+        worker.signals.stdout.connect(self.handle_stdout)
+        worker.signals.image.connect(self.handle_image)
+        self.source_editor.threadpool.start(worker)
 
     def update_all(self):
         """ Update the code block parts. """
@@ -63,96 +92,73 @@ class OCBCodeBlock(OCBBlock):
                 int(2.5 * self.edge_size)
             )
 
+        # Close output panel if no output
+        if self.stdout == "":
+            self.previous_splitter_size = self.splitter.sizes()
+            self.output_closed = True
+            self.splitter.setSizes([1, 0])
+
     @property
     def source(self) -> str:
         """ Source code. """
-        return self._source
+        return self.source_editor.text()
 
     @source.setter
     def source(self, value: str):
-        self._source = value
-        if hasattr(self, 'source_editor'):
-            self.source_editor.setText(self._source)
+        self.source_editor.setText(value)
 
     @property
     def stdout(self) -> str:
-        """ Code output. Be careful, this also includes stderr """
         return self._stdout
 
     @stdout.setter
     def stdout(self, value: str):
         self._stdout = value
-        if hasattr(self, 'source_editor'):
-            # If there is a text output, erase the image output and display the
-            # text output
-            self.image = ""
+        if hasattr(self, 'output_panel'):
+            if value.startswith('<img>'):
+                display_text = self.b64_to_html(value[5:])
+            else:
+                display_text = self.str_to_html(value)
+            self.output_panel.setText(display_text)
+            # If output panel is closed and there is output, open it
+            if self.output_closed and value != "":
+                self.output_closed = False
+                self.splitter.setSizes(self._splitter_size)
+            # If output panel is open and there is no output, close it
+            elif not self.output_closed and value == "":
+                self._splitter_size = self.splitter.sizes()
+                self.output_closed = True
+                self.splitter.setSizes([1, 0])
 
-            # Remove ANSI backspaces
-            text = value.replace("\x08", "")
-            # Convert ANSI escape codes to HTML
-            text = conv.convert(text)
-            # Replace background color
-            text = text.replace('background-color: #000000',
-                                'background-color: #434343')
+    @staticmethod
+    def str_to_html(text: str):
+        # Remove carriage returns and backspaces
+        text = text.replace("\x08", "")
+        text = text.replace("\r", "")
+        # Convert ANSI escape codes to HTML
+        text = conv.convert(text)
+        # Replace background color
+        text = text.replace('background-color: #000000',
+                            'background-color: transparent')
+        return text
 
-            self.output_panel.setText(text)
-
-    @property
-    def image(self) -> str:
-        """ Code output. """
-        return self._image
-
-    @image.setter
-    def image(self, value: str):
-        self._image = value
-        if hasattr(self, 'source_editor') and self.image != "":
-            # If there is an image output, erase the text output and display
-            # the image output
-            text = ""
-            ba = QByteArray.fromBase64(str.encode(self.image))
-            pixmap = QPixmap()
-            pixmap.loadFromData(ba)
-            text = f'<img src="data:image/png;base64,{self.image}">'
-            self.output_panel.setText(text)
-
-    @source.setter
-    def source(self, value: str):
-        self._source = value
-        if hasattr(self, 'source_editor'):
-            editor_widget = self.source_editor
-            editor_widget.setText(self._source)
-
-    def init_output_panel(self):
-        """ Initialize the output display widget: QLabel """
-        output_panel = QTextEdit()
-        output_panel.setReadOnly(True)
-        output_panel.setFont(self.source_editor.font())
-        self.splitter.addWidget(output_panel)
-        return output_panel
-
-    def init_run_button(self):
-        """ Initialize the run button """
-        run_button = QPushButton(">", self.root)
-        run_button.setMinimumWidth(int(self.edge_size))
-        run_button.clicked.connect(self.run_code)
-        run_button.raise_()
-
-        return run_button
-
-    def run_code(self):
-        """Run the code in the block"""
-        code = self.source_editor.text()
-        self.source = code
-        # Create a worker to handle execution
-        worker = Worker(self.source_editor.kernel, self.source)
-        worker.signals.stdout.connect(self.handle_stdout)
-        worker.signals.image.connect(self.handle_image)
-        self.source_editor.threadpool.start(worker)
-
-    def handle_stdout(self, stdout):
+    def handle_stdout(self, value: str):
         """ Handle the stdout signal """
-        self.stdout = stdout
+        # If there is a new line
+        # Save every line but the last one
 
-    def handle_image(self, image):
+        if value.find('\n') != -1:
+            lines = value.split('\n')
+            self._cached_stdout += '\n'.join(lines[:-1]) + '\n'
+            value = lines[-1]
+
+        # Update the last line only
+        self.stdout = self._cached_stdout + value
+
+    @staticmethod
+    def b64_to_html(image: str):
+        return f'<img src="data:image/png;base64,{image}">'
+
+    def handle_image(self, image: str):
         """ Handle the image signal """
-        self.image = image
+        self.stdout = '<img>' + image

@@ -5,7 +5,7 @@ import os
 import sys
 import asyncio
 
-if os.name == "nt": # If on windows
+if os.name == "nt":  # If on windows
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from qtpy.QtWidgets import QApplication
@@ -17,5 +17,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
     wnd = OCBWindow()
+    if len(sys.argv) > 1:
+        wnd.createNewMdiChild(sys.argv[1])
     wnd.show()
     sys.exit(app.exec_())

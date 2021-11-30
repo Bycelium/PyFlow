@@ -43,7 +43,7 @@ pip install -r requirements.txt
 Run !
 
 ```bash
-python ./main.py
+python -m opencodeblocks optional_path_to_ipyg
 ```
 
 ## Contributing
