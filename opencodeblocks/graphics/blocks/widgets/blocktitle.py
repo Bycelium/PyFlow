@@ -34,7 +34,7 @@ class OCBTitle(QLineEdit, Serializable):
             f"""
             QLineEdit {{
                 color : {self.color};
-                background-color: #FF0000;
+                background-color: transparent;
                 border:none;
             }}"""
         )
