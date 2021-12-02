@@ -2,8 +2,12 @@
 
 from typing import OrderedDict, List
 
+import json
+
+MARGIN: float = 50
+
 def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
-    id: int = 0
+    id: int = 0 # TODO : give a proper id
 
     blocks: List[OrderedDict] = get_blocks(data)
 
@@ -19,37 +23,29 @@ def get_blocks(data: OrderedDict) -> List[OrderedDict]:
     
     blocks: List[OrderedDict] = []
 
-    # Markdown cells to be passed to the next code block
-    markdown_blocks: List[OrderedDict] = []
     for cell in data["cells"]:
         if "cell_type" not in cell or cell["cell_type"] != "code":
-            pass # Not supported yet
+            pass # TODO : support markdown
         else:
-            blocks.append({
-                "id": 0,
-                "title": "_",
-                "block_type": "code",
-                "source": ''.join(cell["source"]),
-                "stdout": '',
-                "width": 500,
-                "height": 200,
-                "position": [
-                    len(blocks)*500,
+            # Load the default empty block
+            # TODO : add something in case the user renames / removes the empty block / changes it too much ?
+            data: OrderedDict = {}
+            with open("blocks/empty.ocbb", 'r', encoding='utf-8') as file:
+                data = json.loads(file.read())
+
+            data["id"] = 0 # TODO : give a proper id
+
+            data["position"] = [
+                    len(blocks)*(data["width"] + MARGIN),
                     0
-                ],
-                "splitter_pos": [
-                    85,
-                    261
-                ],
-                "sockets": [],
-                "metadata": {
-                    "title_metadata": {
-                        "color": "white",
-                        "font": "Ubuntu",
-                        "size": 12,
-                        "padding": 4.0
-                    }
-                }
-            })
+                ]
+            
+            data["source"] = ''.join(cell["source"])
+
+            data["sockets"] = {} # TODO : add sockets
+
+            # TODO : add support for output
+
+            blocks.append(data)
 
     return blocks
