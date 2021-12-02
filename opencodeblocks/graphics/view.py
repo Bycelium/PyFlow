@@ -18,6 +18,7 @@ from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.blocks import OCBBlock
 
+EPS: float = 1e-10 # To check if blocks are of size 0
 
 class OCBView(QGraphicsView):
 
@@ -142,6 +143,48 @@ class OCBView(QGraphicsView):
         hsb.setValue(x * self.zoom - self.width() / 2)
         vsb.setValue(y * self.zoom - self.height() / 2)
 
+    def moveToGlobalView(self) -> bool:
+        """
+            OCBView reaction to the space bar being pressed.
+            Returns True if the event was handled.
+        """
+
+        # The focusItem has priority for this event
+        if self.scene().focusItem() is not None:
+            return False
+        if len(self.scene().selectedItems()) > 0:
+            return False
+        
+        items = self.scene().items()
+        code_blocks:List[OCBBlock] = [i for i in items if isinstance(i, OCBBlock)]
+
+        if len(code_blocks) == 0:
+            return False
+
+        # Get the blocks with min and max x and y coordinates
+
+        min_x:float = min(block.x() for block in code_blocks)
+        min_y:float = min(block.y() for block in code_blocks)
+        max_x:float = max(block.x() + block.width for block in code_blocks)
+        max_y:float = max(block.y() + block.height for block in code_blocks)
+
+        center_x:float = (min_x + max_x) / 2
+        center_y:float = (min_y + max_y) / 2
+
+        # Determines the required zoom level
+
+        if max_x - min_x < EPS or max_y - min_y < EPS:
+            # Handle the cas where the zoom level hasn't been computed because of blocks of size <= 0
+            return False
+
+        required_zoom_x:float = self.width() / (max_x - min_x)
+        required_zoom_y:float = self.height() / (max_y - min_y)
+        
+        # Operate the zoom and the translation
+        self.setZoom(min(required_zoom_x, required_zoom_y))
+        self.centerView(center_x, center_y)
+        return True
+
     def getDistanceToCenter(self, x: float, y: float) -> Tuple[float]:
         """ Return the vector from the (x,y) position given to the center of the view """
         ypos = self.verticalScrollBar().value()
@@ -212,6 +255,11 @@ class OCBView(QGraphicsView):
                       Qt.Key.Key_Left, Qt.Key.Key_Right]:
             if self.moveViewOnArrow(event):
                 return
+        
+        if key_id == Qt.Key.Key_Space:
+            if self.globalView():
+                return
+
         super().keyPressEvent(event)
 
     def retreiveBlockTypes(self) -> List[Tuple[str]]:
@@ -254,10 +302,15 @@ class OCBView(QGraphicsView):
                 zoom_factor = 1 / self.zoom_step
 
             if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
-                self.zoom *= zoom_factor
-                self.scale(zoom_factor, zoom_factor)
+                self.setZoom(self.zoom * zoom_factor)
         else:
             super().wheelEvent(event)
+
+    def setZoom(self, new_zoom: float):
+        """ Set the zoom to the appropriate level """
+        zoom_factor = new_zoom / self.zoom
+        self.scale(zoom_factor, zoom_factor)
+        self.zoom = new_zoom
 
     def deleteSelected(self):
         """ Delete selected items from the current scene. """

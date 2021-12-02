@@ -117,6 +117,10 @@ class OCBWindow(QMainWindow):
         self.actDel = QAction('&Del', statusTip='Delete selected items',
                               shortcut='Del', triggered=self.onEditDelete)
 
+        # View
+        self.actGlobal = QAction('Global View', statusTip='View the hole graph',
+                              shortcut=' ', triggered=self.onViewGlobal)
+
         # Window
         self.actClose = QAction("Cl&ose", self,
                                 statusTip="Close the active window",
@@ -164,6 +168,7 @@ class OCBWindow(QMainWindow):
         self.viewmenu = self.menuBar().addMenu('&View')
         self.thememenu = self.viewmenu.addMenu('Theme')
         self.thememenu.aboutToShow.connect(self.updateThemeMenu)
+        self.viewmenu.addAction(self.actGlobal)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -373,6 +378,12 @@ class OCBWindow(QMainWindow):
     def setActiveSubWindow(self, window):
         if window:
             self.mdiArea.setActiveSubWindow(window)
+
+    def onViewGlobal(self):
+        """ Center the view to see the hole graph """
+        current_window = self.activeMdiChild()
+        if current_window is not None and isinstance(current_window, OCBWidget):
+            current_window.moveToGlobalView()
 
     def setTheme(self, theme_index):
         theme_manager().selected_theme_index = theme_index
