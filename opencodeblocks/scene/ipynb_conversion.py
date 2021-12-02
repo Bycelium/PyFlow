@@ -7,17 +7,21 @@ import json
 MARGIN: float = 50
 
 def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
-    id: int = 0 # TODO : give a proper id
+    """ Convert ipynb data (ipynb file, as ordered dict) into ipyg data (ipyg, as ordered dict) """
+
+    dataid: int = 0 # TODO : give a proper id
 
     blocks: List[OrderedDict] = get_blocks(data)
 
     return {
-        "id": id,
+        "id": dataid,
         "blocks": blocks,
         "edges": []
     }
 
 def get_blocks(data: OrderedDict) -> List[OrderedDict]:
+    """ Get the blocks corresponding to a ipynb file, returns them in the ipyg ordered dict format """
+
     if "cells" not in data:
         return []
     
@@ -49,3 +53,4 @@ def get_blocks(data: OrderedDict) -> List[OrderedDict]:
             blocks.append(data)
 
     return blocks
+    
