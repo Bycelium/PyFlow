@@ -4,8 +4,6 @@
 """ Module for the base OCB Code Block. """
 
 from typing import OrderedDict
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter

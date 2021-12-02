@@ -7,9 +7,6 @@ Exports OCBSliderBlock.
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.blocks.codeblock import OCBCodeBlock
-from opencodeblocks.graphics.kernel import Kernel
-from opencodeblocks.graphics.worker import Worker
 
 class OCBSliderBlock(OCBBlock):
     """
@@ -19,7 +16,7 @@ class OCBSliderBlock(OCBBlock):
         super().__init__(**kwargs)
         
         self.layout = QVBoxLayout(self.root)
-        
+
 
         self.slider = QSlider(Qt.Horizontal)
         self.slider.valueChanged.connect(self.valueChanged)
@@ -44,27 +41,15 @@ class OCBSliderBlock(OCBBlock):
         
         self.holder.setWidget(self.root)
    
-    def findKernel(self):
-        """ Retreive a kernel by looking for one in the output blocks we are connected to. """
-        for output_socket in self.sockets_out:
-            if output_socket.edges != []:
-                for edge in output_socket.edges:
-                    output_block = edge.source_socket.block
-                    if type(output_block) == OCBCodeBlock:
-                        return output_block.kernel, output_block.threadpool
         return None,None
+
     def valueChanged(self):
         """ This is called when the value of the slider changes """
         val = self.slider.value() / 100
         var_name = self.variable_text.text()
         python_code = f"{var_name} = {val}"
         self.variable_value.setText(f"{val}")
-        # We fetch the kernel from the codeblock we are connected to and we execute the code.
         
-        kernel, thread_pool = self.findKernel()
-        if kernel is not None:
-            # This needs to change once execution flow is merged.
-            # A refactor will be needed.
-            # kernel.execution_queue.append((self, python_code))
-            worker = Worker(kernel, python_code)
-            thread_pool.start(worker)
+        # The code execution part will be added when the execution flow is merged.
+        # We print for now
+        print(python_code)
