@@ -257,7 +257,7 @@ class OCBView(QGraphicsView):
                 return
         
         if key_id == Qt.Key.Key_Space:
-            if self.globalView():
+            if self.moveToGlobalView():
                 return
 
         super().keyPressEvent(event)
