@@ -175,9 +175,16 @@ class OCBCodeBlock(OCBBlock):
         """ Handle the image signal """
         self.stdout = '<img>' + image
 
+    def serialize(self):
+        base_dict = super().serialize()
+        base_dict["source"] = self.source
+        base_dict["stdout"] = self.stdout
+
+        return base_dict
     def deserialize(self, data: OrderedDict,
                     hashmap: dict = None, restore_id: bool = True):
         """ Restore a codeblock from it's serialized state """
         for dataname in ('source', 'stdout'):
-            setattr(self, dataname, data[dataname])
+            if dataname in data:
+                setattr(self, dataname, data[dataname])
         super().deserialize(data, hashmap, restore_id)

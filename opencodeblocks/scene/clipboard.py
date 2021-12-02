@@ -80,6 +80,8 @@ class SceneClipboard():
         return (xmin + xmax) / 2, (ymin + ymax) / 2
 
     def _deserializeData(self, data:OrderedDict, set_selected=True):
+        if data is None: return
+
         hashmap = {}
 
         view = self.scene.views()[0]
