@@ -9,11 +9,10 @@ from warnings import warn
 import json
 from PyQt5.QtWidgets import QApplication
 
-from opencodeblocks.blocks import OCBBlock, OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 
 if TYPE_CHECKING:
-    from opencodeblocks.graphics.scene import OCBScene
+    from opencodeblocks.scene import OCBScene
     from opencodeblocks.graphics.view import OCBView
 
 
@@ -98,6 +97,7 @@ class SceneClipboard():
             block = self.scene.create_block(block_data, hashmap, restore_id = False)
             if set_selected:
                 block.setSelected(True)
+            block.setPos(block.x() + offset_x, block.y() + offset_y)
 
         # Create edges
         for edge_data in data['edges']:

@@ -54,13 +54,15 @@ class OCBSliderBlock(OCBBlock):
 
     @property
     def value(self):
+        """ The value of the slider """
         return str(self.slider.value() / 100)
     @value.setter
     def value(self, value: str):
-         self.slider.setValue(int(float(value) * 100))
+        self.slider.setValue(int(float(value) * 100))
 
     @property
     def var_name(self):
+        """ The name of the python variable associated with the slider """
         return self.variable_text.text()
     @var_name.setter
     def var_name(self, value: str):

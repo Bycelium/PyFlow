@@ -65,7 +65,7 @@ class OCBMarkdownBlock(OCBBlock):
         """
 
         self.rendered_markdown.setHtml(f"{dark_theme}{markdown(t)}")
-    
+
     @property
     def text(self) -> str:
         """ The content of the markdown block """
