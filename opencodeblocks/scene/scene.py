@@ -18,6 +18,7 @@ from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
+from opencodeblocks.scene.ipynb_conversion import ipynb_to_ipyg
 
 
 class OCBScene(QGraphicsScene, Serializable):
@@ -140,6 +141,9 @@ class OCBScene(QGraphicsScene, Serializable):
         """
         if filepath.endswith('.ipyg'):
             data = self.load_from_ipyg(filepath)
+        elif filepath.endswith('.ipynb'):
+            ipynb_data = self.load_from_ipynb(filepath)
+            data = ipynb_to_ipyg(ipynb_data)
         else:
             extention_format = filepath.split('.')[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
@@ -152,6 +156,17 @@ class OCBScene(QGraphicsScene, Serializable):
 
         Args:
             filepath: Path to the .ipyg file to load.
+
+        """
+        with open(filepath, 'r', encoding='utf-8') as file:
+            data = json.loads(file.read())
+        return data
+
+    def load_from_ipynb(self, filepath: str) -> OrderedDict:
+        """ Load the ipynb json data.
+
+        Args:
+            filepath: Path to the .ipynb file to load.
 
         """
         with open(filepath, 'r', encoding='utf-8') as file:
