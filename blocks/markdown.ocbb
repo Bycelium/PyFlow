@@ -1,0 +1,16 @@
+{
+    "title": "Markdown",
+    "block_type": "OCBMarkdownBlock",
+    "source": "",
+    "splitter_pos": [88,41],
+    "width": 618,
+    "height": 184,
+    "metadata": {
+        "title_metadata": {
+            "color": "white",
+            "font": "Ubuntu",
+            "size": 10,
+            "padding": 4.0
+        }
+    }
+}

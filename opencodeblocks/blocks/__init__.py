@@ -6,3 +6,4 @@
 from opencodeblocks.blocks.sliderblock import OCBSliderBlock
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
+from opencodeblocks.blocks.markdownblock import OCBMarkdownBlock
