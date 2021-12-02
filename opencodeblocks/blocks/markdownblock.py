@@ -1,10 +1,14 @@
+"""
+Exports OCBMarkdownBlock.
+"""
+
 from PyQt5.Qsci import QsciLexerMarkdown, QsciScintilla
 from opencodeblocks.blocks.block import OCBBlock
 
 class OCBMarkdownBlock(OCBBlock):
     def __init__(self, **kwargs):
-        """ 
-            Create a new OCBMarkdownBlock, a block that renders markdown 
+        """
+            Create a new OCBMarkdownBlock, a block that renders markdown
         """
         super().__init__(**kwargs)
         self.editor = QsciScintilla()

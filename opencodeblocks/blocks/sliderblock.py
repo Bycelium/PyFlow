@@ -1,5 +1,9 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 
+"""
+Exports OCBSliderBlock.
+"""
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
 from opencodeblocks.blocks.block import OCBBlock
