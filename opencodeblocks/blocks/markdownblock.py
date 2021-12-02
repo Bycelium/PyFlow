@@ -13,6 +13,8 @@ from opencodeblocks.graphics.theme_manager import theme_manager
 
 
 class OCBMarkdownBlock(OCBBlock):
+    """ A block that is able to render markdown text """
+
     def __init__(self, **kwargs):
         """
             Create a new OCBMarkdownBlock, a block that renders markdown
@@ -27,7 +29,7 @@ class OCBMarkdownBlock(OCBBlock):
         self.lexer = QsciLexerMarkdown()
         theme_manager().current_theme().apply_to_lexer(self.lexer)
         # Customize lexer background color:
-        self.lexer.setColor(QColor.fromRgb(255,255,255),-1)
+        self.lexer.setColor(QColor.fromRgb(255, 255, 255), -1)
         self.editor.setCaretForegroundColor(QColor("#FFFFFF"))
         self.editor.setLexer(self.lexer)
 
@@ -36,19 +38,21 @@ class OCBMarkdownBlock(OCBBlock):
         font.setFixedPitch(True)
         font.setPointSize(11)
         self.editor.setFont(font)
-        self.editor.setMarginWidth(QsciScintilla.SC_MARGIN_NUMBER,0)
+        self.editor.setMarginWidth(QsciScintilla.SC_MARGIN_NUMBER, 0)
         self.editor.setStyleSheet("background:transparent")
         self.editor.textChanged.connect(self.valueChanged)
 
         self.splitter.addWidget(self.editor)
 
         self.rendered_markdown = QWebEngineView()
-        self.rendered_markdown.page().setBackgroundColor(QColor.fromRgba64(0,0,0,alpha = 0));
+        self.rendered_markdown.page().setBackgroundColor(
+            QColor.fromRgba64(0, 0, 0, alpha=0))
 
         self.splitter.addWidget(self.rendered_markdown)
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
+        """ Update markdown rendering when the content of the markdown editor changes """
         t = self.editor.text()
 
         dark_theme = """

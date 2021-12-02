@@ -16,7 +16,6 @@ from opencodeblocks import blocks
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory

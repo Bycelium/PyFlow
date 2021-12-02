@@ -28,8 +28,8 @@ class OCBCodeBlock(OCBBlock):
     """
 
     def __init__(self, **kwargs):
-        """ 
-            Create a new OCBCodeBlock. 
+        """
+            Create a new OCBCodeBlock.
             Initialize all the child widgets specific to this block type
         """
         self.source_editor = PythonEditor(self)
@@ -67,7 +67,8 @@ class OCBCodeBlock(OCBBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size),
+                                int(3 * self.edge_size))
         run_button.clicked.connect(self.run_code)
         return run_button
 
@@ -84,6 +85,7 @@ class OCBCodeBlock(OCBBlock):
         self.source_editor.threadpool.start(worker)
 
     def update_title(self):
+        """ Change the geometry of the title widget """
         self.title_widget.setGeometry(
             int(self.edge_size) + self.run_button.width(),
             int(self.edge_size / 2),
@@ -92,6 +94,7 @@ class OCBCodeBlock(OCBBlock):
         )
 
     def update_output_panel(self):
+        """ Change the geometry of the output panel """
         # Close output panel if no output
         if self.stdout == "":
             self.previous_splitter_size = self.splitter.sizes()
@@ -99,13 +102,13 @@ class OCBCodeBlock(OCBBlock):
             self.splitter.setSizes([1, 0])
 
     def update_all(self):
-        """Update the code block parts."""
+        """ Update the code block parts """
         super().update_all()
         self.update_output_panel()
 
     @property
     def source(self) -> str:
-        """Source code."""
+        """ Source code """
         return self.source_editor.text()
 
     @source.setter
@@ -114,6 +117,7 @@ class OCBCodeBlock(OCBBlock):
 
     @property
     def stdout(self) -> str:
+        """ Access the content of the output panel of the block """
         return self._stdout
 
     @stdout.setter
@@ -137,6 +141,7 @@ class OCBCodeBlock(OCBBlock):
 
     @staticmethod
     def str_to_html(text: str):
+        """ Format text so that it's properly displayed by the code block """
         # Remove carriage returns and backspaces
         text = text.replace("\x08", "")
         text = text.replace("\r", "")
@@ -149,7 +154,7 @@ class OCBCodeBlock(OCBBlock):
         return text
 
     def handle_stdout(self, value: str):
-        """Handle the stdout signal"""
+        """ Handle the stdout signal """
         # If there is a new line
         # Save every line but the last one
 
@@ -163,6 +168,7 @@ class OCBCodeBlock(OCBBlock):
 
     @staticmethod
     def b64_to_html(image: str):
+        """ Transform a base64 encoded image into a html image"""
         return f'<img src="data:image/png;base64,{image}">'
 
     def handle_image(self, image: str):
@@ -171,6 +177,7 @@ class OCBCodeBlock(OCBBlock):
 
     def deserialize(self, data: OrderedDict,
                     hashmap: dict = None, restore_id: bool = True):
+        """ Restore a codeblock from it's serialized state """
         for dataname in ('source', 'stdout'):
             setattr(self, dataname, data[dataname])
-        super().deserialize(data,hashmap,restore_id)
+        super().deserialize(data, hashmap, restore_id)
