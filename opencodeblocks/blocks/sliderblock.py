@@ -4,6 +4,7 @@
 Exports OCBSliderBlock.
 """
 
+from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
 from opencodeblocks.blocks.block import OCBBlock
@@ -44,11 +45,40 @@ class OCBSliderBlock(OCBBlock):
 
     def valueChanged(self):
         """ This is called when the value of the slider changes """
-        val = self.slider.value() / 100
-        var_name = self.variable_text.text()
-        python_code = f"{var_name} = {val}"
-        self.variable_value.setText(f"{val}")
+        python_code = f"{self.var_name} = {self.value}"
+        self.variable_value.setText(f"{self.value}")
 
         # The code execution part will be added when the execution flow is merged.
         # We print for now
         print(python_code)
+
+    @property
+    def value(self):
+        return str(self.slider.value() / 100)
+    @value.setter
+    def value(self, value: str):
+         self.slider.setValue(int(float(value) * 100))
+
+    @property
+    def var_name(self):
+        return self.variable_text.text()
+    @var_name.setter
+    def var_name(self, value: str):
+        self.variable_text.setText(value)
+
+    def serialize(self):
+        """ Return a serialized version of this widget """
+        base_dict = super().serialize()
+        base_dict["value"] = self.value
+        base_dict["var_name"] = self.var_name
+
+        return base_dict
+
+    def deserialize(self, data: OrderedDict,
+                    hashmap: dict = None, restore_id: bool = True):
+        """ Restore a slider block from it's serialized state """
+        for dataname in ['value','var_name']:
+            if dataname in data:
+                setattr(self, dataname, data[dataname])
+
+        super().deserialize(data, hashmap, restore_id)

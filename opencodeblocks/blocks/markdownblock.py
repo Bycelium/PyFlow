@@ -2,6 +2,7 @@
 Exports OCBMarkdownBlock.
 """
 
+from typing import OrderedDict
 from markdown import markdown
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -28,7 +29,6 @@ class OCBMarkdownBlock(OCBBlock):
 
         self.lexer = QsciLexerMarkdown()
         theme_manager().current_theme().apply_to_lexer(self.lexer)
-        # Customize lexer background color:
         self.lexer.setColor(QColor.fromRgb(255, 255, 255), -1)
         self.editor.setCaretForegroundColor(QColor("#FFFFFF"))
         self.editor.setLexer(self.lexer)
@@ -65,3 +65,28 @@ class OCBMarkdownBlock(OCBBlock):
         """
 
         self.rendered_markdown.setHtml(f"{dark_theme}{markdown(t)}")
+    
+    @property
+    def text(self) -> str:
+        """ The content of the markdown block """
+        return self.editor.text()
+
+    @text.setter
+    def text(self, value: str):
+        self.editor.setText(value)
+        self.valueChanged()
+
+    def serialize(self):
+        base_dict = super().serialize()
+        base_dict["text"] = self.text
+
+        return base_dict
+
+    def deserialize(self, data: OrderedDict,
+                    hashmap: dict = None, restore_id: bool = True):
+        """ Restore a markdown block from it's serialized state """
+        for dataname in ['text']:
+            if dataname in data:
+                setattr(self, dataname, data[dataname])
+
+        super().deserialize(data, hashmap, restore_id)

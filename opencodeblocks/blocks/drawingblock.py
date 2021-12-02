@@ -1,4 +1,6 @@
 from math import floor
+import json
+from typing import OrderedDict
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QMouseEvent, QPaintEvent, QPainter, QPen
@@ -65,3 +67,25 @@ class OCBDrawingBlock(OCBBlock):
         self.run_button.clicked.connect(self.draw_area.clearDrawing)
         self.holder.setWidget(self.root)
 
+    @property
+    def drawing(self):
+        return json.dumps(self.draw_area.color_buffer)
+    @drawing.setter
+    def drawing(self, value: str):
+         self.draw_area.color_buffer = json.loads(value)
+
+    def serialize(self):
+        """ Return a serialized version of this widget """
+        base_dict = super().serialize()
+        base_dict["drawing"] = self.drawing
+
+        return base_dict
+
+    def deserialize(self, data: OrderedDict,
+                    hashmap: dict = None, restore_id: bool = True):
+        """ Restore a markdown block from it's serialized state """
+        for dataname in ['drawing']:
+            if dataname in data:
+                setattr(self, dataname, data[dataname])
+
+        super().deserialize(data, hashmap, restore_id)

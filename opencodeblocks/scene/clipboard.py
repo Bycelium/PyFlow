@@ -95,22 +95,9 @@ class SceneClipboard():
 
         # Create blocks
         for block_data in data['blocks']:
-            block_type = block_data['block_type']
-            if block_type == 'base':
-                block = OCBBlock()
-            elif block_type == 'code':
-                block = OCBCodeBlock()
-            else:
-                raise NotImplementedError(f'Unsupported block type: {block_type}')
-            block.deserialize(block_data, hashmap, restore_id=False)
-
-            block_pos = block.pos()
-            block.setPos(block_pos.x() + offset_x, block_pos.y() + offset_y)
-
+            block = self.scene.create_block(block_data, hashmap, restore_id = False)
             if set_selected:
                 block.setSelected(True)
-            self.scene.addItem(block)
-            hashmap.update({block.id: block})
 
         # Create edges
         for edge_data in data['edges']:
