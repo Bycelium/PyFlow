@@ -4,6 +4,7 @@ from typing import OrderedDict, List, Dict
 
 MARGIN_X: float = 50
 MARGIN_Y: float = 50
+BLOCK_MIN_WIDTH = 400
 TEXT_SIZE: float = 12
 TEXT_SIZE_TO_WIDTH_RATIO: float = 0.7
 TEXT_SIZE_TO_HEIGHT_RATIO: float = 1.42
@@ -52,35 +53,26 @@ def get_blocks(data: OrderedDict) -> List[OrderedDict]:
 
             text_width: float = (
                 TEXT_SIZE * TEXT_SIZE_TO_WIDTH_RATIO * max(len(line) for line in text)
+                if len(text) > 0
+                else 0
             )
-            block_width: float = text_width + MARGIN_X
+            block_width: float = max(text_width + MARGIN_X, BLOCK_MIN_WIDTH)
             text_height: float = TEXT_SIZE * TEXT_SIZE_TO_HEIGHT_RATIO * len(text)
             block_height: float = text_height + MARGIN_Y
 
-            block = {
-                "id": block_id_generator(),
-                "title": "_",
-                "block_type": BLOCK_TYPE_TO_NAME[block_type],
-                "width": block_width,
-                "height": block_height,
-                "position": [
-                    next_block_x_pos,
-                    next_block_y_pos,
-                ],
-                "splitter_pos": [
-                    85,
-                    261,
-                ],
-                "sockets": [],
-                "metadata": {
-                    "title_metadata": {
-                        "color": "white",
-                        "font": "Ubuntu",
-                        "size": 12,
-                        "padding": 4.0,
-                    }
-                },
-            }
+            block = get_default_block()
+
+            block.update(
+                {
+                    "block_type": BLOCK_TYPE_TO_NAME[block_type],
+                    "width": block_width,
+                    "height": block_height,
+                    "position": [
+                        next_block_x_pos,
+                        next_block_y_pos,
+                    ],
+                }
+            )
 
             if block_type == "code":
                 block.update(
@@ -101,4 +93,43 @@ def get_blocks(data: OrderedDict) -> List[OrderedDict]:
 
             blocks.append(block)
 
+    adujst_markdown_blocks_width(blocks)
+
     return blocks
+
+
+def get_default_block() -> OrderedDict:
+    """Return a default block with argument that vary missing"""
+    return {
+        "id": block_id_generator(),
+        "title": "_",
+        "splitter_pos": [
+            85,
+            261,
+        ],
+        "sockets": [],
+        "metadata": {
+            "title_metadata": {
+                "color": "white",
+                "font": "Ubuntu",
+                "size": 12,
+                "padding": 4.0,
+            }
+        },
+    }
+
+
+def adujst_markdown_blocks_width(blocks: OrderedDict) -> None:
+    """Modify the markdown blocks width for them to match the width of block of code below"""
+    i: int = len(blocks) - 1
+
+    while i >= 0:
+        if blocks[i]["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
+            block_width = blocks[i]["width"]
+            i -= 1
+
+            while i >= 0 and blocks[i]["block_type"] == BLOCK_TYPE_TO_NAME["markdown"]:
+                blocks[i]["width"] = block_width
+                i -= 1
+        else:
+            i -= 1
