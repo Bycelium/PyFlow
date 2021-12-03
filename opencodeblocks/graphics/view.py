@@ -270,10 +270,6 @@ class OCBView(QGraphicsView):
             if self.moveViewOnArrow(event):
                 return
 
-        if key_id == Qt.Key.Key_Space:
-            if self.moveToGlobalView():
-                return
-
         super().keyPressEvent(event)
 
     def retreiveBlockTypes(self) -> List[Tuple[str]]:
