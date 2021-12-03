@@ -9,9 +9,15 @@
 [![Licence - GPLv3](https://img.shields.io/github/license/MathisFederico/Crafting?style=plastic)](https://www.gnu.org/licenses/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-OpenCodeBlocks is an open-source tool for modular visual programing in python.
+OpenCodeBlocks is an open-source tool for modular visual programing in python !
+
+Although for now the tool is in Beta and features are comming in bit by bit, stay tunned for the first release soon !
 
 ![](media/mnist_example.gif)
+
+## Help the project !
+
+Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share your ideas or even contribute !
 
 ## Features
 
