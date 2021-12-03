@@ -4,7 +4,8 @@ from typing import OrderedDict, List, Dict
 
 MARGIN_X: float = 50
 MARGIN_Y: float = 50
-BLOCK_MIN_WIDTH = 400
+BLOCK_MIN_WIDTH: float = 400
+TITLE_MAX_LENGTH: int = 60
 TEXT_SIZE: float = 12
 TEXT_SIZE_TO_WIDTH_RATIO: float = 0.7
 TEXT_SIZE_TO_HEIGHT_RATIO: float = 1.42
@@ -83,6 +84,13 @@ def get_blocks(data: OrderedDict) -> List[OrderedDict]:
                 )
                 next_block_y_pos = 0
                 next_block_x_pos += block_width
+
+                if len(blocks) > 0 and is_title(blocks[-1]):
+                    block_title: OrderedDict = blocks.pop()
+                    block["title"] = block_title["text"]
+
+                    # Revert position effect of the markdown block
+                    block["position"] = block_title["position"]
             elif block_type == "markdown":
                 block.update(
                     {
@@ -119,8 +127,23 @@ def get_default_block() -> OrderedDict:
     }
 
 
+def is_title(block: OrderedDict) -> bool:
+    """Checks if the block is a one-line markdown block which could correspond to a title"""
+
+    if block["block_type"] != BLOCK_TYPE_TO_NAME["markdown"]:
+        return False
+    if "\n" in block["text"]:
+        return False
+    if len(block["text"]) == 0 or len(block["text"]) > TITLE_MAX_LENGTH:
+        return False
+    # Headings, quotes, bold or italic text are not considered to be headings
+    if block["text"][0] in {"#", "*", "`"}:
+        return False
+    return True
+
+
 def adujst_markdown_blocks_width(blocks: OrderedDict) -> None:
-    """Modify the markdown blocks width for them to match the width of block of code below"""
+    """Modify the markdown blocks width (in place) for them to match the width of block of code below"""
     i: int = len(blocks) - 1
 
     while i >= 0:
