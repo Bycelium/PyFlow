@@ -177,7 +177,7 @@ class OCBView(QGraphicsView):
         # Determines the required zoom level
 
         if max_x - min_x < EPS or max_y - min_y < EPS:
-            # Handle the cas where the zoom level hasn't been computed because of blocks of size <= 0
+            # Handle the case where there is no block
             return False
 
         required_zoom_x: float = self.width() / (max_x - min_x)
@@ -308,8 +308,9 @@ class OCBView(QGraphicsView):
             else:
                 zoom_factor = 1 / self.zoom_step
 
-            if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
-                self.setZoom(self.zoom * zoom_factor)
+            new_zoom = self.zoom * zoom_factor
+            if self.zoom_min < new_zoom < self.zoom_max:
+                self.setZoom(new_zoom)
         else:
             super().wheelEvent(event)
 
