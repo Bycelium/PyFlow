@@ -14,7 +14,7 @@ from opencodeblocks.graphics.view import OCBView
 
 class OCBWidget(QWidget):
 
-    """ Window for the OCB application. """
+    """Window for the OCB application."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -35,9 +35,9 @@ class OCBWidget(QWidget):
         self.savepath = None
 
     def updateTitle(self):
-        """ Update the window title. """
+        """Update the window title."""
         if self.savepath is None:
-            title = 'New Graph'
+            title = "New Graph"
         else:
             title = os.path.basename(self.savepath)
         if self.isModified():
@@ -45,12 +45,12 @@ class OCBWidget(QWidget):
         self.setWindowTitle(title)
 
     def isModified(self) -> bool:
-        """ Return True if the scene has been modified, False otherwise. """
+        """Return True if the scene has been modified, False otherwise."""
         return self.scene.has_been_modified
 
     @property
     def savepath(self):
-        """ Current cached file save path. Update window title when set."""
+        """Current cached file save path. Update window title when set."""
         return self._savepath
 
     @savepath.setter
@@ -64,3 +64,7 @@ class OCBWidget(QWidget):
     def load(self, filepath: str):
         self.scene.load(filepath)
         self.savepath = filepath
+
+    def moveToGlobalView(self):
+        """Center the view to see the hole graph"""
+        self.view.moveToGlobalView()
