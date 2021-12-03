@@ -20,13 +20,19 @@ if TYPE_CHECKING:
 
 class OCBSocket(QGraphicsItem, Serializable):
 
-    """ Base class for sockets in OpenCodeBlocks. """
+    """Base class for sockets in OpenCodeBlocks."""
 
-    def __init__(self, block: 'OCBBlock',
-                 socket_type: str = 'undefined', flow_type: str = 'exe',
-                 radius: float = 6.0, color: str = '#FF55FFF0',
-                 linewidth: float = 1.0, linecolor: str = '#FF000000'):
-        """ Base class for sockets in OpenCodeBlocks.
+    def __init__(
+        self,
+        block: "OCBBlock",
+        socket_type: str = "undefined",
+        flow_type: str = "exe",
+        radius: float = 10.0,
+        color: str = "#FF55FFF0",
+        linewidth: float = 1.0,
+        linecolor: str = "#FF000000",
+    ):
+        """Base class for sockets in OpenCodeBlocks.
 
         Args:
             block: Block containing the socket.
@@ -42,7 +48,7 @@ class OCBSocket(QGraphicsItem, Serializable):
         self.block = block
         QGraphicsItem.__init__(self, parent=self.block)
 
-        self.edges: List['OCBEdge'] = []
+        self.edges: List["OCBEdge"] = []
         self.socket_type = socket_type
         self.flow_type = flow_type
 
@@ -52,80 +58,88 @@ class OCBSocket(QGraphicsItem, Serializable):
         self._brush = QBrush(QColor(color))
 
         self.metadata = {
-            'radius': radius,
-            'color': color,
-            'linewidth': linewidth,
-            'linecolor': linecolor,
+            "radius": radius,
+            "color": color,
+            "linewidth": linewidth,
+            "linecolor": linecolor,
         }
 
-    def add_edge(self, edge: 'OCBEdge', is_destination: bool):
-        """ Add a given edge to the socket edges. """
+    def add_edge(self, edge: "OCBEdge", is_destination: bool):
+        """Add a given edge to the socket edges."""
         if not self._allow_multiple_edges:
             for prev_edge in self.edges:
                 prev_edge.remove()
-        if self.flow_type == 'exe':
-            if ((is_destination and self.socket_type != 'input') or
-                    (not is_destination and self.socket_type != 'output')):
+        if self.flow_type == "exe":
+            if (is_destination and self.socket_type != "input") or (
+                not is_destination and self.socket_type != "output"
+            ):
                 edge.remove()
                 return
         self.edges.append(edge)
 
-    def remove_edge(self, edge: 'OCBEdge'):
-        """ Remove a given edge from the socket edges. """
+    def remove_edge(self, edge: "OCBEdge"):
+        """Remove a given edge from the socket edges."""
         self.edges.remove(edge)
 
     def remove(self):
-        """ Remove the socket and all its edges from the scene it is in. """
+        """Remove the socket and all its edges from the scene it is in."""
         for edge in self.edges:
             edge.remove()
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
+        self.setParentItem(None)
 
     @property
     def _allow_multiple_edges(self):
-        if self.flow_type == 'exe':
+        if self.flow_type == "exe":
             return True
         raise NotImplementedError
 
-    def paint(self, painter: QPainter,
-              option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
-              widget: Optional[QWidget] = None):  # pylint:disable=unused-argument
-        """ Paint the socket. """
+    def paint(
+        self,
+        painter: QPainter,
+        option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
+        widget: Optional[QWidget] = None,
+    ):  # pylint:disable=unused-argument
+        """Paint the socket."""
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
-        if self.flow_type == 'exe':
-            angles = [0, 2*math.pi/3, -2*math.pi/3]
+        if self.flow_type == "exe":
+            angles = [0, 2 * math.pi / 3, -2 * math.pi / 3]
             right_triangle_points = [
-                QPoint(int(r*math.cos(angle)), int(r*math.sin(angle)))
+                QPoint(int(r * math.cos(angle)), int(r * math.sin(angle)))
                 for angle in angles
             ]
             painter.drawPolygon(QPolygon(right_triangle_points))
         else:
-            painter.drawEllipse(int(-r), int(-r), int(2*r), int(2*r))
+            painter.drawEllipse(int(-r), int(-r), int(2 * r), int(2 * r))
 
     def boundingRect(self) -> QRectF:
-        """ Get the socket bounding box. """
+        """Get the socket bounding box."""
         r = self.radius
-        return QRectF(-r, -r, 2*r, 2*r)
+        return QRectF(-r, -r, 2 * r, 2 * r)
 
     def serialize(self) -> OrderedDict:
         metadata = OrderedDict(sorted(self.metadata.items()))
-        return OrderedDict([
-            ('id', self.id),
-            ('type', self.socket_type),
-            ('position', [self.pos().x(), self.pos().y()]),
-            ('metadata', metadata)
-        ])
+        return OrderedDict(
+            [
+                ("id", self.id),
+                ("type", self.socket_type),
+                ("position", [self.pos().x(), self.pos().y()]),
+                ("metadata", metadata),
+            ]
+        )
 
     def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
         if restore_id:
-            self.id = data['id']
-        self.socket_type = data['type']
-        self.setPos(QPointF(*data['position']))
+            self.id = data["id"]
+        self.socket_type = data["type"]
+        self.setPos(QPointF(*data["position"]))
 
-        self.metadata = dict(data['metadata'])
-        self._pen.setColor(QColor(self.metadata['linecolor']))
-        self._pen.setWidth(int(self.metadata['linewidth']))
-        self._brush.setColor(QColor(self.metadata['color']))
+        self.metadata = dict(data["metadata"])
+        self.radius = self.metadata["radius"]
+        self._pen.setColor(QColor(self.metadata["linecolor"]))
+        self._pen.setWidth(int(self.metadata["linewidth"]))
+        self._brush.setColor(QColor(self.metadata["color"]))
