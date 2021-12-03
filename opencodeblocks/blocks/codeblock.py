@@ -44,6 +44,15 @@ class OCBCodeBlock(OCBBlock):
         self._splitter_size = [0, 0]
         self._cached_stdout = ""
 
+        # Add exectution flow sockets
+        exe_sockets = (
+            OCBSocket(self, socket_type="input", flow_type="exe"),
+            OCBSocket(self, socket_type="output", flow_type="exe"),
+        )
+        for socket in exe_sockets:
+            self.add_socket(socket)
+
+        # Add output pannel
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
 
