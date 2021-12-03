@@ -21,7 +21,7 @@ from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.blocks.widgets import OCBSplitter, OCBSizeGrip, OCBTitle
 
 if TYPE_CHECKING:
-    from opencodeblocks.graphics.scene.scene import OCBScene
+    from opencodeblocks.scene.scene import OCBScene
 
 BACKGROUND_COLOR = QColor("#E3212121")
 
@@ -274,8 +274,6 @@ class OCBBlock(QGraphicsItem, Serializable):
                 ("id", self.id),
                 ("title", self.title),
                 ("block_type", self.block_type),
-                ("source", self.source),
-                ("stdout", self.stdout),
                 ("splitter_pos", self.splitter.sizes()),
                 ("position", [self.pos().x(), self.pos().y()]),
                 ("width", self.width),
@@ -295,7 +293,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         """ Restore the block from serialized data """
         if restore_id:
             self.id = data["id"]
-        for dataname in ("title", "block_type", "source", "stdout", "width", "height"):
+        for dataname in ("title", "block_type", "width", "height"):
             setattr(self, dataname, data[dataname])
 
         self.setPos(QPointF(*data["position"]))

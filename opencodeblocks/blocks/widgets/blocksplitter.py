@@ -27,5 +27,5 @@ class OCBSplitter(QSplitter):
         self.block = block
 
     def createHandle(self):
-        """Return the middle handle of the splitter"""
+        """ Return the middle handle of the splitter """
         return OCBSplitterHandle(self.orientation(), self)
