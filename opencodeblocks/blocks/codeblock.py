@@ -3,8 +3,6 @@
 
 """ Module for the base OCB Code Block. """
 
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
@@ -29,9 +27,9 @@ class OCBCodeBlock(OCBBlock):
     """
 
     def __init__(self, **kwargs):
-        """ 
-            Create a new OCBCodeBlock. 
-            Initialize all the child widgets specific to this block type
+        """
+        Create a new OCBCodeBlock.
+        Initialize all the child widgets specific to this block type
         """
         self.source_editor = PythonEditor(self)
 
