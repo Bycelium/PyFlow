@@ -1,9 +1,6 @@
 """ Module for converting ipynb data to ipyg data """
 
-from pickle import DICT
-from typing import OrderedDict, List
-
-import json
+from typing import OrderedDict, List, Dict
 
 MARGIN_X: float = 50
 MARGIN_Y: float = 50
@@ -13,7 +10,7 @@ TEXT_SIZE_TO_HEIGHT_RATIO: float = 1.42
 ipyg_id_generator = lambda: 0
 block_id_generator = lambda: 0
 
-BLOCK_TYPE_TO_NAME: DICT= {
+BLOCK_TYPE_TO_NAME: Dict[str, str] = {
     "code" : "OCBCodeBlock",
     "markdown" : "OCBMarkdownBlock"
 }
@@ -30,7 +27,10 @@ def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
     }
 
 def get_blocks(data: OrderedDict) -> List[OrderedDict]:
-    """ Get the blocks corresponding to a ipynb file, returns them in the ipyg ordered dict format """
+    """ 
+    Get the blocks corresponding to a ipynb file, 
+    Returns them in the ipyg ordered dict format 
+    """
 
     if "cells" not in data:
         return []
