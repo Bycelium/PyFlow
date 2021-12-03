@@ -141,9 +141,9 @@ class OCBScene(QGraphicsScene, Serializable):
 
         """
         if filepath.endswith('.ipyg'):
-            data = self.load_from_ipyg(filepath)
+            data = self.load_from_json(filepath)
         elif filepath.endswith('.ipynb'):
-            ipynb_data = self.load_from_ipynb(filepath)
+            ipynb_data = self.load_from_json(filepath)
             data = ipynb_to_ipyg(ipynb_data)
         else:
             extention_format = filepath.split('.')[-1]
@@ -152,22 +152,11 @@ class OCBScene(QGraphicsScene, Serializable):
         self.history.checkpoint("Loaded scene")
         self.has_been_modified = False
 
-    def load_from_ipyg(self, filepath: str):
-        """ Load an interactive python graph (.ipyg) into the scene.
+    def load_from_json(self, filepath: str) -> OrderedDict:
+        """ Load the ipynb json data into an ordered dict
 
         Args:
-            filepath: Path to the .ipyg file to load.
-
-        """
-        with open(filepath, 'r', encoding='utf-8') as file:
-            data = json.loads(file.read())
-        return data
-
-    def load_from_ipynb(self, filepath: str) -> OrderedDict:
-        """ Load the ipynb json data.
-
-        Args:
-            filepath: Path to the .ipynb file to load.
+            filepath: Path to the file to load.
 
         """
         with open(filepath, 'r', encoding='utf-8') as file:
