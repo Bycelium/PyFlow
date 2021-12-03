@@ -59,6 +59,11 @@ You should also start your commit message with one or two applicable emoji. This
 
 This section was inspired by [This repository](https://github.com/schneegans/dynamic-badges-action).
 
+## Creating a new block type
+
+You can checkout [this commit](https://github.com/MathisFederico/OpenCodeBlocks/commits/2305e3c92d88d2fd32644e7eab4c4e40246675d3) which contains the minimal amount of code required to
+create a new block type.
+
 ## Version Numbers
 
 Version numbers will be assigned according to the [Semantic Versioning](https://semver.org/) scheme.

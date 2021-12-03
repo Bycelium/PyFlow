@@ -1,12 +1,10 @@
 {
-    "title": "Empty",
-    "block_type": "OCBCodeBlock",
-    "source": "",
-    "stdout": "",
+    "title": "Drawing",
+    "block_type": "OCBDrawingBlock",
     "image": "",
-    "splitter_pos": [88,41],
-    "width": 618,
-    "height": 184,
+    "splitter_pos": [80,50],
+    "width": 600,
+    "height": 400,
     "metadata": {
         "title_metadata": {
             "color": "white",

@@ -8,3 +8,4 @@ pyautogui
 pylint>=2.12
 pylint-pytest
 autopep8
+black

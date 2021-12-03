@@ -4,7 +4,7 @@
         {
             "id": 2443477874008,
             "title": "Model Train",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "print(\"training \")\r\nmodel.fit(x=x_train,y=y_train, epochs=10)\r\n\r\n",
             "stdout": "",
             "image": "",
@@ -56,7 +56,7 @@
         {
             "id": 2443477924600,
             "title": "Keras Model Predict",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "prediction = model.predict(x_test[9].reshape(1, 28, 28, 1))",
             "stdout": "",
             "image": "",
@@ -108,7 +108,7 @@
         {
             "id": 2443477997032,
             "title": "Keras Model eval",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "model.evaluate(x_test, y_test)\r\n",
             "stdout": "",
             "image": "",
@@ -160,7 +160,7 @@
         {
             "id": 2443478874872,
             "title": "Load MNIST Dataset",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "print(\"Hello, world\")\r\nfrom tensorflow.keras.datasets import mnist\r\n(x_train, y_train), (x_test, y_test) = mnist.load_data()\r\n",
             "stdout": "",
             "image": "",
@@ -198,7 +198,7 @@
         {
             "id": 2443478982728,
             "title": "Normalize Image Dataset",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "x_train = x_train.astype('float32') / 255.0\r\nx_test = x_test.astype('float32') / 255.0\r\n\r\n\r\nx_train = x_train.reshape(x_train.shape[0], 28, 28, 1)\r\nx_test = x_test.reshape(x_test.shape[0], 28, 28, 1)\r\n\r\nprint('train:', x_train.shape, '|test:', x_test.shape)",
             "stdout": "",
             "image": "",
@@ -250,7 +250,7 @@
         {
             "id": 2443479017656,
             "title": "Build Keras CNN",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "import tensorflow as tf\r\nfrom tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout\r\nfrom tensorflow.keras.models import Sequential\r\n\r\nmodel = Sequential()\r\nmodel.add(Conv2D(28, kernel_size=(3,3), input_shape=x_train.shape[1:]))\r\nmodel.add(MaxPooling2D(pool_size=(2, 2)))\r\nmodel.add(Flatten())\r\nmodel.add(Dense(128, activation=tf.nn.relu))\r\nmodel.add(Dropout(0.2))\r\nmodel.add(Dense(10,activation=tf.nn.softmax))\r\nprint(\"..\")\r\nmodel.compile(optimizer='adam', \r\n              loss='sparse_categorical_crossentropy', \r\n              metrics=['accuracy'])\r\n",
             "stdout": "",
             "image": "",
@@ -302,7 +302,7 @@
         {
             "id": 2828158533848,
             "title": "Plot Image Dataset Example",
-            "block_type": "code",
+            "block_type": "OCBCodeBlock",
             "source": "import matplotlib.pyplot as plt\r\nimport numpy as np\r\n\r\n# Display an example from the dataset\r\nrd_index = np.random.randint(len(x_train))\r\nplt.imshow(x_train[rd_index], cmap='gray')\r\nplt.title('Class '+ str(y_train[0]))\r\n",
             "stdout": "",
             "image": "",
