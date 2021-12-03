@@ -81,6 +81,7 @@ class OCBSocket(QGraphicsItem, Serializable):
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
+        self.setParentItem(None)
 
     @property
     def _allow_multiple_edges(self):
