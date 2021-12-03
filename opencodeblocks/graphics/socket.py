@@ -27,7 +27,7 @@ class OCBSocket(QGraphicsItem, Serializable):
         block: "OCBBlock",
         socket_type: str = "undefined",
         flow_type: str = "exe",
-        radius: float = 8.0,
+        radius: float = 10.0,
         color: str = "#FF55FFF0",
         linewidth: float = 1.0,
         linecolor: str = "#FF000000",
@@ -139,6 +139,7 @@ class OCBSocket(QGraphicsItem, Serializable):
         self.setPos(QPointF(*data["position"]))
 
         self.metadata = dict(data["metadata"])
+        self.radius = self.metadata["radius"]
         self._pen.setColor(QColor(self.metadata["linecolor"]))
         self._pen.setWidth(int(self.metadata["linewidth"]))
         self._brush.setColor(QColor(self.metadata["color"]))
