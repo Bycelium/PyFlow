@@ -3,11 +3,13 @@
 
 """ Module for the base OCB Code Block. """
 
+from typing import OrderedDict
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
 
 from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.pyeditor import PythonEditor
 from opencodeblocks.graphics.worker import Worker
 
@@ -27,13 +29,13 @@ class OCBCodeBlock(OCBBlock):
     """
 
     def __init__(self, **kwargs):
-        """ 
-            Create a new OCBCodeBlock. 
-            Initialize all the child widgets specific to this block type
         """
-        super().__init__(block_type="code", **kwargs)
-
+        Create a new OCBCodeBlock.
+        Initialize all the child widgets specific to this block type
+        """
         self.source_editor = PythonEditor(self)
+
+        super().__init__(**kwargs)
 
         self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
@@ -43,14 +45,25 @@ class OCBCodeBlock(OCBBlock):
         self._splitter_size = [0, 0]
         self._cached_stdout = ""
 
+        # Add exectution flow sockets
+        exe_sockets = (
+            OCBSocket(self, socket_type="input", flow_type="exe"),
+            OCBSocket(self, socket_type="output", flow_type="exe"),
+        )
+        for socket in exe_sockets:
+            self.add_socket(socket)
+
+        # Add output pannel
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
 
+        # Add splitter between source_editor and panel
         self.splitter.addWidget(self.source_editor)
         self.splitter.addWidget(self.output_panel)
 
         self.title_left_offset = 3 * self.edge_size
 
+        # Build root widget into holder
         self.holder.setWidget(self.root)
 
         self.update_all()  # Set the geometry of display and source_editor
@@ -73,7 +86,6 @@ class OCBCodeBlock(OCBBlock):
 
     def run_code(self):
         """Run the code in the block"""
-        self.source_editor.set_kernel()
         # Erase previous output
         self.stdout = ""
         self._cached_stdout = ""
@@ -85,6 +97,7 @@ class OCBCodeBlock(OCBBlock):
         self.source_editor.threadpool.start(worker)
 
     def update_title(self):
+        """Change the geometry of the title widget"""
         self.title_widget.setGeometry(
             int(self.edge_size) + self.run_button.width(),
             int(self.edge_size / 2),
@@ -93,6 +106,7 @@ class OCBCodeBlock(OCBBlock):
         )
 
     def update_output_panel(self):
+        """Change the geometry of the output panel"""
         # Close output panel if no output
         if self.stdout == "":
             self.previous_splitter_size = self.splitter.sizes()
@@ -100,22 +114,22 @@ class OCBCodeBlock(OCBBlock):
             self.splitter.setSizes([1, 0])
 
     def update_all(self):
-        """Update the code block parts."""
+        """Update the code block parts"""
         super().update_all()
         self.update_output_panel()
 
     @property
     def source(self) -> str:
-        """Source code."""
+        """Source code"""
         return self.source_editor.text()
 
     @source.setter
     def source(self, value: str):
-        if hasattr(self, "source_editor"):
-            self.source_editor.setText(value)
+        self.source_editor.setText(value)
 
     @property
     def stdout(self) -> str:
+        """Access the content of the output panel of the block"""
         return self._stdout
 
     @stdout.setter
@@ -139,6 +153,7 @@ class OCBCodeBlock(OCBBlock):
 
     @staticmethod
     def str_to_html(text: str):
+        """Format text so that it's properly displayed by the code block"""
         # Remove carriage returns and backspaces
         text = text.replace("\x08", "")
         text = text.replace("\r", "")
@@ -165,8 +180,25 @@ class OCBCodeBlock(OCBBlock):
 
     @staticmethod
     def b64_to_html(image: str):
+        """Transform a base64 encoded image into a html image"""
         return f'<img src="data:image/png;base64,{image}">'
 
     def handle_image(self, image: str):
         """Handle the image signal"""
         self.stdout = "<img>" + image
+
+    def serialize(self):
+        base_dict = super().serialize()
+        base_dict["source"] = self.source
+        base_dict["stdout"] = self.stdout
+
+        return base_dict
+
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
+    ):
+        """Restore a codeblock from it's serialized state"""
+        for dataname in ("source", "stdout"):
+            if dataname in data:
+                setattr(self, dataname, data[dataname])
+        super().deserialize(data, hashmap, restore_id)

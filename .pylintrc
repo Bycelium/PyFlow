@@ -61,6 +61,7 @@ confidence=
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
 disable=inconsistent-return-statements,
+        unidiomatic-typecheck,
         attribute-defined-outside-init,
         pointless-statement,
         no-self-use,
@@ -526,7 +527,7 @@ valid-metaclass-classmethod-first-arg=cls
 max-args=10
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=20
+max-attributes=30
 
 # Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr=5
@@ -541,7 +542,7 @@ max-locals=20
 max-parents=7
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=30
 
 # Maximum number of return / yield for function / method body.
 max-returns=6

@@ -6,7 +6,7 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from opencodeblocks.graphics.scene import OCBScene
+    from opencodeblocks.scene import OCBScene
 
 
 class SceneHistory():

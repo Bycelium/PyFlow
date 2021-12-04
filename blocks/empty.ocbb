@@ -1,6 +1,6 @@
 {
     "title": "Empty",
-    "block_type": "code",
+    "block_type": "OCBCodeBlock",
     "source": "",
     "stdout": "",
     "image": "",

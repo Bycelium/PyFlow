@@ -1,5 +1,6 @@
 # OpenCodeBlock an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# pylint:disable=too-many-instance-attributes
 
 """ Module for the OCB Window """
 
@@ -10,12 +11,10 @@ from PyQt5.QtGui import QCloseEvent, QKeySequence
 from PyQt5.QtWidgets import QDockWidget, QListWidget, QWidget, QAction, QFileDialog, QMainWindow,\
     QMessageBox, QMdiArea
 
-from opencodeblocks import __appname__ as application_name
-from opencodeblocks.graphics.view import MODE_EDITING
 from opencodeblocks.graphics.widget import OCBWidget
 from opencodeblocks.graphics.theme_manager import theme_manager
 
-from opencodeblocks.graphics.qss import loadStylesheets
+from opencodeblocks.qss import loadStylesheets
 
 
 class OCBWindow(QMainWindow):
@@ -26,9 +25,9 @@ class OCBWindow(QMainWindow):
         super().__init__()
 
         self.stylesheet_filename = os.path.join(
-            os.path.dirname(__file__), 'qss', 'ocb.qss')
+            os.path.dirname(__file__),'..', 'qss', 'ocb.qss')
         loadStylesheets((
-            os.path.join(os.path.dirname(__file__), 'qss', 'ocb_dark.qss'),
+            os.path.join(os.path.dirname(__file__),'..', 'qss', 'ocb_dark.qss'),
             self.stylesheet_filename
         ))
 
@@ -94,78 +93,83 @@ class OCBWindow(QMainWindow):
     def createActions(self):
         """ Create all menu actions. """
         # File
-        self.actNew = QAction('&New', statusTip='Create new ipygraph',
+        self._actNew = QAction('&New', statusTip='Create new ipygraph',
                               shortcut='Ctrl+N', triggered=self.onFileNew)
-        self.actOpen = QAction('&Open', statusTip='Open an ipygraph',
+        self._actOpen = QAction('&Open', statusTip='Open an ipygraph',
                                shortcut='Ctrl+O', triggered=self.onFileOpen)
-        self.actSave = QAction('&Save', statusTip='Save the ipygraph',
+        self._actSave = QAction('&Save', statusTip='Save the ipygraph',
                                shortcut='Ctrl+S', triggered=self.onFileSave)
-        self.actSaveAs = QAction('Save &As...', statusTip='Save the ipygraph as...',
+        self._actSaveAs = QAction('Save &As...', statusTip='Save the ipygraph as...',
                                  shortcut='Ctrl+Shift+S', triggered=self.onFileSaveAs)
-        self.actQuit = QAction('&Quit', statusTip='Save and Quit the application',
+        self._actQuit = QAction('&Quit', statusTip='Save and Quit the application',
                                shortcut='Ctrl+Q', triggered=self.close)
 
         # Edit
-        self.actUndo = QAction('&Undo', statusTip='Undo last operation',
+        self._actUndo = QAction('&Undo', statusTip='Undo last operation',
                                shortcut='Ctrl+Z', triggered=self.onEditUndo)
-        self.actRedo = QAction('&Redo', statusTip='Redo last operation',
+        self._actRedo = QAction('&Redo', statusTip='Redo last operation',
                                shortcut='Ctrl+Y', triggered=self.onEditRedo)
-        self.actCut = QAction('Cu&t', statusTip='Cut to clipboard',
+        self._actCut = QAction('Cu&t', statusTip='Cut to clipboard',
                               shortcut='Ctrl+X', triggered=self.onEditCut)
-        self.actCopy = QAction('&Copy', statusTip='Copy to clipboard',
+        self._actCopy = QAction('&Copy', statusTip='Copy to clipboard',
                                shortcut='Ctrl+C', triggered=self.onEditCopy)
-        self.actPaste = QAction('&Paste', statusTip='Paste from clipboard',
+        self._actPaste = QAction('&Paste', statusTip='Paste from clipboard',
                                 shortcut='Ctrl+V', triggered=self.onEditPaste)
-        self.actDel = QAction('&Del', statusTip='Delete selected items',
+        self._actDel = QAction('&Del', statusTip='Delete selected items',
                               shortcut='Del', triggered=self.onEditDelete)
 
+        # View
+        self._actGlobal = QAction('Global View', statusTip='View the hole graph',
+                              shortcut=' ', triggered=self.onViewGlobal)
+
         # Window
-        self.actClose = QAction("Cl&ose", self,
+        self._actClose = QAction("Cl&ose", self,
                                 statusTip="Close the active window",
                                 triggered=self.mdiArea.closeActiveSubWindow)
-        self.actCloseAll = QAction("Close &All", self,
+        self._actCloseAll = QAction("Close &All", self,
                                    statusTip="Close all the windows",
                                    triggered=self.mdiArea.closeAllSubWindows)
-        self.actTile = QAction("&Tile", self, statusTip="Tile the windows",
+        self._actTile = QAction("&Tile", self, statusTip="Tile the windows",
                                triggered=self.mdiArea.tileSubWindows)
-        self.actCascade = QAction("&Cascade", self,
+        self._actCascade = QAction("&Cascade", self,
                                   statusTip="Cascade the windows",
                                   triggered=self.mdiArea.cascadeSubWindows)
-        self.actNext = QAction("Ne&xt", self,
+        self._actNext = QAction("Ne&xt", self,
                                shortcut=QKeySequence.StandardKey.NextChild,
                                statusTip="Move the focus to the next window",
                                triggered=self.mdiArea.activateNextSubWindow)
-        self.actPrevious = QAction("Pre&vious", self,
+        self._actPrevious = QAction("Pre&vious", self,
                                    shortcut=QKeySequence.StandardKey.PreviousChild,
                                    statusTip="Move the focus to the previous window",
                                    triggered=self.mdiArea.activatePreviousSubWindow)
-        self.actSeparator = QAction(self)
-        self.actSeparator.setSeparator(True)
+        self._actSeparator = QAction(self)
+        self._actSeparator.setSeparator(True)
 
     def createMenus(self):
         """ Create the File menu with linked shortcuts. """
         self.filemenu = self.menuBar().addMenu('&File')
-        self.filemenu.addAction(self.actNew)
-        self.filemenu.addAction(self.actOpen)
+        self.filemenu.addAction(self._actNew)
+        self.filemenu.addAction(self._actOpen)
         self.filemenu.addSeparator()
-        self.filemenu.addAction(self.actSave)
-        self.filemenu.addAction(self.actSaveAs)
+        self.filemenu.addAction(self._actSave)
+        self.filemenu.addAction(self._actSaveAs)
         self.filemenu.addSeparator()
-        self.filemenu.addAction(self.actQuit)
+        self.filemenu.addAction(self._actQuit)
 
         self.editmenu = self.menuBar().addMenu('&Edit')
-        self.editmenu.addAction(self.actUndo)
-        self.editmenu.addAction(self.actRedo)
+        self.editmenu.addAction(self._actUndo)
+        self.editmenu.addAction(self._actRedo)
         self.editmenu.addSeparator()
-        self.editmenu.addAction(self.actCut)
-        self.editmenu.addAction(self.actCopy)
-        self.editmenu.addAction(self.actPaste)
+        self.editmenu.addAction(self._actCut)
+        self.editmenu.addAction(self._actCopy)
+        self.editmenu.addAction(self._actPaste)
         self.editmenu.addSeparator()
-        self.editmenu.addAction(self.actDel)
+        self.editmenu.addAction(self._actDel)
 
         self.viewmenu = self.menuBar().addMenu('&View')
         self.thememenu = self.viewmenu.addMenu('Theme')
         self.thememenu.aboutToShow.connect(self.updateThemeMenu)
+        self.viewmenu.addAction(self._actGlobal)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -185,18 +189,18 @@ class OCBWindow(QMainWindow):
 
     def updateWindowMenu(self):
         self.windowMenu.clear()
-        self.windowMenu.addAction(self.actClose)
-        self.windowMenu.addAction(self.actCloseAll)
+        self.windowMenu.addAction(self._actClose)
+        self.windowMenu.addAction(self._actCloseAll)
         self.windowMenu.addSeparator()
-        self.windowMenu.addAction(self.actTile)
-        self.windowMenu.addAction(self.actCascade)
+        self.windowMenu.addAction(self._actTile)
+        self.windowMenu.addAction(self._actCascade)
         self.windowMenu.addSeparator()
-        self.windowMenu.addAction(self.actNext)
-        self.windowMenu.addAction(self.actPrevious)
-        self.windowMenu.addAction(self.actSeparator)
+        self.windowMenu.addAction(self._actNext)
+        self.windowMenu.addAction(self._actPrevious)
+        self.windowMenu.addAction(self._actSeparator)
 
         windows = self.mdiArea.subWindowList()
-        self.actSeparator.setVisible(len(windows) != 0)
+        self._actSeparator.setVisible(len(windows) != 0)
 
         for i, window in enumerate(windows):
             child = window.widget()
@@ -269,40 +273,45 @@ class OCBWindow(QMainWindow):
             return True
         return False
 
+    @staticmethod
+    def is_not_editing(current_window: OCBWidget):
+        """ True if current_window exists and is not in editing mode. """
+        return current_window is not None and not current_window.view.is_mode('EDITING')
+
     def onEditUndo(self):
         """ Undo last operation if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.history.undo()
 
     def onEditRedo(self):
         """ Redo last operation if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.history.redo()
 
     def onEditCut(self):
         """ Cut the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.clipboard.cut()
 
     def onEditCopy(self):
         """ Copy the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.clipboard.copy()
 
     def onEditPaste(self):
         """ Paste the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.scene.clipboard.paste()
 
     def onEditDelete(self):
         """ Delete the selected items if not in edit mode. """
         current_window = self.activeMdiChild()
-        if current_window is not None and current_window.view.mode != MODE_EDITING:
+        if self.is_not_editing(current_window):
             current_window.view.deleteSelected()
 
     # def closeEvent(self, event:QEvent):
@@ -370,6 +379,12 @@ class OCBWindow(QMainWindow):
     def setActiveSubWindow(self, window):
         if window:
             self.mdiArea.setActiveSubWindow(window)
+
+    def onViewGlobal(self):
+        """ Center the view to see the hole graph """
+        current_window = self.activeMdiChild()
+        if current_window is not None and isinstance(current_window, OCBWidget):
+            current_window.moveToGlobalView()
 
     def setTheme(self, theme_index):
         theme_manager().selected_theme_index = theme_index

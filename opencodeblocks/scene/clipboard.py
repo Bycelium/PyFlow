@@ -9,11 +9,10 @@ from warnings import warn
 import json
 from PyQt5.QtWidgets import QApplication
 
-from opencodeblocks.graphics.blocks import OCBBlock, OCBCodeBlock
 from opencodeblocks.graphics.edge import OCBEdge
 
 if TYPE_CHECKING:
-    from opencodeblocks.graphics.scene import OCBScene
+    from opencodeblocks.scene import OCBScene
     from opencodeblocks.graphics.view import OCBView
 
 
@@ -80,6 +79,8 @@ class SceneClipboard():
         return (xmin + xmax) / 2, (ymin + ymax) / 2
 
     def _deserializeData(self, data:OrderedDict, set_selected=True):
+        if data is None: return
+
         hashmap = {}
 
         view = self.scene.views()[0]
@@ -93,22 +94,10 @@ class SceneClipboard():
 
         # Create blocks
         for block_data in data['blocks']:
-            block_type = block_data['block_type']
-            if block_type == 'base':
-                block = OCBBlock()
-            elif block_type == 'code':
-                block = OCBCodeBlock()
-            else:
-                raise NotImplementedError(f'Unsupported block type: {block_type}')
-            block.deserialize(block_data, hashmap, restore_id=False)
-
-            block_pos = block.pos()
-            block.setPos(block_pos.x() + offset_x, block_pos.y() + offset_y)
-
+            block = self.scene.create_block(block_data, hashmap, restore_id = False)
             if set_selected:
                 block.setSelected(True)
-            self.scene.addItem(block)
-            hashmap.update({block.id: block})
+            block.setPos(block.x() + offset_x, block.y() + offset_y)
 
         # Create edges
         for edge_data in data['edges']:

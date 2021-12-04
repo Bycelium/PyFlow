@@ -5,19 +5,20 @@
 
 import math
 import json
-from types import FunctionType
+from types import FunctionType, ModuleType
 from typing import List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
+from opencodeblocks import blocks
+
 from opencodeblocks.core.serializable import Serializable
-from opencodeblocks.graphics.blocks.block import OCBBlock
-from opencodeblocks.graphics.blocks.codeblock import OCBCodeBlock
+from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.graphics.scene.clipboard import SceneClipboard
-from opencodeblocks.graphics.scene.history import SceneHistory
+from opencodeblocks.scene.clipboard import SceneClipboard
+from opencodeblocks.scene.history import SceneHistory
 
 
 class OCBScene(QGraphicsScene, Serializable):
@@ -195,12 +196,20 @@ class OCBScene(QGraphicsScene, Serializable):
         """ Create a new block from an OrderedDict """
 
         block = None
-        if data['block_type'] == 'base':
-            block = OCBBlock()
-        elif data['block_type'] == 'code':
-            block = OCBCodeBlock()
-        else:
-            raise NotImplementedError()
+
+        block_constructor = None
+        block_files = blocks.__dict__
+
+        for block_name in block_files:
+            block_module = getattr(blocks,block_name)
+            if isinstance(block_module, ModuleType):
+                if hasattr(block_module, data['block_type']):
+                    block_constructor = getattr(blocks,data['block_type'])
+
+        if block_constructor is None:
+            raise NotImplementedError(f"{data['block_type']} is not a known block type")
+
+        block = block_constructor()
         block.deserialize(data, hashmap, restore_id)
         self.addItem(block)
         if hashmap is not None:
