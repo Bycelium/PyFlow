@@ -63,6 +63,11 @@ class PythonEditor(QsciScintilla):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
+    def set_kernel(self):
+        """ Set kernel once a scene has been associated to block """
+        self.kernel = self.block.scene().kernel
+        self.threadpool = self.block.scene().threadpool
+
     def update_theme(self):
         """ Change the font and colors of the editor to match the current theme """
         font = QFont()

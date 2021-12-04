@@ -8,7 +8,7 @@ import json
 from types import FunctionType
 from typing import List, OrderedDict, Union
 
-from PyQt5.QtCore import QLine, QRectF
+from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
@@ -48,6 +48,9 @@ class OCBScene(QGraphicsScene, Serializable):
 
         self.history = SceneHistory(self)
         self.clipboard = SceneClipboard(self)
+
+        self.kernel = kernel
+        self.threadpool = threadpool
 
     @property
     def has_been_modified(self):
