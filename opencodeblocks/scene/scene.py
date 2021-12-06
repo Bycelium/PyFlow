@@ -19,7 +19,7 @@ from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
-from opencodeblocks.scene.ipynb_conversion import ipynb_to_ipyg
+from opencodeblocks.scene.from_ipynb_conversion import ipynb_to_ipyg
 
 
 class OCBScene(QGraphicsScene, Serializable):
