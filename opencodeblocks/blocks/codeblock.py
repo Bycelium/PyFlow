@@ -82,16 +82,14 @@ class OCBCodeBlock(OCBBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size),
-                                int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_button.clicked.connect(self.run_left)
         return run_button
 
     def init_run_all_button(self):
-        """ Initialize the run all button """
+        """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
-        run_all_button.setFixedSize(int(3 * self.edge_size),
-                                    int(3 * self.edge_size))
+        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.run_right)
         run_all_button.raise_()
 
@@ -121,14 +119,14 @@ class OCBCodeBlock(OCBBlock):
         self.run_all_button.setText(">>")
 
     def check_input(self) -> bool:
-        """ Checks wether a block has connected input blocks """
+        """Checks wether a block has connected input blocks"""
         for input_socket in self.sockets_in:
             if len(input_socket.edges) != 0:
                 return True
         return False
 
     def check_output(self) -> bool:
-        """ Checks wether a block has connected output blocks """
+        """Checks wether a block has connected output blocks"""
         for output_socket in self.sockets_out:
             if len(output_socket.edges) != 0:
                 return True
@@ -165,7 +163,7 @@ class OCBCodeBlock(OCBBlock):
             self.run_code()
 
     def run_right(self):
-        """ Run all of the output blocks and all their dependencies """
+        """Run all of the output blocks and all their dependencies"""
         # If no output, run left
         if not self.check_output():
             return self.run_left(in_right_button=True)
