@@ -20,6 +20,8 @@ from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
 
+import networkx as nx
+
 
 class OCBScene(QGraphicsScene, Serializable):
 
@@ -180,6 +182,18 @@ class OCBScene(QGraphicsScene, Serializable):
             ('edges', [edge.serialize() for edge in edges]),
         ])
 
+    def create_graph(self) -> nx.DiGraph:
+        """ Create a networkx graph from the scene. """
+        edges = []
+        for item in self.items():
+            if isinstance(item, OCBEdge):
+                edges.append(item)
+        graph = nx.DiGraph()
+        for edge in edges:
+            graph.add_edge(edge.source_socket.block,
+                           edge.destination_socket.block)
+        return graph
+
     def create_block_from_file(
             self, filepath: str, x: float = 0, y: float = 0):
         """ Create a new block from a .ocbb file """
@@ -199,13 +213,14 @@ class OCBScene(QGraphicsScene, Serializable):
         block_files = blocks.__dict__
 
         for block_name in block_files:
-            block_module = getattr(blocks,block_name)
+            block_module = getattr(blocks, block_name)
             if isinstance(block_module, ModuleType):
                 if hasattr(block_module, data['block_type']):
-                    block_constructor = getattr(blocks,data['block_type'])
+                    block_constructor = getattr(blocks, data['block_type'])
 
         if block_constructor is None:
-            raise NotImplementedError(f"{data['block_type']} is not a known block type")
+            raise NotImplementedError(
+                f"{data['block_type']} is not a known block type")
 
         block = block_constructor()
         block.deserialize(data, hashmap, restore_id)

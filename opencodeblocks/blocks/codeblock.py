@@ -3,15 +3,15 @@
 
 """ Module for the base OCB Code Block. """
 
-from typing import OrderedDict
+from typing import List, OrderedDict
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
+from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.pyeditor import PythonEditor
-from opencodeblocks.graphics.worker import Worker
 
 conv = Ansi2HTMLConverter()
 
@@ -34,6 +34,7 @@ class OCBCodeBlock(OCBBlock):
         Initialize all the child widgets specific to this block type
         """
         self.source_editor = PythonEditor(self)
+        self._source = ""
 
         super().__init__(**kwargs)
 
@@ -42,8 +43,9 @@ class OCBCodeBlock(OCBBlock):
         self._min_source_editor_height = 20
 
         self.output_closed = True
-        self._splitter_size = [0, 0]
+        self._splitter_size = [1, 1]
         self._cached_stdout = ""
+        self.has_been_run = False
 
         # Add exectution flow sockets
         exe_sockets = (
@@ -56,6 +58,7 @@ class OCBCodeBlock(OCBBlock):
         # Add output pannel
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
+        self.run_all_button = self.init_run_all_button()
 
         # Add splitter between source_editor and panel
         self.splitter.addWidget(self.source_editor)
@@ -80,20 +83,97 @@ class OCBCodeBlock(OCBBlock):
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
         run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
-        run_button.clicked.connect(self.run_code)
+        run_button.clicked.connect(self.run_left)
         return run_button
+
+    def init_run_all_button(self):
+        """Initialize the run all button"""
+        run_all_button = QPushButton(">>", self.root)
+        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
+        run_all_button.clicked.connect(self.run_right)
+        run_all_button.raise_()
+
+        return run_all_button
 
     def run_code(self):
         """Run the code in the block"""
-        # Erase previous output
-        self.stdout = ""
+        # Reset stdout
         self._cached_stdout = ""
-        self.source = self.source_editor.text()
-        # Create a worker to handle execution
-        worker = Worker(self.source_editor.kernel, self.source)
-        worker.signals.stdout.connect(self.handle_stdout)
-        worker.signals.image.connect(self.handle_image)
-        self.source_editor.threadpool.start(worker)
+
+        # Set button text to ...
+        self.run_button.setText("...")
+        self.run_all_button.setText("...")
+
+        # Run code by adding to code to queue
+        code = self.source_editor.text()
+        self.source = code
+        kernel = self.source_editor.kernel
+        kernel.execution_queue.append((self, code))
+        if kernel.busy is False:
+            kernel.run_queue()
+        self.has_been_run = True
+
+    def reset_buttons(self):
+        """Reset the text of the run buttons"""
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+
+    def has_input(self) -> bool:
+        """Checks whether a block has connected input blocks"""
+        for input_socket in self.sockets_in:
+            if len(input_socket.edges) != 0:
+                return True
+        return False
+
+    def has_output(self) -> bool:
+        """Checks whether a block has connected output blocks"""
+        for output_socket in self.sockets_out:
+            if len(output_socket.edges) != 0:
+                return True
+        return False
+
+    def run_left(self, in_right_button=False):
+        """
+        Run all of the block's dependencies and then run the block
+        """
+        # If no dependencies
+        if not self.has_input():
+            return self.run_code()
+
+        # Create the graph from the scene
+        graph = self.scene().create_graph()
+        # BFS through the input graph
+        edges = bfs_edges(graph, self, reverse=True)
+        # Run the blocks found except self
+        blocks_to_run: List["OCBCodeBlock"] = [v for _, v in edges]
+        for block in blocks_to_run[::-1]:
+            if not block.has_been_run:
+                block.run_code()
+
+        if in_right_button:
+            # If run_left was called inside of run_right
+            # self is not necessarily the block that was clicked
+            # which means that self does not need to be run
+            if not self.has_been_run:
+                self.run_code()
+        else:
+            # On the contrary if run_left was called outside of run_right
+            # self is the block that was clicked
+            # so self needs to be run
+            self.run_code()
+
+    def run_right(self):
+        """Run all of the output blocks and all their dependencies"""
+        # If no output, run left
+        if not self.has_output():
+            return self.run_left(in_right_button=True)
+
+        # Same as run_left but instead of running the blocks, we'll use run_left
+        graph = self.scene().create_graph()
+        edges = bfs_edges(graph, self)
+        blocks_to_run: List["OCBCodeBlock"] = [self] + [v for _, v in edges]
+        for block in blocks_to_run[::-1]:
+            block.run_left(in_right_button=True)
 
     def update_title(self):
         """Change the geometry of the title widget"""
@@ -112,19 +192,30 @@ class OCBCodeBlock(OCBBlock):
             self.output_closed = True
             self.splitter.setSizes([1, 0])
 
+    def update_run_all_button(self):
+        """Change the geometry of the run all button"""
+        self.run_all_button.move(
+            int(self.width - self.edge_size - self.run_button.width()),
+            int(self.edge_size / 2),
+        )
+
     def update_all(self):
         """Update the code block parts"""
         super().update_all()
         self.update_output_panel()
+        self.update_run_all_button()
 
     @property
     def source(self) -> str:
         """Source code"""
-        return self.source_editor.text()
+        return self._source
 
     @source.setter
     def source(self, value: str):
-        self.source_editor.setText(value)
+        if value != self._source:
+            self.has_been_run = False
+            self.source_editor.setText(value)
+            self._source = value
 
     @property
     def stdout(self) -> str:

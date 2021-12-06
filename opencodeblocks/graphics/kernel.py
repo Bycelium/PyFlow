@@ -5,6 +5,8 @@ import queue
 from typing import Tuple
 from jupyter_client.manager import start_new_kernel
 
+from opencodeblocks.graphics.worker import Worker
+
 
 class Kernel():
 
@@ -12,6 +14,8 @@ class Kernel():
 
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
+        self.execution_queue = []
+        self.busy = False
 
     def message_to_output(self, message: dict) -> Tuple[str, str]:
         """
@@ -46,6 +50,31 @@ class Kernel():
             message_type = 'text'
             out = ''
         return out, message_type
+
+    def run_block(self, block, code: str):
+        """
+        Runs code on a separate thread and sends the output to the block
+        Also calls run_queue when finished
+
+        Args:
+            block: OCBCodeBlock to send the output to
+            code: String representing a piece of Python code to execute
+        """
+        worker = Worker(self, code)
+        worker.signals.stdout.connect(block.handle_stdout)
+        worker.signals.image.connect(block.handle_image)
+        worker.signals.finished.connect(self.run_queue)
+        worker.signals.finished_block.connect(block.reset_buttons)
+        block.source_editor.threadpool.start(worker)
+
+    def run_queue(self):
+        """ Runs the next code in the queue """
+        self.busy = True
+        if self.execution_queue == []:
+            self.busy = False
+            return None
+        block, code = self.execution_queue.pop(0)
+        self.run_block(block, code)
 
     def execute(self, code: str) -> str:
         """
