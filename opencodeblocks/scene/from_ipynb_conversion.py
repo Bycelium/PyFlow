@@ -1,6 +1,6 @@
 """ Module for converting ipynb data to ipyg data """
 
-from typing import Generator, OrderedDict, List, Dict
+from typing import OrderedDict, List, Dict
 
 MARGIN_X: float = 50
 MARGIN_BETWEEN_BLOCKS_X: float = 50
