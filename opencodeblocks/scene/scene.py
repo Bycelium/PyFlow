@@ -175,7 +175,7 @@ class OCBScene(QGraphicsScene, Serializable):
         self.has_been_modified = False
 
     def load_from_json(self, filepath: str) -> OrderedDict:
-        """Load the ipynb json data into an ordered dict
+        """Load the json data into an ordered dict
 
         Args:
             filepath: Path to the file to load.
