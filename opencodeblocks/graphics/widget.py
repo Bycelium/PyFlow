@@ -61,6 +61,9 @@ class OCBWidget(QWidget):
     def save(self):
         self.scene.save(self.savepath)
 
+    def saveAsJupyter(self):
+        self.scene.save_to_ipynb(self.savepath)
+
     def load(self, filepath: str):
         self.scene.load(filepath)
         self.savepath = filepath

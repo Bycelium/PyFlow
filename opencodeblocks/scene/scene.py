@@ -20,6 +20,7 @@ from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
 from opencodeblocks.scene.from_ipynb_conversion import ipynb_to_ipyg
+from opencodeblocks.scene.to_ipynb_conversion import ipyg_to_ipynb
 
 
 class OCBScene(QGraphicsScene, Serializable):
@@ -137,6 +138,22 @@ class OCBScene(QGraphicsScene, Serializable):
 
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(json.dumps(self.serialize(), indent=4))
+
+    def save_to_ipynb(self, filepath: str):
+        """Save the scene into filepath as ipynb"""
+        if "." not in filepath:
+            filepath += ".ipynb"
+
+        extention_format: str = filepath.split(".")[-1]
+        if extention_format != "ipynb":
+            raise NotImplementedError(
+                f"The file should be a *.ipynb (not a .{extention_format})"
+            )
+
+        with open(filepath, "w", encoding="utf-8") as file:
+            json_ipyg_data: OrderedDict = self.serialize()
+            json_ipynb_data: OrderedDict = ipyg_to_ipynb(json_ipyg_data)
+            file.write(json.dumps(json_ipynb_data, indent=4))
 
     def load(self, filepath: str):
         """Load a saved scene.
