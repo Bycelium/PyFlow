@@ -237,10 +237,3 @@ def get_default_edge(
         "source": {"block": edge_start_block_id, "socket": edge_start_socket_id},
         "destination": {"block": edge_end_block_id, "socket": edge_end_socket_id},
     }
-
-
-def get_integers_generator() -> Generator[int, None, None]:
-    n = 0
-    while True:
-        yield n
-        n += 1
