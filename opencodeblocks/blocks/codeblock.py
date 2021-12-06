@@ -119,14 +119,14 @@ class OCBCodeBlock(OCBBlock):
         self.run_all_button.setText(">>")
 
     def has_input(self) -> bool:
-        """Checks wether a block has connected input blocks"""
+        """Checks whether a block has connected input blocks"""
         for input_socket in self.sockets_in:
             if len(input_socket.edges) != 0:
                 return True
         return False
 
     def has_output(self) -> bool:
-        """Checks wether a block has connected output blocks"""
+        """Checks whether a block has connected output blocks"""
         for output_socket in self.sockets_out:
             if len(output_socket.edges) != 0:
                 return True
