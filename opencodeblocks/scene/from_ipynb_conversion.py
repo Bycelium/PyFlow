@@ -26,7 +26,6 @@ def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
     edges_data: List[OrderedDict] = get_sockets_data(blocks_data)
 
     return {
-        "id": 0,
         "blocks": blocks_data,
         "edges": edges_data,
     }
@@ -176,11 +175,11 @@ def get_sockets_data(blocks_data: OrderedDict) -> OrderedDict:
         socket_id_out = len(blocks_data) + 2 * i
         socket_id_in = len(blocks_data) + 2 * i + 1
         code_blocks[i - 1]["sockets"].append(
-            get_default_output_socket(socket_id_out, code_blocks[i - 1]["width"])
+            get_output_socket_data(socket_id_out, code_blocks[i - 1]["width"])
         )
-        code_blocks[i]["sockets"].append(get_default_input_socket(socket_id_in))
+        code_blocks[i]["sockets"].append(get_input_socket_data(socket_id_in))
         edges_data.append(
-            get_default_edge(
+            get_edge_data(
                 i,
                 code_blocks[i - 1]["id"],
                 socket_id_out,
@@ -191,40 +190,28 @@ def get_sockets_data(blocks_data: OrderedDict) -> OrderedDict:
     return edges_data
 
 
-def get_default_input_socket(socket_id: int) -> OrderedDict:
-    """Returns the default input socket with the corresponding id"""
+def get_input_socket_data(socket_id: int) -> OrderedDict:
+    """Returns the input socket's data with the corresponding id"""
     return {
         "id": socket_id,
         "type": "input",
         "position": [0.0, SOCKET_HEIGHT],
-        "metadata": {
-            "color": "#FF55FFF0",
-            "linecolor": "#FF000000",
-            "linewidth": 1.0,
-            "radius": 10.0,
-        },
     }
 
 
-def get_default_output_socket(socket_id: int, block_width: int) -> OrderedDict:
+def get_output_socket_data(socket_id: int, block_width: int) -> OrderedDict:
     """
-    Returns the default input socket with the corresponding id
+    Returns the input socket's data with the corresponding id
     and at the correct relative position with respect to the block
     """
     return {
         "id": socket_id,
         "type": "output",
         "position": [block_width, SOCKET_HEIGHT],
-        "metadata": {
-            "color": "#FF55FFF0",
-            "linecolor": "#FF000000",
-            "linewidth": 1.0,
-            "radius": 10.0,
-        },
     }
 
 
-def get_default_edge(
+def get_edge_data(
     edge_id: int,
     edge_start_block_id: int,
     edge_start_socket_id: int,
@@ -233,7 +220,6 @@ def get_default_edge(
 ) -> OrderedDict:
     return {
         "id": edge_id,
-        "path_type": "bezier",
         "source": {"block": edge_start_block_id, "socket": edge_start_socket_id},
         "destination": {"block": edge_end_block_id, "socket": edge_end_socket_id},
     }
