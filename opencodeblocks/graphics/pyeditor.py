@@ -116,4 +116,5 @@ class PythonEditor(QsciScintilla):
     def focusOutEvent(self, event: QFocusEvent):
         """ PythonEditor reaction to PyQt focusOut events. """
         self.mode = "NOOP"
+        self.block.source = self.text()
         return super().focusOutEvent(event)
