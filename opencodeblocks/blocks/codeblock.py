@@ -118,14 +118,14 @@ class OCBCodeBlock(OCBBlock):
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
 
-    def check_input(self) -> bool:
+    def has_input(self) -> bool:
         """Checks wether a block has connected input blocks"""
         for input_socket in self.sockets_in:
             if len(input_socket.edges) != 0:
                 return True
         return False
 
-    def check_output(self) -> bool:
+    def has_output(self) -> bool:
         """Checks wether a block has connected output blocks"""
         for output_socket in self.sockets_out:
             if len(output_socket.edges) != 0:
@@ -137,7 +137,7 @@ class OCBCodeBlock(OCBBlock):
         Run all of the block's dependencies and then run the block
         """
         # If no dependencies
-        if not self.check_input():
+        if not self.has_input():
             return self.run_code()
 
         # Create the graph from the scene
@@ -145,7 +145,7 @@ class OCBCodeBlock(OCBBlock):
         # BFS through the input graph
         edges = bfs_edges(graph, self, reverse=True)
         # Run the blocks found except self
-        blocks_to_run: List[OCBBlock] = [v for _, v in edges]
+        blocks_to_run: List["OCBCodeBlock"] = [v for _, v in edges]
         for block in blocks_to_run[::-1]:
             if not block.has_been_run:
                 block.run_code()
@@ -165,13 +165,13 @@ class OCBCodeBlock(OCBBlock):
     def run_right(self):
         """Run all of the output blocks and all their dependencies"""
         # If no output, run left
-        if not self.check_output():
+        if not self.has_output():
             return self.run_left(in_right_button=True)
 
         # Same as run_left but instead of running the blocks, we'll use run_left
         graph = self.scene().create_graph()
         edges = bfs_edges(graph, self)
-        blocks_to_run = [self] + [v for _, v in edges]
+        blocks_to_run: List["OCBCodeBlock"] = [self] + [v for _, v in edges]
         for block in blocks_to_run[::-1]:
             block.run_left(in_right_button=True)
 
