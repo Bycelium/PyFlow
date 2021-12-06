@@ -62,28 +62,20 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
             text_height: float = TEXT_SIZE * TEXT_SIZE_TO_HEIGHT_RATIO * len(text)
             block_height: float = text_height + MARGIN_Y
 
-            block_data = get_default_block()
-
-            block_data.update(
-                {
-                    "id": len(blocks_data),
-                    "block_type": BLOCK_TYPE_TO_NAME[block_type],
-                    "width": block_width,
-                    "height": block_height,
-                    "position": [
-                        next_block_x_pos,
-                        next_block_y_pos,
-                    ],
-                }
-            )
+            block_data = {
+                "id": len(blocks_data),
+                "block_type": BLOCK_TYPE_TO_NAME[block_type],
+                "width": block_width,
+                "height": block_height,
+                "position": [
+                    next_block_x_pos,
+                    next_block_y_pos,
+                ],
+                "sockets": [],
+            }
 
             if block_type == "code":
-                block_data.update(
-                    {
-                        "source": "".join(text),
-                        "stdout": "",
-                    }
-                )
+                block_data["source"] = "".join(text)
                 next_block_y_pos = 0
                 next_block_x_pos += block_width + MARGIN_BETWEEN_BLOCKS_X
 
@@ -106,26 +98,6 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
     adujst_markdown_blocks_width(blocks_data)
 
     return blocks_data
-
-
-def get_default_block() -> OrderedDict:
-    """Return a default block with argument that vary missing"""
-    return {
-        "title": "_",
-        "splitter_pos": [
-            85,
-            261,
-        ],
-        "sockets": [],
-        "metadata": {
-            "title_metadata": {
-                "color": "white",
-                "font": "Ubuntu",
-                "size": 12,
-                "padding": 4.0,
-            }
-        },
-    }
 
 
 def is_title(block_data: OrderedDict) -> bool:
