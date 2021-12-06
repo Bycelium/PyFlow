@@ -31,7 +31,7 @@ DEFAULT_BLOCK_DATA = {
     "width": 618,
     "height": 184,
     "metadata": {"title_metadata": {"color": "white", "font": "Ubuntu", "size": 10}},
-    "sockets": {},
+    "sockets": [],
 }
 NONE_OPTIONAL_FIELDS = {"block_type", "position"}
 

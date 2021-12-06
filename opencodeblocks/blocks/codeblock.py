@@ -217,3 +217,5 @@ class OCBCodeBlock(OCBBlock):
         for key in DEFAULT_CODE_BLOCK_DATA.keys():
             if key not in data:
                 data[key] = DEFAULT_CODE_BLOCK_DATA[key]
+        
+        super().complete_with_default(data)
