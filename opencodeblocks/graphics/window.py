@@ -172,11 +172,11 @@ class OCBWindow(QMainWindow):
         )
 
         # View
-        self._actGlobal = QAction(
-            "Global View",
-            statusTip="View the whole graph",
+        self._actViewItems = QAction(
+            "See All Blocks",
+            statusTip="See all selected blocks. If none are selected, view all blocks",
             shortcut=" ",
-            triggered=self.onViewGlobal,
+            triggered=self.onMoveToItems,
         )
 
         # Window
@@ -245,7 +245,7 @@ class OCBWindow(QMainWindow):
         self.viewmenu = self.menuBar().addMenu("&View")
         self.thememenu = self.viewmenu.addMenu("Theme")
         self.thememenu.aboutToShow.connect(self.updateThemeMenu)
-        self.viewmenu.addAction(self._actGlobal)
+        self.viewmenu.addAction(self._actViewItems)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -456,11 +456,11 @@ class OCBWindow(QMainWindow):
         if window:
             self.mdiArea.setActiveSubWindow(window)
 
-    def onViewGlobal(self):
+    def onMoveToItems(self):
         """Center the view to see the whole graph"""
         current_window = self.activeMdiChild()
         if current_window is not None and isinstance(current_window, OCBWidget):
-            current_window.moveToGlobalView()
+            current_window.moveToItems()
 
     def setTheme(self, theme_index):
         theme_manager().selected_theme_index = theme_index

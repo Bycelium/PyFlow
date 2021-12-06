@@ -65,6 +65,6 @@ class OCBWidget(QWidget):
         self.scene.load(filepath)
         self.savepath = filepath
 
-    def moveToGlobalView(self):
+    def moveToItems(self):
         """Center the view to see the hole graph"""
-        self.view.moveToGlobalView()
+        self.view.moveToItems()

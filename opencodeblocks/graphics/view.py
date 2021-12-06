@@ -146,7 +146,7 @@ class OCBView(QGraphicsView):
         hsb.setValue(x * self.zoom - self.width() / 2)
         vsb.setValue(y * self.zoom - self.height() / 2)
 
-    def moveToGlobalView(self) -> bool:
+    def moveToItems(self) -> bool:
         """
         OCBView reaction to the space bar being pressed.
 
