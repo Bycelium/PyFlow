@@ -339,6 +339,6 @@ class OCBBlock(QGraphicsItem, Serializable):
             if key not in data:
                 raise ValueError(f"{key} of the socket is missing")
 
-        for key in DEFAULT_BLOCK_DATA.keys():
+        for key in DEFAULT_BLOCK_DATA:
             if key not in data:
                 data[key] = DEFAULT_BLOCK_DATA[key]
