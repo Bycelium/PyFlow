@@ -45,7 +45,7 @@ class OCBCodeBlock(OCBBlock):
         self.output_closed = True
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
-        self._has_been_run = False
+        self.has_been_run = False
 
         # Add exectution flow sockets
         exe_sockets = (
@@ -276,15 +276,6 @@ class OCBCodeBlock(OCBBlock):
     def handle_image(self, image: str):
         """Handle the image signal"""
         self.stdout = "<img>" + image
-
-    @property
-    def has_been_run(self) -> bool:
-        """Check if the block has been ran"""
-        return self._has_been_run
-
-    @has_been_run.setter
-    def has_been_run(self, value: bool):
-        self._has_been_run = value
 
     def serialize(self):
         base_dict = super().serialize()
