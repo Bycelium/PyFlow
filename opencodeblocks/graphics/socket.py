@@ -17,6 +17,17 @@ if TYPE_CHECKING:
     from opencodeblocks.graphics.edge import OCBEdge
     from opencodeblocks.blocks.block import OCBBlock
 
+DEFAULT_SOCKET_DATA = {
+    "type": "input",
+    "metadata": {
+        "color": "#FF55FFF0",
+        "linecolor": "#FF000000",
+        "linewidth": 1.0,
+        "radius": 6.0,
+    },
+}
+NONE_OPTIONAL_FIELDS = {"position"}
+
 
 class OCBSocket(QGraphicsItem, Serializable):
 
@@ -133,13 +144,26 @@ class OCBSocket(QGraphicsItem, Serializable):
         )
 
     def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
-        if restore_id:
+        if restore_id and "id" in data:
             self.id = data["id"]
+
+        self.complete_with_default(data)
+
         self.socket_type = data["type"]
         self.setPos(QPointF(*data["position"]))
 
         self.metadata = dict(data["metadata"])
-        self.radius = self.metadata["radius"]
         self._pen.setColor(QColor(self.metadata["linecolor"]))
         self._pen.setWidth(int(self.metadata["linewidth"]))
         self._brush.setColor(QColor(self.metadata["color"]))
+
+    def complete_with_default(self, data: OrderedDict) -> None:
+        """Add default data in place when fields are missing"""
+        for key in NONE_OPTIONAL_FIELDS:
+            if key not in data:
+                raise ValueError(f"{key} of the socket is missing")
+
+        for key in DEFAULT_SOCKET_DATA.keys():
+            if key not in data:
+                data[key] = DEFAULT_SOCKET_DATA[key]
+

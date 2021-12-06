@@ -247,8 +247,8 @@ class OCBScene(QGraphicsScene, Serializable):
     ):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
-        if restore_id:
-            self.id = data["id"]
+        if restore_id and 'id' in data:
+            self.id = data['id']
 
         # Create blocks
         for block_data in data["blocks"]:
