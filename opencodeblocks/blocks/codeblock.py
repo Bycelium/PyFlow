@@ -15,6 +15,9 @@ from opencodeblocks.graphics.worker import Worker
 
 conv = Ansi2HTMLConverter()
 
+DEFAULT_CODE_BLOCK_DATA = {"source": "", "output": ""}
+NONE_OPTIONAL_FIELDS = {}
+
 
 class OCBCodeBlock(OCBBlock):
 
@@ -197,7 +200,20 @@ class OCBCodeBlock(OCBBlock):
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
         """Restore a codeblock from it's serialized state"""
+
+        self.complete_with_default(data)
+
         for dataname in ("source", "stdout"):
             if dataname in data:
                 setattr(self, dataname, data[dataname])
         super().deserialize(data, hashmap, restore_id)
+
+    def complete_with_default(self, data: OrderedDict) -> None:
+        """Add default data in place when fields are missing"""
+        for key in NONE_OPTIONAL_FIELDS:
+            if key not in data:
+                raise ValueError(f"{key} of the socket is missing")
+
+        for key in DEFAULT_CODE_BLOCK_DATA.keys():
+            if key not in data:
+                data[key] = DEFAULT_CODE_BLOCK_DATA[key]

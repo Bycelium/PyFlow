@@ -25,6 +25,16 @@ if TYPE_CHECKING:
 
 BACKGROUND_COLOR = QColor("#E3212121")
 
+DEFAULT_BLOCK_DATA = {
+    "title": "_",
+    "splitter_pos": [88, 41],
+    "width": 618,
+    "height": 184,
+    "metadata": {"title_metadata": {"color": "white", "font": "Ubuntu", "size": 10}},
+    "sockets": {},
+}
+NONE_OPTIONAL_FIELDS = {"block_type", "position"}
+
 
 class OCBBlock(QGraphicsItem, Serializable):
 
@@ -291,8 +301,11 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     def deserialize(self, data: dict, hashmap: dict = None, restore_id=True) -> None:
         """Restore the block from serialized data"""
-        if restore_id:
+        if restore_id and "id" in data:
             self.id = data["id"]
+
+        self.complete_with_default(data)
+
         for dataname in ("title", "block_type", "width", "height"):
             setattr(self, dataname, data[dataname])
 
@@ -319,3 +332,13 @@ class OCBBlock(QGraphicsItem, Serializable):
                     hashmap.update({socket_data["id"]: socket})
 
         self.update_all()
+
+    def complete_with_default(self, data: OrderedDict) -> None:
+        """Add default data in place when fields are missing"""
+        for key in NONE_OPTIONAL_FIELDS:
+            if key not in data:
+                raise ValueError(f"{key} of the socket is missing")
+
+        for key in DEFAULT_BLOCK_DATA.keys():
+            if key not in data:
+                data[key] = DEFAULT_BLOCK_DATA[key]
