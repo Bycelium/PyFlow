@@ -214,8 +214,8 @@ class OCBCodeBlock(OCBBlock):
             if key not in data:
                 raise ValueError(f"{key} of the socket is missing")
 
-        for key in DEFAULT_CODE_BLOCK_DATA.keys():
+        for key in DEFAULT_CODE_BLOCK_DATA:
             if key not in data:
                 data[key] = DEFAULT_CODE_BLOCK_DATA[key]
-        
+
         super().complete_with_default(data)

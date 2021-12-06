@@ -244,6 +244,6 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             if key not in data:
                 raise ValueError(f"{key} of the socket is missing")
 
-        for key in DEFAULT_EDGE_DATA.keys():
+        for key in DEFAULT_EDGE_DATA:
             if key not in data:
                 data[key] = DEFAULT_EDGE_DATA[key]
