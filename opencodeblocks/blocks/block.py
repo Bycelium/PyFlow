@@ -25,30 +25,32 @@ if TYPE_CHECKING:
 
 BACKGROUND_COLOR = QColor("#E3212121")
 
-DEFAULT_BLOCK_DATA = {
-    "title": "_",
-    "splitter_pos": [88, 41],
-    "width": 618,
-    "height": 184,
-    "metadata": {"title_metadata": {"color": "white", "font": "Ubuntu", "size": 10}},
-    "sockets": [],
-}
-NONE_OPTIONAL_FIELDS = {"block_type", "position"}
-
 
 class OCBBlock(QGraphicsItem, Serializable):
 
     """Base class for blocks in OpenCodeBlocks."""
+
+    DEFAULT_DATA = {
+        "title": "New block",
+        "splitter_pos": [0, 0],
+        "width": 300,
+        "height": 200,
+        "metadata": {
+            "title_metadata": {"color": "white", "font": "Ubuntu", "size": 10}
+        },
+        "sockets": [],
+    }
+    MANDATORY_FIELDS = {"block_type", "position"}
 
     def __init__(
         self,
         block_type: str = "base",
         source: str = "",
         position: tuple = (0, 0),
-        width: int = 300,
-        height: int = 200,
+        width: int = DEFAULT_DATA["width"],
+        height: int = DEFAULT_DATA["height"],
         edge_size: float = 10.0,
-        title: Union[OCBTitle, str] = "New block",
+        title: Union[OCBTitle, str] = DEFAULT_DATA["title"],
         parent: Optional["QGraphicsItem"] = None,
     ):
         """Base class for blocks in OpenCodeBlocks.
@@ -332,13 +334,3 @@ class OCBBlock(QGraphicsItem, Serializable):
                     hashmap.update({socket_data["id"]: socket})
 
         self.update_all()
-
-    def complete_with_default(self, data: OrderedDict) -> None:
-        """Add default data in place when fields are missing"""
-        for key in NONE_OPTIONAL_FIELDS:
-            if key not in data:
-                raise ValueError(f"{key} of the socket is missing")
-
-        for key in DEFAULT_BLOCK_DATA:
-            if key not in data:
-                data[key] = DEFAULT_BLOCK_DATA[key]

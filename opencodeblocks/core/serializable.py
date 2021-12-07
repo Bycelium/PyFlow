@@ -3,22 +3,27 @@
 
 """ Module for the Serializable base class """
 
-from typing import OrderedDict
+from typing import OrderedDict, Set
 
 
-class Serializable():
+class Serializable:
 
-    """ Serializable base for serializable objects. """
+    """Serializable base for serializable objects."""
+
+    MANDATORY_FIELDS: OrderedDict = {}
+    DEFAULT_DATA: Set[str] = {}
 
     def __init__(self):
         self.id = id(self)
 
     def serialize(self) -> OrderedDict:
-        """ Serialize the object as an ordered dictionary. """
+        """Serialize the object as an ordered dictionary."""
         raise NotImplementedError()
 
-    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True) -> None:
-        """ Deserialize the object from an ordered dictionary.
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id=True
+    ) -> None:
+        """Deserialize the object from an ordered dictionary.
 
         Args:
             data: Dictionnary containing data do deserialize from.
@@ -28,3 +33,13 @@ class Serializable():
 
         """
         raise NotImplementedError()
+
+    def complete_with_default(self, data: OrderedDict) -> None:
+        """Add default data in place when fields are missing"""
+        for key in self.MANDATORY_FIELDS:
+            if key not in data:
+                raise ValueError(f"{key} of the socket is missing")
+
+        for key in self.DEFAULT_DATA:
+            if key not in data:
+                data[key] = self.DEFAULT_DATA[key]

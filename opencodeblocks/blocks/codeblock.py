@@ -15,9 +15,6 @@ from opencodeblocks.graphics.worker import Worker
 
 conv = Ansi2HTMLConverter()
 
-DEFAULT_CODE_BLOCK_DATA = {"source": "", "output": ""}
-NONE_OPTIONAL_FIELDS = {}
-
 
 class OCBCodeBlock(OCBBlock):
 
@@ -30,6 +27,12 @@ class OCBCodeBlock(OCBBlock):
     output_panel_height + source_panel_height + edge_size*2 + title_height == height
 
     """
+
+    DEFAULT_DATA = {
+        **OCBBlock.DEFAULT_DATA,
+        "source": "",
+    }
+    MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
 
     def __init__(self, **kwargs):
         """
@@ -207,15 +210,3 @@ class OCBCodeBlock(OCBBlock):
             if dataname in data:
                 setattr(self, dataname, data[dataname])
         super().deserialize(data, hashmap, restore_id)
-
-    def complete_with_default(self, data: OrderedDict) -> None:
-        """Add default data in place when fields are missing"""
-        for key in NONE_OPTIONAL_FIELDS:
-            if key not in data:
-                raise ValueError(f"{key} of the socket is missing")
-
-        for key in DEFAULT_CODE_BLOCK_DATA:
-            if key not in data:
-                data[key] = DEFAULT_CODE_BLOCK_DATA[key]
-
-        super().complete_with_default(data)

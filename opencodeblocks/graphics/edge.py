@@ -14,18 +14,18 @@ from PyQt5.QtWidgets import QGraphicsPathItem, QStyleOptionGraphicsItem, QWidget
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
 
-DEFAULT_EDGE_DATA = {"path_type": "bezier"}
-NONE_OPTIONAL_FIELDS = {"source", "destination"}
-
 
 class OCBEdge(QGraphicsPathItem, Serializable):
 
     """Base class for directed edges in OpenCodeBlocks."""
 
+    DEFAULT_DATA = {"path_type": "bezier"}
+    MANDATORY_FIELDS = {"source", "destination"}
+
     def __init__(
         self,
         edge_width: float = 4.0,
-        path_type="bezier",
+        path_type = DEFAULT_DATA["path_type"],
         edge_color="#001000",
         edge_selected_color="#00ff00",
         source: QPointF = QPointF(0, 0),
@@ -237,13 +237,3 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.update_path()
         except KeyError:
             self.remove()
-
-    def complete_with_default(self, data: OrderedDict) -> None:
-        """Add default data in place when fields are missing"""
-        for key in NONE_OPTIONAL_FIELDS:
-            if key not in data:
-                raise ValueError(f"{key} of the socket is missing")
-
-        for key in DEFAULT_EDGE_DATA:
-            if key not in data:
-                data[key] = DEFAULT_EDGE_DATA[key]

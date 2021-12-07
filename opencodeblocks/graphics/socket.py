@@ -17,31 +17,31 @@ if TYPE_CHECKING:
     from opencodeblocks.graphics.edge import OCBEdge
     from opencodeblocks.blocks.block import OCBBlock
 
-DEFAULT_SOCKET_DATA = {
-    "type": "input",
-    "metadata": {
-        "color": "#FF55FFF0",
-        "linecolor": "#FF000000",
-        "linewidth": 1.0,
-        "radius": 6.0,
-    },
-}
-NONE_OPTIONAL_FIELDS = {"position"}
-
 
 class OCBSocket(QGraphicsItem, Serializable):
 
     """Base class for sockets in OpenCodeBlocks."""
 
+    DEFAULT_DATA = {
+        "type": "undefined",
+        "metadata": {
+            "color": "#FF55FFF0",
+            "linecolor": "#FF000000",
+            "linewidth": 1.0,
+            "radius": 6.0,
+        },
+    }
+    MANDATORY_FIELDS = {"position"}
+
     def __init__(
         self,
         block: "OCBBlock",
-        socket_type: str = "undefined",
+        socket_type: str = DEFAULT_DATA["type"],
         flow_type: str = "exe",
-        radius: float = 10.0,
-        color: str = "#FF55FFF0",
-        linewidth: float = 1.0,
-        linecolor: str = "#FF000000",
+        radius: float = DEFAULT_DATA["metadata"]["radius"],
+        color: str = DEFAULT_DATA["metadata"]["color"],
+        linewidth: float = DEFAULT_DATA["metadata"]["linewidth"],
+        linecolor: str = DEFAULT_DATA["metadata"]["linecolor"],
     ):
         """Base class for sockets in OpenCodeBlocks.
 
@@ -156,13 +156,3 @@ class OCBSocket(QGraphicsItem, Serializable):
         self._pen.setColor(QColor(self.metadata["linecolor"]))
         self._pen.setWidth(int(self.metadata["linewidth"]))
         self._brush.setColor(QColor(self.metadata["color"]))
-
-    def complete_with_default(self, data: OrderedDict) -> None:
-        """Add default data in place when fields are missing"""
-        for key in NONE_OPTIONAL_FIELDS:
-            if key not in data:
-                raise ValueError(f"{key} of the socket is missing")
-
-        for key in DEFAULT_SOCKET_DATA:
-            if key not in data:
-                data[key] = DEFAULT_SOCKET_DATA[key]
