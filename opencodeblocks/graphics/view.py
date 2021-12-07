@@ -7,7 +7,7 @@ import json
 import os
 from typing import List, Tuple
 
-from PyQt5.QtCore import QEvent, QPointF, Qt
+from PyQt5.QtCore import QEvent, QPoint, QPointF, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
@@ -206,12 +206,24 @@ class OCBView(QGraphicsView):
         n_selected_items = len(self.scene().selectedItems())
         if n_selected_items > 1:
             return False
-        if n_selected_items == 1:
-            self.scene().clearSelection()
 
-        key_id = event.key()
-        items = self.scene().items()
-        code_blocks = [i for i in items if isinstance(i, OCBBlock)]
+        code_blocks = [
+            i
+            for i in self.scene().items()
+            if isinstance(i, OCBBlock) and not i.isSelected()
+        ]
+
+        if n_selected_items == 1 and isinstance(
+            self.scene().selectedItems()[0], OCBBlock
+        ):
+            selected_item = self.scene().selectedItems()[0]
+            reference = QPoint(
+                selected_item.x() + selected_item.width / 2,
+                selected_item.y() + selected_item.height / 2,
+            )
+            self.scene().clearSelection()
+        else:
+            reference = None
 
         # Pick the block with the center distance (x,y) such that:
         # ||(x,y)|| is minimal but not too close to 0, where ||.|| is the infinity norm
@@ -222,32 +234,45 @@ class OCBView(QGraphicsView):
         for block in code_blocks:
             block_center_x = block.x() + block.width / 2
             block_center_y = block.y() + block.height / 2
-            xdist, ydist = self.getDistanceToCenter(block_center_x, block_center_y)
-            dist_array.append(
-                (
-                    block_center_x,
-                    block_center_y,
-                    xdist,
-                    ydist,
-                    max(abs(xdist), abs(ydist)),
+            if reference is None:
+                xdist, ydist = self.getDistanceToCenter(block_center_x, block_center_y)
+            else:
+                xdist, ydist = (
+                    reference.x() - block_center_x,
+                    reference.y() - block_center_y,
                 )
-            )
+            dist_array.append((block_center_x, block_center_y, -xdist, -ydist))
 
-        if key_id == Qt.Key.Key_Up:
-            dist_array = filter(lambda pos: pos[3] > 1, dist_array)
-        if key_id == Qt.Key.Key_Down:
-            dist_array = filter(lambda pos: pos[3] < -1, dist_array)
-        if key_id == Qt.Key.Key_Right:
-            dist_array = filter(lambda pos: pos[2] < -1, dist_array)
-        if key_id == Qt.Key.Key_Left:
-            dist_array = filter(lambda pos: pos[2] > 1, dist_array)
+        def in_region(x, y, key):
+            up_right = x / self.width() - y / self.height() >= 0
+            down_right = x / self.width() + y / self.height() >= 0
+            if key == Qt.Key.Key_Up:
+                return up_right and not down_right
+            if key == Qt.Key.Key_Down:
+                return not up_right and down_right
+            if key == Qt.Key.Key_Left:
+                return not up_right and not down_right
+            if key == Qt.Key.Key_Right:
+                return up_right and down_right
+
+        key_id = event.key()
+        dist_array = filter(lambda pos: in_region(pos[2], pos[3], key_id), dist_array)
         dist_array = list(dist_array)
-
-        if len(dist_array) <= 0:
+        if len(dist_array) == 0:
             return False
-        dist_array.sort(key=lambda d: d[4])
 
-        block_center_x, block_center_y, _, _, _ = dist_array[0]
+        def oriented_distance(x, y, key):
+            if key == Qt.Key.Key_Up:
+                return -y / self.height() + (x / self.width()) ** 2
+            if key == Qt.Key.Key_Down:
+                return y / self.height() + (x / self.width()) ** 2
+            if key == Qt.Key.Key_Left:
+                return -x / self.width() + (y / self.height()) ** 2
+            if key == Qt.Key.Key_Right:
+                return x / self.width() + (y / self.height()) ** 2
+
+        dist_array.sort(key=lambda pos: oriented_distance(pos[2], pos[3], key_id))
+        block_center_x, block_center_y, _, _ = dist_array[0]
 
         item_to_navigate = self.scene().itemAt(
             block_center_x, block_center_y, self.transform()
