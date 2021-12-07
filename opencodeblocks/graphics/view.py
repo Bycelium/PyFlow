@@ -146,19 +146,25 @@ class OCBView(QGraphicsView):
         hsb.setValue(x * self.zoom - self.width() / 2)
         vsb.setValue(y * self.zoom - self.height() / 2)
 
-    def moveToGlobalView(self) -> bool:
-        """
-        OCBView reaction to the space bar being pressed.
-        Returns True if the event was handled.
+    def moveToItems(self) -> bool:
+        """Ajust zoom and position to make selected items visible.
+
+        If no item is selected, make the whole graph visible instead.
+
+        Returns:
+            True if the event was handled, False otherwise.
         """
 
         # The focusItem has priority for this event
         if self.scene().focusItem() is not None:
             return False
-        if len(self.scene().selectedItems()) > 0:
-            return False
 
         items = self.scene().items()
+
+        # If items are selected, overwride the behvaior
+        if len(self.scene().selectedItems()) > 0:
+            items = self.scene().selectedItems()
+
         code_blocks: List[OCBBlock] = [i for i in items if isinstance(i, OCBBlock)]
 
         if len(code_blocks) == 0:
@@ -261,10 +267,6 @@ class OCBView(QGraphicsView):
             Qt.Key.Key_Right,
         ]:
             if self.moveViewOnArrow(event):
-                return
-
-        if key_id == Qt.Key.Key_Space:
-            if self.moveToGlobalView():
                 return
 
         super().keyPressEvent(event)
