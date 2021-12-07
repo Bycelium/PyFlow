@@ -16,7 +16,7 @@ from PyQt5.sip import isdeleted
 from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.blocks import OCBBlock
+from opencodeblocks.blocks import OCBBlock, OCBCodeBlock
 
 EPS: float = 1e-10  # To check if blocks are of size 0
 
@@ -202,7 +202,12 @@ class OCBView(QGraphicsView):
         OCBView reaction to an arrow key being pressed.
         Returns True if the event was handled.
         """
-        # The focusItem has priority for this event
+        # The focusItem has priority for this event if it is a source editor
+        if self.scene().focusItem() is not None:
+            parent = self.scene().focusItem().parentItem()
+            if isinstance(parent, OCBCodeBlock) and parent.source_editor.hasFocus():
+                return False
+
         n_selected_items = len(self.scene().selectedItems())
         if n_selected_items > 1:
             return False
