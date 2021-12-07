@@ -203,10 +203,11 @@ class OCBView(QGraphicsView):
         Returns True if the event was handled.
         """
         # The focusItem has priority for this event
-        if self.scene().focusItem() is not None:
+        n_selected_items = len(self.scene().selectedItems())
+        if n_selected_items > 1:
             return False
-        if len(self.scene().selectedItems()) > 0:
-            return False
+        if n_selected_items == 1:
+            self.scene().clearSelection()
 
         key_id = event.key()
         items = self.scene().items()
@@ -247,6 +248,12 @@ class OCBView(QGraphicsView):
         dist_array.sort(key=lambda d: d[4])
 
         block_center_x, block_center_y, _, _, _ = dist_array[0]
+
+        item_to_navigate = self.scene().itemAt(
+            block_center_x, block_center_y, self.transform()
+        )
+        if isinstance(item_to_navigate.parentItem(), OCBBlock):
+            item_to_navigate.parentItem().setSelected(True)
 
         self.centerView(block_center_x, block_center_y)
         return True
