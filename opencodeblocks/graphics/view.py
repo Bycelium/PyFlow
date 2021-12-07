@@ -218,6 +218,7 @@ class OCBView(QGraphicsView):
             if isinstance(i, OCBBlock) and not i.isSelected()
         ]
 
+        reference = None
         if n_selected_items == 1 and isinstance(
             self.scene().selectedItems()[0], OCBBlock
         ):
@@ -227,13 +228,6 @@ class OCBView(QGraphicsView):
                 selected_item.y() + selected_item.height / 2,
             )
             self.scene().clearSelection()
-        else:
-            reference = None
-
-        # Pick the block with the center distance (x,y) such that:
-        # ||(x,y)|| is minimal but not too close to 0, where ||.|| is the infinity norm
-        # This norm was choosen because the movements it generates feel natural.
-        # x or y has the correct sign (depends on the key pressed)
 
         dist_array = []
         for block in code_blocks:
@@ -242,10 +236,8 @@ class OCBView(QGraphicsView):
             if reference is None:
                 xdist, ydist = self.getDistanceToCenter(block_center_x, block_center_y)
             else:
-                xdist, ydist = (
-                    reference.x() - block_center_x,
-                    reference.y() - block_center_y,
-                )
+                xdist = reference.x() - block_center_x
+                ydist = reference.y() - block_center_y
             dist_array.append((block_center_x, block_center_y, -xdist, -ydist))
 
         def in_region(x, y, key):
@@ -267,14 +259,10 @@ class OCBView(QGraphicsView):
             return False
 
         def oriented_distance(x, y, key):
-            if key == Qt.Key.Key_Up:
-                return -y / self.height() + (x / self.width()) ** 2
-            if key == Qt.Key.Key_Down:
-                return y / self.height() + (x / self.width()) ** 2
-            if key == Qt.Key.Key_Left:
-                return -x / self.width() + (y / self.height()) ** 2
-            if key == Qt.Key.Key_Right:
-                return x / self.width() + (y / self.height()) ** 2
+            if key in (Qt.Key.Key_Down, Qt.Key.Key_Up):
+                return abs(y) / self.height() + (x / self.width()) ** 2
+            if key in (Qt.Key.Key_Left, Qt.Key.Key_Right):
+                return abs(x) / self.width() + (y / self.height()) ** 2
 
         dist_array.sort(key=lambda pos: oriented_distance(pos[2], pos[3], key_id))
         block_center_x, block_center_y, _, _ = dist_array[0]
