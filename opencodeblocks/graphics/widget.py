@@ -66,5 +66,8 @@ class OCBWidget(QWidget):
         self.savepath = filepath
 
     def moveToItems(self):
-        """Center the view to see the hole graph"""
+        """
+        Ajust zoom and position to make the whole graph visible.
+        If items are selected, then make all the selected items visible instead
+        """
         self.view.moveToItems()

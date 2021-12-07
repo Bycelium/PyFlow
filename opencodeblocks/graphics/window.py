@@ -457,7 +457,10 @@ class OCBWindow(QMainWindow):
             self.mdiArea.setActiveSubWindow(window)
 
     def onMoveToItems(self):
-        """Center the view to see the whole graph"""
+        """
+        Ajust zoom and position to make the whole graph in the current window visible.
+        If items are selected, then make all the selected items visible instead
+        """
         current_window = self.activeMdiChild()
         if current_window is not None and isinstance(current_window, OCBWidget):
             current_window.moveToItems()
