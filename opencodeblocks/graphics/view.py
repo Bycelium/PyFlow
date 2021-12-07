@@ -147,13 +147,12 @@ class OCBView(QGraphicsView):
         vsb.setValue(y * self.zoom - self.height() / 2)
 
     def moveToItems(self) -> bool:
-        """
-        OCBView reaction to the space bar being pressed.
+        """Ajust zoom and position to make selected items visible.
 
-        Ajust zoom and position to make the whole graph visible.
-        If items are selected, then make all the selected items visible instead
+        If no item is selected, make the whole graph visible instead.
 
-        Returns True if the event was handled.
+        Returns:
+            True if the event was handled, False otherwise.
         """
 
         # The focusItem has priority for this event
