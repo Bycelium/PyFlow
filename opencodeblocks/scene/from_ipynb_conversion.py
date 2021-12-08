@@ -1,22 +1,8 @@
 """ Module for converting ipynb data to ipyg data """
 
-from typing import OrderedDict, List, Dict
+from typing import OrderedDict, List
 
-MARGIN_X: float = 50
-MARGIN_BETWEEN_BLOCKS_X: float = 50
-MARGIN_Y: float = 50
-MARGIN_BETWEEN_BLOCKS_Y: float = 5
-BLOCK_MIN_WIDTH: float = 400
-TITLE_MAX_LENGTH: int = 60
-SOCKET_HEIGHT: float = 44.0
-TEXT_SIZE: float = 12
-TEXT_SIZE_TO_WIDTH_RATIO: float = 0.7
-TEXT_SIZE_TO_HEIGHT_RATIO: float = 1.42
-
-BLOCK_TYPE_TO_NAME: Dict[str, str] = {
-    "code": "OCBCodeBlock",
-    "markdown": "OCBMarkdownBlock",
-}
+from opencodeblocks.scene.ipynb_conversion_constants import *
 
 
 def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
