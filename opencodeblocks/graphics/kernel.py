@@ -34,6 +34,10 @@ class Kernel():
                 message_type = 'image'
                 # output an image (from plt.plot or plt.imshow)
                 out = message['data']['image/png']
+            elif 'text/html' in message['data']:
+                message_type = 'text'
+                # output some html text (like a pandas dataframe)
+                out = message['data']['text/html']
             else:
                 message_type = 'text'
                 # output data as str (for example if code="a=10\na")
