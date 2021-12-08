@@ -17,6 +17,13 @@ class Kernel():
         self.execution_queue = []
         self.busy = False
 
+        # Set CWD to the current working directory
+        self.client.execute("import os\nos.chdir('./')")
+        # Clear the message queue
+        done = False
+        while not done:
+            _, done = self.get_message()
+
     def message_to_output(self, message: dict) -> Tuple[str, str]:
         """
         Converts a message sent by the kernel into a relevant output
