@@ -82,14 +82,16 @@ class OCBCodeBlock(OCBBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size),
+                                int(3 * self.edge_size))
         run_button.clicked.connect(self.run_left)
         return run_button
 
     def init_run_all_button(self):
         """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
-        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
+        run_all_button.setFixedSize(
+            int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.run_right)
         run_all_button.raise_()
 
@@ -228,6 +230,8 @@ class OCBCodeBlock(OCBBlock):
         if hasattr(self, "output_panel"):
             if value.startswith("<img>"):
                 display_text = self.b64_to_html(value[5:])
+            elif value.startswith("<div>"):
+                display_text = value
             else:
                 display_text = self.str_to_html(value)
             self.output_panel.setText(display_text)
