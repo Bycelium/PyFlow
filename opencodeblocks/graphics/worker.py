@@ -13,6 +13,7 @@ class WorkerSignals(QObject):
     image = pyqtSignal(str)
     finished = pyqtSignal()
     finished_block = pyqtSignal()
+    error = pyqtSignal()
 
 
 class Worker(QRunnable):
@@ -40,6 +41,8 @@ class Worker(QRunnable):
                     self.signals.stdout.emit(output)
                 elif output_type == 'image':
                     self.signals.image.emit(output)
+                elif output_type == 'error':
+                    self.signals.error.emit()
         self.signals.finished.emit()
         self.signals.finished_block.emit()
 
