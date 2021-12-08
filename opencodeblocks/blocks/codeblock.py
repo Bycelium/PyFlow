@@ -46,6 +46,7 @@ class OCBCodeBlock(OCBBlock):
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
         self.has_been_run = False
+        self.running = False
 
         # Add exectution flow sockets
         exe_sockets = (
@@ -82,14 +83,16 @@ class OCBCodeBlock(OCBBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size),
+                                int(3 * self.edge_size))
         run_button.clicked.connect(self.run_left)
         return run_button
 
     def init_run_all_button(self):
         """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
-        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
+        run_all_button.setFixedSize(
+            int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.run_right)
         run_all_button.raise_()
 
@@ -97,6 +100,8 @@ class OCBCodeBlock(OCBBlock):
 
     def run_code(self):
         """Run the code in the block"""
+        self.running = True
+
         # Reset stdout
         self._cached_stdout = ""
 
@@ -113,8 +118,9 @@ class OCBCodeBlock(OCBBlock):
             kernel.run_queue()
         self.has_been_run = True
 
-    def reset_buttons(self):
-        """Reset the text of the run buttons"""
+    def reset_after_run(self):
+        """Reset buttons and color after a run"""
+        self.running = False
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
 

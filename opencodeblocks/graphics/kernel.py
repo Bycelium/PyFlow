@@ -64,7 +64,7 @@ class Kernel():
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
-        worker.signals.finished_block.connect(block.reset_buttons)
+        worker.signals.finished_block.connect(block.reset_after_run)
         block.source_editor.threadpool.start(worker)
 
     def run_queue(self):

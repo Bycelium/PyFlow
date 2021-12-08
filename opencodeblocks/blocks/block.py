@@ -66,6 +66,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
+        self._pen_outline_running = QPen(QColor("#00FF00"))
         self._brush_background = QBrush(BACKGROUND_COLOR)
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
@@ -133,6 +134,9 @@ class OCBBlock(QGraphicsItem, Serializable):
         painter.setPen(
             self._pen_outline_selected if self.isSelected() else self._pen_outline
         )
+        if hasattr(self, "running"):
+            if self.running:
+                painter.setPen(self._pen_outline_running)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
 
