@@ -200,18 +200,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         """Change the geometry of the splitter to match the block"""
         # We make the resizing of splitter only affect
         # the last element of the split view
-        sizes = self.splitter.sizes()
-        old_height = self.splitter.height()
         self.splitter.setGeometry(
             int(self.edge_size),
             int(self.edge_size + self.title_widget.height()),
             int(self.width - self.edge_size * 2),
             int(self.height - self.edge_size * 2 - self.title_widget.height()),
         )
-        if len(sizes) > 1:
-            height_delta = self.splitter.height() - old_height
-            sizes[-1] += height_delta
-            self.splitter.setSizes(sizes)
 
     def update_title(self):
         """Change the geometry of the title to match the block"""
