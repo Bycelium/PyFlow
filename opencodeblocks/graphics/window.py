@@ -177,11 +177,11 @@ class OCBWindow(QMainWindow):
         )
 
         # View
-        self._actGlobal = QAction(
-            "Global View",
-            statusTip="View the hole graph",
+        self._actViewItems = QAction(
+            "See All Blocks",
+            statusTip="See all selected blocks. If none are selected, view all blocks",
             shortcut=" ",
-            triggered=self.onViewGlobal,
+            triggered=self.onMoveToItems,
         )
 
         # Window
@@ -251,7 +251,7 @@ class OCBWindow(QMainWindow):
         self.viewmenu = self.menuBar().addMenu("&View")
         self.thememenu = self.viewmenu.addMenu("Theme")
         self.thememenu.aboutToShow.connect(self.updateThemeMenu)
-        self.viewmenu.addAction(self._actGlobal)
+        self.viewmenu.addAction(self._actViewItems)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -328,13 +328,11 @@ class OCBWindow(QMainWindow):
 
         """
         current_window = self.activeMdiChild()
+
         if current_window is not None:
             if current_window.savepath is None:
                 return self.onFileSaveAs()
-            current_window.save()
-            self.statusbar.showMessage(
-                f"Successfully saved ipygraph at {current_window.savepath}", 2000
-            )
+            self.saveWindow(current_window)
         return True
 
     def onFileSaveAs(self) -> bool:
@@ -346,11 +344,17 @@ class OCBWindow(QMainWindow):
         """
         current_window = self.activeMdiChild()
         if current_window is not None:
-            filename, _ = QFileDialog.getSaveFileName(self, "Save ipygraph to file")
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix(".ipyg")
+            filename, _ = dialog.getSaveFileName(
+                self, "Save ipygraph to file", filter="IPython Graph (*.ipyg)"
+            )
             if filename == "":
                 return False
             current_window.savepath = filename
-            self.onFileSave()
+
+            # Note : the current_window is the activeMdiChild before the QFileDialog pops up
+            self.saveWindow(current_window)
             return True
         return False
 
@@ -376,6 +380,13 @@ class OCBWindow(QMainWindow):
             )
             return True
         return False
+
+    def saveWindow(self, window: OCBWidget):
+        """Save the given window"""
+        window.save()
+        self.statusbar.showMessage(
+            f"Successfully saved ipygraph at {window.savepath}", 2000
+        )
 
     @staticmethod
     def is_not_editing(current_window: OCBWidget):
@@ -485,11 +496,14 @@ class OCBWindow(QMainWindow):
         if window:
             self.mdiArea.setActiveSubWindow(window)
 
-    def onViewGlobal(self):
-        """Center the view to see the hole graph"""
+    def onMoveToItems(self):
+        """
+        Ajust zoom and position to make the whole graph in the current window visible.
+        If items are selected, then make all the selected items visible instead
+        """
         current_window = self.activeMdiChild()
         if current_window is not None and isinstance(current_window, OCBWidget):
-            current_window.moveToGlobalView()
+            current_window.moveToItems()
 
     def setTheme(self, theme_index):
         theme_manager().selected_theme_index = theme_index

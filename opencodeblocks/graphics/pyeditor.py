@@ -52,7 +52,7 @@ class PythonEditor(QsciScintilla):
         self.setCaretForegroundColor(QColor("#D4D4D4"))
 
         # Indentation
-        self.setAutoIndent(False)
+        self.setAutoIndent(True)
         self.setTabWidth(4)
         self.setIndentationGuides(True)
         self.setIndentationsUseTabs(False)

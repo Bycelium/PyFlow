@@ -7,7 +7,7 @@ import json
 import os
 from typing import List, Tuple
 
-from PyQt5.QtCore import QEvent, QPointF, Qt
+from PyQt5.QtCore import QEvent, QPoint, QPointF, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
@@ -16,7 +16,7 @@ from PyQt5.sip import isdeleted
 from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.blocks import OCBBlock
+from opencodeblocks.blocks import OCBBlock, OCBCodeBlock
 
 EPS: float = 1e-10  # To check if blocks are of size 0
 
@@ -146,19 +146,25 @@ class OCBView(QGraphicsView):
         hsb.setValue(x * self.zoom - self.width() / 2)
         vsb.setValue(y * self.zoom - self.height() / 2)
 
-    def moveToGlobalView(self) -> bool:
-        """
-        OCBView reaction to the space bar being pressed.
-        Returns True if the event was handled.
+    def moveToItems(self) -> bool:
+        """Ajust zoom and position to make selected items visible.
+
+        If no item is selected, make the whole graph visible instead.
+
+        Returns:
+            True if the event was handled, False otherwise.
         """
 
         # The focusItem has priority for this event
         if self.scene().focusItem() is not None:
             return False
-        if len(self.scene().selectedItems()) > 0:
-            return False
 
         items = self.scene().items()
+
+        # If items are selected, overwride the behvaior
+        if len(self.scene().selectedItems()) > 0:
+            items = self.scene().selectedItems()
+
         code_blocks: List[OCBBlock] = [i for i in items if isinstance(i, OCBBlock)]
 
         if len(code_blocks) == 0:
@@ -202,51 +208,76 @@ class OCBView(QGraphicsView):
         OCBView reaction to an arrow key being pressed.
         Returns True if the event was handled.
         """
-        # The focusItem has priority for this event
+        # The focusItem has priority for this event if it is a source editor
         if self.scene().focusItem() is not None:
-            return False
-        if len(self.scene().selectedItems()) > 0:
+            parent = self.scene().focusItem().parentItem()
+            if isinstance(parent, OCBCodeBlock) and parent.source_editor.hasFocus():
+                return False
+
+        n_selected_items = len(self.scene().selectedItems())
+        if n_selected_items > 1:
             return False
 
-        key_id = event.key()
-        items = self.scene().items()
-        code_blocks = [i for i in items if isinstance(i, OCBBlock)]
+        code_blocks = [
+            i
+            for i in self.scene().items()
+            if isinstance(i, OCBBlock) and not i.isSelected()
+        ]
 
-        # Pick the block with the center distance (x,y) such that:
-        # ||(x,y)|| is minimal but not too close to 0, where ||.|| is the infinity norm
-        # This norm was choosen because the movements it generates feel natural.
-        # x or y has the correct sign (depends on the key pressed)
+        reference = None
+        if n_selected_items == 1 and isinstance(
+            self.scene().selectedItems()[0], OCBBlock
+        ):
+            selected_item = self.scene().selectedItems()[0]
+            reference = QPoint(
+                selected_item.x() + selected_item.width / 2,
+                selected_item.y() + selected_item.height / 2,
+            )
+            self.scene().clearSelection()
 
         dist_array = []
         for block in code_blocks:
             block_center_x = block.x() + block.width / 2
             block_center_y = block.y() + block.height / 2
-            xdist, ydist = self.getDistanceToCenter(block_center_x, block_center_y)
-            dist_array.append(
-                (
-                    block_center_x,
-                    block_center_y,
-                    xdist,
-                    ydist,
-                    max(abs(xdist), abs(ydist)),
-                )
-            )
+            if reference is None:
+                xdist, ydist = self.getDistanceToCenter(block_center_x, block_center_y)
+            else:
+                xdist = reference.x() - block_center_x
+                ydist = reference.y() - block_center_y
+            dist_array.append((block_center_x, block_center_y, -xdist, -ydist))
 
-        if key_id == Qt.Key.Key_Up:
-            dist_array = filter(lambda pos: pos[3] > 1, dist_array)
-        if key_id == Qt.Key.Key_Down:
-            dist_array = filter(lambda pos: pos[3] < -1, dist_array)
-        if key_id == Qt.Key.Key_Right:
-            dist_array = filter(lambda pos: pos[2] < -1, dist_array)
-        if key_id == Qt.Key.Key_Left:
-            dist_array = filter(lambda pos: pos[2] > 1, dist_array)
+        def in_region(x, y, key):
+            up_right = x / self.width() - y / self.height() >= 0
+            down_right = x / self.width() + y / self.height() >= 0
+            if key == Qt.Key.Key_Up:
+                return up_right and not down_right
+            if key == Qt.Key.Key_Down:
+                return not up_right and down_right
+            if key == Qt.Key.Key_Left:
+                return not up_right and not down_right
+            if key == Qt.Key.Key_Right:
+                return up_right and down_right
+
+        key_id = event.key()
+        dist_array = filter(lambda pos: in_region(pos[2], pos[3], key_id), dist_array)
         dist_array = list(dist_array)
-
-        if len(dist_array) <= 0:
+        if len(dist_array) == 0:
             return False
-        dist_array.sort(key=lambda d: d[4])
 
-        block_center_x, block_center_y, _, _, _ = dist_array[0]
+        def oriented_distance(x, y, key):
+            if key in (Qt.Key.Key_Down, Qt.Key.Key_Up):
+                return abs(y) / self.height() + (x / self.width()) ** 2
+            if key in (Qt.Key.Key_Left, Qt.Key.Key_Right):
+                return abs(x) / self.width() + (y / self.height()) ** 2
+
+        dist_array.sort(key=lambda pos: oriented_distance(pos[2], pos[3], key_id))
+        block_center_x, block_center_y, _, _ = dist_array[0]
+
+        item_to_navigate = self.scene().itemAt(
+            block_center_x, block_center_y, self.transform()
+        )
+        if isinstance(item_to_navigate.parentItem(), OCBBlock):
+            item_to_navigate.parentItem().setSelected(True)
 
         self.centerView(block_center_x, block_center_y)
         return True
@@ -261,10 +292,6 @@ class OCBView(QGraphicsView):
             Qt.Key.Key_Right,
         ]:
             if self.moveViewOnArrow(event):
-                return
-
-        if key_id == Qt.Key.Key_Space:
-            if self.moveToGlobalView():
                 return
 
         super().keyPressEvent(event)
