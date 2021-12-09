@@ -17,6 +17,7 @@ from opencodeblocks import blocks
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
+from opencodeblocks.graphics.codeedge import OCBCodeEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
 
@@ -248,7 +249,7 @@ class OCBScene(QGraphicsScene, Serializable):
 
         # Create edges
         for edge_data in data["edges"]:
-            edge = OCBEdge()
+            edge = OCBCodeEdge()
             edge.deserialize(edge_data, hashmap, restore_id)
             self.addItem(edge)
             hashmap.update({edge_data["id"]: edge})
