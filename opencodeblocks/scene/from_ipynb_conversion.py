@@ -9,7 +9,7 @@ def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
     """Convert ipynb data (ipynb file, as ordered dict) into ipyg data (ipyg, as ordered dict)"""
 
     blocks_data: List[OrderedDict] = get_blocks_data(data)
-    edges_data: List[OrderedDict] = get_sockets_data(blocks_data)
+    edges_data: List[OrderedDict] = get_edges_data(blocks_data)
 
     return {
         "blocks": blocks_data,
@@ -120,7 +120,7 @@ def adujst_markdown_blocks_width(blocks_data: OrderedDict) -> None:
             i -= 1
 
 
-def get_sockets_data(blocks_data: OrderedDict) -> OrderedDict:
+def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
     """Add sockets to the blocks (in place) and returns the edge list"""
     code_blocks: List[OrderedDict] = [
         block
