@@ -138,10 +138,26 @@ class OCBCodeBlock(OCBBlock):
                 return True
         return False
 
+    def _interrupt_execution(self):
+        """ Interrupt an execution, reset the blocks in the queue """
+        for block, _ in self.source_editor.kernel.execution_queue:
+            # Reset the blocks that have not been run
+            block.reset_buttons()
+            block.has_been_run = False
+        # Clear the queue
+        self.source_editor.kernel.execution_queue = []
+        # Interrupt the kernel
+        self.source_editor.kernel.kernel_manager.interrupt_kernel()
+
     def run_left(self, in_right_button=False):
         """
         Run all of the block's dependencies and then run the block
         """
+        # If the user presses left run when running, cancel the execution
+        if self.run_button.text() == "..." and not in_right_button:
+            self._interrupt_execution()
+            return
+
         # If no dependencies
         if not self.has_input():
             return self.run_code()
@@ -170,6 +186,11 @@ class OCBCodeBlock(OCBBlock):
 
     def run_right(self):
         """Run all of the output blocks and all their dependencies"""
+        # If the user presses right run when running, cancel the execution
+        if self.run_all_button.text() == "...":
+            self._interrupt_execution()
+            return
+
         # If no output, run left
         if not self.has_output():
             return self.run_left(in_right_button=True)
@@ -177,9 +198,14 @@ class OCBCodeBlock(OCBBlock):
         # Same as run_left but instead of running the blocks, we'll use run_left
         graph = self.scene().create_graph()
         edges = bfs_edges(graph, self)
-        blocks_to_run: List["OCBCodeBlock"] = [self] + [v for _, v in edges]
+        blocks_to_run: List["OCBCodeBlock"] = [
+            self] + [v for _, v in edges]
         for block in blocks_to_run[::-1]:
             block.run_left(in_right_button=True)
+
+    def reset_has_been_run(self):
+        """ Reset has_been_run, is called when the output is an error """
+        self.has_been_run = False
 
     def update_title(self):
         """Change the geometry of the title widget"""
@@ -234,6 +260,8 @@ class OCBCodeBlock(OCBBlock):
         if hasattr(self, "output_panel"):
             if value.startswith("<img>"):
                 display_text = self.b64_to_html(value[5:])
+            elif value.startswith("<div>"):
+                display_text = value
             else:
                 display_text = self.str_to_html(value)
             self.output_panel.setText(display_text)

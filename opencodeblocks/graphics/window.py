@@ -37,14 +37,17 @@ class OCBWindow(QMainWindow):
         )
         loadStylesheets(
             (
-                os.path.join(os.path.dirname(__file__), "..", "qss", "ocb_dark.qss"),
+                os.path.join(os.path.dirname(__file__),
+                             "..", "qss", "ocb_dark.qss"),
                 self.stylesheet_filename,
             )
         )
 
         self.mdiArea = QMdiArea()
-        self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.mdiArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mdiArea.setViewMode(QMdiArea.ViewMode.TabbedView)
         self.mdiArea.setDocumentMode(True)
         self.mdiArea.setTabsMovable(True)
@@ -306,7 +309,8 @@ class OCBWindow(QMainWindow):
 
     def onFileOpen(self):
         """Open a file."""
-        filename, _ = QFileDialog.getOpenFileName(self, "Open ipygraph from file")
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Open ipygraph from file")
         if filename == "":
             return
         if os.path.isfile(filename):
@@ -322,13 +326,11 @@ class OCBWindow(QMainWindow):
 
         """
         current_window = self.activeMdiChild()
+
         if current_window is not None:
             if current_window.savepath is None:
                 return self.onFileSaveAs()
-            current_window.save()
-            self.statusbar.showMessage(
-                f"Successfully saved ipygraph at {current_window.savepath}", 2000
-            )
+            self.saveWindow(current_window)
         return True
 
     def onFileSaveAs(self) -> bool:
@@ -340,13 +342,25 @@ class OCBWindow(QMainWindow):
         """
         current_window = self.activeMdiChild()
         if current_window is not None:
-            filename, _ = QFileDialog.getSaveFileName(self, "Save ipygraph to file")
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix(".ipyg")
+            filename, _ = dialog.getSaveFileName(
+                self, "Save ipygraph to file", filter="IPython Graph (*.ipyg)")
             if filename == "":
                 return False
             current_window.savepath = filename
-            self.onFileSave()
+
+            # Note : the current_window is the activeMdiChild before the QFileDialog pops up
+            self.saveWindow(current_window)
             return True
         return False
+
+    def saveWindow(self, window: OCBWidget):
+        """Save the given window"""
+        window.save()
+        self.statusbar.showMessage(
+            f"Successfully saved ipygraph at {window.savepath}", 2000
+        )
 
     @staticmethod
     def is_not_editing(current_window: OCBWidget):
