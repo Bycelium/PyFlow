@@ -4,6 +4,10 @@ from typing import OrderedDict, List
 
 from opencodeblocks.scene.ipynb_conversion_constants import *
 
+from opencodeblocks.graphics.theme_manager import theme_manager
+from opencodeblocks.graphics.pyeditor import POINT_SIZE
+from PyQt5.QtGui import QFontMetrics, QFont
+
 
 def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
     """Convert ipynb data (ipynb file, as ordered dict) into ipyg data (ipyg, as ordered dict)"""
@@ -26,6 +30,13 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
     if "cells" not in data:
         return []
 
+    # Get the font metrics to determine the size fo the blocks
+    font = QFont()
+    font.setFamily(theme_manager().recommended_font_family)
+    font.setFixedPitch(True)
+    font.setPointSize(POINT_SIZE)
+    fontmetrics = QFontMetrics(font)
+
     blocks_data: List[OrderedDict] = []
 
     next_block_x_pos: float = 0
@@ -39,13 +50,17 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
 
             text: str = cell["source"]
 
+            text_bouding_box = fontmetrics.boundingRect("".join(text))
+
             text_width: float = (
-                TEXT_SIZE * TEXT_SIZE_TO_WIDTH_RATIO * max(len(line) for line in text)
+                max(fontmetrics.boundingRect(line).width() for line in text)
                 if len(text) > 0
                 else 0
             )
             block_width: float = max(text_width + MARGIN_X, BLOCK_MIN_WIDTH)
-            text_height: float = TEXT_SIZE * TEXT_SIZE_TO_HEIGHT_RATIO * len(text)
+            text_height: float = len(text) * (
+                fontmetrics.lineSpacing() + fontmetrics.lineWidth()
+            )
             block_height: float = text_height + MARGIN_Y
 
             block_data = {
