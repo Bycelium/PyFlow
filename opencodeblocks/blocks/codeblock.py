@@ -207,6 +207,12 @@ class OCBCodeBlock(OCBBlock):
         """ Reset has_been_run, is called when the output is an error """
         self.has_been_run = False
 
+    def reset_buttons(self):
+        """Reset the buttons"""
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+        self.running = False
+
     def update_title(self):
         """Change the geometry of the title widget"""
         self.title_widget.setGeometry(
