@@ -47,7 +47,7 @@ class Kernel():
             # output a print (print("Hello World"))
             out = message['text']
         elif 'traceback' in message:
-            message_type = 'text'
+            message_type = 'error'
             # output an error
             out = '\n'.join(message['traceback'])
         else:
@@ -69,6 +69,7 @@ class Kernel():
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
         worker.signals.finished_block.connect(block.reset_buttons)
+        worker.signals.error.connect(block.reset_has_been_run)
         block.source_editor.threadpool.start(worker)
 
     def run_queue(self):
