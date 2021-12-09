@@ -47,4 +47,6 @@ def split_lines_and_add_newline(text: str):
     """Split the text and add a \\n at the end of each line
     This is the jupyter notebook default formatting for source, outputs and text"""
     lines = text.split("\n")
-    return [line + "\n" for line in lines]
+    for i in range(len(lines) - 1):
+        lines[i] += "\n"
+    return lines
