@@ -9,6 +9,8 @@ import pyautogui
 import pytest
 from pytestqt.qtbot import QtBot
 
+import time
+
 from PyQt5.QtCore import QPointF
 
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
@@ -46,7 +48,11 @@ class TestCodeBlocks:
             block_to_run: OCBCodeBlock = self.blocks_to_run[0]
             block_to_not_run: OCBCodeBlock = self.blocks_to_run[1]
 
-            block_to_run.run_left()
+            def run_block():
+                block_to_run.run_left()
+
+            msgQueue.run_lambda(run_block)
+            time.sleep(0.5)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")
