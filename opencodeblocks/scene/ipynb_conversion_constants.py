@@ -1,3 +1,5 @@
+""" Module with the constants used to converter to ipynb and from ipynb """
+
 from typing import Dict
 
 MARGIN_X: float = 75

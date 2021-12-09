@@ -2,11 +2,11 @@
 
 from typing import OrderedDict, List
 
-from opencodeblocks.scene.ipynb_conversion_constants import *
+from PyQt5.QtGui import QFontMetrics, QFont
 
+from opencodeblocks.scene.ipynb_conversion_constants import *
 from opencodeblocks.graphics.theme_manager import theme_manager
 from opencodeblocks.graphics.pyeditor import POINT_SIZE
-from PyQt5.QtGui import QFontMetrics, QFont
 
 
 def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
@@ -49,8 +49,6 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
             block_type: str = cell["cell_type"]
 
             text: str = cell["source"]
-
-            text_bouding_box = fontmetrics.boundingRect("".join(text))
 
             text_width: float = (
                 max(fontmetrics.boundingRect(line).width() for line in text)
@@ -103,7 +101,6 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
 
 def is_title(block_data: OrderedDict) -> bool:
     """Checks if the block is a one-line markdown block which could correspond to a title"""
-
     if block_data["block_type"] != BLOCK_TYPE_TO_NAME["markdown"]:
         return False
     if "\n" in block_data["text"]:
@@ -117,7 +114,10 @@ def is_title(block_data: OrderedDict) -> bool:
 
 
 def adujst_markdown_blocks_width(blocks_data: OrderedDict) -> None:
-    """Modify the markdown blocks width (in place) for them to match the width of block of code below"""
+    """
+    Modify the markdown blocks width (in place)
+    For them to match the width of block of code below
+    """
     i: int = len(blocks_data) - 1
 
     while i >= 0:
@@ -191,6 +191,7 @@ def get_edge_data(
     edge_end_block_id: int,
     edge_end_socket_id: int,
 ) -> OrderedDict:
+    """Return the ordered dict corresponding to the given parameters"""
     return {
         "id": edge_id,
         "source": {"block": edge_start_block_id, "socket": edge_start_socket_id},

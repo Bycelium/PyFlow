@@ -367,8 +367,10 @@ class OCBWindow(QMainWindow):
         """
         current_window = self.activeMdiChild()
         if current_window is not None:
-            filename, _ = QFileDialog.getSaveFileName(
-                self, "Save ipygraph to ipynb file"
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix(".ipynb")
+            filename, _ = dialog.getSaveFileName(
+                self, "Save ipygraph to file", filter="IPython Graph (*.ipynb)"
             )
             if filename == "":
                 return False
