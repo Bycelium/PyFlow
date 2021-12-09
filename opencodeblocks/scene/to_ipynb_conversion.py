@@ -1,6 +1,6 @@
 """ Module for converting ipyg data to ipynb data """
 
-from typing import OrderedDict
+from typing import OrderedDict, List
 
 import copy
 
@@ -30,11 +30,11 @@ def get_block_in_order(data: OrderedDict) -> OrderedDict:
 def block_to_ipynb_cell(block_data: OrderedDict) -> OrderedDict:
     """Convert a ipyg block into its corresponding ipynb cell"""
     if block_data["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
-        cell_data = copy.deepcopy(DEFAULT_CODE_CELL)
+        cell_data: OrderedDict = copy.deepcopy(DEFAULT_CODE_CELL)
         cell_data["source"] = split_lines_and_add_newline(block_data["source"])
         return cell_data
     if block_data["block_type"] == BLOCK_TYPE_TO_NAME["markdown"]:
-        cell_data = copy.deepcopy(DEFAULT_MARKDOWN_CELL)
+        cell_data: OrderedDict = copy.deepcopy(DEFAULT_MARKDOWN_CELL)
         cell_data["source"] = split_lines_and_add_newline(block_data["text"])
         return cell_data
 
@@ -43,7 +43,7 @@ def block_to_ipynb_cell(block_data: OrderedDict) -> OrderedDict:
     )
 
 
-def split_lines_and_add_newline(text: str):
+def split_lines_and_add_newline(text: str) -> List[str]:
     """Split the text and add a \\n at the end of each line
     This is the jupyter notebook default formatting for source, outputs and text"""
     lines = text.split("\n")
