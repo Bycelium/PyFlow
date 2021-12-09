@@ -3,8 +3,10 @@
 
 """ Module for the base OCB Code Block. """
 
-from typing import List, OrderedDict
-from PyQt5.QtWidgets import QPushButton, QTextEdit
+from typing import List, OrderedDict, Optional
+from PyQt5.QtWidgets import QPushButton, QTextEdit, QWidget, QStyleOptionGraphicsItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
 
 from ansi2html import Ansi2HTMLConverter
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
@@ -46,7 +48,16 @@ class OCBCodeBlock(OCBBlock):
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
         self.has_been_run = False
-        self.running = False
+
+        self.run_color = 0
+        self._pen_outline = QPen(QColor("#7F000000"))
+        self._pen_outline_running = QPen(QColor("#FF0000"))
+        self._pen_outline_transmitting = QPen(QColor("#FFFFA637"))
+        self._pen_outlines = [
+            self._pen_outline,
+            self._pen_outline_running,
+            self._pen_outline_transmitting,
+        ]
 
         # Add exectution flow sockets
         exe_sockets = (
@@ -83,16 +94,14 @@ class OCBCodeBlock(OCBBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size),
-                                int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_button.clicked.connect(self.run_left)
         return run_button
 
     def init_run_all_button(self):
         """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
-        run_all_button.setFixedSize(
-            int(3 * self.edge_size), int(3 * self.edge_size))
+        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.run_right)
         run_all_button.raise_()
 
@@ -100,7 +109,7 @@ class OCBCodeBlock(OCBBlock):
 
     def run_code(self):
         """Run the code in the block"""
-        self.running = True
+        self.run_color = 1
 
         # Reset stdout
         self._cached_stdout = ""
@@ -120,7 +129,7 @@ class OCBCodeBlock(OCBBlock):
 
     def reset_after_run(self):
         """Reset buttons and color after a run"""
-        self.running = False
+        self.run_color = 0
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
 
@@ -139,7 +148,7 @@ class OCBCodeBlock(OCBBlock):
         return False
 
     def _interrupt_execution(self):
-        """ Interrupt an execution, reset the blocks in the queue """
+        """Interrupt an execution, reset the blocks in the queue"""
         for block, _ in self.source_editor.kernel.execution_queue:
             # Reset the blocks that have not been run
             block.reset_buttons()
@@ -153,7 +162,7 @@ class OCBCodeBlock(OCBBlock):
         """
         Run all of the block's dependencies and then run the block
         """
-        # If the user presses left run when running, cancel the execution
+        # If the user presses left run when run_color, cancel the execution
         if self.run_button.text() == "..." and not in_right_button:
             self._interrupt_execution()
             return
@@ -186,7 +195,7 @@ class OCBCodeBlock(OCBBlock):
 
     def run_right(self):
         """Run all of the output blocks and all their dependencies"""
-        # If the user presses right run when running, cancel the execution
+        # If the user presses right run when run_color, cancel the execution
         if self.run_all_button.text() == "...":
             self._interrupt_execution()
             return
@@ -195,23 +204,22 @@ class OCBCodeBlock(OCBBlock):
         if not self.has_output():
             return self.run_left(in_right_button=True)
 
-        # Same as run_left but instead of running the blocks, we'll use run_left
+        # Same as run_left but instead of run_color the blocks, we'll use run_left
         graph = self.scene().create_graph()
         edges = bfs_edges(graph, self)
-        blocks_to_run: List["OCBCodeBlock"] = [
-            self] + [v for _, v in edges]
+        blocks_to_run: List["OCBCodeBlock"] = [self] + [v for _, v in edges]
         for block in blocks_to_run[::-1]:
             block.run_left(in_right_button=True)
 
     def reset_has_been_run(self):
-        """ Reset has_been_run, is called when the output is an error """
+        """Reset has_been_run, is called when the output is an error"""
         self.has_been_run = False
 
     def reset_buttons(self):
         """Reset the buttons"""
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
-        self.running = False
+        self.run_color = 0
 
     def update_title(self):
         """Change the geometry of the title widget"""
