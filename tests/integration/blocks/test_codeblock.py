@@ -5,30 +5,25 @@
 Integration tests for the OCBCodeBlocks.
 """
 
+import time
 import pyautogui
 import pytest
-from pytestqt.qtbot import QtBot
 
 from PyQt5.QtCore import QPointF
 
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
-from opencodeblocks.graphics.window import OCBWindow
-from opencodeblocks.graphics.widget import OCBWidget
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue
+from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
 
-class TestCodeBlocks:
+class TestCodeBlocks():
 
     @pytest.fixture(autouse=True)
     def setup(self):
         """ Setup reused variables. """
-        self.window = OCBWindow()
-        self.ocb_widget = OCBWidget()
-        self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
-        self.subwindow.show()
+        start_app(self)
 
-    def test_run_python(self, qtbot: QtBot):
+    def test_run_python(self):
         """ run source code when run button is pressed. """
 
         # Add a block with the source to the window
@@ -56,12 +51,8 @@ class TestCodeBlocks:
             pyautogui.mouseDown(button="left")
             pyautogui.mouseUp(button="left")
 
-            # qtbot.mouseMove(test_block.run_button)
-            # qtbot.mousePress(test_block.run_button,
-            #                  Qt.MouseButton.LeftButton, delay=1)
-            # qtbot.mouseRelease(test_block.run_button, Qt.MouseButton.LeftButton)
+            time.sleep(0.5)
 
-            # When the execution becomes non-blocking for the UI, a refactor will be needed here.
             msgQueue.check_equal(test_block.stdout.strip(), expected_result)
             msgQueue.stop()
 

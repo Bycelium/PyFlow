@@ -12,20 +12,15 @@ from pytestqt.qtbot import QtBot
 from PyQt5.QtCore import QPointF
 
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.graphics.window import OCBWindow
-from opencodeblocks.graphics.widget import OCBWidget
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue
+from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
 
 class TestBlocks:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup reused variables."""
-        self.window = OCBWindow()
-        self.ocb_widget = OCBWidget()
-        self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
-        self.subwindow.show()
+        start_app(self)
         self.block = OCBBlock(title="Testing block")
 
     def test_create_blocks(self, qtbot: QtBot):

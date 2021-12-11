@@ -13,6 +13,7 @@ import threading
 from queue import Queue
 from qtpy.QtWidgets import QApplication
 import pytest_check as check
+from opencodeblocks.graphics.widget import OCBWidget
 
 from opencodeblocks.graphics.window import OCBWindow
 
@@ -32,6 +33,12 @@ class CheckingQueue(Queue):
     def stop(self):
         self.put([STOP_MSG])
 
+
+def start_app(obj):
+    obj.window = OCBWindow()
+    obj.ocb_widget = OCBWidget()
+    obj.subwindow = obj.window.mdiArea.addSubWindow(obj.ocb_widget)
+    obj.subwindow.show()
 
 def apply_function_inapp(window: OCBWindow, run_func: Callable):
 
