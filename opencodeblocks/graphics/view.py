@@ -17,7 +17,7 @@ from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.blocks import OCBCodeBlock
+from opencodeblocks.blocks.codeblock import OCBCodeBlock
 
 EPS: float = 1e-10  # To check if blocks are of size 0
 

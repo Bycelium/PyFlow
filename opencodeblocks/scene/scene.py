@@ -13,8 +13,6 @@ from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
-from opencodeblocks import blocks
-
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
@@ -218,6 +216,7 @@ class OCBScene(QGraphicsScene, Serializable):
         """ Create a new block from an OrderedDict """
 
         block = None
+        blocks = __import__("opencodeblocks.blocks")
 
         block_constructor = None
         block_files = blocks.__dict__
