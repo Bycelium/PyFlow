@@ -3,8 +3,14 @@
 
 """ Module for the OCB Blocks of different types. """
 
-from opencodeblocks.blocks.sliderblock import OCBSliderBlock
+# Abstract blocks
 from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.executableblock import OCBExecutableBlock
+
+# Real blocks
+from opencodeblocks.blocks.sliderblock import OCBSliderBlock
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.blocks.markdownblock import OCBMarkdownBlock
 from opencodeblocks.blocks.drawingblock import OCBDrawingBlock
+
+

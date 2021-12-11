@@ -3,6 +3,7 @@
 
 import queue
 from typing import Tuple
+from PyQt5.QtCore import QThreadPool
 from jupyter_client.manager import start_new_kernel
 
 from opencodeblocks.graphics.worker import Worker
@@ -68,9 +69,9 @@ class Kernel():
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
-        worker.signals.finished_block.connect(block.reset_buttons)
+        worker.signals.finished.connect(block.execution_finished)
         worker.signals.error.connect(block.reset_has_been_run)
-        block.source_editor.threadpool.start(worker)
+        get_main_threadpool().start(worker)
 
     def run_queue(self):
         """ Runs the next code in the queue """
@@ -138,3 +139,13 @@ class Kernel():
         Shuts down the kernel
         """
         self.kernel_manager.shutdown_kernel()
+
+
+kernel = Kernel()
+threadpool = QThreadPool()
+
+def get_main_kernel():
+    return kernel
+
+def get_main_threadpool():
+    return threadpool

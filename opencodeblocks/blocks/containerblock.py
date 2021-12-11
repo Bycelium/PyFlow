@@ -8,7 +8,7 @@ from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.graphics.kernel import get_main_kernel
+
 
 class OCBSliderBlock(OCBBlock):
     """
@@ -47,21 +47,10 @@ class OCBSliderBlock(OCBBlock):
         """ This is called when the value of the slider changes """
         python_code = f"{self.var_name} = {self.value}"
         self.variable_value.setText(f"{self.value}")
-        
-        kernel = get_main_kernel()
-        kernel.execution_queue.append((self, python_code))
-        if kernel.busy is False:
-            kernel.run_queue()
 
-
-    def reset_has_been_run(self):
-        pass
-    def reset_buttons(self):
-        pass
-    def handle_stdout(self):
-        pass
-    def handle_image(self):
-        pass
+        # The code execution part will be added when the execution flow is merged.
+        # We print for now
+        print(python_code)
 
     @property
     def value(self):

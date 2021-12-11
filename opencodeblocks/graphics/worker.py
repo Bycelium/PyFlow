@@ -44,7 +44,6 @@ class Worker(QRunnable):
                 elif output_type == 'error':
                     self.signals.error.emit()
         self.signals.finished.emit()
-        self.signals.finished_block.emit()
 
     def run(self):
         """ Execute the run_code method asynchronously. """

@@ -9,14 +9,14 @@ from PyQt5.QtWidgets import QPushButton, QTextEdit
 from ansi2html import Ansi2HTMLConverter
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
-from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
 
 
-class OCBCodeBlock(OCBBlock):
+class OCBCodeBlock(OCBExecutableBlock):
 
     """
     Code Block
@@ -33,10 +33,10 @@ class OCBCodeBlock(OCBBlock):
         Create a new OCBCodeBlock.
         Initialize all the child widgets specific to this block type
         """
+        super().__init__(**kwargs)
         self.source_editor = PythonEditor(self)
         self._source = ""
-
-        super().__init__(**kwargs)
+        self._stdout = ""
 
         self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
@@ -44,16 +44,6 @@ class OCBCodeBlock(OCBBlock):
 
         self.output_closed = True
         self._splitter_size = [1, 1]
-        self._cached_stdout = ""
-        self.has_been_run = False
-
-        # Add exectution flow sockets
-        exe_sockets = (
-            OCBSocket(self, socket_type="input", flow_type="exe"),
-            OCBSocket(self, socket_type="output", flow_type="exe"),
-        )
-        for socket in exe_sockets:
-            self.add_socket(socket)
 
         # Add output pannel
         self.output_panel = self.init_output_panel()
@@ -106,102 +96,13 @@ class OCBCodeBlock(OCBBlock):
         self.run_button.setText("...")
         self.run_all_button.setText("...")
 
-        # Run code by adding to code to queue
-        code = self.source_editor.text()
-        self.source = code
-        kernel = self.source_editor.kernel
-        kernel.execution_queue.append((self, code))
-        if kernel.busy is False:
-            kernel.run_queue()
-        self.has_been_run = True
+        super().run_code() # actually run the code
 
-    def reset_buttons(self):
+    def execution_finished(self):
         """Reset the text of the run buttons"""
+        super().execution_finished()
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
-
-    def has_input(self) -> bool:
-        """Checks whether a block has connected input blocks"""
-        for input_socket in self.sockets_in:
-            if len(input_socket.edges) != 0:
-                return True
-        return False
-
-    def has_output(self) -> bool:
-        """Checks whether a block has connected output blocks"""
-        for output_socket in self.sockets_out:
-            if len(output_socket.edges) != 0:
-                return True
-        return False
-
-    def _interrupt_execution(self):
-        """ Interrupt an execution, reset the blocks in the queue """
-        for block, _ in self.source_editor.kernel.execution_queue:
-            # Reset the blocks that have not been run
-            block.reset_buttons()
-            block.has_been_run = False
-        # Clear the queue
-        self.source_editor.kernel.execution_queue = []
-        # Interrupt the kernel
-        self.source_editor.kernel.kernel_manager.interrupt_kernel()
-
-    def run_left(self, in_right_button=False):
-        """
-        Run all of the block's dependencies and then run the block
-        """
-        # If the user presses left run when running, cancel the execution
-        if self.run_button.text() == "..." and not in_right_button:
-            self._interrupt_execution()
-            return
-
-        # If no dependencies
-        if not self.has_input():
-            return self.run_code()
-
-        # Create the graph from the scene
-        graph = self.scene().create_graph()
-        # BFS through the input graph
-        edges = bfs_edges(graph, self, reverse=True)
-        # Run the blocks found except self
-        blocks_to_run: List["OCBCodeBlock"] = [v for _, v in edges]
-        for block in blocks_to_run[::-1]:
-            if not block.has_been_run:
-                block.run_code()
-
-        if in_right_button:
-            # If run_left was called inside of run_right
-            # self is not necessarily the block that was clicked
-            # which means that self does not need to be run
-            if not self.has_been_run:
-                self.run_code()
-        else:
-            # On the contrary if run_left was called outside of run_right
-            # self is the block that was clicked
-            # so self needs to be run
-            self.run_code()
-
-    def run_right(self):
-        """Run all of the output blocks and all their dependencies"""
-        # If the user presses right run when running, cancel the execution
-        if self.run_all_button.text() == "...":
-            self._interrupt_execution()
-            return
-
-        # If no output, run left
-        if not self.has_output():
-            return self.run_left(in_right_button=True)
-
-        # Same as run_left but instead of running the blocks, we'll use run_left
-        graph = self.scene().create_graph()
-        edges = bfs_edges(graph, self)
-        blocks_to_run: List["OCBCodeBlock"] = [
-            self] + [v for _, v in edges]
-        for block in blocks_to_run[::-1]:
-            block.run_left(in_right_button=True)
-
-    def reset_has_been_run(self):
-        """ Reset has_been_run, is called when the output is an error """
-        self.has_been_run = False
 
     def update_title(self):
         """Change the geometry of the title widget"""
