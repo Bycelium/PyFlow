@@ -117,19 +117,16 @@ class OCBExecutableBlock(OCBBlock):
             self._interrupt_execution()
             return
 
-        # If no dependencies
-        if not self.has_input():
-            return self.run_code()
-
-        # Create the graph from the scene
-        graph = self.scene().create_graph()
-        # BFS through the input graph
-        edges = bfs_edges(graph, self, reverse=True)
-        # Run the blocks found except self
-        blocks_to_run: List["OCBExecutableblock"] = [v for _, v in edges]
-        for block in blocks_to_run[::-1]:
-            if not block.has_been_run:
-                block.run_code()
+        if self.has_input():
+            # Create the graph from the scene
+            graph = self.scene().create_graph()
+            # BFS through the input graph
+            edges = bfs_edges(graph, self, reverse=True)
+            # Run the blocks found except self
+            blocks_to_run: List["OCBExecutableblock"] = [v for _, v in edges]
+            for block in blocks_to_run[::-1]:
+                if not block.has_been_run:
+                    block.run_code()
 
         if in_run_right:
             # If run_left was called inside of run_right

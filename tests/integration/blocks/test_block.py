@@ -11,7 +11,7 @@ from pytestqt.qtbot import QtBot
 
 from PyQt5.QtCore import QPointF
 
-from opencodeblocks.blocks.codeblock import OCBBlock
+from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.window import OCBWindow
 from opencodeblocks.graphics.widget import OCBWidget
 

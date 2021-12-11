@@ -28,15 +28,18 @@ class OCBCodeBlock(OCBExecutableBlock):
 
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, source: str = "", **kwargs):
         """
         Create a new OCBCodeBlock.
         Initialize all the child widgets specific to this block type
         """
         super().__init__(**kwargs)
         self.source_editor = PythonEditor(self)
+        
         self._source = ""
         self._stdout = ""
+
+        self.source = source
 
         self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
