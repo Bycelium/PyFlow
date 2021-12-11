@@ -77,7 +77,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
         run_button.setFixedSize(int(3 * self.edge_size),
                                 int(3 * self.edge_size))
-        run_button.clicked.connect(self.run_left)
+        run_button.clicked.connect(self.handle_run_left)
         return run_button
 
     def init_run_all_button(self):
@@ -85,10 +85,24 @@ class OCBCodeBlock(OCBExecutableBlock):
         run_all_button = QPushButton(">>", self.root)
         run_all_button.setFixedSize(
             int(3 * self.edge_size), int(3 * self.edge_size))
-        run_all_button.clicked.connect(self.run_right)
+        run_all_button.clicked.connect(self.handle_run_right)
         run_all_button.raise_()
 
         return run_all_button
+
+    def handle_run_right(self):
+        """ Called when the button for "Run All" was pressed"""
+        if self.is_running:
+            self._interrupt_execution()
+        else:
+            self.run_right()
+
+    def handle_run_left(self):
+        """ Called when the button for "Run Left" was pressed"""
+        if self.is_running:
+            self._interrupt_execution()
+        else:
+            self.run_left()
 
     def run_code(self):
         """Run the code in the block"""

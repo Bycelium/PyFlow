@@ -7,10 +7,10 @@ Exports OCBSliderBlock.
 from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
-from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 from opencodeblocks.graphics.kernel import get_main_kernel
 
-class OCBSliderBlock(OCBBlock):
+class OCBSliderBlock(OCBExecutableBlock):
     """
     Features a slider ranging from 0 to 1 and an area to choose what value to assign the slider to.
     """
@@ -45,23 +45,17 @@ class OCBSliderBlock(OCBBlock):
 
     def valueChanged(self):
         """ This is called when the value of the slider changes """
-        python_code = f"{self.var_name} = {self.value}"
         self.variable_value.setText(f"{self.value}")
-        
-        kernel = get_main_kernel()
-        kernel.execution_queue.append((self, python_code))
-        if kernel.busy is False:
-            kernel.run_queue()
+        self.run_right()
 
-
-    def reset_has_been_run(self):
-        pass
-    def reset_buttons(self):
-        pass
-    def handle_stdout(self):
-        pass
-    def handle_image(self):
-        pass
+    @property
+    def source(self):
+        """ Get the source code of the slider """
+        python_code = f"{self.var_name} = {self.value}"
+        return python_code
+    @source.setter
+    def source(self, value: str):
+        raise RuntimeError("The source of a sliderblock is read-only.")
 
     @property
     def value(self):

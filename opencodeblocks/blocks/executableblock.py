@@ -82,7 +82,8 @@ class OCBExecutableBlock(OCBBlock):
         """
         self.is_running = False
 
-    def _interrupt_execution(self):
+    @staticmethod
+    def _interrupt_execution():
         """ Interrupt an execution, reset the blocks in the queue """
         kernel = get_main_kernel()
         for block, _ in kernel.execution_queue:
@@ -112,11 +113,7 @@ class OCBExecutableBlock(OCBBlock):
         """
         Run all of the block's dependencies and then run the block
         """
-        # If the block was already running, cancel the execution
-        if self.is_running and not in_run_right:
-            self._interrupt_execution()
-            return
-
+        
         if self.has_input():
             # Create the graph from the scene
             graph = self.scene().create_graph()
@@ -127,29 +124,17 @@ class OCBExecutableBlock(OCBBlock):
             for block in blocks_to_run[::-1]:
                 if not block.has_been_run:
                     block.run_code()
-
-        if in_run_right:
-            # If run_left was called inside of run_right
-            # self is not necessarily the block that was clicked
-            # which means that self does not need to be run
-            if not self.has_been_run:
-                self.run_code()
-        else:
-            # On the contrary if run_left was called outside of run_right
-            # self is the block that was clicked
-            # so self needs to be run
-            self.run_code()
+        
+        if self.is_running: return
+        self.run_code()
 
     def run_right(self):
         """Run all of the output blocks and all their dependencies"""
-        # If the user presses right run when running, cancel the execution
-        if self.is_running:
-            self._interrupt_execution()
-            return
 
         # If no output, run left
         if not self.has_output():
-            return self.run_left(in_run_right=True)
+            self.run_left(in_run_right=True)
+            return
 
         # Same as run_left but instead of running the blocks, we'll use run_left
         graph = self.scene().create_graph()
