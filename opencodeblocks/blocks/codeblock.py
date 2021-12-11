@@ -34,7 +34,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         """
         super().__init__(**kwargs)
         self.source_editor = PythonEditor(self)
-        
+
         self._source = ""
         self._stdout = ""
 
@@ -74,30 +74,28 @@ class OCBCodeBlock(OCBExecutableBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size),
-                                int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_button.clicked.connect(self.handle_run_left)
         return run_button
 
     def init_run_all_button(self):
         """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
-        run_all_button.setFixedSize(
-            int(3 * self.edge_size), int(3 * self.edge_size))
+        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.handle_run_right)
         run_all_button.raise_()
 
         return run_all_button
 
     def handle_run_right(self):
-        """ Called when the button for "Run All" was pressed"""
+        """Called when the button for "Run All" was pressed"""
         if self.is_running:
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
-        """ Called when the button for "Run Left" was pressed"""
+        """Called when the button for "Run Left" was pressed"""
         if self.is_running:
             self._interrupt_execution()
         else:
@@ -112,7 +110,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.run_button.setText("...")
         self.run_all_button.setText("...")
 
-        super().run_code() # actually run the code
+        super().run_code()  # actually run the code
 
     def execution_finished(self):
         """Reset the text of the run buttons"""

@@ -12,13 +12,14 @@ from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 
 eps = 1
 
+
 class DrawableWidget(QWidget):
-    """ A drawable widget is a canvas like widget on which you can doodle """
+    """A drawable widget is a canvas like widget on which you can doodle"""
 
     on_value_changed = pyqtSignal()
-    
+
     def __init__(self, parent: QWidget):
-        """ Create a new Drawable widget """
+        """Create a new Drawable widget"""
         super().__init__(parent)
         self.setAttribute(Qt.WA_PaintOnScreen)
         self.pixel_width = 24
@@ -32,13 +33,13 @@ class DrawableWidget(QWidget):
                 self.color_buffer[-1].append(0)
 
     def clearDrawing(self):
-        """ Clear the drawing """
+        """Clear the drawing"""
         for i in range(self.pixel_width):
             for j in range(self.pixel_height):
                 self.color_buffer[i][j] = 0
 
     def paintEvent(self, evt: QPaintEvent):
-        """ Draw the content of the widget """
+        """Draw the content of the widget"""
         painter = QPainter(self)
 
         for i in range(self.pixel_width):
@@ -52,11 +53,13 @@ class DrawableWidget(QWidget):
                     w + eps,
                     h + eps,
                     # hex color encoded as AARRGGBB
-                    QColor.fromRgb(0xFF000000 if self.color_buffer[i][j] else 0xFFFFFFFF)
+                    QColor.fromRgb(
+                        0xFF000000 if self.color_buffer[i][j] else 0xFFFFFFFF
+                    ),
                 )
 
     def mouseMoveEvent(self, evt: QMouseEvent):
-        """ Change the drawing when dragging the mouse around"""
+        """Change the drawing when dragging the mouse around"""
         if self.mouse_down:
             x = floor(evt.x() / self.width() * self.pixel_width)
             y = floor(evt.y() / self.height() * self.pixel_height)
@@ -66,19 +69,19 @@ class DrawableWidget(QWidget):
                 self.on_value_changed.emit()
 
     def mousePressEvent(self, evt: QMouseEvent):
-        """ Signal that the drawing starts """
+        """Signal that the drawing starts"""
         self.mouse_down = True
 
     def mouseReleaseEvent(self, evt: QMouseEvent):
-        """ Signal that the drawing stops """
+        """Signal that the drawing stops"""
         self.mouse_down = False
 
 
 class OCBDrawingBlock(OCBExecutableBlock):
-    """ An OCBBlock on which you can draw, to test your CNNs for example"""
+    """An OCBBlock on which you can draw, to test your CNNs for example"""
 
     def __init__(self, **kwargs):
-        """ Create a new OCBBlock"""
+        """Create a new OCBBlock"""
         super().__init__(**kwargs)
 
         self.draw_area = DrawableWidget(self.root)
@@ -87,16 +90,17 @@ class OCBDrawingBlock(OCBExecutableBlock):
 
         self.splitter.addWidget(self.draw_area)  # QGraphicsView
         self.run_button = QPushButton("Clear", self.root)
-        self.run_button.move(int(self.edge_size * 2),
-                             int(self.title_widget.height() + self.edge_size * 2))
-        self.run_button.setFixedSize(
-            int(8 * self.edge_size), int(3 * self.edge_size))
+        self.run_button.move(
+            int(self.edge_size * 2),
+            int(self.title_widget.height() + self.edge_size * 2),
+        )
+        self.run_button.setFixedSize(int(8 * self.edge_size), int(3 * self.edge_size))
         self.run_button.clicked.connect(self.draw_area.clearDrawing)
         self.holder.setWidget(self.root)
 
     @property
     def drawing(self):
-        """ A json-encoded representation of the drawing """
+        """A json-encoded representation of the drawing"""
         return json.dumps(self.draw_area.color_buffer)
 
     @drawing.setter
@@ -104,30 +108,31 @@ class OCBDrawingBlock(OCBExecutableBlock):
         self.draw_area.color_buffer = json.loads(value)
 
     def serialize(self):
-        """ Return a serialized version of this widget """
+        """Return a serialized version of this widget"""
         base_dict = super().serialize()
         base_dict["drawing"] = self.drawing
 
         return base_dict
 
     def valueChanged(self):
-        """ Called when the content of the drawing block changes. """
+        """Called when the content of the drawing block changes."""
         self.run_right()
 
     @property
     def source(self):
-        """ The "source code" of the drawingblock i.e an assignement to the drawing buffer """
+        """The "source code" of the drawingblock i.e an assignement to the drawing buffer"""
         python_code = f"{self.var_name} = {repr(self.draw_area.color_buffer)}"
         return python_code
+
     @source.setter
     def source(self, value: str):
         raise RuntimeError("The source of a drawingblock is read-only.")
 
-
-    def deserialize(self, data: OrderedDict,
-                    hashmap: dict = None, restore_id: bool = True):
-        """ Restore a markdown block from it's serialized state """
-        for dataname in ['drawing']:
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
+    ):
+        """Restore a markdown block from it's serialized state"""
+        for dataname in ["drawing"]:
             if dataname in data:
                 setattr(self, dataname, data[dataname])
 

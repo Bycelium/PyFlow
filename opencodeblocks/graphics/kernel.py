@@ -145,7 +145,9 @@ kernel = Kernel()
 threadpool = QThreadPool()
 
 def get_main_kernel():
+    """ Return a handle to the main kernel """
     return kernel
 
 def get_main_threadpool():
+    """ Return a handle to the thread pool """
     return threadpool

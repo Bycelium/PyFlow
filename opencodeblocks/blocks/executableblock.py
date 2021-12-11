@@ -9,6 +9,7 @@ from opencodeblocks.graphics.socket import OCBSocket
 
 from opencodeblocks.graphics.kernel import get_main_kernel
 
+
 class OCBExecutableBlock(OCBBlock):
 
     """
@@ -24,11 +25,11 @@ class OCBExecutableBlock(OCBBlock):
 
     def __init__(self, **kwargs):
         """
-            Create a new executable block.
-            Do not call this method except when inheriting from this class.
+        Create a new executable block.
+        Do not call this method except when inheriting from this class.
         """
         super().__init__(**kwargs)
-                
+
         self.has_been_run = False
         self.is_running = False
 
@@ -58,13 +59,13 @@ class OCBExecutableBlock(OCBBlock):
         return False
 
     def run_code(self):
-        """ Run the code in the block"""
+        """Run the code in the block"""
 
         # Queue the code to execute
         code = self.source
         kernel = get_main_kernel()
         kernel.execution_queue.append((self, code))
-        
+
         self.is_running = True
 
         if kernel.busy is False:
@@ -80,7 +81,7 @@ class OCBExecutableBlock(OCBBlock):
 
     @staticmethod
     def _interrupt_execution():
-        """ Interrupt an execution, reset the blocks in the queue """
+        """Interrupt an execution, reset the blocks in the queue"""
         kernel = get_main_kernel()
         for block, _ in kernel.execution_queue:
             # Reset the blocks that have not been run
@@ -91,21 +92,7 @@ class OCBExecutableBlock(OCBBlock):
         # Interrupt the kernel
         kernel.kernel_manager.interrupt_kernel()
 
-    def has_input(self) -> bool:
-        """Checks whether a block has connected input blocks"""
-        for input_socket in self.sockets_in:
-            if len(input_socket.edges) != 0:
-                return True
-        return False
-
-    def has_output(self) -> bool:
-        """Checks whether a block has connected output blocks"""
-        for output_socket in self.sockets_out:
-            if len(output_socket.edges) != 0:
-                return True
-        return False
-
-    def run_left(self, in_run_right=False):
+    def run_left(self):
         """
         Run all of the block's dependencies and then run the block
         """
@@ -120,8 +107,9 @@ class OCBExecutableBlock(OCBBlock):
             for block in blocks_to_run[::-1]:
                 if not block.has_been_run:
                     block.run_code()
-        
-        if self.is_running: return
+
+        if self.is_running:
+            return
         self.run_code()
 
     def run_right(self):
@@ -129,21 +117,19 @@ class OCBExecutableBlock(OCBBlock):
 
         # If no output, run left
         if not self.has_output():
-            self.run_left(in_run_right=True)
+            self.run_left()
             return
 
         # Same as run_left but instead of running the blocks, we'll use run_left
         graph = self.scene().create_graph()
         edges = bfs_edges(graph, self)
-        blocks_to_run: List["OCBExecutableBlock"] = [
-            self] + [v for _, v in edges]
+        blocks_to_run: List["OCBExecutableBlock"] = [self] + [v for _, v in edges]
         for block in blocks_to_run[::-1]:
             block.run_left(in_run_right=True)
 
     def reset_has_been_run(self):
-        """ Called when the output is an error """
+        """Called when the output is an error"""
         self.has_been_run = False
-
 
     @property
     def source(self) -> str:
@@ -154,14 +140,11 @@ class OCBExecutableBlock(OCBBlock):
     def source(self, value: str):
         raise NotImplementedError("source(self) should be overriden")
 
-
     def handle_stdout(self, value: str):
         """Handle the stdout signal"""
-        pass
 
     def handle_image(self, image: str):
         """Handle the image signal"""
-        pass
 
     def serialize(self):
         """Return a serialized version of this block"""
@@ -173,7 +156,6 @@ class OCBExecutableBlock(OCBBlock):
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
         """Restore a codeblock from it's serialized state"""
-        for dataname in ("source"):
-            if dataname in data:
-                setattr(self, dataname, data[dataname])
+        if "source" in data:
+            setattr(self, "source", data["source"])
         super().deserialize(data, hashmap, restore_id)
