@@ -5,6 +5,7 @@
 
 import math
 import json
+from os import path
 from types import FunctionType, ModuleType
 from typing import List, OrderedDict, Union
 
@@ -153,6 +154,11 @@ class OCBScene(QGraphicsScene, Serializable):
         self.deserialize(data)
         self.history.checkpoint("Loaded scene")
         self.has_been_modified = False
+
+        # Add filepath to kernel path
+        dir_path = repr(path.abspath(path.dirname(filepath)))
+        setup_path_code = f"__import__(\"sys\").path[0] = {dir_path}"
+        self.kernel.execute(setup_path_code)
 
     def load_from_ipyg(self, filepath: str):
         """ Load an interactive python graph (.ipyg) into the scene.

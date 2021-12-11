@@ -20,7 +20,6 @@ class OCBSliderBlock(OCBExecutableBlock):
         self.layout = QVBoxLayout(self.root)
 
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.valueChanged.connect(self.valueChanged)
 
         self.variable_layout = QHBoxLayout()
         self.variable_text = QLineEdit("slider_value")
@@ -40,12 +39,16 @@ class OCBSliderBlock(OCBExecutableBlock):
         self.layout.addWidget(self.slider)
         self.layout.addLayout(self.variable_layout)
 
+        self.slider.valueChanged.connect(self.valueChanged)
+
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
         """ This is called when the value of the slider changes """
         self.variable_value.setText(f"{self.value}")
-        self.run_right()
+        # Make sure that the slider is initialized before trying to run it.
+        if self.scene() is not None:
+            self.run_right()
 
     @property
     def source(self):

@@ -122,7 +122,7 @@ class OCBExecutableBlock(OCBBlock):
         edges = bfs_edges(graph, self)
         blocks_to_run: List["OCBExecutableBlock"] = [self] + [v for _, v in edges]
         for block in blocks_to_run[::-1]:
-            block.run_left(in_run_right=True)
+            block.run_left()
 
     def reset_has_been_run(self):
         """Called when the output is an error"""
@@ -145,14 +145,10 @@ class OCBExecutableBlock(OCBBlock):
 
     def serialize(self):
         """Return a serialized version of this block"""
-        base_dict = super().serialize()
-        base_dict["source"] = self.source
-        return base_dict
+        return super().serialize()
 
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
         """Restore a codeblock from it's serialized state"""
-        if "source" in data:
-            setattr(self, "source", data["source"])
         super().deserialize(data, hashmap, restore_id)

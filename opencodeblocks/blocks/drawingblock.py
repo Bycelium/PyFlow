@@ -116,7 +116,9 @@ class OCBDrawingBlock(OCBExecutableBlock):
 
     def valueChanged(self):
         """Called when the content of the drawing block changes."""
-        self.run_right()
+        # Make sure that the slider is initialized before trying to run it.
+        if self.scene() is not None:
+            self.run_right()
 
     @property
     def source(self):

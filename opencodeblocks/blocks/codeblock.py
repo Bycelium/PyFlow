@@ -226,7 +226,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         base_dict = super().serialize()
         base_dict["source"] = self.source
         base_dict["stdout"] = self.stdout
-
+        
         return base_dict
 
     def deserialize(
