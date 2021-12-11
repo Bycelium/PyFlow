@@ -77,8 +77,7 @@ class OCBExecutableBlock(OCBBlock):
         """
         self.is_running = False
 
-    @staticmethod
-    def _interrupt_execution():
+    def _interrupt_execution(self):
         """Interrupt an execution, reset the blocks in the queue"""
         kernel = self.scene().kernel
         for block, _ in kernel.execution_queue:

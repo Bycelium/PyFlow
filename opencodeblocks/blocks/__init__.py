@@ -7,5 +7,3 @@ from opencodeblocks.blocks.sliderblock import OCBSliderBlock
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.blocks.markdownblock import OCBMarkdownBlock
 from opencodeblocks.blocks.drawingblock import OCBDrawingBlock
-
-
