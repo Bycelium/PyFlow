@@ -8,7 +8,6 @@ from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
 from opencodeblocks.blocks.executableblock import OCBExecutableBlock
-from opencodeblocks.graphics.kernel import get_main_kernel
 
 class OCBSliderBlock(OCBExecutableBlock):
     """
@@ -23,7 +22,7 @@ class OCBSliderBlock(OCBExecutableBlock):
         self.slider = QSlider(Qt.Horizontal)
         self.slider.valueChanged.connect(self.valueChanged)
 
-        self.variable_layout = QHBoxLayout(self.root)
+        self.variable_layout = QHBoxLayout()
         self.variable_text = QLineEdit("slider_value")
         self.variable_value = QLabel(f"{self.slider.value()/100}")
 

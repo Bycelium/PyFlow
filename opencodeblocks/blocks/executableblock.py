@@ -2,16 +2,12 @@
 
 from typing import List, OrderedDict
 
-from ansi2html import Ansi2HTMLConverter
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.socket import OCBSocket
 
 from opencodeblocks.graphics.kernel import get_main_kernel
-
-conv = Ansi2HTMLConverter()
-
 
 class OCBExecutableBlock(OCBBlock):
 
@@ -113,14 +109,14 @@ class OCBExecutableBlock(OCBBlock):
         """
         Run all of the block's dependencies and then run the block
         """
-        
+
         if self.has_input():
             # Create the graph from the scene
             graph = self.scene().create_graph()
             # BFS through the input graph
             edges = bfs_edges(graph, self, reverse=True)
             # Run the blocks found except self
-            blocks_to_run: List["OCBExecutableblock"] = [v for _, v in edges]
+            blocks_to_run: List["OCBExecutableBlock"] = [v for _, v in edges]
             for block in blocks_to_run[::-1]:
                 if not block.has_been_run:
                     block.run_code()

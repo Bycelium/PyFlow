@@ -43,6 +43,7 @@ class Worker(QRunnable):
                     self.signals.image.emit(output)
                 elif output_type == 'error':
                     self.signals.error.emit()
+                    self.signals.stdout.emit(output)
         self.signals.finished.emit()
 
     def run(self):

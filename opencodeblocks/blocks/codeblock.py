@@ -3,11 +3,10 @@
 
 """ Module for the base OCB Code Block. """
 
-from typing import List, OrderedDict
+from typing import OrderedDict
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
-from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
 from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 from opencodeblocks.graphics.socket import OCBSocket
