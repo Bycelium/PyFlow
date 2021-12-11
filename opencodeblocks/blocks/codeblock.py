@@ -3,9 +3,16 @@
 
 """ Module for the base OCB Code Block. """
 
+import time
 from typing import List, OrderedDict, Optional
-from PyQt5.QtWidgets import QPushButton, QTextEdit, QWidget, QStyleOptionGraphicsItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
+    QApplication,
+    QPushButton,
+    QTextEdit,
+    QWidget,
+    QStyleOptionGraphicsItem,
+)
+from PyQt5.QtCore import QProcess, Qt
 from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
 
 from ansi2html import Ansi2HTMLConverter
@@ -49,7 +56,6 @@ class OCBCodeBlock(OCBBlock):
         self._cached_stdout = ""
         self.has_been_run = False
 
-        self.run_color = 0
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_running = QPen(QColor("#FF0000"))
         self._pen_outline_transmitting = QPen(QColor("#00ff00"))
@@ -58,6 +64,7 @@ class OCBCodeBlock(OCBBlock):
             self._pen_outline_running,
             self._pen_outline_transmitting,
         ]
+        self.run_color = 0
 
         # Add exectution flow sockets
         exe_sockets = (
@@ -170,12 +177,33 @@ class OCBCodeBlock(OCBBlock):
         if not self.has_input():
             return self.run_code()
 
-        # Create the graph from the scene
-        graph = self.scene().create_graph()
-        # BFS through the input graph
-        edges = bfs_edges(graph, self, reverse=True)
-        # Run the blocks found except self
-        blocks_to_run: List["OCBCodeBlock"] = [v for _, v in edges]
+        blocks_to_run = []
+        visited = []
+        to_visit = [self]
+
+        delay = 0.3
+
+        while len(to_visit) != 0:
+            edges_to_visit = []
+            for block in to_visit:
+                block.run_color = 2
+            QApplication.processEvents()
+            time.sleep(delay)
+            for block in to_visit:
+                block.run_color = 0
+                for input_socket in block.sockets_in:
+                    for edge in input_socket.edges:
+                        edges_to_visit.append(edge)
+            for edge in edges_to_visit:
+                edge.run_color = 2
+            QApplication.processEvents()
+            time.sleep(delay)
+            to_visit = []
+            for edge in edges_to_visit:
+                edge.run_color = 0
+                to_visit.append(edge.source_socket.block)
+            print(to_visit)
+
         for block in blocks_to_run[::-1]:
             if not block.has_been_run:
                 block.run_code()
@@ -288,6 +316,16 @@ class OCBCodeBlock(OCBBlock):
             self.has_been_run = False
             self.source_editor.setText(value)
             self._source = value
+
+    @property
+    def run_color(self) -> int:
+        """Run color"""
+        return self._run_color
+
+    @run_color.setter
+    def run_color(self, value: int):
+        self._run_color = value
+        self.update()
 
     @property
     def stdout(self) -> str:
