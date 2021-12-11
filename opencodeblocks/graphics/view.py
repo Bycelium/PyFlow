@@ -16,7 +16,8 @@ from PyQt5.sip import isdeleted
 from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.blocks import OCBBlock, OCBCodeBlock
+from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks import OCBCodeBlock
 
 EPS: float = 1e-10  # To check if blocks are of size 0
 

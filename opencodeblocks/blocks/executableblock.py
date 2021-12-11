@@ -7,8 +7,6 @@ from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.socket import OCBSocket
 
-from opencodeblocks.graphics.kernel import get_main_kernel
-
 
 class OCBExecutableBlock(OCBBlock):
 
@@ -63,7 +61,7 @@ class OCBExecutableBlock(OCBBlock):
 
         # Queue the code to execute
         code = self.source
-        kernel = get_main_kernel()
+        kernel = self.scene().kernel
         kernel.execution_queue.append((self, code))
 
         self.is_running = True
@@ -82,7 +80,7 @@ class OCBExecutableBlock(OCBBlock):
     @staticmethod
     def _interrupt_execution():
         """Interrupt an execution, reset the blocks in the queue"""
-        kernel = get_main_kernel()
+        kernel = self.scene().kernel
         for block, _ in kernel.execution_queue:
             # Reset the blocks that have not been run
             block.execution_finished()

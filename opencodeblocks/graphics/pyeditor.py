@@ -10,7 +10,6 @@ from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.graphics.theme_manager import theme_manager
 
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.graphics.kernel import get_main_kernel, get_main_threadpool
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.view import OCBView
@@ -30,8 +29,6 @@ class PythonEditor(QsciScintilla):
         super().__init__(None)
         self._mode = "NOOP"
         self.block = block
-        self.kernel = get_main_kernel()
-        self.threadpool = get_main_threadpool()
 
         self.update_theme()
         theme_manager().themeChanged.connect(self.update_theme)

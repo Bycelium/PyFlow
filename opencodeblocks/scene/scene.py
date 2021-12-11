@@ -8,7 +8,7 @@ import json
 from types import FunctionType, ModuleType
 from typing import List, OrderedDict, Union
 
-from PyQt5.QtCore import QLine, QRectF
+from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
@@ -19,6 +19,7 @@ from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
+from opencodeblocks.graphics.kernel import Kernel
 
 import networkx as nx
 
@@ -51,6 +52,9 @@ class OCBScene(QGraphicsScene, Serializable):
 
         self.history = SceneHistory(self)
         self.clipboard = SceneClipboard(self)
+
+        self.kernel = Kernel()
+        self.threadpool = QThreadPool()
 
     @property
     def has_been_modified(self):
