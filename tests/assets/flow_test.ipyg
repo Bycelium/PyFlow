@@ -1,0 +1,865 @@
+{
+    "id": 2047380826296,
+    "blocks": [
+        {
+            "id": 2047380828024,
+            "title": "Test flow 5",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                203,
+                0
+            ],
+            "position": [
+                126.0,
+                -202.0
+            ],
+            "width": 316,
+            "height": 256,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047509615672,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047509615816,
+                    "type": "output",
+                    "position": [
+                        316.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "d = 4\r\na + b + c",
+            "stdout": ""
+        },
+        {
+            "id": 2047509975832,
+            "title": "Test flow 1",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                187,
+                0
+            ],
+            "position": [
+                -616.0,
+                -200.0
+            ],
+            "width": 302,
+            "height": 240,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047509976840,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047509976984,
+                    "type": "output",
+                    "position": [
+                        302.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "a = 1",
+            "stdout": ""
+        },
+        {
+            "id": 2047510054808,
+            "title": "Test flow 2",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                154,
+                0
+            ],
+            "position": [
+                -616.75,
+                99.75
+            ],
+            "width": 300,
+            "height": 207,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047510055816,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047510055960,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "b = 2",
+            "stdout": ""
+        },
+        {
+            "id": 2047510222024,
+            "title": "Test flow 3",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                191,
+                0
+            ],
+            "position": [
+                -249.0,
+                -202.0
+            ],
+            "width": 300,
+            "height": 244,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047510350296,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047510350440,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "c = 3\r\na + b",
+            "stdout": ""
+        },
+        {
+            "id": 2047510394344,
+            "title": "Test flow 4",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                165,
+                0
+            ],
+            "position": [
+                -255.0,
+                98.0
+            ],
+            "width": 300,
+            "height": 218,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047510395352,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047510395496,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "b = 3\r\nb",
+            "stdout": ""
+        },
+        {
+            "id": 2047510572632,
+            "title": "Test flow 6",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                202,
+                0
+            ],
+            "position": [
+                522.0,
+                -202.0
+            ],
+            "width": 300,
+            "height": 255,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047510594184,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047510594328,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "e = 5\r\na + b + c + d",
+            "stdout": ""
+        },
+        {
+            "id": 2047511620200,
+            "title": "Test flow 7",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                211,
+                0
+            ],
+            "position": [
+                504.75,
+                76.75
+            ],
+            "width": 300,
+            "height": 264,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047511621208,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047511621352,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "f = 6",
+            "stdout": ""
+        },
+        {
+            "id": 2047511818888,
+            "title": "Test flow 8",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                204,
+                0
+            ],
+            "position": [
+                924.75,
+                -199.0
+            ],
+            "width": 364,
+            "height": 257,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047511819896,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047511820040,
+                    "type": "output",
+                    "position": [
+                        364.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "g = 7\r\na + b + c + d + e + f",
+            "stdout": ""
+        },
+        {
+            "id": 2047514048984,
+            "title": "Markdown",
+            "block_type": "OCBMarkdownBlock",
+            "splitter_pos": [
+                0,
+                130
+            ],
+            "position": [
+                -292.5,
+                432.5
+            ],
+            "width": 347,
+            "height": 183,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [],
+            "text": "These tests check if flow execution works without edges"
+        },
+        {
+            "id": 2047515370984,
+            "title": "Test no connection 1",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                199,
+                0
+            ],
+            "position": [
+                181.0,
+                376.5
+            ],
+            "width": 347,
+            "height": 252,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047515371992,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047515372136,
+                    "type": "output",
+                    "position": [
+                        347.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "a = 1\r\na",
+            "stdout": ""
+        },
+        {
+            "id": 2047515582680,
+            "title": "Test input only 1",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                250,
+                0
+            ],
+            "position": [
+                -238.75,
+                670.0
+            ],
+            "width": 304,
+            "height": 303,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047515583688,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047515583832,
+                    "type": "output",
+                    "position": [
+                        304.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "a = 1",
+            "stdout": ""
+        },
+        {
+            "id": 2047516568312,
+            "title": "Test input only 2",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                236,
+                0
+            ],
+            "position": [
+                176.25,
+                663.75
+            ],
+            "width": 350,
+            "height": 289,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047516569320,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047516569464,
+                    "type": "output",
+                    "position": [
+                        350.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "b = 2\r\na + b",
+            "stdout": ""
+        },
+        {
+            "id": 2047517406264,
+            "title": "Test output only 1",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                209,
+                0
+            ],
+            "position": [
+                179.0,
+                988.0
+            ],
+            "width": 326,
+            "height": 262,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047517407272,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047517407416,
+                    "type": "output",
+                    "position": [
+                        326.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "a = 1",
+            "stdout": ""
+        },
+        {
+            "id": 2047520151448,
+            "title": "Test output only 2",
+            "block_type": "OCBCodeBlock",
+            "splitter_pos": [
+                202,
+                0
+            ],
+            "position": [
+                582.0,
+                992.0
+            ],
+            "width": 300,
+            "height": 255,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [
+                {
+                    "id": 2047520152456,
+                    "type": "input",
+                    "position": [
+                        0.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                },
+                {
+                    "id": 2047520152600,
+                    "type": "output",
+                    "position": [
+                        300.0,
+                        48.0
+                    ],
+                    "metadata": {
+                        "color": "#FF55FFF0",
+                        "linecolor": "#FF000000",
+                        "linewidth": 1.0,
+                        "radius": 10.0
+                    }
+                }
+            ],
+            "source": "b = 2\r\na + b",
+            "stdout": ""
+        },
+        {
+            "id": 2047565442936,
+            "title": "Markdown",
+            "block_type": "OCBMarkdownBlock",
+            "splitter_pos": [
+                0,
+                131
+            ],
+            "position": [
+                -438.75,
+                -438.75
+            ],
+            "width": 445,
+            "height": 184,
+            "metadata": {
+                "title_metadata": {
+                    "color": "white",
+                    "font": "Ubuntu",
+                    "size": 10
+                }
+            },
+            "sockets": [],
+            "text": "**Test flow tests the general behavior of flow execution:**\r\n\r\n\tExecuting 6 left should output 4\r\n\r\n\tExecuting 6 right should output 21 in block 8\r\n"
+        }
+    ],
+    "edges": [
+        {
+            "id": 2047510155912,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047515582680,
+                "socket": 2047515583832
+            },
+            "destination": {
+                "block": 2047516568312,
+                "socket": 2047516569320
+            }
+        },
+        {
+            "id": 2047514047112,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047509975832,
+                "socket": 2047509976984
+            },
+            "destination": {
+                "block": 2047510222024,
+                "socket": 2047510350296
+            }
+        },
+        {
+            "id": 2047515121560,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047510054808,
+                "socket": 2047510055960
+            },
+            "destination": {
+                "block": 2047510222024,
+                "socket": 2047510350296
+            }
+        },
+        {
+            "id": 2047515184584,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047510054808,
+                "socket": 2047510055960
+            },
+            "destination": {
+                "block": 2047510394344,
+                "socket": 2047510395352
+            }
+        },
+        {
+            "id": 2047515243864,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047510222024,
+                "socket": 2047510350440
+            },
+            "destination": {
+                "block": 2047380828024,
+                "socket": 2047509615672
+            }
+        },
+        {
+            "id": 2047515295464,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047380828024,
+                "socket": 2047509615816
+            },
+            "destination": {
+                "block": 2047510572632,
+                "socket": 2047510594184
+            }
+        },
+        {
+            "id": 2047515355896,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047510572632,
+                "socket": 2047510594328
+            },
+            "destination": {
+                "block": 2047511818888,
+                "socket": 2047511819896
+            }
+        },
+        {
+            "id": 2047515682712,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047511620200,
+                "socket": 2047511621352
+            },
+            "destination": {
+                "block": 2047511818888,
+                "socket": 2047511819896
+            }
+        },
+        {
+            "id": 2047521474312,
+            "path_type": "bezier",
+            "source": {
+                "block": 2047517406264,
+                "socket": 2047517407416
+            },
+            "destination": {
+                "block": 2047520151448,
+                "socket": 2047520152456
+            }
+        }
+    ]
+}

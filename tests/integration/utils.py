@@ -18,12 +18,16 @@ from opencodeblocks.graphics.window import OCBWindow
 
 STOP_MSG = "stop"
 CHECK_MSG = "check"
+RUN_MSG = "run"
 
 
 class CheckingQueue(Queue):
 
     def check_equal(self, a, b, msg=""):
         self.put([CHECK_MSG, a, b, msg])
+
+    def run_lambda(self, func: Callable, *args, **kwargs):
+        self.put([RUN_MSG, func, args, kwargs])
 
     def stop(self):
         self.put([STOP_MSG])
@@ -48,5 +52,7 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
                 check.equal(msg[1], msg[2], msg[3])
             elif msg[0] == STOP_MSG:
                 stop = True
+            elif msg[0] == RUN_MSG:
+                msg[1](*msg[2], **msg[3])
     t.join()
     window.close()
