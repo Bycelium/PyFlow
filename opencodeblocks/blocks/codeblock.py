@@ -52,7 +52,7 @@ class OCBCodeBlock(OCBBlock):
         self.run_color = 0
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_running = QPen(QColor("#FF0000"))
-        self._pen_outline_transmitting = QPen(QColor("#FFFFA637"))
+        self._pen_outline_transmitting = QPen(QColor("#00ff00"))
         self._pen_outlines = [
             self._pen_outline,
             self._pen_outline_running,
@@ -109,7 +109,6 @@ class OCBCodeBlock(OCBBlock):
 
     def run_code(self):
         """Run the code in the block"""
-        self.run_color = 1
 
         # Reset stdout
         self._cached_stdout = ""
@@ -219,7 +218,6 @@ class OCBCodeBlock(OCBBlock):
         """Reset the buttons"""
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
-        self.run_color = 0
 
     def update_title(self):
         """Change the geometry of the title widget"""
