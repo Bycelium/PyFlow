@@ -24,7 +24,7 @@ class OCBTitle(QLineEdit, Serializable):
         size: int = 12,
         parent: QWidget = None,
     ):
-        """ Create a new title for an OCBBlock """
+        """Create a new title for an OCBBlock"""
         Serializable.__init__(self)
         QLineEdit.__init__(self, text, parent)
         self.clickTime = None
@@ -33,7 +33,7 @@ class OCBTitle(QLineEdit, Serializable):
         self.setCursorPosition(0)
 
     def init_ui(self, color: str, font: str, size: int):
-        """ Apply the style given to the title """
+        """Apply the style given to the title"""
         self.color = color
         self.setStyleSheet(
             f"""
@@ -74,7 +74,7 @@ class OCBTitle(QLineEdit, Serializable):
             self.setFocus(Qt.MouseFocusReason)
 
     def serialize(self) -> OrderedDict:
-        """ Return a serialized version of this widget """
+        """Return a serialized version of this widget"""
         return OrderedDict(
             [
                 ("color", self.color),
@@ -83,10 +83,8 @@ class OCBTitle(QLineEdit, Serializable):
             ]
         )
 
-    def deserialize(
-        self, data: OrderedDict, hashmap: dict = None, restore_id=True
-    ):
-        """ Restore a title from serialized data """
+    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
+        """Restore a title from serialized data"""
         if restore_id:
             self.id = data.get("id", id(self))
         self.init_ui(data["color"], data["font"], data["size"])
