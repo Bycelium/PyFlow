@@ -5,9 +5,7 @@
 Integration tests for the OCBCodeBlocks.
 """
 
-import pyautogui
 import pytest
-
 import time
 
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
@@ -37,8 +35,34 @@ class TestCodeBlocks:
                 if item.title in titles:
                     self.blocks_to_run[titles.index(item.title)] = item
 
+    def test_duplicated_run(self):
+        """ Don't run a block twice when the execution flows """
+        for b in self.blocks_to_run:
+            b.stdout = ""
+
+        def testing_no_duplicates(msgQueue: CheckingQueue):
+
+            block_to_run: OCBCodeBlock = self.blocks_to_run[0]
+
+            def run_block():
+                block_to_run.run_right()
+
+            msgQueue.run_lambda(run_block)
+            time.sleep(0.1)
+            while block_to_run.is_running:
+                time.sleep(0.1) # wait for the execution to finish.
+
+            # 6 and not 6\n6
+            msgQueue.check_equal(block_to_run.stdout.strip(), "6")
+            msgQueue.stop()
+
+        apply_function_inapp(self.window, testing_no_duplicates)
+
     def test_flow_left(self):
         """ Correct flow when pressing left run """
+        
+        for b in self.blocks_to_run:
+            b.stdout = ""
 
         def testing_run(msgQueue: CheckingQueue):
 
@@ -58,6 +82,6 @@ class TestCodeBlocks:
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_run)
-    
+
     def test_finish(self):
         self.window.close()
