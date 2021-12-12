@@ -7,6 +7,7 @@ from typing import OrderedDict
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from ansi2html import Ansi2HTMLConverter
+from opencodeblocks.blocks.block import OCBBlock
 
 from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 from opencodeblocks.graphics.socket import OCBSocket
@@ -28,10 +29,17 @@ class OCBCodeBlock(OCBExecutableBlock):
     """
 
     def __init__(self, source: str = "", **kwargs):
+
         """
         Create a new OCBCodeBlock.
         Initialize all the child widgets specific to this block type
         """
+        DEFAULT_DATA = {
+            **OCBBlock.DEFAULT_DATA,
+            "source": "",
+        }
+        MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
+
         super().__init__(**kwargs)
         self.source_editor = PythonEditor(self)
 
@@ -233,6 +241,9 @@ class OCBCodeBlock(OCBExecutableBlock):
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
         """Restore a codeblock from it's serialized state"""
+
+        self.complete_with_default(data)
+
         for dataname in ("source", "stdout"):
             if dataname in data:
                 setattr(self, dataname, data[dataname])

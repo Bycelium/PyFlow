@@ -22,15 +22,26 @@ class OCBSocket(QGraphicsItem, Serializable):
 
     """Base class for sockets in OpenCodeBlocks."""
 
+    DEFAULT_DATA = {
+        "type": "undefined",
+        "metadata": {
+            "color": "#FF55FFF0",
+            "linecolor": "#FF000000",
+            "linewidth": 1.0,
+            "radius": 6.0,
+        },
+    }
+    MANDATORY_FIELDS = {"position"}
+
     def __init__(
         self,
         block: "OCBBlock",
-        socket_type: str = "undefined",
+        socket_type: str = DEFAULT_DATA["type"],
         flow_type: str = "exe",
-        radius: float = 10.0,
-        color: str = "#FF55FFF0",
-        linewidth: float = 1.0,
-        linecolor: str = "#FF000000",
+        radius: float = DEFAULT_DATA["metadata"]["radius"],
+        color: str = DEFAULT_DATA["metadata"]["color"],
+        linewidth: float = DEFAULT_DATA["metadata"]["linewidth"],
+        linecolor: str = DEFAULT_DATA["metadata"]["linecolor"],
     ):
         """Base class for sockets in OpenCodeBlocks.
 
@@ -133,13 +144,15 @@ class OCBSocket(QGraphicsItem, Serializable):
         )
 
     def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
-        if restore_id:
+        if restore_id and "id" in data:
             self.id = data["id"]
+
+        self.complete_with_default(data)
+
         self.socket_type = data["type"]
         self.setPos(QPointF(*data["position"]))
 
         self.metadata = dict(data["metadata"])
-        self.radius = self.metadata["radius"]
         self._pen.setColor(QColor(self.metadata["linecolor"]))
         self._pen.setWidth(int(self.metadata["linewidth"]))
         self._brush.setColor(QColor(self.metadata["color"]))

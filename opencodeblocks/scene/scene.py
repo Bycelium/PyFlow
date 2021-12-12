@@ -19,19 +19,29 @@ from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
 from opencodeblocks.graphics.kernel import Kernel
+from opencodeblocks.scene.from_ipynb_conversion import ipynb_to_ipyg
+from opencodeblocks.scene.to_ipynb_conversion import ipyg_to_ipynb
+
+from opencodeblocks import blocks
 
 import networkx as nx
 
 
 class OCBScene(QGraphicsScene, Serializable):
 
-    """ Scene for the OCB Window. """
+    """Scene for the OCB Window."""
 
-    def __init__(self, parent=None,
-                 background_color: str = "#393939",
-                 grid_color: str = "#292929", grid_light_color: str = "#2f2f2f",
-                 width: int = 64000, height: int = 64000,
-                 grid_size: int = 20, grid_squares: int = 5):
+    def __init__(
+        self,
+        parent=None,
+        background_color: str = "#393939",
+        grid_color: str = "#292929",
+        grid_light_color: str = "#2f2f2f",
+        width: int = 64000,
+        height: int = 64000,
+        grid_size: int = 20,
+        grid_squares: int = 5,
+    ):
         Serializable.__init__(self)
         QGraphicsScene.__init__(self, parent=parent)
 
@@ -42,8 +52,7 @@ class OCBScene(QGraphicsScene, Serializable):
         self.grid_squares = grid_squares
 
         self.width, self.height = width, height
-        self.setSceneRect(-self.width // 2, -self.height //
-                          2, self.width, self.height)
+        self.setSceneRect(-self.width // 2, -self.height // 2, self.width, self.height)
         self.setBackgroundBrush(self._background_color)
 
         self._has_been_modified = False
@@ -57,7 +66,7 @@ class OCBScene(QGraphicsScene, Serializable):
 
     @property
     def has_been_modified(self):
-        """ True if the scene has been modified, False otherwise. """
+        """True if the scene has been modified, False otherwise."""
         return self._has_been_modified
 
     @has_been_modified.setter
@@ -67,11 +76,11 @@ class OCBScene(QGraphicsScene, Serializable):
             callback()
 
     def addHasBeenModifiedListener(self, callback: FunctionType):
-        """ Add a callback that will trigger when the scene has been modified. """
+        """Add a callback that will trigger when the scene has been modified."""
         self._has_been_modified_listeners.append(callback)
 
     def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
-        """ Returns the selected blocks and selected edges in two separate lists. """
+        """Returns the selected blocks and selected edges in two separate lists."""
         selected_blocks, selected_edges = [], []
         for item in self.selectedItems():
             if isinstance(item, OCBBlock):
@@ -81,12 +90,12 @@ class OCBScene(QGraphicsScene, Serializable):
         return selected_blocks, selected_edges
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
-        """ Draw the Scene background """
+        """Draw the Scene background"""
         super().drawBackground(painter, rect)
         self.drawGrid(painter, rect)
 
     def drawGrid(self, painter: QPainter, rect: QRectF):
-        """ Draw the background grid """
+        """Draw the background grid"""
         left = int(math.floor(rect.left()))
         top = int(math.floor(rect.top()))
         right = int(math.ceil(rect.right()))
@@ -121,33 +130,52 @@ class OCBScene(QGraphicsScene, Serializable):
         painter.drawLines(*lines_light)
 
     def save(self, filepath: str):
-        """ Save the scene into filepath. """
+        """Save the scene into filepath."""
         self.save_to_ipyg(filepath)
         self.has_been_modified = False
 
     def save_to_ipyg(self, filepath: str):
-        """ Save the scene into filepath as interactive python graph (.ipyg). """
-        if '.' not in filepath:
-            filepath += '.ipyg'
+        """Save the scene into filepath as interactive python graph (.ipyg)."""
+        if "." not in filepath:
+            filepath += ".ipyg"
 
-        extention_format = filepath.split('.')[-1]
-        if extention_format != 'ipyg':
+        extention_format = filepath.split(".")[-1]
+        if extention_format != "ipyg":
             raise NotImplementedError(f"Unsupported format {extention_format}")
 
-        with open(filepath, 'w', encoding='utf-8') as file:
+        with open(filepath, "w", encoding="utf-8") as file:
             file.write(json.dumps(self.serialize(), indent=4))
 
+    def save_to_ipynb(self, filepath: str):
+        """Save the scene into filepath as ipynb"""
+        if "." not in filepath:
+            filepath += ".ipynb"
+
+        extention_format: str = filepath.split(".")[-1]
+        if extention_format != "ipynb":
+            raise NotImplementedError(
+                f"The file should be a *.ipynb (not a .{extention_format})"
+            )
+
+        with open(filepath, "w", encoding="utf-8") as file:
+            json_ipyg_data: OrderedDict = self.serialize()
+            json_ipynb_data: OrderedDict = ipyg_to_ipynb(json_ipyg_data)
+            file.write(json.dumps(json_ipynb_data, indent=4))
+
     def load(self, filepath: str):
-        """ Load a saved scene.
+        """Load a saved scene.
 
         Args:
             filepath: Path to the file to load.
 
         """
-        if filepath.endswith('.ipyg'):
-            data = self.load_from_ipyg(filepath)
+        if filepath.endswith(".ipyg"):
+            data = self.load_from_json(filepath)
+        elif filepath.endswith(".ipynb"):
+            ipynb_data = self.load_from_json(filepath)
+            data = ipynb_to_ipyg(ipynb_data)
         else:
-            extention_format = filepath.split('.')[-1]
+            extention_format = filepath.split(".")[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
         self.deserialize(data)
         self.history.checkpoint("Loaded scene")
@@ -158,19 +186,17 @@ class OCBScene(QGraphicsScene, Serializable):
         setup_path_code = f"__import__(\"sys\").path[0] = {dir_path}"
         self.kernel.execute(setup_path_code)
 
-    def load_from_ipyg(self, filepath: str):
+    def load_from_json(self, filepath: str):
         """ Load an interactive python graph (.ipyg) into the scene.
-
         Args:
-            filepath: Path to the .ipyg file to load.
-
+            filepath: Path to the file to load.
         """
-        with open(filepath, 'r', encoding='utf-8') as file:
+        with open(filepath, "r", encoding="utf-8") as file:
             data = json.loads(file.read())
         return data
 
     def clear(self):
-        """ Clear the scene from all items. """
+        """Clear the scene from all items."""
         self.has_been_modified = False
         return super().clear()
 
@@ -211,12 +237,12 @@ class OCBScene(QGraphicsScene, Serializable):
             data["sockets"] = {}
             self.create_block(data, None, False)
 
-    def create_block(self, data: OrderedDict, hashmap: dict = None,
-                     restore_id: bool = True) -> OCBBlock:
-        """ Create a new block from an OrderedDict """
+    def create_block(
+        self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
+    ) -> OCBBlock:
+        """Create a new block from an OrderedDict"""
 
         block = None
-        blocks = __import__("opencodeblocks.blocks")
 
         block_constructor = None
         block_files = blocks.__dict__
@@ -235,23 +261,24 @@ class OCBScene(QGraphicsScene, Serializable):
         block.deserialize(data, hashmap, restore_id)
         self.addItem(block)
         if hashmap is not None:
-            hashmap.update({data['id']: block})
+            hashmap.update({data["id"]: block})
         return block
 
-    def deserialize(self, data: OrderedDict,
-                    hashmap: dict = None, restore_id: bool = True):
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
+    ):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
-        if restore_id:
+        if restore_id and 'id' in data:
             self.id = data['id']
 
         # Create blocks
-        for block_data in data['blocks']:
+        for block_data in data["blocks"]:
             self.create_block(block_data, hashmap, restore_id)
 
         # Create edges
-        for edge_data in data['edges']:
+        for edge_data in data["edges"]:
             edge = OCBEdge()
             edge.deserialize(edge_data, hashmap, restore_id)
             self.addItem(edge)
-            hashmap.update({edge_data['id']: edge})
+            hashmap.update({edge_data["id"]: edge})
