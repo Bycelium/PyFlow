@@ -7,7 +7,6 @@ Integration tests for the OCBCodeBlocks.
 
 import pyautogui
 import pytest
-from pytestqt.qtbot import QtBot
 
 import time
 
@@ -40,7 +39,7 @@ class TestCodeBlocks:
                 if item.title in titles:
                     self.blocks_to_run[titles.index(item.title)] = item
 
-    def test_flow_left(self, qtbot: QtBot):
+    def test_flow_left(self):
         """ Correct flow when pressing left run """
 
         def testing_run(msgQueue: CheckingQueue):
@@ -52,7 +51,7 @@ class TestCodeBlocks:
                 block_to_run.run_left()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(1)
+            time.sleep(3)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")

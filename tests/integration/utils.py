@@ -35,6 +35,7 @@ class CheckingQueue(Queue):
 
 
 def start_app(obj):
+    """ Create a new app for testing """
     obj.window = OCBWindow()
     obj.ocb_widget = OCBWidget()
     obj.subwindow = obj.window.mdiArea.addSubWindow(obj.ocb_widget)

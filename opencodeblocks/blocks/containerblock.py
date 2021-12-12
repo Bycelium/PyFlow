@@ -2,7 +2,6 @@
 Exports OCBContainerBlock.
 """
 
-from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QVBoxLayout
 from opencodeblocks.blocks.block import OCBBlock
 
