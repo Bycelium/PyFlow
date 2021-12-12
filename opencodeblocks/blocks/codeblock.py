@@ -176,7 +176,8 @@ class OCBCodeBlock(OCBBlock):
         Set color to transmitting and set a timer before switching to normal
         """
         for elem in self.transmitting_queue[0]:
-            elem.run_color = 2
+            if elem.run_color != 1:
+                elem.run_color = 2
         QApplication.processEvents()
         QTimer.singleShot(self.transmitting_delay, self.transmitting_animation_out)
 
@@ -186,7 +187,8 @@ class OCBCodeBlock(OCBBlock):
         After the timer, set color to normal and move on with the queue
         """
         for elem in self.transmitting_queue[0]:
-            elem.run_color = 0
+            if elem.run_color != 1:
+                elem.run_color = 0
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
         if len(self.transmitting_queue) != 0:
@@ -291,17 +293,28 @@ class OCBCodeBlock(OCBBlock):
             return
 
         # Gather outputs
-        blocks_to_run, to_transmit = self.custom_bfs(self, reverse=True)
+        blocks_to_run, to_transmit_right = self.custom_bfs(self, reverse=True)
 
         # Init transmitting queue
-        self.transmitting_queue = to_transmit
+        self.transmitting_queue = to_transmit_right
+
+        # Gather dependencies
+        to_transmit_left = []
 
         # For each output found
         for block in blocks_to_run[::-1]:
             # Gather dependencies
             new_blocks_to_run, new_to_transmit = self.custom_bfs(block)
             blocks_to_run += new_blocks_to_run
-            self.transmitting_queue += new_to_transmit
+            # Add new_to_transmit to transmit_left
+            # so that each left_transmit starts at the same time
+            for i in range(len(new_to_transmit)):
+                if i < len(to_transmit_left):
+                    to_transmit_left[i] += new_to_transmit[i]
+                else:
+                    to_transmit_left.append(new_to_transmit[i])
+
+        self.transmitting_queue += to_transmit_left
 
         # Set delay so that the transmitting animation has fixed total duration
         self.transmitting_delay = int(
