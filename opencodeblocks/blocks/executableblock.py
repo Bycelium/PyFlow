@@ -1,6 +1,7 @@
 """ Module for the executable block class """
 
 from typing import List, OrderedDict
+from abc import abstractmethod
 
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
@@ -129,11 +130,13 @@ class OCBExecutableBlock(OCBBlock):
         self.has_been_run = False
 
     @property
+    @abstractmethod
     def source(self) -> str:
         """Source code"""
         raise NotImplementedError("source(self) should be overriden")
 
     @source.setter
+    @abstractmethod
     def source(self, value: str):
         raise NotImplementedError("source(self) should be overriden")
 
