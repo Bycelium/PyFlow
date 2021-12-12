@@ -9,7 +9,11 @@ from typing import Optional, OrderedDict
 
 from PyQt5.QtCore import QPointF, Qt
 from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPen
-from PyQt5.QtWidgets import QGraphicsPathItem, QStyleOptionGraphicsItem, QWidget
+from PyQt5.QtWidgets import (
+    QGraphicsPathItem,
+    QStyleOptionGraphicsItem,
+    QWidget,
+)
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
@@ -248,3 +252,13 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.update_path()
         except KeyError:
             self.remove()
+
+    @property
+    def run_color(self) -> int:
+        """Run color"""
+        return self._run_color
+
+    @run_color.setter
+    def run_color(self, value: int):
+        self._run_color = value
+        self.update()

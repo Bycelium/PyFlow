@@ -3,8 +3,7 @@
 
 """ Module for the base OCB Code Block. """
 
-import time
-from typing import List, OrderedDict, Optional
+from typing import OrderedDict, Optional
 from PyQt5.QtWidgets import (
     QApplication,
     QPushButton,
@@ -12,17 +11,18 @@ from PyQt5.QtWidgets import (
     QWidget,
     QStyleOptionGraphicsItem,
 )
-from PyQt5.QtCore import QProcess, Qt
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
 
 from ansi2html import Ansi2HTMLConverter
-from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
 from opencodeblocks.blocks.block import OCBBlock
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
+
+transmitting_delay = 100
 
 
 class OCBCodeBlock(OCBBlock):
@@ -65,6 +65,8 @@ class OCBCodeBlock(OCBBlock):
             self._pen_outline_transmitting,
         ]
         self.run_color = 0
+
+        self.transmitting_queue = []
 
         # Add exectution flow sockets
         exe_sockets = (
@@ -164,6 +166,20 @@ class OCBCodeBlock(OCBBlock):
         # Interrupt the kernel
         self.source_editor.kernel.kernel_manager.interrupt_kernel()
 
+    def transmitting_animation_in(self):
+        for elem in self.transmitting_queue[0]:
+            elem.run_color = 2
+        QApplication.processEvents()
+        QTimer.singleShot(transmitting_delay, self.transmitting_animation_out)
+
+    def transmitting_animation_out(self):
+        for elem in self.transmitting_queue[0]:
+            elem.run_color = 0
+        QApplication.processEvents()
+        self.transmitting_queue.pop(0)
+        if len(self.transmitting_queue) != 0:
+            self.transmitting_animation_in()
+
     def run_left(self, in_right_button=False):
         """
         Run all of the block's dependencies and then run the block
@@ -178,32 +194,27 @@ class OCBCodeBlock(OCBBlock):
             return self.run_code()
 
         blocks_to_run = []
-        visited = []
         to_visit = [self]
-
-        delay = 0.3
+        to_transmit = [to_visit]
 
         while len(to_visit) != 0:
+            to_visit = list(set(to_visit))
             edges_to_visit = []
             for block in to_visit:
-                block.run_color = 2
-            QApplication.processEvents()
-            time.sleep(delay)
-            for block in to_visit:
-                block.run_color = 0
+                blocks_to_run.append(block)
                 for input_socket in block.sockets_in:
                     for edge in input_socket.edges:
                         edges_to_visit.append(edge)
-            for edge in edges_to_visit:
-                edge.run_color = 2
-            QApplication.processEvents()
-            time.sleep(delay)
+            to_transmit.append(edges_to_visit)
             to_visit = []
             for edge in edges_to_visit:
-                edge.run_color = 0
                 to_visit.append(edge.source_socket.block)
-            print(to_visit)
+            to_transmit.append(to_visit)
 
+        self.transmitting_queue = to_transmit
+
+        self.transmitting_animation_in()
+        blocks_to_run.pop(0)
         for block in blocks_to_run[::-1]:
             if not block.has_been_run:
                 block.run_code()
@@ -232,11 +243,53 @@ class OCBCodeBlock(OCBBlock):
             return self.run_left(in_right_button=True)
 
         # Same as run_left but instead of run_color the blocks, we'll use run_left
-        graph = self.scene().create_graph()
-        edges = bfs_edges(graph, self)
-        blocks_to_run: List["OCBCodeBlock"] = [self] + [v for _, v in edges]
+        blocks_to_run = []
+        to_visit = [self]
+        to_transmit = [to_visit]
+
+        while len(to_visit) != 0:
+            to_visit = list(set(to_visit))
+            edges_to_visit = []
+            for block in to_visit:
+                blocks_to_run.append(block)
+                for output_socket in block.sockets_out:
+                    for edge in output_socket.edges:
+                        edges_to_visit.append(edge)
+            to_transmit.append(edges_to_visit)
+            to_visit = []
+            for edge in edges_to_visit:
+                to_visit.append(edge.destination_socket.block)
+            to_transmit.append(to_visit)
+
+        blocks_to_run.pop(0)
         for block in blocks_to_run[::-1]:
-            block.run_left(in_right_button=True)
+            new_blocks_to_run = []
+            to_visit = [block]
+            to_transmit.append(to_visit)
+
+            while len(to_visit) != 0:
+                # Remove duplicates in to_visit
+                to_visit = list(set(to_visit))
+                edges_to_visit = []
+                for block in to_visit:
+                    new_blocks_to_run.append(block)
+                    for input_socket in block.sockets_in:
+                        for edge in input_socket.edges:
+                            edges_to_visit.append(edge)
+                to_transmit.append(edges_to_visit)
+                to_visit = []
+                for edge in edges_to_visit:
+                    to_visit.append(edge.source_socket.block)
+                to_transmit.append(to_visit)
+            new_blocks_to_run.pop(0)
+            blocks_to_run += new_blocks_to_run
+
+        self.transmitting_queue = to_transmit
+
+        self.transmitting_animation_in()
+        for block in blocks_to_run[::-1]:
+            if not block.has_been_run:
+                block.run_code()
 
     def reset_has_been_run(self):
         """Reset has_been_run, is called when the output is an error"""
@@ -244,6 +297,7 @@ class OCBCodeBlock(OCBBlock):
 
     def reset_buttons(self):
         """Reset the buttons"""
+        self.run_color = 0
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
 

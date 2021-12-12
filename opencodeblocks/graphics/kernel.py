@@ -1,4 +1,3 @@
-
 """ Module to create and manage ipython kernels """
 
 import queue
@@ -8,7 +7,7 @@ from jupyter_client.manager import start_new_kernel
 from opencodeblocks.graphics.worker import Worker
 
 
-class Kernel():
+class Kernel:
 
     """jupyter_client kernel used to execute code and return output"""
 
@@ -28,31 +27,31 @@ class Kernel():
             single output found in the message in that order of priority:
                 image > text data > text print > error > nothing
         """
-        message_type = 'None'
-        if 'data' in message:
-            if 'image/png' in message['data']:
-                message_type = 'image'
+        message_type = "None"
+        if "data" in message:
+            if "image/png" in message["data"]:
+                message_type = "image"
                 # output an image (from plt.plot or plt.imshow)
-                out = message['data']['image/png']
-            elif 'text/html' in message['data']:
-                message_type = 'text'
+                out = message["data"]["image/png"]
+            elif "text/html" in message["data"]:
+                message_type = "text"
                 # output some html text (like a pandas dataframe)
-                out = message['data']['text/html']
+                out = message["data"]["text/html"]
             else:
-                message_type = 'text'
+                message_type = "text"
                 # output data as str (for example if code="a=10\na")
-                out = message['data']['text/plain']
-        elif 'name' in message and message['name'] == "stdout":
-            message_type = 'text'
+                out = message["data"]["text/plain"]
+        elif "name" in message and message["name"] == "stdout":
+            message_type = "text"
             # output a print (print("Hello World"))
-            out = message['text']
-        elif 'traceback' in message:
-            message_type = 'error'
+            out = message["text"]
+        elif "traceback" in message:
+            message_type = "error"
             # output an error
-            out = '\n'.join(message['traceback'])
+            out = "\n".join(message["traceback"])
         else:
-            message_type = 'text'
-            out = ''
+            message_type = "text"
+            out = ""
         return out, message_type
 
     def run_block(self, block, code: str):
@@ -65,6 +64,7 @@ class Kernel():
             code: String representing a piece of Python code to execute
         """
         worker = Worker(self, code)
+        block.run_color = 1
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
@@ -73,7 +73,7 @@ class Kernel():
         block.source_editor.threadpool.start(worker)
 
     def run_queue(self):
-        """ Runs the next code in the queue """
+        """Runs the next code in the queue"""
         self.busy = True
         if self.execution_queue == []:
             self.busy = False
@@ -114,8 +114,8 @@ class Kernel():
         """
         done = False
         try:
-            message = self.client.get_iopub_msg(timeout=1000)['content']
-            if 'execution_state' in message and message['execution_state'] == 'idle':
+            message = self.client.get_iopub_msg(timeout=1000)["content"]
+            if "execution_state" in message and message["execution_state"] == "idle":
                 done = True
         except queue.Empty:
             message = None

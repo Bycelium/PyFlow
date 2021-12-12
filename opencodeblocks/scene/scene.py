@@ -20,8 +20,6 @@ from opencodeblocks.graphics.edge import OCBEdge
 from opencodeblocks.scene.clipboard import SceneClipboard
 from opencodeblocks.scene.history import SceneHistory
 
-import networkx as nx
-
 
 class OCBScene(QGraphicsScene, Serializable):
 
@@ -188,17 +186,6 @@ class OCBScene(QGraphicsScene, Serializable):
                 ("edges", [edge.serialize() for edge in edges]),
             ]
         )
-
-    def create_graph(self) -> nx.DiGraph:
-        """Create a networkx graph from the scene."""
-        edges = []
-        for item in self.items():
-            if isinstance(item, OCBEdge):
-                edges.append(item)
-        graph = nx.DiGraph()
-        for edge in edges:
-            graph.add_edge(edge.source_socket.block, edge.destination_socket.block)
-        return graph
 
     def create_block_from_file(self, filepath: str, x: float = 0, y: float = 0):
         """Create a new block from a .ocbb file"""
