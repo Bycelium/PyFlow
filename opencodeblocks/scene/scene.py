@@ -183,7 +183,7 @@ class OCBScene(QGraphicsScene, Serializable):
 
         # Add filepath to kernel path
         dir_path = repr(path.abspath(path.dirname(filepath)))
-        setup_path_code = f"__import__(\"sys\").path[0] = {dir_path}"
+        setup_path_code = f"__import__(\"os\").chdir({dir_path})"
         self.kernel.execute(setup_path_code)
 
     def load_from_json(self, filepath: str):
