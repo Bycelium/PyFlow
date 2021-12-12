@@ -183,13 +183,13 @@ class OCBScene(QGraphicsScene, Serializable):
 
         # Add filepath to kernel path
         dir_path = repr(path.abspath(path.dirname(filepath)))
-        setup_path_code = f"__import__(\"os\").chdir({dir_path})"
+        setup_path_code = f'__import__("os").chdir({dir_path})'
         self.kernel.execute(setup_path_code)
 
     def load_from_json(self, filepath: str) -> OrderedDict:
         """
         Load the json data into an ordered dict
-        
+
         Args:
             filepath: Path to the file to load.
         """
@@ -270,8 +270,8 @@ class OCBScene(QGraphicsScene, Serializable):
     ):
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
-        if restore_id and 'id' in data:
-            self.id = data['id']
+        if restore_id and "id" in data:
+            self.id = data["id"]
 
         # Create blocks
         for block_data in data["blocks"]:
