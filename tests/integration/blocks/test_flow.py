@@ -52,7 +52,7 @@ class TestCodeBlocks:
                 block_to_run.run_left()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.5)
+            time.sleep(1)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")

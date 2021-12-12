@@ -2,6 +2,7 @@
 Exports OCBContainerBlock.
 """
 
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QVBoxLayout
 from opencodeblocks.blocks.block import OCBBlock
 
@@ -14,11 +15,23 @@ class OCBContainerBlock(OCBBlock):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.layout = QVBoxLayout(self.root)
+        # Defer import to prevent circular dependency.
+        # Due to the overall structure of the code, this cannot be removed, as the
+        # scene should be able to serialize blocks.
+        # This is not due to bad code design and should not be removed.
+        from opencodeblocks.graphics.view import OCBView # pylint: disable=cyclic-import
+        from opencodeblocks.scene.scene import OCBScene # pylint: disable=cyclic-import
 
-        #self.scene = OCBScene()
-        #self.scene.addHasBeenModifiedListener(self.updateTitle)
-        #self.view = OCBView(self.scene)
-        #self.layout.addWidget(self.view)
+        self.layout = QVBoxLayout(self.root)
+        self.layout.setContentsMargins(
+            self.edge_size * 2,
+            self.title_widget.height() + self.edge_size * 2,
+            self.edge_size * 2,
+            self.edge_size * 2
+        )
+
+        self.child_scene = OCBScene()
+        self.child_view = OCBView(self.child_scene)
+        self.layout.addWidget(self.child_view)
 
         self.holder.setWidget(self.root)

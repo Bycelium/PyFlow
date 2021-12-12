@@ -316,6 +316,12 @@ class OCBView(QGraphicsView):
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         """Displays the context menu when inside a view"""
+        super().contextMenuEvent(event)
+        # If somebody has already accepted the event, don't handle it.
+        if event.isAccepted():
+            return
+        event.setAccepted(True)
+
         menu = QMenu(self)
         actionPool = []
         for filepath, block_name in self.retreiveBlockTypes():
