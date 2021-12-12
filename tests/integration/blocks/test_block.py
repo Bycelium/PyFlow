@@ -73,3 +73,6 @@ class TestBlocks:
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_drag)
+    
+    def test_finish(self):
+        self.window.close()

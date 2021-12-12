@@ -62,4 +62,3 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
             elif msg[0] == RUN_MSG:
                 msg[1](*msg[2], **msg[3])
     t.join()
-    window.close()

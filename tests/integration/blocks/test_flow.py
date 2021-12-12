@@ -10,8 +10,6 @@ import pytest
 
 import time
 
-from PyQt5.QtCore import QPointF
-
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from opencodeblocks.graphics.window import OCBWindow
 from opencodeblocks.graphics.widget import OCBWidget
@@ -51,10 +49,15 @@ class TestCodeBlocks:
                 block_to_run.run_left()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(3)
+            time.sleep(0.1)
+            while block_to_run.is_running:
+                time.sleep(0.1) # wait for the execution to finish.
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_run)
+    
+    def test_finish(self):
+        self.window.close()

@@ -6,6 +6,7 @@ Integration tests for the OCBCodeBlocks.
 """
 
 import time
+import os
 import pyautogui
 import pytest
 
@@ -57,3 +58,42 @@ class TestCodeBlocks():
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_run)
+    
+
+    def test_run_block_with_path(self):
+        """ runs blocks with the correct working directory for the kernel """
+        file_example_path = "./tests/assets/example_graph1.ipyg"
+        asset_path = "./tests/assets/data.txt"
+        self.ocb_widget.scene.load(os.path.abspath(file_example_path))
+        
+        def testing_path(msgQueue: CheckingQueue):
+            block_of_test: OCBCodeBlock = None
+            for item in self.ocb_widget.scene.items():
+                if isinstance(item,OCBCodeBlock) and item.title == "test1":
+                    block_of_test = item
+                    print(item.title)
+                    break
+            msgQueue.check_equal(block_of_test is not None, True, "example_graph1 contains a block titled test1")
+
+            def run_block():
+                block_of_test.run_code()
+
+            msgQueue.run_lambda(run_block)
+            time.sleep(0.1) # wait for the lambda to complete.
+            while block_of_test.is_running:
+                time.sleep(0.1) # wait for the execution to finish.
+
+            file_content = open(asset_path).read()
+
+            print('"'+block_of_test.stdout.strip()+'"')
+            print('"'+file_content+'"')
+            
+            msgQueue.check_equal(block_of_test.stdout.strip(), file_content, "The asset file is read properly")
+
+            msgQueue.stop()
+
+        apply_function_inapp(self.window, testing_path)
+
+
+    def test_finish(self):
+        self.window.close()
