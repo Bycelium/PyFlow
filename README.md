@@ -11,7 +11,7 @@
 
 OpenCodeBlocks is an open-source tool for modular visual programing in python !
 
-Although for now the tool is in Beta and features are comming in bit by bit, stay tunned for the first release soon !
+Although for now the tool is in Beta and features are coming in bit by bit, stay tuned for the first release soon !
 
 ![](media/mnist_example.gif)
 
