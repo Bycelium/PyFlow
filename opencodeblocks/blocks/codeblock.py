@@ -267,7 +267,7 @@ class OCBCodeBlock(OCBBlock):
         self.transmitting_queue = to_transmit
         # Set delay so that the transmitting animation has fixed total duration
         self.transmitting_delay = int(
-            self.transmitting_delay / len(self.transmitting_queue)
+            self.transmitting_duration / len(self.transmitting_queue)
         )
         # Start transmitting animation
         self.transmitting_animation_in()
@@ -305,7 +305,7 @@ class OCBCodeBlock(OCBBlock):
 
         # Set delay so that the transmitting animation has fixed total duration
         self.transmitting_delay = int(
-            self.transmitting_delay / len(self.transmitting_queue)
+            self.transmitting_duration / len(self.transmitting_queue)
         )
         # Start transmitting animation
         self.transmitting_animation_in()
