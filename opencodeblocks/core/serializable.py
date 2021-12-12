@@ -6,19 +6,21 @@
 from typing import OrderedDict
 
 
-class Serializable():
+class Serializable:
 
-    """ Serializable base for serializable objects. """
+    """Serializable base for serializable objects."""
 
     def __init__(self):
         self.id = id(self)
 
     def serialize(self) -> OrderedDict:
-        """ Serialize the object as an ordered dictionary. """
+        """Serialize the object as an ordered dictionary."""
         raise NotImplementedError()
 
-    def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True) -> None:
-        """ Deserialize the object from an ordered dictionary.
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id=True
+    ) -> None:
+        """Deserialize the object from an ordered dictionary.
 
         Args:
             data: Dictionnary containing data do deserialize from.
