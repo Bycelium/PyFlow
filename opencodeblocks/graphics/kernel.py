@@ -64,11 +64,12 @@ class Kernel:
             code: String representing a piece of Python code to execute
         """
         worker = Worker(self, code)
+        # Change color to running
         block.run_color = 1
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
-        worker.signals.finished_block.connect(block.reset_buttons)
+        worker.signals.finished_block.connect(block.reset_after_run)
         worker.signals.error.connect(block.reset_has_been_run)
         block.source_editor.threadpool.start(worker)
 

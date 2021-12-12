@@ -170,6 +170,7 @@ class OCBScene(QGraphicsScene, Serializable):
         return super().clear()
 
     def serialize(self) -> OrderedDict:
+        """Serialize the scene into a dict."""
         blocks = []
         edges = []
         for item in self.items():
@@ -224,6 +225,7 @@ class OCBScene(QGraphicsScene, Serializable):
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
+        """Deserialize a dict into the scene."""
         self.clear()
         hashmap = hashmap if hashmap is not None else {}
         if restore_id:

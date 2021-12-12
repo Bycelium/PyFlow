@@ -70,6 +70,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
         self.pens = [self._pen, self._pen_running, self._pen_transmitting]
 
+        # 0 for normal, 1 for running, 2 for transmitting
         self.run_color = 0
 
         self.setFlag(QGraphicsPathItem.GraphicsItemFlag.ItemIsSelectable)
@@ -196,6 +197,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.destination = value.scenePos()
 
     def serialize(self) -> OrderedDict:
+        """Serialize the edge."""
         return OrderedDict(
             [
                 ("id", self.id),
@@ -240,6 +242,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         )
 
     def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
+        """Deserialize the edge."""
         if restore_id:
             self.id = data["id"]
         self.path_type = data["path_type"]
@@ -261,4 +264,5 @@ class OCBEdge(QGraphicsPathItem, Serializable):
     @run_color.setter
     def run_color(self, value: int):
         self._run_color = value
+        # Update to force repaint
         self.update()
