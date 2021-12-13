@@ -2,7 +2,7 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
-Integration tests for the OCBCodeBlocks.
+Integration tests for the execution flow.
 """
 
 import pytest
@@ -15,8 +15,8 @@ from opencodeblocks.graphics.widget import OCBWidget
 from tests.integration.utils import apply_function_inapp, CheckingQueue
 
 
-class TestCodeBlocks:
-    """Test the execution flow"""
+class TestExecutionFlow:
+    """Execution flow"""
 
     @pytest.fixture(autouse=True)
     def setup(self):
@@ -41,7 +41,7 @@ class TestCodeBlocks:
                     self.blocks_to_run[self.titles.index(item.title)] = item
 
     def test_flow_left(self):
-        """Correct flow when pressing left run"""
+        """run block and previous blocks when pressing left run."""
 
         def testing_run(msgQueue: CheckingQueue):
 
@@ -67,7 +67,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_run)
 
     def test_flow_right(self):
-        """Correct flow when pressing right run"""
+        """run block and next blocks when pressing right run."""
 
         def testing_run(msgQueue: CheckingQueue):
 
@@ -94,7 +94,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_run)
 
     def test_no_connection_left(self):
-        """Run_left when no connection"""
+        """run block only when no previous connection."""
 
         def testing_run(msgQueue: CheckingQueue):
 
@@ -114,7 +114,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_run)
 
     def test_no_connection_right(self):
-        """Run_right when no connection"""
+        """run block only when no next connection."""
 
         def testing_run(msgQueue: CheckingQueue):
 
