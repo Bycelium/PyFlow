@@ -30,15 +30,27 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     """Base class for blocks in OpenCodeBlocks."""
 
+    DEFAULT_DATA = {
+        "title": "New block",
+        "splitter_pos": [0, 0],
+        "width": 300,
+        "height": 200,
+        "metadata": {
+            "title_metadata": {"color": "white", "font": "Ubuntu", "size": 10}
+        },
+        "sockets": [],
+    }
+    MANDATORY_FIELDS = {"block_type", "position"}
+
     def __init__(
         self,
         block_type: str = "base",
         source: str = "",
         position: tuple = (0, 0),
-        width: int = 300,
-        height: int = 200,
+        width: int = DEFAULT_DATA["width"],
+        height: int = DEFAULT_DATA["height"],
         edge_size: float = 10.0,
-        title: Union[OCBTitle, str] = "New block",
+        title: Union[OCBTitle, str] = DEFAULT_DATA["title"],
         parent: Optional["QGraphicsItem"] = None,
     ):
         """Base class for blocks in OpenCodeBlocks.
@@ -200,18 +212,12 @@ class OCBBlock(QGraphicsItem, Serializable):
         """Change the geometry of the splitter to match the block"""
         # We make the resizing of splitter only affect
         # the last element of the split view
-        sizes = self.splitter.sizes()
-        old_height = self.splitter.height()
         self.splitter.setGeometry(
             int(self.edge_size),
             int(self.edge_size + self.title_widget.height()),
             int(self.width - self.edge_size * 2),
             int(self.height - self.edge_size * 2 - self.title_widget.height()),
         )
-        if len(sizes) > 1:
-            height_delta = self.splitter.height() - old_height
-            sizes[-1] += height_delta
-            self.splitter.setSizes(sizes)
 
     def update_title(self):
         """Change the geometry of the title to match the block"""
@@ -292,8 +298,11 @@ class OCBBlock(QGraphicsItem, Serializable):
 
     def deserialize(self, data: dict, hashmap: dict = None, restore_id=True) -> None:
         """Restore the block from serialized data"""
-        if restore_id:
+        if restore_id and "id" in data:
             self.id = data["id"]
+
+        self.complete_with_default(data)
+
         for dataname in ("title", "block_type", "width", "height"):
             setattr(self, dataname, data[dataname])
 

@@ -15,12 +15,12 @@ from opencodeblocks.graphics.theme import Theme
 
 
 class ThemeManager(QObject):
-    """ Class loading theme files and providing the options set in those files """
+    """Class loading theme files and providing the options set in those files"""
 
     themeChanged = pyqtSignal()
 
     def __init__(self, parent=None):
-        """ Load the default themes and the fonts available to construct the ThemeManager """
+        """Load the default themes and the fonts available to construct the ThemeManager"""
         super().__init__(parent)
         self._preferred_fonts = ["Inconsolata", "Roboto Mono", "Courier"]
         self.recommended_font_family = "Monospace"
@@ -39,7 +39,7 @@ class ThemeManager(QObject):
             full_path = os.path.join(theme_path, p)
             if os.path.isfile(full_path) and full_path.endswith(".theme"):
                 name = os.path.splitext(os.path.basename(p))[0]
-                with open(full_path, 'r', encoding="utf-8") as f:
+                with open(full_path, "r", encoding="utf-8") as f:
                     theme = Theme(name, f.read())
                     self._themes.append(theme)
 
@@ -53,11 +53,11 @@ class ThemeManager(QObject):
         self.themeChanged.emit()
 
     def list_themes(self) -> List[str]:
-        """ List the themes """
+        """List the themes"""
         return [theme.name for theme in self._themes]
 
     def current_theme(self) -> Theme:
-        """ Return the current theme """
+        """Return the current theme"""
         return self._themes[self.selected_theme_index]
 
 
@@ -65,7 +65,7 @@ theme_handle = None
 
 
 def theme_manager():
-    """ Retreive the theme manager of the application """
+    """Retreive the theme manager of the application"""
     global theme_handle
     if theme_handle is None:
         theme_handle = ThemeManager()

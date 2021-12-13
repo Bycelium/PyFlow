@@ -34,6 +34,10 @@ class Kernel():
                 message_type = 'image'
                 # output an image (from plt.plot or plt.imshow)
                 out = message['data']['image/png']
+            elif 'text/html' in message['data']:
+                message_type = 'text'
+                # output some html text (like a pandas dataframe)
+                out = message['data']['text/html']
             else:
                 message_type = 'text'
                 # output data as str (for example if code="a=10\na")
@@ -43,7 +47,7 @@ class Kernel():
             # output a print (print("Hello World"))
             out = message['text']
         elif 'traceback' in message:
-            message_type = 'text'
+            message_type = 'error'
             # output an error
             out = '\n'.join(message['traceback'])
         else:
@@ -65,6 +69,7 @@ class Kernel():
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
         worker.signals.finished_block.connect(block.reset_buttons)
+        worker.signals.error.connect(block.reset_has_been_run)
         block.source_editor.threadpool.start(worker)
 
     def run_queue(self):
