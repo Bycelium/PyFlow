@@ -53,21 +53,19 @@ def register(linter):
     linter.register_reporter(MyReporterClass)
 
 
-if __name__ == '__main__':
-    options = [
-        'opencodeblocks',
-        "--output-format=pylint_score.MyReporterClass"
-    ]
+if __name__ == "__main__":
+    options = ["opencodeblocks", "--output-format=pylint_score.MyReporterClass"]
     results = Run(options, exit=False)
     score = results.linter.stats.global_note
     score_min = 8.0
     score_max = 10
-    if sys.argv[1] == '--score':
+    if sys.argv[1] == "--score":
         print(f"{score:.2f}")
         if score < score_min or score > score_max:
             raise Exception(
-                f'Insufficient score with pylint: {score:.2f}<{score_min:.2f}')
-    elif sys.argv[1] == '--color':
+                f"Insufficient score with pylint: {score:.2f}<{score_min:.2f}"
+            )
+    elif sys.argv[1] == "--color":
         print(score_to_rgb_color(score, score_min=score_min, score_max=score_max))
     else:
         raise ValueError(f"Unknowed argument: {sys.argv[1]}")

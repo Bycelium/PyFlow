@@ -21,7 +21,6 @@ CHECK_MSG = "check"
 
 
 class CheckingQueue(Queue):
-
     def check_equal(self, a, b, msg=""):
         self.put([CHECK_MSG, a, b, msg])
 

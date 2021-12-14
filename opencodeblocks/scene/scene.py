@@ -178,10 +178,8 @@ class OCBScene(QGraphicsScene, Serializable):
 
     def load_from_json(self, filepath: str) -> OrderedDict:
         """Load the json data into an ordered dict
-
         Args:
             filepath: Path to the file to load.
-
         """
         with open(filepath, "r", encoding="utf-8") as file:
             data = json.loads(file.read())
@@ -202,28 +200,28 @@ class OCBScene(QGraphicsScene, Serializable):
                 edges.append(item)
         blocks.sort(key=lambda x: x.id)
         edges.sort(key=lambda x: x.id)
-        return OrderedDict([
-            ('id', self.id),
-            ('blocks', [block.serialize() for block in blocks]),
-            ('edges', [edge.serialize() for edge in edges]),
-        ])
+        return OrderedDict(
+            [
+                ("id", self.id),
+                ("blocks", [block.serialize() for block in blocks]),
+                ("edges", [edge.serialize() for edge in edges]),
+            ]
+        )
 
     def create_graph(self) -> nx.DiGraph:
-        """ Create a networkx graph from the scene. """
+        """Create a networkx graph from the scene."""
         edges = []
         for item in self.items():
             if isinstance(item, OCBEdge):
                 edges.append(item)
         graph = nx.DiGraph()
         for edge in edges:
-            graph.add_edge(edge.source_socket.block,
-                           edge.destination_socket.block)
+            graph.add_edge(edge.source_socket.block, edge.destination_socket.block)
         return graph
 
-    def create_block_from_file(
-            self, filepath: str, x: float = 0, y: float = 0):
-        """ Create a new block from a .ocbb file """
-        with open(filepath, 'r', encoding='utf-8') as file:
+    def create_block_from_file(self, filepath: str, x: float = 0, y: float = 0):
+        """Create a new block from a .ocbb file"""
+        with open(filepath, "r", encoding="utf-8") as file:
             data = json.loads(file.read())
             data["position"] = [x, y]
             data["sockets"] = {}
@@ -242,12 +240,11 @@ class OCBScene(QGraphicsScene, Serializable):
         for block_name in block_files:
             block_module = getattr(blocks, block_name)
             if isinstance(block_module, ModuleType):
-                if hasattr(block_module, data['block_type']):
-                    block_constructor = getattr(blocks, data['block_type'])
+                if hasattr(block_module, data["block_type"]):
+                    block_constructor = getattr(blocks, data["block_type"])
 
         if block_constructor is None:
-            raise NotImplementedError(
-                f"{data['block_type']} is not a known block type")
+            raise NotImplementedError(f"{data['block_type']} is not a known block type")
 
         block = block_constructor()
         block.deserialize(data, hashmap, restore_id)
