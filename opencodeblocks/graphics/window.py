@@ -374,7 +374,6 @@ class OCBWindow(QMainWindow):
             )
             if filename == "":
                 return False
-            current_window.savepath = filename
             current_window.saveAsJupyter()
             self.statusbar.showMessage(
                 f"Successfully saved ipygraph as jupter notebook at {current_window.savepath}",
