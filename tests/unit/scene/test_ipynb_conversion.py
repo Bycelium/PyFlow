@@ -1,5 +1,6 @@
 """Unit tests for the conversion from and to ipynb."""
 
+from typing import OrderedDict
 from pytest_mock import MockerFixture
 import pytest_check as check
 import json
@@ -10,29 +11,29 @@ from opencodeblocks.scene.ipynb_conversion_constants import BLOCK_TYPE_TO_NAME
 
 class TestIpynbConversion:
 
-    """Testing function_parsing functions"""
+    """Conversion from .ipynb"""
 
     def test_empty_data(self, mocker: MockerFixture):
-        """Empty data should return empty document"""
+        """should return empty ipyg graph for empty data."""
         check.equal(ipynb_to_ipyg({}), {"blocks": [], "edges": []})
 
     def test_empty_notebook_data(self, mocker: MockerFixture):
-        """The conversion for an empty notebook should be coherent"""
+        """should return expected graph for a real empty notebook data."""
         file_path = "./tests/assets/empty.ipynb"
-        real_notebook_is_coherent(file_path)
+        real_notebook_conversion_is_coherent(file_path)
 
-    def test_complex_notebook_data(self, mocker: MockerFixture):
-        """The conversion for a usual notebook should be coherent"""
+    def test_usual_notebook_data(self, mocker: MockerFixture):
+        """should return expected graph for a real usual notebook data."""
         file_path = "./tests/assets/usual.ipynb"
-        real_notebook_is_coherent(file_path)
+        real_notebook_conversion_is_coherent(file_path)
 
     def test_complex_notebook_data(self, mocker: MockerFixture):
-        """The conversion for a complex notebook should be coherent"""
+        """should return expected graph for a real complex notebook data."""
         file_path = "./tests/assets/complex.ipynb"
-        real_notebook_is_coherent(file_path)
+        real_notebook_conversion_is_coherent(file_path)
 
     def test_is_title(self, mocker: MockerFixture):
-        """Should return True iff the given text can be used as a title for a block"""
+        """should return True iff the given text can be used as a title for a block."""
         check.equal(is_title(string_to_markdown_block("")), False)
         check.equal(is_title(string_to_markdown_block("Data Preprocessing")), True)
         check.equal(is_title(string_to_markdown_block("Étude de cas")), True)
@@ -48,9 +49,20 @@ class TestIpynbConversion:
         check.equal(is_title(string_to_markdown_block("New line \n Next line")), False)
 
 
-def real_notebook_is_coherent(file_path: str):
+def real_notebook_conversion_is_coherent(file_path: str):
+    """Checks that the conversion of the ipynb notebook gives a coherent result.
+    
+    Args:
+        file_path: the path to a .ipynb file
     """
-    From ipynb conversion on a real notebooks should return
+    ipynb_data = load_json(file_path)
+    ipyg_data = ipynb_to_ipyg(ipynb_data)
+    check_conversion_coherence(ipynb_data, ipyg_data)
+
+def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data:OrderedDict):
+    """Checks that the ipyg data is coherent with the ipynb data.
+
+    The conversion from ipynb to ipyg should return
     1. blocks and edges
     2. the right amount of code blocks and edges
     3. blocks and sockets with unique ids
@@ -58,13 +70,11 @@ def real_notebook_is_coherent(file_path: str):
     5. code blocks that always have a source
     6. markdown blocks that always have text
     """
-    ipynb_data = load_json(file_path)
-    ipyg_data = ipynb_to_ipyg(ipynb_data)
 
-    # 1.
+    # blocks and edges are present
     check.equal("blocks" in ipyg_data and "edges" in ipyg_data, True)
 
-    # 2.
+    # the amount of code blocks and edges is right
     code_blocks_in_ipynb: int = 0
     for cell in ipynb_data["cells"]:
         if cell["cell_type"] == "code":
@@ -75,7 +85,7 @@ def real_notebook_is_coherent(file_path: str):
             code_blocks_in_ipyg += 1
     check.equal(code_blocks_in_ipyg, code_blocks_in_ipynb)
 
-    # 3.
+    # blocks and sockets have unique ids
     block_id_set = set([])
     socket_id_set = set([])
     for block in ipyg_data["blocks"]:
@@ -88,14 +98,14 @@ def real_notebook_is_coherent(file_path: str):
                     check.equal(socket["id"] in socket_id_set, False)
                     socket_id_set.add(socket["id"])
 
-    # 4.
+    # edges are between objects with existing ids
     for edge in ipyg_data["edges"]:
         check.equal(edge["source"]["block"] in block_id_set, True)
         check.equal(edge["destination"]["block"] in block_id_set, True)
         check.equal(edge["source"]["socket"] in socket_id_set, True)
         check.equal(edge["destination"]["socket"] in socket_id_set, True)
 
-    # 5. & 6.
+    # code blocks always have a source and markdown blocks always have a text
     for block in ipyg_data["blocks"]:
         if block["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
             check.equal("source" in block and type(block["source"]) == str, True)
@@ -104,14 +114,14 @@ def real_notebook_is_coherent(file_path: str):
 
 
 def load_json(file_path: str):
-    """Helper function that returns the ipynb data in a given file"""
+    """Helper function that returns the ipynb data in a given file."""
     with open(file_path, "r", encoding="utf-8") as file:
         data = json.loads(file.read())
     return data
 
 
 def string_to_markdown_block(string: str):
-    """Helper function that returns the ipyg data necessary for the is_title function to work"""
+    """Helper function that returns the ipyg data necessary for the is_title function to work."""
     return {
         "block_type": BLOCK_TYPE_TO_NAME["markdown"],
         "text": string,
