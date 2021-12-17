@@ -1,4 +1,4 @@
-# OpenCodeBlocks
+# PyFlow
 
 [![Pytest badge](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml/badge.svg?branch=master)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ddd03302fd7c4849b452959753bc0939)](https://www.codacy.com/gh/MathisFederico/OpenCodeBlocks/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MathisFederico/OpenCodeBlocks&amp;utm_campaign=Badge_Grade)
@@ -9,7 +9,7 @@
 [![Licence - GPLv3](https://img.shields.io/github/license/MathisFederico/Crafting?style=plastic)](https://www.gnu.org/licenses/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-OpenCodeBlocks is an open-source tool for modular visual programing in python !
+PyFlow is an open-source tool for modular visual programing in python !
 
 Although for now the tool is in Beta and features are coming in bit by bit, stay tuned for the first release soon !
 
