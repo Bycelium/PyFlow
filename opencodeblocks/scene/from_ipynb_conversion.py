@@ -41,6 +41,7 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
 
     next_block_x_pos: float = 0
     next_block_y_pos: float = 0
+    next_block_id = 0
 
     for cell in data["cells"]:
         if "cell_type" not in cell or cell["cell_type"] not in ["code", "markdown"]:
@@ -62,7 +63,7 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
             block_height: float = text_height + MARGIN_Y
 
             block_data = {
-                "id": len(blocks_data),
+                "id": next_block_id,
                 "block_type": BLOCK_TYPE_TO_NAME[block_type],
                 "width": block_width,
                 "height": block_height,
@@ -93,6 +94,7 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
                 next_block_y_pos += block_height + MARGIN_BETWEEN_BLOCKS_Y
 
             blocks_data.append(block_data)
+            next_block_id += 1
 
     adujst_markdown_blocks_width(blocks_data)
 
@@ -144,9 +146,13 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
     ]
     edges_data: List[OrderedDict] = []
 
+    greatest_block_id: int = 0
+    if len(blocks_data) > 0:
+        greatest_block_id = blocks_data[-1]["id"]
+
     for i in range(1, len(code_blocks)):
-        socket_id_out = len(blocks_data) + 2 * i
-        socket_id_in = len(blocks_data) + 2 * i + 1
+        socket_id_out = greatest_block_id + 2 * i + 2
+        socket_id_in = greatest_block_id + 2 * i + 1
         code_blocks[i - 1]["sockets"].append(
             get_output_socket_data(socket_id_out, code_blocks[i - 1]["width"])
         )
