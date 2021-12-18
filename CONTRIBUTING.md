@@ -24,10 +24,10 @@ Before doing your **pull request**, check using `pylint` and `pytest` that there
 pylint .\opencodeblocks\
 ```
 
-Some `pylint` issues can be fixed automatically using `autopep8`, with the following command:
+Some `pylint` issues can be fixed automatically using `black`, with the following command:
 
 ```bash
-autopep8 --in-place --recursive --aggressive opencodeblocks
+black .
 ```
 
 ```bash
@@ -35,6 +35,8 @@ pytest --cov=opencodeblocks --cov-report=html tests/unit
 ```
 
 We want to keep the *Pylint* score above *9.0*.
+
+The comments and docstrings should preferably follow [these](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) guidelines.
 
 ## Git Commit Messages
 
