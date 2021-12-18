@@ -88,16 +88,14 @@ class OCBCodeBlock(OCBBlock):
         """Initialize the run button"""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
-        run_button.setFixedSize(int(3 * self.edge_size),
-                                int(3 * self.edge_size))
+        run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_button.clicked.connect(self.run_left)
         return run_button
 
     def init_run_all_button(self):
         """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
-        run_all_button.setFixedSize(
-            int(3 * self.edge_size), int(3 * self.edge_size))
+        run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.run_right)
         run_all_button.raise_()
 
@@ -141,7 +139,7 @@ class OCBCodeBlock(OCBBlock):
         return False
 
     def _interrupt_execution(self):
-        """ Interrupt an execution, reset the blocks in the queue """
+        """Interrupt an execution, reset the blocks in the queue"""
         for block, _ in self.source_editor.kernel.execution_queue:
             # Reset the blocks that have not been run
             block.reset_buttons()
@@ -200,13 +198,12 @@ class OCBCodeBlock(OCBBlock):
         # Same as run_left but instead of running the blocks, we'll use run_left
         graph = self.scene().create_graph()
         edges = bfs_edges(graph, self)
-        blocks_to_run: List["OCBCodeBlock"] = [
-            self] + [v for _, v in edges]
+        blocks_to_run: List["OCBCodeBlock"] = [self] + [v for _, v in edges]
         for block in blocks_to_run[::-1]:
             block.run_left(in_right_button=True)
 
     def reset_has_been_run(self):
-        """ Reset has_been_run, is called when the output is an error """
+        """Reset has_been_run, is called when the output is an error"""
         self.has_been_run = False
 
     def update_title(self):
