@@ -2,7 +2,7 @@
 
 [![Pytest badge](https://github.com/Bycelium/OpenCodeBlocks/actions/workflows/python-tests.yml/badge.svg?branch=master)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-tests.yml) [![Pylint badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_pylint_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-pylint.yml) [![Unit coverage badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_unit_coverage_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml) [![Integration coverage badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_integration_coverage_badge.json)](https://github.com/MathisFederico/OpenCodeBlocks/actions/workflows/python-coverage.yml)
 
-Whenever you encounter a :beetle: **bug** or have :tada: **feature request**, 
+Whenever you encounter a :beetle: **bug** or have :tada: **feature request**,
 report this via [GitHub issues](https://github.com/Bycelium/PyFlow/issues).
 
 We are happy to receive contributions in the form of **pull requests** via GitHub.
@@ -11,10 +11,10 @@ Feel free to fork the repository, implement your changes and create a merge requ
 
 ## Getting started
 
-First, make sure you have `python` installed. You will need to install all the `requirements` and the `requirements-dev` using the following commands: 
+First, make sure you have `python` installed. You will need to install all the `requirements` and the `requirements-dev` using the following commands:
 
-*   `pip install -r requirements.txt`
-*   `pip install -r requirements-dev.txt`
+* `pip install -r requirements.txt`
+* `pip install -r requirements-dev.txt`
 
 You can run the program with `python main.py`
 
@@ -42,7 +42,6 @@ The comments and docstrings should preferably follow [these](https://google.gith
 
 Commits should start with a Capital letter and should be written in present tense (e.g. ``:tada: Add cool new feature`` instead of ``:tada: Added cool new feature``).
 You should also start your commit message with one or two applicable emoji. This does not only look great but also makes you rethink what to add to a commit. Make many but small commits!
-
 
  Emoji           | Description
 -----------------|-------------
