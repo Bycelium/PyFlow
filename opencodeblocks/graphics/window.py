@@ -302,7 +302,8 @@ class OCBWindow(QMainWindow):
         ocb_widget = OCBWidget()
         if filename is not None:
             ocb_widget.scene.load(filename)
-            ocb_widget.savepath = filename
+            if filename.split(".")[-1] == "ipyg":
+                ocb_widget.savepath = filename
         return self.mdiArea.addSubWindow(ocb_widget)
 
     def onFileNew(self):
