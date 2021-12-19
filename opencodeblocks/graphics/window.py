@@ -302,7 +302,8 @@ class OCBWindow(QMainWindow):
         ocb_widget = OCBWidget()
         if filename is not None:
             ocb_widget.scene.load(filename)
-            ocb_widget.savepath = filename
+            if filename.split(".")[-1] == "ipyg":
+                ocb_widget.savepath = filename
         return self.mdiArea.addSubWindow(ocb_widget)
 
     def onFileNew(self):
@@ -374,7 +375,6 @@ class OCBWindow(QMainWindow):
             )
             if filename == "":
                 return False
-            current_window.savepath = filename
             current_window.saveAsJupyter()
             self.statusbar.showMessage(
                 f"Successfully saved ipygraph as jupter notebook at {current_window.savepath}",
