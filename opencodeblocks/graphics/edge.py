@@ -25,7 +25,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
     def __init__(
         self,
         edge_width: float = 4.0,
-        path_type = DEFAULT_DATA["path_type"],
+        path_type=DEFAULT_DATA["path_type"],
         edge_color="#001000",
         edge_selected_color="#00ff00",
         source: QPointF = QPointF(0, 0),
