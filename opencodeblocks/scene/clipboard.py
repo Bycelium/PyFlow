@@ -45,15 +45,13 @@ class SceneClipboard:
         selected_blocks, selected_edges = self.scene.sortedSelectedItems()
         selected_sockets = {}
 
-        for block in selected_blocks:  # Gather selected sockets
+        # Gather selected sockets
+        for block in selected_blocks:
             for socket in block.sockets_in + block.sockets_out:
                 selected_sockets[socket.id] = socket
 
-        for (
-            edge
-        ) in (
-            selected_edges
-        ):  # Filter edges that are not fully connected to selected sockets
+        # Filter edges that are not fully connected to selected sockets
+        for edge in selected_edges:
             if (
                 edge.source_socket.id not in selected_sockets
                 or edge.destination_socket.id not in selected_sockets
