@@ -2,7 +2,7 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
-Integration tests for the OCBCodeBlocks.
+Integration tests for the execution flow.
 """
 
 import pytest
@@ -79,6 +79,46 @@ class TestCodeBlocks:
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")
+            msgQueue.stop()
+
+        apply_function_inapp(self.window, testing_run)
+
+    def test_no_connection_left(self):
+        """run block only when no previous connection."""
+
+        def testing_run(msgQueue: CheckingQueue):
+
+            block_to_run: OCBCodeBlock = self.blocks_to_run[
+                self.titles.index("Test no connection 1")
+            ]
+
+            def run_block():
+                block_to_run.run_left()
+
+            msgQueue.run_lambda(run_block)
+            time.sleep(0.5)
+
+            msgQueue.check_equal(block_to_run.stdout.strip(), "1")
+            msgQueue.stop()
+
+        apply_function_inapp(self.window, testing_run)
+
+    def test_no_connection_right(self):
+        """run block only when no next connection."""
+
+        def testing_run(msgQueue: CheckingQueue):
+
+            block_to_run: OCBCodeBlock = self.blocks_to_run[
+                self.titles.index("Test no connection 1")
+            ]
+
+            def run_block():
+                block_to_run.run_right()
+
+            msgQueue.run_lambda(run_block)
+            time.sleep(0.5)
+
+            # Just check that it doesn't crash
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_run)

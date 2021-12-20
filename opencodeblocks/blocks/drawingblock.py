@@ -78,6 +78,7 @@ class DrawableWidget(QWidget):
 
 
 class OCBDrawingBlock(OCBExecutableBlock):
+
     """An OCBBlock on which you can draw, to test your CNNs for example"""
 
     def __init__(self, **kwargs):

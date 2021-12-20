@@ -29,7 +29,7 @@ class TestCodeBlocks():
 
         # Add a block with the source to the window
         EXPRESSION = "3 + 5 * 2"
-        SOURCE_TEST = f'''print({EXPRESSION})'''
+        SOURCE_TEST = f"""print({EXPRESSION})"""
         expected_result = str(3 + 5 * 2)
 
         test_block = OCBCodeBlock(title="CodeBlock test", source=SOURCE_TEST)

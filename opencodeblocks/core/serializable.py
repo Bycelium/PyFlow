@@ -13,7 +13,6 @@ class Serializable:
     MANDATORY_FIELDS: OrderedDict = {}
     DEFAULT_DATA: Set[str] = {}
 
-
     def __init__(self):
         self.id = id(self)
 

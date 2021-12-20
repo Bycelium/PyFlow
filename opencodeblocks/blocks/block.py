@@ -158,8 +158,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             y = y_offset
         else:
             side_lenght = self.height - y_offset - 2 * socket.radius - self.edge_size
-            y = y_offset + side_lenght * \
-                sockets.index(socket) / (len(sockets) - 1)
+            y = y_offset + side_lenght * sockets.index(socket) / (len(sockets) - 1)
         return x, y
 
     def update_sockets(self):

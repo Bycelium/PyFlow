@@ -4,6 +4,6 @@
 
 """ OpenCodeBlocks: An open-source tool for modular visual programing in python """
 
-__appname__ = 'OpenCodeBlocks'
-__author__ = 'Mathïs Fédérico'
-__version__ = '0.0.1'
+__appname__ = "OpenCodeBlocks"
+__author__ = "Mathïs Fédérico"
+__version__ = "0.0.1"
