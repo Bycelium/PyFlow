@@ -47,9 +47,7 @@ class TestCodeBlocks:
                 block_to_run.run_right()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.1)
-            while block_to_run.is_running:
-                time.sleep(0.1)  # wait for the execution to finish.
+            time.sleep(2)
 
             # 6 and not 6\n6
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
@@ -72,9 +70,7 @@ class TestCodeBlocks:
                 block_to_run.run_left()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.1)
-            while block_to_run.is_running:
-                time.sleep(0.1)  # wait for the execution to finish.
+            time.sleep(2)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")
@@ -97,10 +93,7 @@ class TestCodeBlocks:
             print("About to run !")
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.1)
-            while block_to_run.is_running:
-                print("wait ...")
-                time.sleep(0.1)
+            time.sleep(2)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "1")
             msgQueue.stop()
@@ -120,9 +113,7 @@ class TestCodeBlocks:
                 block_to_run.run_right()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.1)
-            while block_to_run.is_running:
-                time.sleep(0.1)
+            time.sleep(2)
 
             # Just check that it doesn't crash
             msgQueue.stop()

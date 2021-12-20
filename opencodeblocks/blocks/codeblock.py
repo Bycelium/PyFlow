@@ -65,6 +65,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
         self.has_been_run = False
+        self.blocks_to_run = []
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_running = QPen(QColor("#FF0000"))
@@ -178,10 +179,12 @@ class OCBCodeBlock(OCBExecutableBlock):
             # Reset the blocks that have not been run
             block.reset_has_been_run()
             block.execution_finished()
-        # Clear the queue
+        # Clear kernel execution queue
         self.scene().kernel.execution_queue = []
         # Interrupt the kernel
         self.scene().kernel.kernel_manager.interrupt_kernel()
+        # Clear local execution queue
+        self.blocks_to_run = []
 
     def transmitting_animation_in(self):
         """
@@ -189,8 +192,8 @@ class OCBCodeBlock(OCBExecutableBlock):
         Set color to transmitting and set a timer before switching to normal
         """
         for elem in self.transmitting_queue[0]:
-            if elem.run_color != 1:
-                elem.run_color = 2
+            # Set color to transmitting
+            elem.run_color = 2
         QApplication.processEvents()
         QTimer.singleShot(self.transmitting_delay, self.transmitting_animation_out)
 
@@ -200,12 +203,21 @@ class OCBCodeBlock(OCBExecutableBlock):
         After the timer, set color to normal and move on with the queue
         """
         for elem in self.transmitting_queue[0]:
-            if elem.run_color != 1:
+            # Reset color only if the block will not be run
+            if hasattr(elem, "has_been_run"):
+                if elem.has_been_run is True:
+                    elem.run_color = 0
+            else:
                 elem.run_color = 0
+
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
         if len(self.transmitting_queue) != 0:
+            # If the queue is not empty, move forward in the animation
             self.transmitting_animation_in()
+        else:
+            # Else, run the blocks in the self.blocks_to_run
+            self.run_blocks()
 
     def custom_bfs(self, start_node, reverse=False):
         """
@@ -257,26 +269,89 @@ class OCBCodeBlock(OCBExecutableBlock):
 
         return blocks_to_run, to_transmit
 
-    def run_blocks(self, blocks_to_run):
+    def custom_djikstra(self):
+        """
+        Custom graph traversal utility
+        Returns blocks/edges that will potentially be run by run_right
+        from closest to farthest from self
+
+        Returns:
+            list: each element is a list of blocks/edges to animate in order
+        """
+        # Result
+        to_transmit = [[self]]
+
+        # To check if a block has been visited
+        visited = []
+        # We need to visit the inputs of these blocks
+        to_visit_input = [self]
+        # We need to visit the outputs of these blocks
+        to_visit_output = [self]
+
+        # Next stage to put in to_transmit
+        next_edges = []
+        next_blocks = []
+
+        while len(to_visit_input) != 0 or len(to_visit_output) != 0:
+            for block in to_visit_input.copy():
+                # Check input edges and blocks
+                for input_socket in block.sockets_in:
+                    for edge in input_socket.edges:
+                        if edge not in visited:
+                            next_edges.append(edge)
+                        visited.append(edge)
+                        input_block = edge.source_socket.block
+                        to_visit_input.append(input_block)
+                        if input_block not in visited:
+                            next_blocks.append(input_block)
+                        visited.append(input_block)
+                to_visit_input.remove(block)
+            for block in to_visit_output.copy():
+                # Check output edges and blocks
+                for output_socket in block.sockets_out:
+                    for edge in output_socket.edges:
+                        if edge not in visited:
+                            next_edges.append(edge)
+                        visited.append(edge)
+                        output_block = edge.destination_socket.block
+                        to_visit_input.append(output_block)
+                        to_visit_output.append(output_block)
+                        if output_block not in visited:
+                            next_blocks.append(output_block)
+                        visited.append(output_block)
+                to_visit_output.remove(block)
+
+            # Add the next stage to to_transmit
+            to_transmit.append(next_edges)
+            to_transmit.append(next_blocks)
+
+            # Reset next stage
+            next_edges = []
+            next_blocks = []
+
+        return to_transmit
+
+    def run_blocks(self):
         """Run a list of blocks"""
-        for block in blocks_to_run[::-1]:
+        for block in self.blocks_to_run[::-1]:
             if not block.has_been_run:
                 block.run_code()
+        if not self.has_been_run:
+            self.run_code()
 
     def run_left(self):
         """Run all of the block's dependencies and then run the block"""
+
+        # Reset has_been_run to make sure that the self is run again
+        self.has_been_run = False
 
         # To avoid crashing when spamming the button
         if len(self.transmitting_queue) != 0:
             return
 
-        # If the user presses left run when running, cancel the execution
-        if self.run_button.text() == "...":
-            self._interrupt_execution()
-            return
-
         # Gather dependencies
         blocks_to_run, to_transmit = self.custom_bfs(self)
+        self.blocks_to_run = blocks_to_run
 
         # Set the transmitting queue
         self.transmitting_queue = to_transmit
@@ -287,12 +362,6 @@ class OCBCodeBlock(OCBExecutableBlock):
         # Start transmitting animation
         self.transmitting_animation_in()
 
-        # Run the blocks
-        self.run_blocks(blocks_to_run)
-
-        # Run self
-        self.run_code()
-
     def run_right(self):
         """Run all of the output blocks and all their dependencies"""
 
@@ -300,34 +369,18 @@ class OCBCodeBlock(OCBExecutableBlock):
         if len(self.transmitting_queue) != 0:
             return
 
-        # If the user presses right run when running, cancel the execution
-        if self.run_all_button.text() == "...":
-            self._interrupt_execution()
-            return
+        # Create transmitting queue
+        self.transmitting_queue = self.custom_djikstra()
 
         # Gather outputs
-        blocks_to_run, to_transmit_right = self.custom_bfs(self, reverse=True)
-
-        # Init transmitting queue
-        self.transmitting_queue = to_transmit_right
-
-        # Gather dependencies
-        to_transmit_left = []
+        blocks_to_run, _ = self.custom_bfs(self, reverse=True)
+        self.blocks_to_run = blocks_to_run
 
         # For each output found
         for block in blocks_to_run[::-1]:
             # Gather dependencies
-            new_blocks_to_run, new_to_transmit = self.custom_bfs(block)
+            new_blocks_to_run, _ = self.custom_bfs(block)
             blocks_to_run += new_blocks_to_run
-            # Add new_to_transmit to transmit_left
-            # so that each left_transmit starts at the same time
-            for i in range(len(new_to_transmit)):
-                if i < len(to_transmit_left):
-                    to_transmit_left[i] += new_to_transmit[i]
-                else:
-                    to_transmit_left.append(new_to_transmit[i])
-
-        self.transmitting_queue += to_transmit_left
 
         # Set delay so that the transmitting animation has fixed total duration
         self.transmitting_delay = int(
@@ -336,9 +389,6 @@ class OCBCodeBlock(OCBExecutableBlock):
         # Start transmitting animation
         self.transmitting_animation_in()
 
-        # Run the blocks
-        self.run_blocks(blocks_to_run)
-
     def reset_has_been_run(self):
         """Reset has_been_run, is called when the output is an error"""
         self.has_been_run = False
@@ -346,8 +396,10 @@ class OCBCodeBlock(OCBExecutableBlock):
     def execution_finished(self):
         """Reset the text of the run buttons"""
         super().execution_finished()
+        self.run_color = 0
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
+        self.blocks_to_run = []
 
     def update_title(self):
         """Change the geometry of the title widget"""
