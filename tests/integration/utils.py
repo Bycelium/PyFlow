@@ -35,34 +35,37 @@ class CheckingQueue(Queue):
     def stop(self):
         self.put([STOP_MSG])
 
+
 class ExceptionForwardingThread(threading.Thread):
-    """ A Thread class that forwards the exceptions to the calling thread """
+    """A Thread class that forwards the exceptions to the calling thread"""
+
     def __init__(self, *args, **kwargs):
-        """ Create an exception forwarding thread """
+        """Create an exception forwarding thread"""
         super().__init__(*args, **kwargs)
         self.e = None
 
     def run(self):
-        """ Code ran in another thread """
+        """Code ran in another thread"""
         try:
             super().run()
         except Exception as e:
             self.e = e
 
     def join(self):
-        """ Used to sync the thread with the caller """
+        """Used to sync the thread with the caller"""
         super().join()
-        print("except: ",self.e)
+        print("except: ", self.e)
         if self.e != None:
             raise self.e
 
 
 def start_app(obj):
-    """ Create a new app for testing """
+    """Create a new app for testing"""
     obj.window = OCBWindow()
     obj.ocb_widget = OCBWidget()
     obj.subwindow = obj.window.mdiArea.addSubWindow(obj.ocb_widget)
     obj.subwindow.show()
+
 
 def apply_function_inapp(window: OCBWindow, run_func: Callable):
 
@@ -78,7 +81,7 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
     deadCounter = 0
 
     while not stop:
-        time.sleep(1 / 30) # 30 fps
+        time.sleep(1 / 30)  # 30 fps
         QApplication.processEvents()
         if not msgQueue.empty():
             msg = msgQueue.get()
@@ -93,6 +96,8 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
             deadCounter += 1
         if deadCounter >= 3:
             # Test failed, close was not called
-            warnings.warn("Warning: you need to call CheckingQueue.stop() at the end of your test !")
+            warnings.warn(
+                "Warning: you need to call CheckingQueue.stop() at the end of your test !"
+            )
             break
     t.join()

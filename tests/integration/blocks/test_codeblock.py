@@ -17,15 +17,14 @@ from opencodeblocks.blocks.codeblock import OCBCodeBlock
 from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
 
-class TestCodeBlocks():
-
+class TestCodeBlocks:
     @pytest.fixture(autouse=True)
     def setup(self):
-        """ Setup reused variables. """
+        """Setup reused variables."""
         start_app(self)
 
     def test_run_python(self):
-        """ run source code when run button is pressed. """
+        """run source code when run button is pressed."""
 
         # Add a block with the source to the window
         EXPRESSION = "3 + 5 * 2"
@@ -58,42 +57,46 @@ class TestCodeBlocks():
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_run)
-    
 
     def test_run_block_with_path(self):
-        """ runs blocks with the correct working directory for the kernel """
+        """runs blocks with the correct working directory for the kernel"""
         file_example_path = "./tests/assets/example_graph1.ipyg"
         asset_path = "./tests/assets/data.txt"
         self.ocb_widget.scene.load(os.path.abspath(file_example_path))
-        
+
         def testing_path(msgQueue: CheckingQueue):
             block_of_test: OCBCodeBlock = None
             for item in self.ocb_widget.scene.items():
-                if isinstance(item,OCBCodeBlock) and item.title == "test1":
+                if isinstance(item, OCBCodeBlock) and item.title == "test1":
                     block_of_test = item
-                    print(item.title)
                     break
-            msgQueue.check_equal(block_of_test is not None, True, "example_graph1 contains a block titled test1")
+            msgQueue.check_equal(
+                block_of_test is not None,
+                True,
+                "example_graph1 contains a block titled test1",
+            )
 
             def run_block():
                 block_of_test.run_code()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.1) # wait for the lambda to complete.
+            time.sleep(0.1)  # wait for the lambda to complete.
             while block_of_test.is_running:
-                time.sleep(0.1) # wait for the execution to finish.
+                time.sleep(0.1)  # wait for the execution to finish.
+
+            time.sleep(0.1)
 
             file_content = open(asset_path).read()
 
-            print('"'+block_of_test.stdout.strip()+'"')
-            print('"'+file_content+'"')
-            
-            msgQueue.check_equal(block_of_test.stdout.strip(), file_content, "The asset file is read properly")
+            msgQueue.check_equal(
+                block_of_test.stdout.strip(),
+                file_content,
+                "The asset file is read properly",
+            )
 
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_path)
-
 
     def test_finish(self):
         self.window.close()

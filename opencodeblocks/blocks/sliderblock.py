@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
 from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 
+
 class OCBSliderBlock(OCBExecutableBlock):
     """
     Features a slider ranging from 0 to 1 and an area to choose what value to assign the slider to.
@@ -44,7 +45,7 @@ class OCBSliderBlock(OCBExecutableBlock):
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
-        """ This is called when the value of the slider changes """
+        """This is called when the value of the slider changes"""
         self.variable_value.setText(f"{self.value}")
         # Make sure that the slider is initialized before trying to run it.
         if self.scene() is not None:
@@ -52,9 +53,10 @@ class OCBSliderBlock(OCBExecutableBlock):
 
     @property
     def source(self):
-        """ The "source code" of the slider i.e an assignement to the value of the slider """
+        """The "source code" of the slider i.e an assignement to the value of the slider"""
         python_code = f"{self.var_name} = {self.value}"
         return python_code
+
     @source.setter
     def source(self, value: str):
         raise RuntimeError("The source of a sliderblock is read-only.")

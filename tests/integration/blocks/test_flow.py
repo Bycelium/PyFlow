@@ -14,24 +14,28 @@ from tests.integration.utils import apply_function_inapp, CheckingQueue, start_a
 
 
 class TestCodeBlocks:
-
     @pytest.fixture(autouse=True)
     def setup(self):
-        """ Setup reused variables. """
+        """Setup reused variables."""
         start_app(self)
 
         self.ocb_widget.scene.load("tests/assets/flow_test.ipyg")
 
-        self.titles = ["Test flow 5", "Test flow 4", "Test no connection 1",
-                  "Test input only 2", "Test output only 1"]
-        self.blocks_to_run = [None]*5
+        self.titles = [
+            "Test flow 5",
+            "Test flow 4",
+            "Test no connection 1",
+            "Test input only 2",
+            "Test output only 1",
+        ]
+        self.blocks_to_run = [None] * 5
         for item in self.ocb_widget.scene.items():
             if isinstance(item, OCBCodeBlock):
                 if item.title in self.titles:
                     self.blocks_to_run[self.titles.index(item.title)] = item
 
     def test_duplicated_run(self):
-        """ Don't run a block twice when the execution flows """
+        """Don't run a block twice when the execution flows"""
         for b in self.blocks_to_run:
             b.stdout = ""
 
@@ -45,7 +49,7 @@ class TestCodeBlocks:
             msgQueue.run_lambda(run_block)
             time.sleep(0.1)
             while block_to_run.is_running:
-                time.sleep(0.1) # wait for the execution to finish.
+                time.sleep(0.1)  # wait for the execution to finish.
 
             # 6 and not 6\n6
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
@@ -54,8 +58,8 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_no_duplicates)
 
     def test_flow_left(self):
-        """ Correct flow when pressing left run """
-        
+        """Correct flow when pressing left run"""
+
         for b in self.blocks_to_run:
             b.stdout = ""
 
@@ -70,7 +74,7 @@ class TestCodeBlocks:
             msgQueue.run_lambda(run_block)
             time.sleep(0.1)
             while block_to_run.is_running:
-                time.sleep(0.1) # wait for the execution to finish.
+                time.sleep(0.1)  # wait for the execution to finish.
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
             msgQueue.check_equal(block_to_not_run.stdout.strip(), "")

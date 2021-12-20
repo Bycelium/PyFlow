@@ -51,7 +51,7 @@ class TestIpynbConversion:
 
 def real_notebook_conversion_is_coherent(file_path: str):
     """Checks that the conversion of the ipynb notebook gives a coherent result.
-    
+
     Args:
         file_path: the path to a .ipynb file
     """
@@ -59,7 +59,8 @@ def real_notebook_conversion_is_coherent(file_path: str):
     ipyg_data = ipynb_to_ipyg(ipynb_data)
     check_conversion_coherence(ipynb_data, ipyg_data)
 
-def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data:OrderedDict):
+
+def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data: OrderedDict):
     """Checks that the ipyg data is coherent with the ipynb data.
 
     The conversion from ipynb to ipyg should return
