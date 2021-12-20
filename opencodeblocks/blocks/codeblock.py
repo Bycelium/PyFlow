@@ -174,14 +174,14 @@ class OCBCodeBlock(OCBExecutableBlock):
 
     def _interrupt_execution(self):
         """Interrupt an execution, reset the blocks in the queue"""
-        for block, _ in self.source_editor.kernel.execution_queue:
+        for block, _ in self.scene().kernel.execution_queue:
             # Reset the blocks that have not been run
-            block.reset_after_run()
-            block.has_been_run = False
+            block.reset_has_been_run()
+            block.execution_finished()
         # Clear the queue
-        self.source_editor.kernel.execution_queue = []
+        self.scene().kernel.execution_queue = []
         # Interrupt the kernel
-        self.source_editor.kernel.kernel_manager.interrupt_kernel()
+        self.scene().kernel.kernel_manager.interrupt_kernel()
 
     def transmitting_animation_in(self):
         """
