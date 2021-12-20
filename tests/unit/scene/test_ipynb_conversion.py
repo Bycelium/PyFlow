@@ -15,7 +15,7 @@ class TestIpynbConversion:
 
     def test_empty_data(self, mocker: MockerFixture):
         """should return empty ipyg graph for empty data."""
-        check.equal(ipynb_to_ipyg({}), {"blocks": [], "edges": []})
+        check.equal(ipynb_to_ipyg({}, False), {"blocks": [], "edges": []})
 
     def test_empty_notebook_data(self, mocker: MockerFixture):
         """should return expected graph for a real empty notebook data."""
@@ -56,7 +56,7 @@ def real_notebook_conversion_is_coherent(file_path: str):
         file_path: the path to a .ipynb file
     """
     ipynb_data = load_json(file_path)
-    ipyg_data = ipynb_to_ipyg(ipynb_data)
+    ipyg_data = ipynb_to_ipyg(ipynb_data, False)
     check_conversion_coherence(ipynb_data, ipyg_data)
 
 
