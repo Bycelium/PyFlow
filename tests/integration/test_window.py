@@ -18,14 +18,14 @@ class TestWindow:
         """Setup reused variables."""
         self.window = OCBWindow()
 
-    def test_window_close(self, qtbot):
-        """closes"""
-        self.window.close()
-
-    def test_open_file(self):
+    def test_open_file(self, qtbot):
         """loads files"""
         wnd = OCBWindow()
         file_example_path = "./tests/assets/example_graph1.ipyg"
         subwnd = wnd.createNewMdiChild(os.path.abspath(file_example_path))
         subwnd.show()
         wnd.close()
+
+    def test_window_close(self, qtbot):
+        """closes"""
+        self.window.close()

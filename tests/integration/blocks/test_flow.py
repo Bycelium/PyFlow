@@ -9,10 +9,8 @@ import pytest
 import time
 
 from opencodeblocks.blocks.codeblock import OCBCodeBlock
-from opencodeblocks.graphics.window import OCBWindow
-from opencodeblocks.graphics.widget import OCBWidget
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue
+from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
 
 class TestCodeBlocks:
@@ -20,20 +18,17 @@ class TestCodeBlocks:
     @pytest.fixture(autouse=True)
     def setup(self):
         """ Setup reused variables. """
-        self.window = OCBWindow()
-        self.ocb_widget = OCBWidget()
-        self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
-        self.subwindow.show()
+        start_app(self)
 
         self.ocb_widget.scene.load("tests/assets/flow_test.ipyg")
 
-        titles = ["Test flow 5", "Test flow 4", "Test no connection 1",
+        self.titles = ["Test flow 5", "Test flow 4", "Test no connection 1",
                   "Test input only 2", "Test output only 1"]
         self.blocks_to_run = [None]*5
         for item in self.ocb_widget.scene.items():
             if isinstance(item, OCBCodeBlock):
-                if item.title in titles:
-                    self.blocks_to_run[titles.index(item.title)] = item
+                if item.title in self.titles:
+                    self.blocks_to_run[self.titles.index(item.title)] = item
 
     def test_duplicated_run(self):
         """ Don't run a block twice when the execution flows """
@@ -95,8 +90,13 @@ class TestCodeBlocks:
             def run_block():
                 block_to_run.run_left()
 
+            print("About to run !")
+
             msgQueue.run_lambda(run_block)
-            time.sleep(0.5)
+            time.sleep(0.1)
+            while block_to_run.is_running:
+                print("wait ...")
+                time.sleep(0.1)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "1")
             msgQueue.stop()
@@ -116,7 +116,9 @@ class TestCodeBlocks:
                 block_to_run.run_right()
 
             msgQueue.run_lambda(run_block)
-            time.sleep(0.5)
+            time.sleep(0.1)
+            while block_to_run.is_running:
+                time.sleep(0.1)
 
             # Just check that it doesn't crash
             msgQueue.stop()

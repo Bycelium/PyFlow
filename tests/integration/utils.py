@@ -5,14 +5,17 @@
 Utilities functions for integration testing.
 """
 
-import os
-import asyncio
 from typing import Callable
 
+import os
+import asyncio
 import threading
+import time
 from queue import Queue
+
 from qtpy.QtWidgets import QApplication
 import pytest_check as check
+import warnings
 from opencodeblocks.graphics.widget import OCBWidget
 
 from opencodeblocks.graphics.window import OCBWindow
@@ -32,6 +35,27 @@ class CheckingQueue(Queue):
     def stop(self):
         self.put([STOP_MSG])
 
+class ExceptionForwardingThread(threading.Thread):
+    """ A Thread class that forwards the exceptions to the calling thread """
+    def __init__(self, *args, **kwargs):
+        """ Create an exception forwarding thread """
+        super().__init__(*args, **kwargs)
+        self.e = None
+
+    def run(self):
+        """ Code ran in another thread """
+        try:
+            super().run()
+        except Exception as e:
+            self.e = e
+
+    def join(self):
+        """ Used to sync the thread with the caller """
+        super().join()
+        print("except: ",self.e)
+        if self.e != None:
+            raise self.e
+
 
 def start_app(obj):
     """ Create a new app for testing """
@@ -47,11 +71,14 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
 
     QApplication.processEvents()
     msgQueue = CheckingQueue()
-    t = threading.Thread(target=run_func, args=(msgQueue,))
+    t = ExceptionForwardingThread(target=run_func, args=(msgQueue,))
     t.start()
 
     stop = False
+    deadCounter = 0
+
     while not stop:
+        time.sleep(1 / 30) # 30 fps
         QApplication.processEvents()
         if not msgQueue.empty():
             msg = msgQueue.get()
@@ -61,4 +88,11 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
                 stop = True
             elif msg[0] == RUN_MSG:
                 msg[1](*msg[2], **msg[3])
+
+        if not t.is_alive() and not stop:
+            deadCounter += 1
+        if deadCounter >= 3:
+            # Test failed, close was not called
+            warnings.warn("Warning: you need to call CheckingQueue.stop() at the end of your test !")
+            break
     t.join()
