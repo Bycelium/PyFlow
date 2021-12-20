@@ -35,6 +35,12 @@ class OCBCodeBlock(OCBBlock):
 
     """
 
+    DEFAULT_DATA = {
+        **OCBBlock.DEFAULT_DATA,
+        "source": "",
+    }
+    MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
+
     def __init__(self, **kwargs):
         """
         Create a new OCBCodeBlock.
@@ -486,6 +492,9 @@ class OCBCodeBlock(OCBBlock):
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
         """Restore a codeblock from it's serialized state"""
+
+        self.complete_with_default(data)
+
         for dataname in ("source", "stdout"):
             if dataname in data:
                 setattr(self, dataname, data[dataname])

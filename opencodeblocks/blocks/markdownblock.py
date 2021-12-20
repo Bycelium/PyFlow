@@ -14,11 +14,11 @@ from opencodeblocks.graphics.theme_manager import theme_manager
 
 
 class OCBMarkdownBlock(OCBBlock):
-    """ A block that is able to render markdown text """
+    """A block that is able to render markdown text"""
 
     def __init__(self, **kwargs):
         """
-            Create a new OCBMarkdownBlock, a block that renders markdown
+        Create a new OCBMarkdownBlock, a block that renders markdown
         """
         super().__init__(**kwargs)
 
@@ -46,13 +46,14 @@ class OCBMarkdownBlock(OCBBlock):
 
         self.rendered_markdown = QWebEngineView()
         self.rendered_markdown.page().setBackgroundColor(
-            QColor.fromRgba64(0, 0, 0, alpha=0))
+            QColor.fromRgba64(0, 0, 0, alpha=0)
+        )
 
         self.splitter.addWidget(self.rendered_markdown)
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
-        """ Update markdown rendering when the content of the markdown editor changes """
+        """Update markdown rendering when the content of the markdown editor changes"""
         t = self.editor.text()
 
         dark_theme = """
@@ -68,7 +69,7 @@ class OCBMarkdownBlock(OCBBlock):
 
     @property
     def text(self) -> str:
-        """ The content of the markdown block """
+        """The content of the markdown block"""
         return self.editor.text()
 
     @text.setter
@@ -82,10 +83,11 @@ class OCBMarkdownBlock(OCBBlock):
 
         return base_dict
 
-    def deserialize(self, data: OrderedDict,
-                    hashmap: dict = None, restore_id: bool = True):
-        """ Restore a markdown block from it's serialized state """
-        for dataname in ['text']:
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
+    ):
+        """Restore a markdown block from it's serialized state"""
+        for dataname in ["text"]:
             if dataname in data:
                 setattr(self, dataname, data[dataname])
 

@@ -36,7 +36,7 @@ class OCBSliderBlock(OCBBlock):
             self.edge_size * 2,
             self.title_widget.height() + self.edge_size * 2,
             self.edge_size * 2,
-            self.edge_size * 2
+            self.edge_size * 2,
         )
         self.layout.addWidget(self.slider)
         self.layout.addLayout(self.variable_layout)
@@ -44,7 +44,7 @@ class OCBSliderBlock(OCBBlock):
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
-        """ This is called when the value of the slider changes """
+        """This is called when the value of the slider changes"""
         python_code = f"{self.var_name} = {self.value}"
         self.variable_value.setText(f"{self.value}")
 
@@ -54,32 +54,35 @@ class OCBSliderBlock(OCBBlock):
 
     @property
     def value(self):
-        """ The value of the slider """
+        """The value of the slider"""
         return str(self.slider.value() / 100)
+
     @value.setter
     def value(self, value: str):
         self.slider.setValue(int(float(value) * 100))
 
     @property
     def var_name(self):
-        """ The name of the python variable associated with the slider """
+        """The name of the python variable associated with the slider"""
         return self.variable_text.text()
+
     @var_name.setter
     def var_name(self, value: str):
         self.variable_text.setText(value)
 
     def serialize(self):
-        """ Return a serialized version of this widget """
+        """Return a serialized version of this widget"""
         base_dict = super().serialize()
         base_dict["value"] = self.value
         base_dict["var_name"] = self.var_name
 
         return base_dict
 
-    def deserialize(self, data: OrderedDict,
-                    hashmap: dict = None, restore_id: bool = True):
-        """ Restore a slider block from it's serialized state """
-        for dataname in ['value','var_name']:
+    def deserialize(
+        self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
+    ):
+        """Restore a slider block from it's serialized state"""
+        for dataname in ["value", "var_name"]:
             if dataname in data:
                 setattr(self, dataname, data[dataname])
 

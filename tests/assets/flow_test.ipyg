@@ -268,7 +268,7 @@
                     }
                 }
             ],
-            "source": "b = 3",
+            "source": "b = 3\r\nb",
             "stdout": ""
         },
         {
@@ -749,7 +749,7 @@
                 }
             },
             "sockets": [],
-            "text": "**Test flow tests the general behavior of flow execution:**\r\n\r\n\tExecuting 6 left should output 4\r\n\r\n\tExecuting 6 right should output 21 in block 8\r\n"
+            "text": "**Test flow tests the general behavior of flow execution:**\r\n\r\n\tExecuting 6 left should output 6\r\n\r\n\tExecuting 6 right should output 21 in block 8\r\n"
         }
     ],
     "edges": [

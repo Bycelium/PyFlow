@@ -37,17 +37,14 @@ class OCBWindow(QMainWindow):
         )
         loadStylesheets(
             (
-                os.path.join(os.path.dirname(__file__),
-                             "..", "qss", "ocb_dark.qss"),
+                os.path.join(os.path.dirname(__file__), "..", "qss", "ocb_dark.qss"),
                 self.stylesheet_filename,
             )
         )
 
         self.mdiArea = QMdiArea()
-        self.mdiArea.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.mdiArea.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.mdiArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mdiArea.setViewMode(QMdiArea.ViewMode.TabbedView)
         self.mdiArea.setDocumentMode(True)
         self.mdiArea.setTabsMovable(True)
@@ -128,6 +125,11 @@ class OCBWindow(QMainWindow):
             statusTip="Save the ipygraph as...",
             shortcut="Ctrl+Shift+S",
             triggered=self.onFileSaveAs,
+        )
+        self._actSaveAsJupyter = QAction(
+            "Save &As ... .ipynb",
+            statusTip="Save the ipygraph as a Jupter Notebook at ...",
+            triggered=self.oneFileSaveAsJupyter,
         )
         self._actQuit = QAction(
             "&Quit",
@@ -232,6 +234,7 @@ class OCBWindow(QMainWindow):
         self.filemenu.addSeparator()
         self.filemenu.addAction(self._actSave)
         self.filemenu.addAction(self._actSaveAs)
+        self.filemenu.addAction(self._actSaveAsJupyter)
         self.filemenu.addSeparator()
         self.filemenu.addAction(self._actQuit)
 
@@ -299,7 +302,8 @@ class OCBWindow(QMainWindow):
         ocb_widget = OCBWidget()
         if filename is not None:
             ocb_widget.scene.load(filename)
-            ocb_widget.savepath = filename
+            if filename.split(".")[-1] == "ipyg":
+                ocb_widget.savepath = filename
         return self.mdiArea.addSubWindow(ocb_widget)
 
     def onFileNew(self):
@@ -309,8 +313,7 @@ class OCBWindow(QMainWindow):
 
     def onFileOpen(self):
         """Open a file."""
-        filename, _ = QFileDialog.getOpenFileName(
-            self, "Open ipygraph from file")
+        filename, _ = QFileDialog.getOpenFileName(self, "Open ipygraph from file")
         if filename == "":
             return
         if os.path.isfile(filename):
@@ -345,13 +348,38 @@ class OCBWindow(QMainWindow):
             dialog = QFileDialog()
             dialog.setDefaultSuffix(".ipyg")
             filename, _ = dialog.getSaveFileName(
-                self, "Save ipygraph to file", filter="IPython Graph (*.ipyg)")
+                self, "Save ipygraph to file", filter="IPython Graph (*.ipyg)"
+            )
             if filename == "":
                 return False
             current_window.savepath = filename
 
             # Note : the current_window is the activeMdiChild before the QFileDialog pops up
             self.saveWindow(current_window)
+            return True
+        return False
+
+    def oneFileSaveAsJupyter(self) -> bool:
+        """Save file in a given directory as ipynb, caching savepath for quick save.
+
+        Returns:
+            True if the file was successfully saved, False otherwise.
+
+        """
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix(".ipynb")
+            filename, _ = dialog.getSaveFileName(
+                self, "Save ipygraph to file", filter="IPython Graph (*.ipynb)"
+            )
+            if filename == "":
+                return False
+            current_window.saveAsJupyter()
+            self.statusbar.showMessage(
+                f"Successfully saved ipygraph as jupter notebook at {current_window.savepath}",
+                2000,
+            )
             return True
         return False
 

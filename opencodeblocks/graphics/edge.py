@@ -23,10 +23,13 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
     """Base class for directed edges in OpenCodeBlocks."""
 
+    DEFAULT_DATA = {"path_type": "bezier"}
+    MANDATORY_FIELDS = {"source", "destination"}
+
     def __init__(
         self,
         edge_width: float = 4.0,
-        path_type="bezier",
+        path_type=DEFAULT_DATA["path_type"],
         edge_color="#001000",
         edge_selected_color="#00ff00",
         edge_running_color="#FF0000",
@@ -197,7 +200,6 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.destination = value.scenePos()
 
     def serialize(self) -> OrderedDict:
-        """Serialize the edge."""
         return OrderedDict(
             [
                 ("id", self.id),
@@ -242,9 +244,11 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         )
 
     def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
-        """Deserialize the edge."""
-        if restore_id:
+        if restore_id and "id" in data:
             self.id = data["id"]
+
+        self.complete_with_default(data)
+
         self.path_type = data["path_type"]
         try:
             self.source_socket = hashmap[data["source"]["socket"]]

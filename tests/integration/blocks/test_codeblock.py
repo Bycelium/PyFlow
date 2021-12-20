@@ -19,21 +19,20 @@ from tests.integration.utils import apply_function_inapp, CheckingQueue
 
 
 class TestCodeBlocks:
-
     @pytest.fixture(autouse=True)
     def setup(self):
-        """ Setup reused variables. """
+        """Setup reused variables."""
         self.window = OCBWindow()
         self.ocb_widget = OCBWidget()
         self.subwindow = self.window.mdiArea.addSubWindow(self.ocb_widget)
         self.subwindow.show()
 
     def test_run_python(self, qtbot: QtBot):
-        """ run source code when run button is pressed. """
+        """run source code when run button is pressed."""
 
         # Add a block with the source to the window
         EXPRESSION = "3 + 5 * 2"
-        SOURCE_TEST = f'''print({EXPRESSION})'''
+        SOURCE_TEST = f"""print({EXPRESSION})"""
         expected_result = str(3 + 5 * 2)
 
         test_block = OCBCodeBlock(title="CodeBlock test", source=SOURCE_TEST)
