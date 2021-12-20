@@ -9,10 +9,14 @@ from opencodeblocks.graphics.theme_manager import theme_manager
 from opencodeblocks.graphics.pyeditor import POINT_SIZE
 
 
-def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
-    """Convert ipynb data (ipynb file, as ordered dict) into ipyg data (ipyg, as ordered dict)"""
+def ipynb_to_ipyg(data: OrderedDict, use_theme_font: bool = True) -> OrderedDict:
+    """
+    Convert ipynb data (ipynb file, as ordered dict) into ipyg data (ipyg, as ordered dict)
+    - use_theme_font: should the height of the blocks be computed based on the current
+    font selected.
+    """
 
-    blocks_data: List[OrderedDict] = get_blocks_data(data)
+    blocks_data: List[OrderedDict] = get_blocks_data(data, use_theme_font)
     edges_data: List[OrderedDict] = get_edges_data(blocks_data)
 
     return {
@@ -21,7 +25,9 @@ def ipynb_to_ipyg(data: OrderedDict) -> OrderedDict:
     }
 
 
-def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
+def get_blocks_data(
+    data: OrderedDict, use_theme_font: bool = True
+) -> List[OrderedDict]:
     """
     Get the blocks corresponding to a ipynb file,
     Returns them in the ipyg ordered dict format
@@ -31,12 +37,14 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
         return []
 
     # Get the font metrics to determine the size fo the blocks
-    font = QFont()
-    font.setFamily(theme_manager().recommended_font_family)
-    font.setFixedPitch(True)
-    font.setPointSize(POINT_SIZE)
-    fontmetrics = QFontMetrics(font)
-
+    fontmetrics = None
+    if use_theme_font:
+        font = QFont()
+        font.setFamily(theme_manager().recommended_font_family)
+        font.setFixedPitch(True)
+        font.setPointSize(POINT_SIZE)
+        fontmetrics = QFontMetrics(font)
+    
     blocks_data: List[OrderedDict] = []
 
     next_block_x_pos: float = 0
@@ -50,15 +58,27 @@ def get_blocks_data(data: OrderedDict) -> List[OrderedDict]:
             block_type: str = cell["cell_type"]
 
             text: str = cell["source"]
+            
+            boundingWidth = 10
+            if use_theme_font:
+                boundingWidth = fontmetrics.boundingRect(line).width()
 
             text_width: float = (
-                max(fontmetrics.boundingRect(line).width() for line in text)
+                max(boundingWidth for line in text)
                 if len(text) > 0
                 else 0
             )
             block_width: float = max(text_width + MARGIN_X, BLOCK_MIN_WIDTH)
+            
+            lineSpacing = 2
+            lineWidth = 10
+
+            if use_theme_font:
+                lineSpacing = fontmetrics.lineSpacing()
+                lineWidth = fontmetrics.lineWidth()
+            
             text_height: float = len(text) * (
-                fontmetrics.lineSpacing() + fontmetrics.lineWidth()
+                lineSpacing + lineWidth
             )
             block_height: float = text_height + MARGIN_Y
 

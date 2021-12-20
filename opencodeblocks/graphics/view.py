@@ -16,7 +16,8 @@ from PyQt5.sip import isdeleted
 from opencodeblocks.scene import OCBScene
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.edge import OCBEdge
-from opencodeblocks.blocks import OCBBlock, OCBCodeBlock
+from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.codeblock import OCBCodeBlock
 
 EPS: float = 1e-10  # To check if blocks are of size 0
 
@@ -315,6 +316,12 @@ class OCBView(QGraphicsView):
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         """Displays the context menu when inside a view"""
+        super().contextMenuEvent(event)
+        # If somebody has already accepted the event, don't handle it.
+        if event.isAccepted():
+            return
+        event.setAccepted(True)
+
         menu = QMenu(self)
         actionPool = []
         for filepath, block_name in self.retreiveBlockTypes():

@@ -44,8 +44,8 @@ class Worker(QRunnable):
                     self.signals.image.emit(output)
                 elif output_type == "error":
                     self.signals.error.emit()
+                    self.signals.stdout.emit(output)
         self.signals.finished.emit()
-        self.signals.finished_block.emit()
 
     def run(self):
         """Execute the run_code method asynchronously."""

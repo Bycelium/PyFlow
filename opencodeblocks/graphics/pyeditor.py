@@ -4,7 +4,7 @@
 """ Module for OCB in block python editor. """
 
 from typing import TYPE_CHECKING, List
-from PyQt5.QtCore import QThreadPool, Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import (
     QFocusEvent,
     QFont,
@@ -17,10 +17,6 @@ from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from opencodeblocks.graphics.theme_manager import theme_manager
 
 from opencodeblocks.blocks.block import OCBBlock
-from opencodeblocks.graphics.kernel import Kernel
-
-kernel = Kernel()
-threadpool = QThreadPool()
 
 if TYPE_CHECKING:
     from opencodeblocks.graphics.view import OCBView
@@ -42,8 +38,6 @@ class PythonEditor(QsciScintilla):
         super().__init__(None)
         self._mode = "NOOP"
         self.block = block
-        self.kernel = kernel
-        self.threadpool = threadpool
 
         self.update_theme()
         theme_manager().themeChanged.connect(self.update_theme)

@@ -7,10 +7,10 @@ Exports OCBSliderBlock.
 from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
-from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 
 
-class OCBSliderBlock(OCBBlock):
+class OCBSliderBlock(OCBExecutableBlock):
     """
     Features a slider ranging from 0 to 1 and an area to choose what value to assign the slider to.
     """
@@ -21,9 +21,8 @@ class OCBSliderBlock(OCBBlock):
         self.layout = QVBoxLayout(self.root)
 
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.valueChanged.connect(self.valueChanged)
 
-        self.variable_layout = QHBoxLayout(self.root)
+        self.variable_layout = QHBoxLayout()
         self.variable_text = QLineEdit("slider_value")
         self.variable_value = QLabel(f"{self.slider.value()/100}")
 
@@ -41,16 +40,26 @@ class OCBSliderBlock(OCBBlock):
         self.layout.addWidget(self.slider)
         self.layout.addLayout(self.variable_layout)
 
+        self.slider.valueChanged.connect(self.valueChanged)
+
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
         """This is called when the value of the slider changes"""
-        python_code = f"{self.var_name} = {self.value}"
         self.variable_value.setText(f"{self.value}")
+        # Make sure that the slider is initialized before trying to run it.
+        if self.scene() is not None:
+            self.run_right()
 
-        # The code execution part will be added when the execution flow is merged.
-        # We print for now
-        print(python_code)
+    @property
+    def source(self):
+        """The "source code" of the slider i.e an assignement to the value of the slider"""
+        python_code = f"{self.var_name} = {self.value}"
+        return python_code
+
+    @source.setter
+    def source(self, value: str):
+        raise RuntimeError("The source of a sliderblock is read-only.")
 
     @property
     def value(self):

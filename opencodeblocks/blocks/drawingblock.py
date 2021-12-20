@@ -4,10 +4,10 @@ from math import floor
 import json
 from typing import OrderedDict
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QMouseEvent, QPaintEvent, QPainter
 from PyQt5.QtWidgets import QPushButton, QWidget
-from opencodeblocks.blocks.block import OCBBlock
+from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 
 
 eps = 1
@@ -15,6 +15,8 @@ eps = 1
 
 class DrawableWidget(QWidget):
     """A drawable widget is a canvas like widget on which you can doodle"""
+
+    on_value_changed = pyqtSignal()
 
     def __init__(self, parent: QWidget):
         """Create a new Drawable widget"""
@@ -27,14 +29,14 @@ class DrawableWidget(QWidget):
         for _ in range(self.pixel_width):
             self.color_buffer.append([])
             for _ in range(self.pixel_height):
-                # color hex encoded as AARRGGBB
-                self.color_buffer[-1].append(0xFFFFFFFF)
+                # 0 = white, 1 = black
+                self.color_buffer[-1].append(0)
 
     def clearDrawing(self):
         """Clear the drawing"""
         for i in range(self.pixel_width):
             for j in range(self.pixel_height):
-                self.color_buffer[i][j] = 0xFFFFFFFF
+                self.color_buffer[i][j] = 0
 
     def paintEvent(self, evt: QPaintEvent):
         """Draw the content of the widget"""
@@ -50,7 +52,10 @@ class DrawableWidget(QWidget):
                     h * j,
                     w + eps,
                     h + eps,
-                    QColor.fromRgb(self.color_buffer[i][j]),
+                    # hex color encoded as AARRGGBB
+                    QColor.fromRgb(
+                        0xFF000000 if self.color_buffer[i][j] else 0xFFFFFFFF
+                    ),
                 )
 
     def mouseMoveEvent(self, evt: QMouseEvent):
@@ -59,8 +64,9 @@ class DrawableWidget(QWidget):
             x = floor(evt.x() / self.width() * self.pixel_width)
             y = floor(evt.y() / self.height() * self.pixel_height)
             if 0 <= x < self.pixel_width and 0 <= y < self.pixel_height:
-                self.color_buffer[x][y] = 0xFF000000
+                self.color_buffer[x][y] = 1
                 self.repaint()
+                self.on_value_changed.emit()
 
     def mousePressEvent(self, evt: QMouseEvent):
         """Signal that the drawing starts"""
@@ -71,7 +77,8 @@ class DrawableWidget(QWidget):
         self.mouse_down = False
 
 
-class OCBDrawingBlock(OCBBlock):
+class OCBDrawingBlock(OCBExecutableBlock):
+
     """An OCBBlock on which you can draw, to test your CNNs for example"""
 
     def __init__(self, **kwargs):
@@ -79,6 +86,8 @@ class OCBDrawingBlock(OCBBlock):
         super().__init__(**kwargs)
 
         self.draw_area = DrawableWidget(self.root)
+        self.draw_area.on_value_changed.connect(self.valueChanged)
+        self.var_name = "drawing"
 
         self.splitter.addWidget(self.draw_area)  # QGraphicsView
         self.run_button = QPushButton("Clear", self.root)
@@ -105,6 +114,22 @@ class OCBDrawingBlock(OCBBlock):
         base_dict["drawing"] = self.drawing
 
         return base_dict
+
+    def valueChanged(self):
+        """Called when the content of the drawing block changes."""
+        # Make sure that the slider is initialized before trying to run it.
+        if self.scene() is not None:
+            self.run_right()
+
+    @property
+    def source(self):
+        """The "source code" of the drawingblock i.e an assignement to the drawing buffer"""
+        python_code = f"{self.var_name} = {repr(self.draw_area.color_buffer)}"
+        return python_code
+
+    @source.setter
+    def source(self, value: str):
+        raise RuntimeError("The source of a drawingblock is read-only.")
 
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
