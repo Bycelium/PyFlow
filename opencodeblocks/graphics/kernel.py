@@ -69,9 +69,9 @@ class Kernel:
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
-        worker.signals.finished_block.connect(block.reset_after_run)
+        worker.signals.finished.connect(block.execution_finished)
         worker.signals.error.connect(block.reset_has_been_run)
-        block.source_editor.threadpool.start(worker)
+        block.scene().threadpool.start(worker)
 
     def run_queue(self):
         """Runs the next code in the queue"""

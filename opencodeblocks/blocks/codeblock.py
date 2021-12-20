@@ -17,13 +17,15 @@ from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
 from ansi2html import Ansi2HTMLConverter
 
 from opencodeblocks.blocks.block import OCBBlock
+
+from opencodeblocks.blocks.executableblock import OCBExecutableBlock
 from opencodeblocks.graphics.socket import OCBSocket
 from opencodeblocks.graphics.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
 
 
-class OCBCodeBlock(OCBBlock):
+class OCBCodeBlock(OCBExecutableBlock):
 
     """
     Code Block
@@ -35,21 +37,25 @@ class OCBCodeBlock(OCBBlock):
 
     """
 
-    DEFAULT_DATA = {
-        **OCBBlock.DEFAULT_DATA,
-        "source": "",
-    }
-    MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
+    def __init__(self, source: str = "", **kwargs):
 
-    def __init__(self, **kwargs):
         """
         Create a new OCBCodeBlock.
         Initialize all the child widgets specific to this block type
         """
-        self.source_editor = PythonEditor(self)
-        self._source = ""
+        DEFAULT_DATA = {
+            **OCBBlock.DEFAULT_DATA,
+            "source": "",
+        }
+        MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
 
         super().__init__(**kwargs)
+        self.source_editor = PythonEditor(self)
+
+        self._source = ""
+        self._stdout = ""
+
+        self.source = source
 
         self.output_panel_height = self.height / 3
         self._min_output_panel_height = 20
@@ -114,17 +120,31 @@ class OCBCodeBlock(OCBBlock):
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
         run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
-        run_button.clicked.connect(self.run_left)
+        run_button.clicked.connect(self.handle_run_left)
         return run_button
 
     def init_run_all_button(self):
         """Initialize the run all button"""
         run_all_button = QPushButton(">>", self.root)
         run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
-        run_all_button.clicked.connect(self.run_right)
+        run_all_button.clicked.connect(self.handle_run_right)
         run_all_button.raise_()
 
         return run_all_button
+
+    def handle_run_right(self):
+        """Called when the button for "Run All" was pressed"""
+        if self.is_running:
+            self._interrupt_execution()
+        else:
+            self.run_right()
+
+    def handle_run_left(self):
+        """Called when the button for "Run Left" was pressed"""
+        if self.is_running:
+            self._interrupt_execution()
+        else:
+            self.run_left()
 
     def run_code(self):
         """Run the code in the block"""
@@ -136,20 +156,7 @@ class OCBCodeBlock(OCBBlock):
         self.run_button.setText("...")
         self.run_all_button.setText("...")
 
-        # Run code by adding to code to queue
-        code = self.source_editor.text()
-        self.source = code
-        kernel = self.source_editor.kernel
-        kernel.execution_queue.append((self, code))
-        if kernel.busy is False:
-            kernel.run_queue()
-        self.has_been_run = True
-
-    def reset_after_run(self):
-        """Reset buttons and color after a run"""
-        self.run_color = 0
-        self.run_button.setText(">")
-        self.run_all_button.setText(">>")
+        super().run_code()  # actually run the code
 
     def has_input(self) -> bool:
         """Checks whether a block has connected input blocks"""
@@ -335,6 +342,12 @@ class OCBCodeBlock(OCBBlock):
     def reset_has_been_run(self):
         """Reset has_been_run, is called when the output is an error"""
         self.has_been_run = False
+
+    def execution_finished(self):
+        """Reset the text of the run buttons"""
+        super().execution_finished()
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
 
     def update_title(self):
         """Change the geometry of the title widget"""
