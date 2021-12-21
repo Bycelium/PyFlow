@@ -51,7 +51,9 @@ class TestCodeBlocks:
             pyautogui.mouseDown(button="left")
             pyautogui.mouseUp(button="left")
 
-            time.sleep(0.5)
+            time.sleep((test_block.transmitting_duration / 1000) + 0.2)
+            while test_block.run_color != 0:
+                time.sleep(0.1)
 
             msgQueue.check_equal(test_block.stdout.strip(), expected_result)
             msgQueue.stop()
