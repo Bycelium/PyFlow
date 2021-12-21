@@ -75,23 +75,6 @@ class OCBCodeBlock(OCBExecutableBlock):
             self._pen_outline_running,
             self._pen_outline_transmitting,
         ]
-        # 0 for normal, 1 for running, 2 for transmitting
-        self.run_color = 0
-
-        # Each element is a list of blocks/edges to be animated
-        # Running will paint each element one after the other
-        self.transmitting_queue = []
-        # Controls the duration of the visual flow animation
-        self.transmitting_duration = 500
-        self.transmitting_delay = 200
-
-        # Add exectution flow sockets
-        exe_sockets = (
-            OCBSocket(self, socket_type="input", flow_type="exe"),
-            OCBSocket(self, socket_type="output", flow_type="exe"),
-        )
-        for socket in exe_sockets:
-            self.add_socket(socket)
 
         # Add output pannel
         self.output_panel = self.init_output_panel()
