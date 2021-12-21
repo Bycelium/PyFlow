@@ -290,10 +290,10 @@ class OCBExecutableBlock(OCBBlock):
         self.blocks_to_run = blocks_to_run
 
         # For each output found
-        for block in blocks_to_run[::-1]:
+        for block in blocks_to_run.copy()[::-1]:
             # Gather dependencies
             new_blocks_to_run, _ = self.custom_bfs(block)
-            blocks_to_run += new_blocks_to_run
+            self.blocks_to_run += new_blocks_to_run
 
         # Set delay so that the transmitting animation has fixed total duration
         self.transmitting_delay = int(
