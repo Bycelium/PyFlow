@@ -81,7 +81,7 @@ class TestCodeBlocks:
 
             msgQueue.run_lambda(run_block)
             time.sleep(0.1)  # wait for the lambda to complete.
-            while block_of_test.is_running:
+            while block_of_test.run_color != 0:
                 time.sleep(0.1)  # wait for the execution to finish.
 
             time.sleep(0.1)
