@@ -9,7 +9,11 @@ from typing import Optional, OrderedDict
 
 from PyQt5.QtCore import QPointF, Qt
 from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPen
-from PyQt5.QtWidgets import QGraphicsPathItem, QStyleOptionGraphicsItem, QWidget
+from PyQt5.QtWidgets import (
+    QGraphicsPathItem,
+    QStyleOptionGraphicsItem,
+    QWidget,
+)
 
 from opencodeblocks.core.serializable import Serializable
 from opencodeblocks.graphics.socket import OCBSocket
@@ -28,6 +32,8 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         path_type=DEFAULT_DATA["path_type"],
         edge_color="#001000",
         edge_selected_color="#00ff00",
+        edge_running_color="#FF0000",
+        edge_transmitting_color="#00ff00",
         source: QPointF = QPointF(0, 0),
         destination: QPointF = QPointF(0, 0),
         source_socket: OCBSocket = None,
@@ -58,6 +64,17 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
         self._pen_selected = QPen(QColor(edge_selected_color))
         self._pen_selected.setWidthF(edge_width)
+
+        self._pen_running = QPen(QColor(edge_running_color))
+        self._pen_running.setWidthF(edge_width)
+
+        self._pen_transmitting = QPen(QColor(edge_transmitting_color))
+        self._pen_transmitting.setWidthF(edge_width)
+
+        self.pens = [self._pen, self._pen_running, self._pen_transmitting]
+
+        # 0 for normal, 1 for running, 2 for transmitting
+        self.run_color = 0
 
         self.setFlag(QGraphicsPathItem.GraphicsItemFlag.ItemIsSelectable)
         self.setZValue(-1)
@@ -104,8 +121,13 @@ class OCBEdge(QGraphicsPathItem, Serializable):
     ):  # pylint:disable=unused-argument
         """Paint the edge."""
         self.update_path()
-        pen = self._pen_dragging if self.destination_socket is None else self._pen
-        painter.setPen(self._pen_selected if self.isSelected() else pen)
+        if self.isSelected():
+            pen = self._pen_selected
+        elif self.destination_socket is None:
+            pen = self._pen_dragging
+        else:
+            pen = self.pens[self.run_color]
+        painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
 
@@ -237,3 +259,14 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.update_path()
         except KeyError:
             self.remove()
+
+    @property
+    def run_color(self) -> int:
+        """Run color"""
+        return self._run_color
+
+    @run_color.setter
+    def run_color(self, value: int):
+        self._run_color = value
+        # Update to force repaint
+        self.update()

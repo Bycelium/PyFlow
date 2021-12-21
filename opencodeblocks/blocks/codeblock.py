@@ -3,10 +3,19 @@
 
 """ Module for the base OCB Code Block. """
 
-from typing import OrderedDict
-from PyQt5.QtWidgets import QPushButton, QTextEdit
+from typing import OrderedDict, Optional
+from PyQt5.QtWidgets import (
+    QApplication,
+    QPushButton,
+    QTextEdit,
+    QWidget,
+    QStyleOptionGraphicsItem,
+)
+from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
 
 from ansi2html import Ansi2HTMLConverter
+
 from opencodeblocks.blocks.block import OCBBlock
 
 from opencodeblocks.blocks.executableblock import OCBExecutableBlock
@@ -54,6 +63,18 @@ class OCBCodeBlock(OCBExecutableBlock):
 
         self.output_closed = True
         self._splitter_size = [1, 1]
+        self._cached_stdout = ""
+        self.has_been_run = False
+        self.blocks_to_run = []
+
+        self._pen_outline = QPen(QColor("#7F000000"))
+        self._pen_outline_running = QPen(QColor("#FF0000"))
+        self._pen_outline_transmitting = QPen(QColor("#00ff00"))
+        self._pen_outlines = [
+            self._pen_outline,
+            self._pen_outline_running,
+            self._pen_outline_transmitting,
+        ]
 
         # Add output pannel
         self.output_panel = self.init_output_panel()
@@ -97,20 +118,21 @@ class OCBCodeBlock(OCBExecutableBlock):
 
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed"""
-        if self.is_running:
+        if self.run_color != 0:
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
         """Called when the button for "Run Left" was pressed"""
-        if self.is_running:
+        if self.run_color != 0:
             self._interrupt_execution()
         else:
             self.run_left()
 
     def run_code(self):
         """Run the code in the block"""
+
         # Reset stdout
         self._cached_stdout = ""
 
@@ -119,12 +141,6 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.run_all_button.setText("...")
 
         super().run_code()  # actually run the code
-
-    def execution_finished(self):
-        """Reset the text of the run buttons"""
-        super().execution_finished()
-        self.run_button.setText(">")
-        self.run_all_button.setText(">>")
 
     def update_title(self):
         """Change the geometry of the title widget"""
@@ -156,6 +172,35 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.update_output_panel()
         self.update_run_all_button()
 
+    def paint(
+        self,
+        painter: QPainter,
+        option: QStyleOptionGraphicsItem,
+        widget: Optional[QWidget] = None,
+    ):
+        """Paint the code block"""
+        path_content = QPainterPath()
+        path_content.setFillRule(Qt.FillRule.WindingFill)
+        path_content.addRoundedRect(
+            0, 0, self.width, self.height, self.edge_size, self.edge_size
+        )
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(self._brush_background)
+        painter.drawPath(path_content.simplified())
+
+        # outline
+        path_outline = QPainterPath()
+        path_outline.addRoundedRect(
+            0, 0, self.width, self.height, self.edge_size, self.edge_size
+        )
+        painter.setPen(
+            self._pen_outline_selected
+            if self.isSelected()
+            else self._pen_outlines[self.run_color]
+        )
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawPath(path_outline.simplified())
+
     @property
     def source(self) -> str:
         """Source code"""
@@ -167,6 +212,17 @@ class OCBCodeBlock(OCBExecutableBlock):
             self.has_been_run = False
             self.source_editor.setText(value)
             self._source = value
+
+    @property
+    def run_color(self) -> int:
+        """Run color"""
+        return self._run_color
+
+    @run_color.setter
+    def run_color(self, value: int):
+        self._run_color = value
+        # Update to force repaint
+        self.update()
 
     @property
     def stdout(self) -> str:
@@ -231,6 +287,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.stdout = "<img>" + image
 
     def serialize(self):
+        """Serialize the code block"""
         base_dict = super().serialize()
         base_dict["source"] = self.source
         base_dict["stdout"] = self.stdout
