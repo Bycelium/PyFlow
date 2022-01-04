@@ -129,7 +129,7 @@ class OCBWindow(QMainWindow):
         self._actSaveAsJupyter = QAction(
             "Save &As ... .ipynb",
             statusTip="Save the ipygraph as a Jupter Notebook at ...",
-            triggered=self.oneFileSaveAsJupyter,
+            triggered=self.onFileSaveAsJupyter,
         )
         self._actQuit = QAction(
             "&Quit",
@@ -359,7 +359,7 @@ class OCBWindow(QMainWindow):
             return True
         return False
 
-    def oneFileSaveAsJupyter(self) -> bool:
+    def onFileSaveAsJupyter(self) -> bool:
         """Save file in a given directory as ipynb, caching savepath for quick save.
 
         Returns:
@@ -371,13 +371,13 @@ class OCBWindow(QMainWindow):
             dialog = QFileDialog()
             dialog.setDefaultSuffix(".ipynb")
             filename, _ = dialog.getSaveFileName(
-                self, "Save ipygraph to file", filter="IPython Graph (*.ipynb)"
+                self, "Save ipygraph to file", filter="Jupyter Notebook (*.ipynb)"
             )
             if filename == "":
                 return False
-            current_window.saveAsJupyter()
+            current_window.saveAsJupyter(filename)
             self.statusbar.showMessage(
-                f"Successfully saved ipygraph as jupter notebook at {current_window.savepath}",
+                f"Successfully saved ipygraph as jupter notebook at {filename}",
                 2000,
             )
             return True
