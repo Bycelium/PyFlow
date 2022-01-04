@@ -211,7 +211,6 @@ class OCBCodeBlock(OCBExecutableBlock):
             output_blocks, _ = self.custom_bfs(self, reverse=True)
             for block in output_blocks:
                 block.has_been_run = False
-            self._source = value
             self.has_been_run = False
             self.source_editor.setText(value)
             self._source = value
