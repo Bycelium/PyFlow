@@ -44,7 +44,7 @@ def get_blocks_data(
         font.setFixedPitch(True)
         font.setPointSize(POINT_SIZE)
         fontmetrics = QFontMetrics(font)
-    
+
     blocks_data: List[OrderedDict] = []
 
     next_block_x_pos: float = 0
@@ -58,28 +58,24 @@ def get_blocks_data(
             block_type: str = cell["cell_type"]
 
             text: str = cell["source"]
-            
-            boundingWidth = 10
-            if use_theme_font:
-                boundingWidth = fontmetrics.boundingRect(line).width()
 
-            text_width: float = (
-                max(boundingWidth for line in text)
-                if len(text) > 0
-                else 0
-            )
+            text_width = DEFAULT_TEXT_WIDTH
+            if use_theme_font:
+                text_width: float = (
+                    max(fontmetrics.boundingRect(line).width() for line in text)
+                    if len(text) > 0
+                    else 0
+                )
             block_width: float = max(text_width + MARGIN_X, BLOCK_MIN_WIDTH)
-            
-            lineSpacing = 2
-            lineWidth = 10
+
+            lineSpacing = DEFAULT_LINE_SPACING
+            lineHeight = DEFAULT_LINE_HEIGHT
 
             if use_theme_font:
                 lineSpacing = fontmetrics.lineSpacing()
-                lineWidth = fontmetrics.lineWidth()
-            
-            text_height: float = len(text) * (
-                lineSpacing + lineWidth
-            )
+                lineHeight = fontmetrics.lineWidth()
+
+            text_height: float = len(text) * (lineSpacing + lineHeight)
             block_height: float = text_height + MARGIN_Y
 
             block_data = {
