@@ -35,17 +35,18 @@ class OCBCodeBlock(OCBExecutableBlock):
 
     """
 
+    DEFAULT_DATA = {
+        **OCBBlock.DEFAULT_DATA,
+        "source": "",
+    }
+    MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
+
     def __init__(self, source: str = "", **kwargs):
 
         """
         Create a new OCBCodeBlock.
         Initialize all the child widgets specific to this block type
         """
-        DEFAULT_DATA = {
-            **OCBBlock.DEFAULT_DATA,
-            "source": "",
-        }
-        MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
 
         super().__init__(**kwargs)
         self.source_editor = PythonEditor(self)

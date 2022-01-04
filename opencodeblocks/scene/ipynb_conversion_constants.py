@@ -10,6 +10,10 @@ BLOCK_MIN_WIDTH: float = 400
 TITLE_MAX_LENGTH: int = 60
 SOCKET_HEIGHT: float = 44.0
 
+DEFAULT_LINE_SPACING = 2
+DEFAULT_LINE_HEIGHT = 10
+DEFAULT_TEXT_WIDTH = 618
+
 BLOCK_TYPE_TO_NAME: Dict[str, str] = {
     "code": "OCBCodeBlock",
     "markdown": "OCBMarkdownBlock",
