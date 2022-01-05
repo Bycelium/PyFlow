@@ -59,6 +59,7 @@ class OCBWidget(QWidget):
         self.updateTitle()
 
     def save(self):
+        """Save the current graph to the current save path."""
         self.scene.save(self.savepath)
 
     def saveAsJupyter(self, filepath: str):
@@ -66,6 +67,7 @@ class OCBWidget(QWidget):
         self.scene.save_to_ipynb(filepath)
 
     def load(self, filepath: str):
+        """Load a graph from a file."""
         self.scene.load(filepath)
         self.savepath = filepath
 

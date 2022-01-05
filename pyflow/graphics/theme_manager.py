@@ -45,6 +45,7 @@ class ThemeManager(QObject):
 
     @property
     def selected_theme_index(self):
+        """Return the index of the selected theme"""
         return self._selected_theme_index
 
     @selected_theme_index.setter
