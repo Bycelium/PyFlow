@@ -25,7 +25,7 @@ jobs:
     - name: Build unit + integration coverage using pytest-cov
       run: |
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1080x24 -ac +extension GLX
-        pytest -s --cov=pyflow --cov-report=xml:coverage.xml tests
+        pytest -s --cov=opencodeblocks --cov-report=xml:coverage.xml tests
       env:
         DISPLAY: :99
     - name: Run codacy-coverage-reporter
