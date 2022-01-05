@@ -5,7 +5,6 @@
 import os
 import sys
 import asyncio
-from PyQt5 import QtGui
 
 if os.name == "nt":  # If on windows
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

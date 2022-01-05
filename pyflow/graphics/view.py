@@ -14,8 +14,8 @@ from PyQt5.sip import isdeleted
 
 
 from pyflow.scene import OCBScene
-from pyflow.graphics.socket import OCBSocket
-from pyflow.graphics.edge import OCBEdge
+from pyflow.core.socket import OCBSocket
+from pyflow.core.edge import OCBEdge
 from pyflow.blocks.block import OCBBlock
 from pyflow.blocks.codeblock import OCBCodeBlock
 

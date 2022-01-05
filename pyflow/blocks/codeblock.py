@@ -18,7 +18,7 @@ from ansi2html import Ansi2HTMLConverter
 from pyflow.blocks.block import OCBBlock
 
 from pyflow.blocks.executableblock import OCBExecutableBlock
-from pyflow.graphics.pyeditor import PythonEditor
+from pyflow.core.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
 

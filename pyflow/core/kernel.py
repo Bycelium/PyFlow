@@ -4,7 +4,7 @@ import queue
 from typing import Tuple
 from jupyter_client.manager import start_new_kernel
 
-from pyflow.graphics.worker import Worker
+from pyflow.core.worker import Worker
 
 
 class Kernel:

@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 )
 
 from pyflow.core.serializable import Serializable
-from pyflow.graphics.socket import OCBSocket
+from pyflow.core.socket import OCBSocket
 from pyflow.blocks.widgets import OCBSplitter, OCBSizeGrip, OCBTitle
 
 if TYPE_CHECKING:

@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 from pyflow.core.serializable import Serializable
 
 if TYPE_CHECKING:
-    from pyflow.graphics.edge import OCBEdge
+    from pyflow.core.edge import OCBEdge
     from pyflow.blocks.block import OCBBlock
 
 

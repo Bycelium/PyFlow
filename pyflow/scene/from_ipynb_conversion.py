@@ -6,7 +6,7 @@ from PyQt5.QtGui import QFontMetrics, QFont
 
 from pyflow.scene.ipynb_conversion_constants import *
 from pyflow.graphics.theme_manager import theme_manager
-from pyflow.graphics.pyeditor import POINT_SIZE
+from pyflow.core.pyeditor import POINT_SIZE
 
 
 def ipynb_to_ipyg(data: OrderedDict, use_theme_font: bool = True) -> OrderedDict:

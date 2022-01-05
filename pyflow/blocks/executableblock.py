@@ -5,10 +5,8 @@ from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
-from networkx.algorithms.traversal.breadth_first_search import bfs_edges
-
 from pyflow.blocks.block import OCBBlock
-from pyflow.graphics.socket import OCBSocket
+from pyflow.core.socket import OCBSocket
 
 
 class OCBExecutableBlock(OCBBlock):

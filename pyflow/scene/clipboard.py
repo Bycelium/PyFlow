@@ -9,7 +9,7 @@ from warnings import warn
 import json
 from PyQt5.QtWidgets import QApplication
 
-from pyflow.graphics.edge import OCBEdge
+from pyflow.core.edge import OCBEdge
 
 if TYPE_CHECKING:
     from pyflow.scene import OCBScene

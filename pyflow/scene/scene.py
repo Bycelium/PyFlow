@@ -15,10 +15,10 @@ from PyQt5.QtWidgets import QGraphicsScene
 
 from pyflow.core.serializable import Serializable
 from pyflow.blocks.block import OCBBlock
-from pyflow.graphics.edge import OCBEdge
+from pyflow.core.edge import OCBEdge
 from pyflow.scene.clipboard import SceneClipboard
 from pyflow.scene.history import SceneHistory
-from pyflow.graphics.kernel import Kernel
+from pyflow.core.kernel import Kernel
 from pyflow.scene.from_ipynb_conversion import ipynb_to_ipyg
 from pyflow.scene.to_ipynb_conversion import ipyg_to_ipynb
 from pyflow import blocks
