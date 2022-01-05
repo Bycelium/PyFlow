@@ -12,6 +12,7 @@ from pyflow.qss import dark_resources
 
 
 def loadStylesheets(filenames: List[str]):
+    """Load the stylesheets from the given filenames."""
     styles = ""
     for filename in filenames:
         file = QFile(filename)
