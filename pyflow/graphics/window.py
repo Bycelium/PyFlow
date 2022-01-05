@@ -237,6 +237,7 @@ class OCBWindow(QMainWindow):
         self.menuBar().addSeparator()
 
     def updateThemeMenu(self):
+        """Update the theme selection menu."""
         self.thememenu.clear()
         theme_names = theme_manager().list_themes()
         for i, theme in enumerate(theme_names):
@@ -247,6 +248,7 @@ class OCBWindow(QMainWindow):
             self.themeMapper.setMapping(action, i)
 
     def updateWindowMenu(self):
+        """Update the window menu."""
         self.windowMenu.clear()
         self.windowMenu.addAction(self._actClose)
         self.windowMenu.addAction(self._actCloseAll)
@@ -457,6 +459,7 @@ class OCBWindow(QMainWindow):
         return None
 
     def readSettings(self):
+        """Read the settings from the config file."""
         settings = QSettings("AutopIA", "Pyflow")
         pos = settings.value("pos", QPoint(200, 200))
         size = settings.value("size", QSize(400, 400))
@@ -466,12 +469,14 @@ class OCBWindow(QMainWindow):
             self.showMaximized()
 
     def writeSettings(self):
+        """Write the settings to the config file."""
         settings = QSettings("AutopIA", "Pyflow")
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
         settings.setValue("isMaximized", self.isMaximized())
 
     def setActiveSubWindow(self, window):
+        """Set the active subwindow to the given window."""
         if window:
             self.mdiArea.setActiveSubWindow(window)
 
