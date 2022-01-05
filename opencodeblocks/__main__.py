@@ -5,6 +5,7 @@
 import os
 import sys
 import asyncio
+from PyQt5 import QtGui
 
 if os.name == "nt":  # If on windows
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -21,5 +22,7 @@ if __name__ == "__main__":
     wnd = OCBWindow()
     if len(sys.argv) > 1:
         wnd.createNewMdiChild(sys.argv[1])
+
+    wnd.setWindowTitle("Pyflow Beta v0.1")
     wnd.show()
     sys.exit(app.exec_())
