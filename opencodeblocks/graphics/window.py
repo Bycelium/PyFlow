@@ -9,8 +9,6 @@ from PyQt5.QtCore import QPoint, QSettings, QSize, Qt, QSignalMapper
 from PyQt5.QtGui import QCloseEvent, QKeySequence
 
 from PyQt5.QtWidgets import (
-    QDockWidget,
-    QListWidget,
     QWidget,
     QAction,
     QFileDialog,
