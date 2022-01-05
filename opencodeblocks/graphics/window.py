@@ -63,9 +63,6 @@ class OCBWindow(QMainWindow):
         self.createMenus()
         self.createToolBars()
 
-        # BlocksDock
-        self.createBlocksDock()
-
         # StatusBar
         self.statusbar = self.statusBar()
 
@@ -77,24 +74,6 @@ class OCBWindow(QMainWindow):
 
     def createToolBars(self):
         pass
-
-    def createBlocksDock(self):
-        self.block_list = QListWidget()
-        self.block_list.addItem("Data loading")
-        self.block_list.addItem("Data normalization")
-        self.block_list.addItem("Data visualisation")
-        self.block_list.addItem("Data preprocessing")
-        self.block_list.addItem("Data reshape")
-        self.block_list.addItem("Model definition")
-        self.block_list.addItem("Model training")
-        self.block_list.addItem("Model prediction")
-        self.block_list.addItem("Model evaluation")
-
-        self.items = QDockWidget("Blocks")
-        self.items.setWidget(self.block_list)
-        self.items.setFloating(False)
-
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.items)
 
     def updateMenus(self):
         pass
