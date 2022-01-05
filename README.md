@@ -9,9 +9,9 @@
 [![Licence - GPLv3](https://img.shields.io/github/license/MathisFederico/Crafting?style=plastic)](https://www.gnu.org/licenses/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-PyFlow is an open-source tool for modular visual programming in python !
+PyFlow is an open-source graph-structured interactive Python development tool
 
-Although for now the tool is in Beta and features are coming in bit by bit, stay tuned for the first release soon !
+Although for now Pyflow is in closed Beta and features are coming in bit by bit, stay tuned for the first release soon !
 
 ![](media/mnist_example.gif)
 
@@ -21,7 +21,7 @@ Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share y
 
 ## Features
 
-- Create blocks of code where you can edit and run Python code
+- Create blocks of code in which you can edit and run Python code
 
 <p align="center">
   <img src="media/block_example.gif" width="400"/>

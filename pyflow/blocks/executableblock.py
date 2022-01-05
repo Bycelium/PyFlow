@@ -285,10 +285,10 @@ class OCBExecutableBlock(OCBBlock):
 
         # Gather outputs
         blocks_to_run, _ = self.custom_bfs(self, reverse=True)
-        self.blocks_to_run = blocks_to_run
+        self.blocks_to_run = [self] + blocks_to_run
 
         # For each output found
-        for block in blocks_to_run.copy()[::-1]:
+        for block in self.blocks_to_run.copy()[::-1]:
             # Gather dependencies
             new_blocks_to_run, _ = self.custom_bfs(block)
             self.blocks_to_run += new_blocks_to_run
