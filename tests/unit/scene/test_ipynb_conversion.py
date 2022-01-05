@@ -5,8 +5,8 @@ from pytest_mock import MockerFixture
 import pytest_check as check
 import json
 
-from opencodeblocks.scene.from_ipynb_conversion import ipynb_to_ipyg, is_title
-from opencodeblocks.scene.ipynb_conversion_constants import BLOCK_TYPE_TO_NAME
+from pyflow.scene.from_ipynb_conversion import ipynb_to_ipyg, is_title
+from pyflow.scene.ipynb_conversion_constants import BLOCK_TYPE_TO_NAME
 
 
 class TestIpynbConversion:

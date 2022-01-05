@@ -1,4 +1,4 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """ Module to get pylint score. """
@@ -54,7 +54,7 @@ def register(linter):
 
 
 if __name__ == "__main__":
-    options = ["opencodeblocks", "--output-format=pylint_score.MyReporterClass"]
+    options = ["pyflow", "--output-format=pylint_score.MyReporterClass"]
     results = Run(options, exit=False)
     score = results.linter.stats.global_note
     score_min = 8.0

@@ -1,4 +1,4 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
@@ -11,7 +11,7 @@ from pytestqt.qtbot import QtBot
 
 from PyQt5.QtCore import QPointF
 
-from opencodeblocks.blocks.block import OCBBlock
+from pyflow.blocks.block import OCBBlock
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 

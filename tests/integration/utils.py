@@ -1,4 +1,4 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
@@ -16,9 +16,9 @@ from queue import Queue
 from qtpy.QtWidgets import QApplication
 import pytest_check as check
 import warnings
-from opencodeblocks.graphics.widget import OCBWidget
+from pyflow.graphics.widget import OCBWidget
 
-from opencodeblocks.graphics.window import OCBWindow
+from pyflow.graphics.window import OCBWindow
 
 STOP_MSG = "stop"
 CHECK_MSG = "check"

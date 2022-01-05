@@ -1,13 +1,13 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Unit tests for the opencodeblocks history module. """
+""" Unit tests for the pyflow history module. """
 
 import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
-from opencodeblocks.scene.clipboard import SceneClipboard
+from pyflow.scene.clipboard import SceneClipboard
 
 
 class TestSerializeSelected:
