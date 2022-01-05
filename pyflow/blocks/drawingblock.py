@@ -1,5 +1,7 @@
 # pylint:disable=unused-argument
 
+""" Module for the base OCB Drawing Block. """
+
 from math import floor
 import json
 from typing import OrderedDict

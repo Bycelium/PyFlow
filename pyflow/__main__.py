@@ -2,6 +2,10 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 # pylint:disable=wrong-import-position
 
+"""
+Pyflow main module, run this to launch Pyflow
+"""
+
 import os
 import sys
 import asyncio

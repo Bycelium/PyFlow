@@ -71,10 +71,10 @@ class OCBWindow(QMainWindow):
         self.show()
 
     def createToolBars(self):
-        pass
+        """Does nothing, but is required by the QMainWindow interface."""
 
     def updateMenus(self):
-        pass
+        """Does nothing, but is required by the QMainWindow interface."""
 
     def createActions(self):
         """Create all menu actions."""
@@ -490,4 +490,5 @@ class OCBWindow(QMainWindow):
             current_window.moveToItems()
 
     def setTheme(self, theme_index):
+        """Set the theme of the application."""
         theme_manager().selected_theme_index = theme_index
