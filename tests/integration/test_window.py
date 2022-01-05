@@ -1,4 +1,4 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
@@ -9,7 +9,7 @@ import os
 import pytest
 
 from pytest_mock import MockerFixture
-from opencodeblocks.graphics.window import OCBWindow
+from pyflow.graphics.window import OCBWindow
 
 
 class TestWindow:

@@ -1,4 +1,4 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 name: Python coverage
@@ -28,7 +28,7 @@ jobs:
 
     - name: Build unit coverage using pytest-cov
       run: |
-        pytest --cov=opencodeblocks --cov-report=xml tests/unit
+        pytest --cov=pyflow --cov-report=xml tests/unit
         score=$(python coverage_score.py --score)
         color=$(python coverage_score.py --color)
         echo "COVERAGE_UNIT_SCORE=$score"
@@ -40,7 +40,7 @@ jobs:
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: 00ce73155619a4544884ca6d251954b3
-        filename: opencodeblocks_unit_coverage_badge.json
+        filename: pyflow_unit_coverage_badge.json
         label: Unit coverage
         message: ${{ env.COVERAGE_UNIT_SCORE }}
         color: ${{ env.COVERAGE_UNIT_COLOR }}
@@ -49,7 +49,7 @@ jobs:
       run: |
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1080x24 -ac +extension GLX
 
-        pytest -s --cov=opencodeblocks --cov-report=xml tests/integration
+        pytest -s --cov=pyflow --cov-report=xml tests/integration
         score=$(python coverage_score.py --score)
         color=$(python coverage_score.py --color)
         echo "COVERAGE_INTEGRATION_SCORE=$score"
@@ -64,7 +64,7 @@ jobs:
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: 00ce73155619a4544884ca6d251954b3
-        filename: opencodeblocks_integration_coverage_badge.json
+        filename: pyflow_integration_coverage_badge.json
         label: Integration coverage
         message: ${{ env.COVERAGE_INTEGRATION_SCORE }}
         color: ${{ env.COVERAGE_INTEGRATION_COLOR }}

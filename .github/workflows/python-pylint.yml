@@ -1,4 +1,4 @@
-# OpenCodeBlock an open-source tool for modular visual programing in python
+# Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 name: Pylint
@@ -32,7 +32,7 @@ jobs:
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: 00ce73155619a4544884ca6d251954b3
-        filename: opencodeblocks_pylint_badge.json
+        filename: pyflow_pylint_badge.json
         label: Pylint
         message: ${{ env.PYLINT_SCORE }}
         color: ${{ env.PYLINT_COLOR }}
