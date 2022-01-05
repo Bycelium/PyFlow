@@ -9,26 +9,41 @@
 [![Licence - GPLv3](https://img.shields.io/github/license/MathisFederico/Crafting?style=plastic)](https://www.gnu.org/licenses/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-PyFlow is an open-source tool for modular visual programing in python !
+PyFlow is an open-source tool for modular visual programming in python !
 
 Although for now the tool is in Beta and features are coming in bit by bit, stay tuned for the first release soon !
 
-![](media/mnist_example.gif)
+![](media/mnist_example_2.gif)
 
-## Help the project !
+## Community
 
-Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share your ideas or even contribute !
+Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share your ideas, contribute or just to have a chat with us.
 
 ## Features
 
-* Put your python code in small interconnected blocks
+- Create blocks of code where you can edit and run Python code
 
+<p align="center">
+  <img src="media/block_example.gif" width="400"/>
+</p>
 
-* Export and Import your graphs and share them with other people in the new Interactive PYthon
-  Graph format (.ipyg)
+- Move and resize blocks on an infinite 2D plane
 
+<p align="center">
+  <img src="media/resize_example.gif" width="400"/>
+</p>
 
-* Chain your blocks to perform complex functions.
+- Link blocks to highlight dependencies, Pyflow will then automatically run your blocks in the correct order
+
+<p align="center">
+  <img src="media/flow_example.gif" width="400"/>
+</p>
+
+- Convert your Jupyter notebooks to Pyflow graphs and vice versa
+
+<p align="center">
+  <img src="media/notebook_example.gif" width="400"/>
+</p>
 
 ## Installation
 
@@ -49,12 +64,14 @@ pip install -r requirements.txt
 Run !
 
 ```bash
-python -m opencodeblocks optional_path_to_ipyg
+python -m opencodeblocks
 ```
 
 ## Contributing
 
 If you are interested in contributing to the project, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+You can also join our [Discord](https://discord.gg/xZq8Tp4srd) to get in touch with us.
 
 ## License
 
