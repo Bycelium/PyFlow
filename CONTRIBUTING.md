@@ -62,7 +62,7 @@ This section was inspired by [This repository](https://github.com/schneegans/dyn
 
 ## Creating a new block type
 
-You can checkout [this commit](https://github.com/MathisFederico/Pyflow/commits/2305e3c92d88d2fd32644e7eab4c4e40246675d3) which contains the minimal amount of code required to
+You can checkout [this commit](https://github.com/Bycelium/Pyflow/commits/2305e3c92d88d2fd32644e7eab4c4e40246675d3) which contains the minimal amount of code required to
 create a new block type.
 
 ## Version Numbers
