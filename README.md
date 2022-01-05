@@ -13,7 +13,7 @@ PyFlow is an open-source tool for modular visual programming in python !
 
 Although for now the tool is in Beta and features are coming in bit by bit, stay tuned for the first release soon !
 
-![](media/mnist_example_2.gif)
+![](media/mnist_example.gif)
 
 ## Community
 
