@@ -72,10 +72,6 @@ def start_app(obj):
 
 
 def apply_function_inapp(window: Window, run_func: Callable):
-
-    if os.name == "nt":  # If on windows
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
     QApplication.processEvents()
     msgQueue = CheckingQueue()
     t = ExceptionForwardingThread(target=run_func, args=(msgQueue,))
