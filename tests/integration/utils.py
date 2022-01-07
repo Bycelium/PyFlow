@@ -9,6 +9,10 @@ from typing import Callable
 
 import os
 import asyncio
+
+if os.name == "nt":  # If on windows
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 import threading
 import time
 from queue import Queue
