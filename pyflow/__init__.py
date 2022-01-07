@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
 """ Pyflow: An open-source tool for modular visual programing in python """
 
