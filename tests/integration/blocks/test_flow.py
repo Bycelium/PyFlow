@@ -13,7 +13,7 @@ from pyflow.blocks.codeblock import CodeBlock
 from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
 
-class TestCodeBlocks:
+class TestCodeBlocksFlow:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup reused variables."""
