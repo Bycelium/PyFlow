@@ -37,9 +37,7 @@ class ExecutableBlock(Block):
         super().__init__(**kwargs)
 
         self.has_been_run = False
-
-        # 0 for normal, 1 for running, 2 for transmitting
-        self.run_color = 0
+        self._run_state = 0
 
         # Each element is a list of blocks/edges to be animated
         # Running will paint each element one after the other
@@ -86,7 +84,7 @@ class ExecutableBlock(Block):
 
     def execution_finished(self):
         """Reset the text of the run buttons."""
-        self.run_color = 0
+        self.run_state = 0
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
         self.blocks_to_run = []
@@ -111,7 +109,7 @@ class ExecutableBlock(Block):
         """
         for elem in self.transmitting_queue[0]:
             # Set color to transmitting
-            elem.run_color = 2
+            elem.run_state = 2
         QApplication.processEvents()
         QTimer.singleShot(self.transmitting_delay, self.transmitting_animation_out)
 
@@ -124,9 +122,9 @@ class ExecutableBlock(Block):
             # Reset color only if the block will not be run
             if hasattr(elem, "has_been_run"):
                 if elem.has_been_run is True:
-                    elem.run_color = 0
+                    elem.run_state = 0
             else:
-                elem.run_color = 0
+                elem.run_state = 0
 
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
@@ -321,6 +319,24 @@ class ExecutableBlock(Block):
     @abstractmethod
     def source(self, value: str):
         raise NotImplementedError("source(self) should be overriden")
+
+    @property
+    def run_state(self) -> int:
+        """Run state.
+
+        Describe the current state of the ExecutableBlock:
+            - 0: idle.
+            - 1: running.
+            - 2: transmitting.
+
+        """
+        return self._run_state
+
+    @run_state.setter
+    def run_state(self, value: int):
+        self._run_state = value
+        # Update to force repaint
+        self.update()
 
     def handle_stdout(self, value: str):
         """Handle the stdout signal."""

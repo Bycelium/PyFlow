@@ -67,13 +67,10 @@ class CodeBlock(ExecutableBlock):
         self.has_been_run = False
         self.blocks_to_run = []
 
-        self._pen_outline = QPen(QColor("#7F000000"))
-        self._pen_outline_running = QPen(QColor("#FF0000"))
-        self._pen_outline_transmitting = QPen(QColor("#00ff00"))
         self._pen_outlines = [
-            self._pen_outline,
-            self._pen_outline_running,
-            self._pen_outline_transmitting,
+            QPen(QColor("#7F000000")),  # Idle
+            QPen(QColor("#FF0000")),  # Running
+            QPen(QColor("#00ff00")),  # Transmitting
         ]
 
         # Add output pannel
@@ -118,14 +115,14 @@ class CodeBlock(ExecutableBlock):
 
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed."""
-        if self.run_color != 0:
+        if self.run_state != 0:
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
         """Called when the button for "Run Left" was pressed."""
-        if self.run_color != 0:
+        if self.run_state != 0:
             self._interrupt_execution()
         else:
             self.run_left()
@@ -172,35 +169,6 @@ class CodeBlock(ExecutableBlock):
         self.update_output_panel()
         self.update_run_all_button()
 
-    def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
-    ):
-        """Paint the code block."""
-        path_content = QPainterPath()
-        path_content.setFillRule(Qt.FillRule.WindingFill)
-        path_content.addRoundedRect(
-            0, 0, self.width, self.height, self.edge_size, self.edge_size
-        )
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(self._brush_background)
-        painter.drawPath(path_content.simplified())
-
-        # outline
-        path_outline = QPainterPath()
-        path_outline.addRoundedRect(
-            0, 0, self.width, self.height, self.edge_size, self.edge_size
-        )
-        painter.setPen(
-            self._pen_outline_selected
-            if self.isSelected()
-            else self._pen_outlines[self.run_color]
-        )
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawPath(path_outline.simplified())
-
     @property
     def source(self) -> str:
         """Source code."""
@@ -218,15 +186,9 @@ class CodeBlock(ExecutableBlock):
             self._source = value
 
     @property
-    def run_color(self) -> int:
-        """Run color."""
-        return self._run_color
-
-    @run_color.setter
-    def run_color(self, value: int):
-        self._run_color = value
-        # Update to force repaint
-        self.update()
+    def pen_outline(self) -> QPen:
+        """The current pen used to draw the outline of the CodeBlock."""
+        return self._pen_outlines[self.run_state]
 
     @property
     def stdout(self) -> str:

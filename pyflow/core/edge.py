@@ -74,7 +74,7 @@ class Edge(QGraphicsPathItem, Serializable):
         self.pens = [self._pen, self._pen_running, self._pen_transmitting]
 
         # 0 for normal, 1 for running, 2 for transmitting
-        self.run_color = 0
+        self.run_state = 0
 
         self.setFlag(QGraphicsPathItem.GraphicsItemFlag.ItemIsSelectable)
         self.setZValue(-1)
@@ -126,7 +126,7 @@ class Edge(QGraphicsPathItem, Serializable):
         elif self.destination_socket is None:
             pen = self._pen_dragging
         else:
-            pen = self.pens[self.run_color]
+            pen = self.pens[self.run_state]
         painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
@@ -259,12 +259,19 @@ class Edge(QGraphicsPathItem, Serializable):
             self.remove()
 
     @property
-    def run_color(self) -> int:
-        """Run color."""
-        return self._run_color
+    def run_state(self) -> int:
+        """Run state.
 
-    @run_color.setter
-    def run_color(self, value: int):
-        self._run_color = value
+        Describe the current state of the Edge:
+            - 0: idle.
+            - 1: running.
+            - 2: transmitting.
+
+        """
+        return self._run_state
+
+    @run_state.setter
+    def run_state(self, value: int):
+        self._run_state = value
         # Update to force repaint
         self.update()

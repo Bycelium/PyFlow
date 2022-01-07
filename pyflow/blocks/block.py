@@ -139,7 +139,7 @@ class Block(QGraphicsItem, Serializable):
             0, 0, self.width, self.height, self.edge_size, self.edge_size
         )
         painter.setPen(
-            self._pen_outline_selected if self.isSelected() else self._pen_outline
+            self._pen_outline_selected if self.isSelected() else self.pen_outline
         )
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
@@ -266,6 +266,11 @@ class Block(QGraphicsItem, Serializable):
     @height.setter
     def height(self, value: float):
         self.root.setGeometry(0, 0, self.root.width(), int(value))
+
+    @property
+    def pen_outline(self) -> QPen:
+        """The current pen used to draw the outline of the Block."""
+        return self._pen_outline
 
     def serialize(self) -> OrderedDict:
         """Return a serialized version of this widget."""

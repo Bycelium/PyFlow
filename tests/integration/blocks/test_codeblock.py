@@ -52,7 +52,7 @@ class TestCodeBlocks:
             pyautogui.mouseUp(button="left")
 
             time.sleep((test_block.transmitting_duration / 1000) + 0.2)
-            while test_block.run_color != 0:
+            while test_block.run_state != 0:
                 time.sleep(0.1)
 
             msgQueue.check_equal(test_block.stdout.strip(), expected_result)
@@ -83,7 +83,7 @@ class TestCodeBlocks:
 
             msgQueue.run_lambda(run_block)
             time.sleep(0.1)  # wait for the lambda to complete.
-            while block_of_test.run_color != 0:
+            while block_of_test.run_state != 0:
                 time.sleep(0.1)  # wait for the execution to finish.
 
             time.sleep(0.1)

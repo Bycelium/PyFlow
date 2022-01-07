@@ -3,7 +3,7 @@
 
 """ Module for the Serializable base class """
 
-from typing import Any, Dict, OrderedDict, Set
+from typing import Any, Dict, OrderedDict
 
 
 class Serializable:

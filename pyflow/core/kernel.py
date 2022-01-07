@@ -68,7 +68,7 @@ class Kernel:
         """
         worker = Worker(self, code)
         # Change color to running
-        block.run_color = 1
+        block.run_state = 1
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
