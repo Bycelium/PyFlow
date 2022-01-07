@@ -3,7 +3,7 @@
 
 """ Module for the Serializable base class """
 
-from typing import OrderedDict, Set
+from typing import Any, Dict, OrderedDict, Set
 
 
 class Serializable:
@@ -11,7 +11,7 @@ class Serializable:
     """Serializable base for serializable objects."""
 
     MANDATORY_FIELDS: OrderedDict = {}
-    DEFAULT_DATA: Set[str] = {}
+    DEFAULT_DATA: Dict[str, Any] = {}
 
     def __init__(self):
         self.id = id(self)
@@ -40,6 +40,6 @@ class Serializable:
             if key not in data:
                 raise ValueError(f"{key} of the socket is missing")
 
-        for key in self.DEFAULT_DATA:
+        for key, val in self.DEFAULT_DATA.items():
             if key not in data:
-                data[key] = self.DEFAULT_DATA[key]
+                data[key] = val
