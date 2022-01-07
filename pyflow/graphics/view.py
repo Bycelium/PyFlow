@@ -5,6 +5,7 @@
 
 import json
 import os
+import pathlib
 from typing import List, Tuple
 
 from PyQt5.QtCore import QEvent, QPoint, QPointF, Qt
@@ -18,6 +19,10 @@ from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
 from pyflow.blocks.block import Block
 from pyflow.blocks.codeblock import CodeBlock
+from pyflow.blocks import __file__ as BLOCK_INIT_PATH
+
+BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
+BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
 
@@ -297,10 +302,10 @@ class View(QGraphicsView):
 
     def retreiveBlockTypes(self) -> List[Tuple[str]]:
         """Retreive the list of stored blocks."""
-        block_type_files = os.listdir("blocks")
+        block_type_files = os.listdir(BLOCKFILES_PATH)
         block_types = []
-        for b in block_type_files:
-            filepath = os.path.join("blocks", b)
+        for blockfile_name in block_type_files:
+            filepath = os.path.join(BLOCKFILES_PATH, blockfile_name)
             with open(filepath, "r", encoding="utf-8") as file:
                 data = json.loads(file.read())
                 title = "New Block"
