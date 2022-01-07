@@ -18,10 +18,9 @@ class ContainerBlock(Block):
         # Due to the overall structure of the code, this cannot be removed, as the
         # scene should be able to serialize blocks.
         # This is not due to bad code design and should not be removed.
-        from pyflow.graphics.view import (
-            View,
-        )  # pylint: disable=cyclic-import
-        from pyflow.scene.scene import Scene  # pylint: disable=cyclic-import
+        # pylint: disable=import-outside-toplevel, cyclic-import
+        from pyflow.graphics.view import View
+        from pyflow.scene.scene import Scene
 
         self.layout = QVBoxLayout(self.root)
         self.layout.setContentsMargins(
