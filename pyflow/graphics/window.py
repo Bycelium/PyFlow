@@ -1,6 +1,6 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
-# pylint:disable=too-many-instance-attributes
+# pylint:disable=too-many-instance-attributes, unsubscriptable-object
 
 """ Module for the  Window """
 
