@@ -18,7 +18,7 @@ class WorkerSignals(QObject):
 
 
 class Worker(QRunnable):
-    """Worker thread"""
+    """Worker thread."""
 
     def __init__(self, kernel, code):
         """Initialize the worker object."""
@@ -29,7 +29,7 @@ class Worker(QRunnable):
         self.signals = WorkerSignals()
 
     async def run_code(self):
-        """Run the code in the block"""
+        """Run the code in the block."""
         # Execute the code
         self.kernel.client.execute(self.code)
         done = False

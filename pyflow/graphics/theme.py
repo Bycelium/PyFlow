@@ -9,7 +9,7 @@ from PyQt5.QtGui import QColor
 
 
 class Theme:
-    """Class holding the details of a specific theme"""
+    """Class holding the details of a specific theme."""
 
     def __init__(self, name: str, json_str: str = "{}"):
         """
@@ -33,7 +33,7 @@ class Theme:
         self.name = name
 
     def apply_to_lexer(self, lexer: QsciLexerPython):
-        """Make the given lexer follow the theme"""
+        """Make the given lexer follow the theme."""
         lexer.setDefaultPaper(QColor("#1E1E1E"))
         lexer.setDefaultColor(QColor("#D4D4D4"))
 

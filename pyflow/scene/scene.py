@@ -87,12 +87,12 @@ class Scene(QGraphicsScene, Serializable):
         return selected_blocks, selected_edges
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
-        """Draw the Scene background"""
+        """Draw the Scene background."""
         super().drawBackground(painter, rect)
         self.drawGrid(painter, rect)
 
     def drawGrid(self, painter: QPainter, rect: QRectF):
-        """Draw the background grid"""
+        """Draw the background grid."""
         left = int(math.floor(rect.left()))
         top = int(math.floor(rect.top()))
         right = int(math.ceil(rect.right()))
@@ -144,7 +144,7 @@ class Scene(QGraphicsScene, Serializable):
             file.write(json.dumps(self.serialize(), indent=4))
 
     def save_to_ipynb(self, filepath: str):
-        """Save the scene into filepath as ipynb"""
+        """Save the scene into filepath as ipynb."""
         if "." not in filepath:
             filepath += ".ipynb"
 
@@ -219,7 +219,7 @@ class Scene(QGraphicsScene, Serializable):
         )
 
     def create_block_from_file(self, filepath: str, x: float = 0, y: float = 0):
-        """Create a new block from a .b file"""
+        """Create a new block from a .b file."""
         with open(filepath, "r", encoding="utf-8") as file:
             data = json.loads(file.read())
             data["position"] = [x, y]
@@ -229,7 +229,7 @@ class Scene(QGraphicsScene, Serializable):
     def create_block(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ) -> Block:
-        """Create a new block from an OrderedDict"""
+        """Create a new block from an OrderedDict."""
 
         block = None
 

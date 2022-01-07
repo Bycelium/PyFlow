@@ -67,7 +67,7 @@ class PythonEditor(QsciScintilla):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
     def update_theme(self):
-        """Change the font and colors of the editor to match the current theme"""
+        """Change the font and colors of the editor to match the current theme."""
         font = QFont()
         font.setFamily(theme_manager().recommended_font_family)
         font.setFixedPitch(True)
@@ -94,14 +94,14 @@ class PythonEditor(QsciScintilla):
         return self.block.scene().views()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        """How PythonEditor handles wheel events"""
+        """How PythonEditor handles wheel events."""
         if self.mode == "EDITING" and event.angleDelta().x() == 0:
             event.accept()
             return super().wheelEvent(event)
 
     @property
     def mode(self) -> int:
-        """PythonEditor current mode"""
+        """PythonEditor current mode."""
         return self._mode
 
     @mode.setter

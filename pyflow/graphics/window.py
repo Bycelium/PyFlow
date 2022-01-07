@@ -363,7 +363,7 @@ class Window(QMainWindow):
         return False
 
     def saveWindow(self, window: Widget):
-        """Save the given window"""
+        """Save the given window."""
         window.save()
         self.statusbar.showMessage(
             f"Successfully saved ipygraph at {window.savepath}", 2000

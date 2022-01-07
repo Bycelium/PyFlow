@@ -52,21 +52,21 @@ class ExecutableBlock(Block):
             raise RuntimeError("ExecutableBlock should not be instanciated directly")
 
     def has_input(self) -> bool:
-        """Checks whether a block has connected input blocks"""
+        """Checks whether a block has connected input blocks."""
         for input_socket in self.sockets_in:
             if len(input_socket.edges) != 0:
                 return True
         return False
 
     def has_output(self) -> bool:
-        """Checks whether a block has connected output blocks"""
+        """Checks whether a block has connected output blocks."""
         for output_socket in self.sockets_out:
             if len(output_socket.edges) != 0:
                 return True
         return False
 
     def run_code(self):
-        """Run the code in the block"""
+        """Run the code in the block."""
 
         # Queue the code to execute
         code = self.source
@@ -78,14 +78,14 @@ class ExecutableBlock(Block):
         self.has_been_run = True
 
     def execution_finished(self):
-        """Reset the text of the run buttons"""
+        """Reset the text of the run buttons."""
         self.run_color = 0
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
         self.blocks_to_run = []
 
     def _interrupt_execution(self):
-        """Interrupt an execution, reset the blocks in the queue"""
+        """Interrupt an execution, reset the blocks in the queue."""
         for block, _ in self.scene().kernel.execution_queue:
             # Reset the blocks that have not been run
             block.reset_has_been_run()
@@ -243,7 +243,7 @@ class ExecutableBlock(Block):
         return to_transmit
 
     def run_blocks(self):
-        """Run a list of blocks"""
+        """Run a list of blocks."""
         for block in self.blocks_to_run[::-1]:
             if not block.has_been_run:
                 block.run_code()
@@ -251,7 +251,7 @@ class ExecutableBlock(Block):
             self.run_code()
 
     def run_left(self):
-        """Run all of the block's dependencies and then run the block"""
+        """Run all of the block's dependencies and then run the block."""
 
         # Reset has_been_run to make sure that the self is run again
         self.has_been_run = False
@@ -274,7 +274,7 @@ class ExecutableBlock(Block):
         self.transmitting_animation_in()
 
     def run_right(self):
-        """Run all of the output blocks and all their dependencies"""
+        """Run all of the output blocks and all their dependencies."""
 
         # To avoid crashing when spamming the button
         if len(self.transmitting_queue) != 0:
@@ -301,13 +301,13 @@ class ExecutableBlock(Block):
         self.transmitting_animation_in()
 
     def reset_has_been_run(self):
-        """Called when the output is an error"""
+        """Called when the output is an error."""
         self.has_been_run = False
 
     @property
     @abstractmethod
     def source(self) -> str:
-        """Source code"""
+        """Source code."""
         raise NotImplementedError("source(self) should be overriden")
 
     @source.setter
@@ -316,17 +316,17 @@ class ExecutableBlock(Block):
         raise NotImplementedError("source(self) should be overriden")
 
     def handle_stdout(self, value: str):
-        """Handle the stdout signal"""
+        """Handle the stdout signal."""
 
     def handle_image(self, image: str):
-        """Handle the image signal"""
+        """Handle the image signal."""
 
     def serialize(self):
-        """Return a serialized version of this block"""
+        """Return a serialized version of this block."""
         return super().serialize()
 
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
-        """Restore a codeblock from it's serialized state"""
+        """Restore a codeblock from it's serialized state."""
         super().deserialize(data, hashmap, restore_id)

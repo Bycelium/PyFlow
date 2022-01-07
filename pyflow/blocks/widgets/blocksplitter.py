@@ -8,10 +8,10 @@ from PyQt5.QtWidgets import QSplitter, QSplitterHandle, QWidget
 
 
 class SplitterHandle(QSplitterHandle):
-    """A handle for splitters with undoable events"""
+    """A handle for splitters with undoable events."""
 
     def mouseReleaseEvent(self, evt: QMouseEvent):
-        """When releasing the handle, save the state to history"""
+        """When releasing the handle, save the state to history."""
         scene = self.parent().block.scene()
         if scene is not None:
             scene.history.checkpoint("Resize block", set_modified=True)
@@ -19,13 +19,13 @@ class SplitterHandle(QSplitterHandle):
 
 
 class Splitter(QSplitter):
-    """A spliter with undoable events"""
+    """A spliter with undoable events."""
 
     def __init__(self, block: QWidget, orientation: int, parent: QWidget):
-        """Create a new Splitter"""
+        """Create a new Splitter."""
         super().__init__(orientation, parent)
         self.block = block
 
     def createHandle(self):
-        """Return the middle handle of the splitter"""
+        """Return the middle handle of the splitter."""
         return SplitterHandle(self.orientation(), self)

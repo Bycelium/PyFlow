@@ -63,7 +63,7 @@ class Widget(QWidget):
         self.scene.save(self.savepath)
 
     def saveAsJupyter(self, filepath: str):
-        """Save the current graph notebook as a regular python notebook"""
+        """Save the current graph notebook as a regular python notebook."""
         self.scene.save_to_ipynb(filepath)
 
     def load(self, filepath: str):

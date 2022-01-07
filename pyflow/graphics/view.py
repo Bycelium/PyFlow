@@ -89,7 +89,7 @@ class View(QGraphicsView):
             super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
-        """Dispatch Qt's mouseRelease events to corresponding functions below"""
+        """Dispatch Qt's mouseRelease events to corresponding functions below."""
         if event.button() == Qt.MouseButton.MiddleButton:
             self.middleMouseButtonRelease(event)
         elif event.button() == Qt.MouseButton.LeftButton:
@@ -196,7 +196,7 @@ class View(QGraphicsView):
         return True
 
     def getDistanceToCenter(self, x: float, y: float) -> Tuple[float]:
-        """Return the vector from the (x,y) position given to the center of the view"""
+        """Return the vector from the (x,y) position given to the center of the view."""
         ypos = self.verticalScrollBar().value()
         xpos = self.horizontalScrollBar().value()
         return (
@@ -282,7 +282,7 @@ class View(QGraphicsView):
         return True
 
     def keyPressEvent(self, event: QKeyEvent):
-        """View reaction to a key being pressed"""
+        """View reaction to a key being pressed."""
         key_id = event.key()
         if key_id in [
             Qt.Key.Key_Up,
@@ -313,7 +313,7 @@ class View(QGraphicsView):
         return block_types
 
     def contextMenuEvent(self, event: QContextMenuEvent):
-        """Displays the context menu when inside a view"""
+        """Displays the context menu when inside a view."""
         super().contextMenuEvent(event)
         # If somebody has already accepted the event, don't handle it.
         if event.isAccepted():
@@ -347,7 +347,7 @@ class View(QGraphicsView):
             super().wheelEvent(event)
 
     def setZoom(self, new_zoom: float):
-        """Set the zoom to the appropriate level"""
+        """Set the zoom to the appropriate level."""
         zoom_factor = new_zoom / self.zoom
         self.scale(zoom_factor, zoom_factor)
         self.zoom = new_zoom

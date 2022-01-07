@@ -9,7 +9,7 @@ from pyflow.core.worker import Worker
 
 class Kernel:
 
-    """jupyter_client kernel used to execute code and return output"""
+    """jupyter_client kernel used to execute code and return output."""
 
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
@@ -74,7 +74,7 @@ class Kernel:
         block.scene().threadpool.start(worker)
 
     def run_queue(self):
-        """Runs the next code in the queue"""
+        """Runs the next code in the queue."""
         self.busy = True
         if self.execution_queue == []:
             self.busy = False

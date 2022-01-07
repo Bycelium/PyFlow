@@ -35,7 +35,7 @@ class Serializable:
         raise NotImplementedError()
 
     def complete_with_default(self, data: OrderedDict) -> None:
-        """Add default data in place when fields are missing"""
+        """Add default data in place when fields are missing."""
         for key in self.MANDATORY_FIELDS:
             if key not in data:
                 raise ValueError(f"{key} of the socket is missing")

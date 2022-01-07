@@ -16,12 +16,12 @@ eps = 1
 
 
 class DrawableWidget(QWidget):
-    """A drawable widget is a canvas like widget on which you can doodle"""
+    """A drawable widget is a canvas like widget on which you can doodle."""
 
     on_value_changed = pyqtSignal()
 
     def __init__(self, parent: QWidget):
-        """Create a new Drawable widget"""
+        """Create a new Drawable widget."""
         super().__init__(parent)
         self.setAttribute(Qt.WA_PaintOnScreen)
         self.pixel_width = 24
@@ -35,13 +35,13 @@ class DrawableWidget(QWidget):
                 self.color_buffer[-1].append(0)
 
     def clearDrawing(self):
-        """Clear the drawing"""
+        """Clear the drawing."""
         for i in range(self.pixel_width):
             for j in range(self.pixel_height):
                 self.color_buffer[i][j] = 0
 
     def paintEvent(self, evt: QPaintEvent):
-        """Draw the content of the widget"""
+        """Draw the content of the widget."""
         painter = QPainter(self)
 
         for i in range(self.pixel_width):
@@ -61,7 +61,7 @@ class DrawableWidget(QWidget):
                 )
 
     def mouseMoveEvent(self, evt: QMouseEvent):
-        """Change the drawing when dragging the mouse around"""
+        """Change the drawing when dragging the mouse around."""
         if self.mouse_down:
             x = floor(evt.x() / self.width() * self.pixel_width)
             y = floor(evt.y() / self.height() * self.pixel_height)
@@ -71,20 +71,20 @@ class DrawableWidget(QWidget):
                 self.on_value_changed.emit()
 
     def mousePressEvent(self, evt: QMouseEvent):
-        """Signal that the drawing starts"""
+        """Signal that the drawing starts."""
         self.mouse_down = True
 
     def mouseReleaseEvent(self, evt: QMouseEvent):
-        """Signal that the drawing stops"""
+        """Signal that the drawing stops."""
         self.mouse_down = False
 
 
 class DrawingBlock(ExecutableBlock):
 
-    """An Block on which you can draw, to test your CNNs for example"""
+    """An Block on which you can draw, to test your CNNs for example."""
 
     def __init__(self, **kwargs):
-        """Create a new Block"""
+        """Create a new Block."""
         super().__init__(**kwargs)
 
         self.draw_area = DrawableWidget(self.root)
@@ -103,7 +103,7 @@ class DrawingBlock(ExecutableBlock):
 
     @property
     def drawing(self):
-        """A json-encoded representation of the drawing"""
+        """A json-encoded representation of the drawing."""
         return json.dumps(self.draw_area.color_buffer)
 
     @drawing.setter
@@ -111,7 +111,7 @@ class DrawingBlock(ExecutableBlock):
         self.draw_area.color_buffer = json.loads(value)
 
     def serialize(self):
-        """Return a serialized version of this widget"""
+        """Return a serialized version of this widget."""
         base_dict = super().serialize()
         base_dict["drawing"] = self.drawing
 
@@ -125,7 +125,7 @@ class DrawingBlock(ExecutableBlock):
 
     @property
     def source(self):
-        """The "source code" of the drawingblock i.e an assignement to the drawing buffer"""
+        """The "source code" of the drawingblock i.e an assignement to the drawing buffer."""
         python_code = f"{self.var_name} = {repr(self.draw_area.color_buffer)}"
         return python_code
 
@@ -136,7 +136,7 @@ class DrawingBlock(ExecutableBlock):
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
-        """Restore a markdown block from it's serialized state"""
+        """Restore a markdown block from it's serialized state."""
         for dataname in ["drawing"]:
             if dataname in data:
                 setattr(self, dataname, data[dataname])

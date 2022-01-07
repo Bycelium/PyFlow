@@ -14,7 +14,7 @@ from pyflow.core.serializable import Serializable
 
 
 class Title(QLineEdit, Serializable):
-    """The title of an Block. Needs to be double clicked to interact"""
+    """The title of an Block. Needs to be double clicked to interact."""
 
     def __init__(
         self,
@@ -24,7 +24,7 @@ class Title(QLineEdit, Serializable):
         size: int = 12,
         parent: QWidget = None,
     ):
-        """Create a new title for an Block"""
+        """Create a new title for an Block."""
         Serializable.__init__(self)
         QLineEdit.__init__(self, text, parent)
         self.clickTime = None
@@ -33,7 +33,7 @@ class Title(QLineEdit, Serializable):
         self.setCursorPosition(0)
 
     def init_ui(self, color: str, font: str, size: int):
-        """Apply the style given to the title"""
+        """Apply the style given to the title."""
         self.color = color
         self.setStyleSheet(
             f"""
@@ -62,19 +62,19 @@ class Title(QLineEdit, Serializable):
         self.clickTime = time.time()
 
     def focusOutEvent(self, event: QFocusEvent):
-        """The title is read-only when focused is lost"""
+        """The title is read-only when focused is lost."""
         self.setReadOnly(True)
         self.setCursorPosition(0)
         self.deselect()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
-        """Toggle readonly mode when double clicking"""
+        """Toggle readonly mode when double clicking."""
         self.setReadOnly(not self.isReadOnly())
         if not self.isReadOnly():
             self.setFocus(Qt.MouseFocusReason)
 
     def serialize(self) -> OrderedDict:
-        """Return a serialized version of this widget"""
+        """Return a serialized version of this widget."""
         return OrderedDict(
             [
                 ("color", self.color),
@@ -84,7 +84,7 @@ class Title(QLineEdit, Serializable):
         )
 
     def deserialize(self, data: OrderedDict, hashmap: dict = None, restore_id=True):
-        """Restore a title from serialized data"""
+        """Restore a title from serialized data."""
         if restore_id:
             self.id = data.get("id", id(self))
         self.init_ui(data["color"], data["font"], data["size"])

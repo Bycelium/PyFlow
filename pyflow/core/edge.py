@@ -260,7 +260,7 @@ class Edge(QGraphicsPathItem, Serializable):
 
     @property
     def run_color(self) -> int:
-        """Run color"""
+        """Run color."""
         return self._run_color
 
     @run_color.setter

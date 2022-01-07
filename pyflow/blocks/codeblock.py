@@ -93,14 +93,14 @@ class CodeBlock(ExecutableBlock):
         self.update_all()  # Set the geometry of display and source_editor
 
     def init_output_panel(self):
-        """Initialize the output display widget: QLabel"""
+        """Initialize the output display widget: QLabel."""
         output_panel = QTextEdit()
         output_panel.setReadOnly(True)
         output_panel.setFont(self.source_editor.font())
         return output_panel
 
     def init_run_button(self):
-        """Initialize the run button"""
+        """Initialize the run button."""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
         run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
@@ -108,7 +108,7 @@ class CodeBlock(ExecutableBlock):
         return run_button
 
     def init_run_all_button(self):
-        """Initialize the run all button"""
+        """Initialize the run all button."""
         run_all_button = QPushButton(">>", self.root)
         run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.handle_run_right)
@@ -117,21 +117,21 @@ class CodeBlock(ExecutableBlock):
         return run_all_button
 
     def handle_run_right(self):
-        """Called when the button for "Run All" was pressed"""
+        """Called when the button for "Run All" was pressed."""
         if self.run_color != 0:
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
-        """Called when the button for "Run Left" was pressed"""
+        """Called when the button for "Run Left" was pressed."""
         if self.run_color != 0:
             self._interrupt_execution()
         else:
             self.run_left()
 
     def run_code(self):
-        """Run the code in the block"""
+        """Run the code in the block."""
 
         # Reset stdout
         self._cached_stdout = ""
@@ -143,7 +143,7 @@ class CodeBlock(ExecutableBlock):
         super().run_code()  # actually run the code
 
     def update_title(self):
-        """Change the geometry of the title widget"""
+        """Change the geometry of the title widget."""
         self.title_widget.setGeometry(
             int(self.edge_size) + self.run_button.width(),
             int(self.edge_size / 2),
@@ -152,7 +152,7 @@ class CodeBlock(ExecutableBlock):
         )
 
     def update_output_panel(self):
-        """Change the geometry of the output panel"""
+        """Change the geometry of the output panel."""
         # Close output panel if no output
         if self.stdout == "":
             self.previous_splitter_size = self.splitter.sizes()
@@ -160,14 +160,14 @@ class CodeBlock(ExecutableBlock):
             self.splitter.setSizes([1, 0])
 
     def update_run_all_button(self):
-        """Change the geometry of the run all button"""
+        """Change the geometry of the run all button."""
         self.run_all_button.move(
             int(self.width - self.edge_size - self.run_button.width()),
             int(self.edge_size / 2),
         )
 
     def update_all(self):
-        """Update the code block parts"""
+        """Update the code block parts."""
         super().update_all()
         self.update_output_panel()
         self.update_run_all_button()
@@ -178,7 +178,7 @@ class CodeBlock(ExecutableBlock):
         option: QStyleOptionGraphicsItem,
         widget: Optional[QWidget] = None,
     ):
-        """Paint the code block"""
+        """Paint the code block."""
         path_content = QPainterPath()
         path_content.setFillRule(Qt.FillRule.WindingFill)
         path_content.addRoundedRect(
@@ -203,7 +203,7 @@ class CodeBlock(ExecutableBlock):
 
     @property
     def source(self) -> str:
-        """Source code"""
+        """Source code."""
         return self._source
 
     @source.setter
@@ -219,7 +219,7 @@ class CodeBlock(ExecutableBlock):
 
     @property
     def run_color(self) -> int:
-        """Run color"""
+        """Run color."""
         return self._run_color
 
     @run_color.setter
@@ -230,7 +230,7 @@ class CodeBlock(ExecutableBlock):
 
     @property
     def stdout(self) -> str:
-        """Access the content of the output panel of the block"""
+        """Access the content of the output panel of the block."""
         return self._stdout
 
     @stdout.setter
@@ -255,8 +255,8 @@ class CodeBlock(ExecutableBlock):
                 self.splitter.setSizes([1, 0])
 
     @staticmethod
-    def str_to_html(text: str):
-        """Format text so that it's properly displayed by the code block"""
+    def str_to_html(text: str) -> str:
+        """Format text so that it's properly displayed by the code block."""
         # Remove carriage returns and backspaces
         text = text.replace("\x08", "")
         text = text.replace("\r", "")
@@ -269,7 +269,7 @@ class CodeBlock(ExecutableBlock):
         return text
 
     def handle_stdout(self, value: str):
-        """Handle the stdout signal"""
+        """Handle the stdout signal."""
         # If there is a new line
         # Save every line but the last one
 
@@ -282,16 +282,16 @@ class CodeBlock(ExecutableBlock):
         self.stdout = self._cached_stdout + value
 
     @staticmethod
-    def b64_to_html(image: str):
-        """Transform a base64 encoded image into a html image"""
+    def b64_to_html(image: str) -> str:
+        """Transform a base64 encoded image into a html image."""
         return f'<img src="data:image/png;base64,{image}">'
 
     def handle_image(self, image: str):
-        """Handle the image signal"""
+        """Handle the image signal."""
         self.stdout = "<img>" + image
 
     def serialize(self):
-        """Serialize the code block"""
+        """Serialize the code block."""
         base_dict = super().serialize()
         base_dict["source"] = self.source
         base_dict["stdout"] = self.stdout
@@ -301,7 +301,7 @@ class CodeBlock(ExecutableBlock):
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
-        """Restore a codeblock from it's serialized state"""
+        """Restore a codeblock from it's serialized state."""
 
         self.complete_with_default(data)
 
