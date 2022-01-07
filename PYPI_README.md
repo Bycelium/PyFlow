@@ -22,28 +22,9 @@ Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share y
 ## Features
 
 -   Create blocks of code in which you can edit and run Python code
-
-<p align="center">
-  <img src="media/block_example.gif" alt="" width="400"/>
-</p>
-
 -   Move and resize blocks on an infinite 2D plane
-
-<p align="center">
-  <img src="media/resize_example.gif" alt="" width="400"/>
-</p>
-
 -   Link blocks to highlight dependencies, Pyflow will then automatically run your blocks in the correct order
-
-<p align="center">
-  <img src="media/flow_example.gif" alt="" width="400"/>
-</p>
-
 -   Convert your Jupyter notebooks to Pyflow graphs and vice versa
-
-<p align="center">
-  <img src="media/notebook_example.gif" alt="" width="400"/>
-</p>
 
 ## Installation
 
