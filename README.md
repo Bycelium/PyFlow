@@ -49,19 +49,25 @@ Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share y
 
 Make sure you have Python 3 installed. You can download it from [here](https://www.python.org/downloads/)
 
-Clone the current repo:
+### Clone the repository
 
+Using git:
 ```bash
-git clone https://github.com/MathisFederico/Pyflow/
+git clone git@github.com:Bycelium/PyFlow.git
 ```
 
-Install the dependencies
+or using https:
+```bash
+git clone https://github.com/Bycelium/PyFlow.git
+```
+
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run !
+### Run PyFlow !
 
 ```bash
 python -m pyflow
