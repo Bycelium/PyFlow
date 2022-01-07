@@ -10,12 +10,16 @@ The theme manager provides the color scheme for the syntax highlighting
 of the text areas containing code.
 """
 import os
+import pathlib
 from typing import List
 
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtCore import pyqtSignal, QObject
 
 from pyflow.graphics.theme import Theme
+from pyflow import __file__ as INIT_PATH
+
+PACKAGE_PATH = pathlib.Path(INIT_PATH).parent
 
 
 class ThemeManager(QObject):
@@ -37,7 +41,7 @@ class ThemeManager(QObject):
 
         self._themes = []
         self._selected_theme_index = 0
-        theme_path = "./themes"
+        theme_path = os.path.join(PACKAGE_PATH, "themes")
         theme_paths = os.listdir(theme_path)
         for p in theme_paths:
             full_path = os.path.join(theme_path, p)
