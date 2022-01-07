@@ -133,6 +133,11 @@ class CodeBlock(ExecutableBlock):
 
         super().run_code()  # actually run the code
 
+    def execution_finished(self):
+        super().execution_finished()
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+
     def update_title(self):
         """Change the geometry of the title widget."""
         self.title_widget.setGeometry(

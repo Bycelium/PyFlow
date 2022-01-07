@@ -85,8 +85,6 @@ class ExecutableBlock(Block):
     def execution_finished(self):
         """Reset the text of the run buttons."""
         self.run_state = 0
-        self.run_button.setText(">")
-        self.run_all_button.setText(">>")
         self.blocks_to_run = []
 
     def _interrupt_execution(self):
