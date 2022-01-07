@@ -1,7 +1,7 @@
 # PyFlow
 
 [![Pytest badge](https://github.com/Bycelium/PyFlow/actions/workflows/python-tests.yml/badge.svg?branch=master)](https://github.com/Bycelium/PyFlow/actions/workflows/python-tests.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9874915d70e440418447f371c4bd5061)](https://www.codacy.com/gh/Bycelium/PyFlow/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bycelium/PyFlow&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9874915d70e440418447f371c4bd5061)](https://www.codacy.com/gh/Bycelium/PyFlow/dashboard?utm_source=github.com&utm_medium=referral&utm_content=Bycelium/PyFlow&utm_campaign=Badge_Grade)
 [![Pylint badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_pylint_badge.json)](https://github.com/Bycelium/PyFlow/actions/workflows/python-pylint.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9874915d70e440418447f371c4bd5061)](https://www.codacy.com/gh/Bycelium/PyFlow/dashboard?utm_source=github.com&utm_medium=referral&utm_content=Bycelium/PyFlow&utm_campaign=Badge_Coverage)
 [![Unit coverage badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FMathisFederico%2F00ce73155619a4544884ca6d251954b3%2Fraw%2Fopencodeblocks_unit_coverage_badge.json)](https://github.com/Bycelium/PyFlow/actions/workflows/python-coverage.yml)
@@ -21,25 +21,25 @@ Join our [Discord](https://discord.gg/xZq8Tp4srd) to beta-test features, share y
 
 ## Features
 
-- Create blocks of code in which you can edit and run Python code
+-   Create blocks of code in which you can edit and run Python code
 
 <p align="center">
   <img src="media/block_example.gif" width="400"/>
 </p>
 
-- Move and resize blocks on an infinite 2D plane
+-   Move and resize blocks on an infinite 2D plane
 
 <p align="center">
   <img src="media/resize_example.gif" width="400"/>
 </p>
 
-- Link blocks to highlight dependencies, Pyflow will then automatically run your blocks in the correct order
+-   Link blocks to highlight dependencies, Pyflow will then automatically run your blocks in the correct order
 
 <p align="center">
   <img src="media/flow_example.gif" width="400"/>
 </p>
 
-- Convert your Jupyter notebooks to Pyflow graphs and vice versa
+-   Convert your Jupyter notebooks to Pyflow graphs and vice versa
 
 <p align="center">
   <img src="media/notebook_example.gif" width="400"/>
@@ -52,11 +52,13 @@ Make sure you have Python 3 installed. You can download it from [here](https://w
 ### Clone the repository
 
 Using git:
+
 ```bash
 git clone git@github.com:Bycelium/PyFlow.git
 ```
 
-or using https:
+or using https&#x3A;
+
 ```bash
 git clone https://github.com/Bycelium/PyFlow.git
 ```
