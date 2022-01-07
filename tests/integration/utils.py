@@ -13,7 +13,7 @@ import threading
 import time
 from queue import Queue
 
-from qtpy.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication
 import pytest_check as check
 import warnings
 from pyflow.graphics.widget import OCBWidget
