@@ -6,4 +6,4 @@
 
 __appname__ = "Pyflow"
 __author__ = "Mathïs Fédérico"
-__version__ = "beta-1.0.0"
+__version__ = "1.0.0-beta"
