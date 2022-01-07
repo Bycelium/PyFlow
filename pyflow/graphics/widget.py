@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for the  Widget """
+""" Module for the base PyFlow Widget."""
 
 import os
 
@@ -14,7 +14,7 @@ from pyflow.graphics.view import View
 
 class Widget(QWidget):
 
-    """Window for the  application."""
+    """Window for a graph visualisation."""
 
     def __init__(self, parent=None):
         super().__init__(parent)

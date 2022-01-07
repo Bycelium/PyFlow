@@ -1,5 +1,7 @@
-"""
-Implements the SizeGrip Widget for the Blocks.
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module for SizeGrip block widget.
 
 The size grip is the little icon at the bottom right of a block that is used to
 resize a block.

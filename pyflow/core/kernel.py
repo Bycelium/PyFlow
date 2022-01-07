@@ -1,4 +1,7 @@
-""" Module to create and manage ipython kernels """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module to create and manage ipython kernels."""
 
 import queue
 from typing import Tuple

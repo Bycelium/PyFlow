@@ -1,6 +1,10 @@
-"""
-This module defined Theme, a class that
-contains the details of the theme
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module for Theme.
+
+Theme is a class that contains the details of the coloring theme.
+
 """
 
 import json

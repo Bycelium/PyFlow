@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for the  View """
+""" Module for View."""
 
 import json
 import os
@@ -24,7 +24,7 @@ EPS: float = 1e-10  # To check if blocks are of size 0
 
 class View(QGraphicsView):
 
-    """View for the  Window."""
+    """View for the Window."""
 
     MODE_NOOP = 0
     MODE_EDGE_DRAG = 1

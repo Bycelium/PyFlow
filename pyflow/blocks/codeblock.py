@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for the base  Code Block. """
+""" Module for the base Code Block."""
 
 from typing import OrderedDict, Optional
 from PyQt5.QtWidgets import (

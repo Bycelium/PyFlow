@@ -1,7 +1,10 @@
 # Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-"""
-Exports SliderBlock.
+""" Module for the SliderBlock.
+
+A block that can allows dynamic value modification using a slider.
+
 """
 
 from typing import OrderedDict

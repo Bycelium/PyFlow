@@ -1,4 +1,7 @@
-""" Module with the constants used to converter to ipynb and from ipynb """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module with the constants used to convert to and from notebooks."""
 
 from typing import Dict
 

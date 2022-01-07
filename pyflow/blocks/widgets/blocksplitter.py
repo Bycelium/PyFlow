@@ -1,6 +1,10 @@
-"""
-Module defining a Splitter, the widget that contains multiple areas inside
-a block and allows the user to resize those areas.
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module for the Splitter block widget.
+
+The Splitter contains multiple areas inside a block
+and allows the user to resize those areas.
 """
 
 from PyQt5.QtGui import QMouseEvent

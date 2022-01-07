@@ -1,5 +1,10 @@
-"""
-Exports ContainerBlock.
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module for the ContainerBlock.
+
+A block that can contain other blocks.
+
 """
 
 from PyQt5.QtWidgets import QVBoxLayout

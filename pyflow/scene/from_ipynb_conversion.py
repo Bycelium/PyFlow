@@ -1,4 +1,7 @@
-""" Module for converting ipynb data to ipyg data """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+
+""" Module for converting notebook (.ipynb) data to pygraph (.ipyg) data."""
 
 from typing import OrderedDict, List
 

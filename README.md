@@ -69,7 +69,7 @@ git clone https://github.com/Bycelium/PyFlow.git
 pip install -r requirements.txt
 ```
 
-### Run PyFlow !
+### Run PyFlow
 
 ```bash
 python -m pyflow

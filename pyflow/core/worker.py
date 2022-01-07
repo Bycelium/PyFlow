@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module to create and manage multi-threading workers """
+""" Module to create and manage multi-threading workers."""
 
 import asyncio
 from PyQt5.QtCore import QObject, pyqtSignal, QRunnable

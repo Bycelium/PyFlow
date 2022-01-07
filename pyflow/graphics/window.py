@@ -1,8 +1,8 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 # pylint:disable=too-many-instance-attributes, unsubscriptable-object
 
-""" Module for the  Window """
+""" Module for the base Window."""
 
 import os
 from PyQt5.QtCore import QPoint, QSettings, QSize, Qt, QSignalMapper

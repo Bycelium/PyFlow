@@ -1,7 +1,10 @@
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 # pylint:disable=unused-argument
-"""
-Module defining the widget for the title of blocks.
-It's a QLineEdit modified so that editing it requires a double click.
+
+""" Module for the Title block widget.
+
+The Title is a modified QLineEdit for PyFlow purpose.
 """
 
 import time
