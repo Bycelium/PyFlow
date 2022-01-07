@@ -1,22 +1,26 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
+"""Setup for the python package build."""
+
 import pathlib
 from setuptools import setup, find_packages
 
 
 def get_version():
+    """Load version from file."""
     version_file = open("VERSION")
     return version_file.read().strip()
 
 
 def get_requirements():
+    """Load requirements from file."""
     requirements_file = open("requirements.txt")
     return requirements_file.readlines()
 
 
 HERE = pathlib.Path(__file__).parent  # The directory containing this file
-README = (HERE / "PYPI_README.md").read_text()
+README = (HERE / "pypi-readme.md").read_text()
 VERSION = get_version()
 REQUIREMENTS = get_requirements()
 
