@@ -5,9 +5,10 @@
 """ Module for the base Window."""
 
 import os
+import pathlib
+
 from PyQt5.QtCore import QPoint, QSettings, QSize, Qt, QSignalMapper
 from PyQt5.QtGui import QCloseEvent, QKeySequence
-
 from PyQt5.QtWidgets import (
     QWidget,
     QAction,
@@ -21,6 +22,9 @@ from pyflow.graphics.widget import Widget
 from pyflow.graphics.theme_manager import theme_manager
 
 from pyflow.qss import loadStylesheets
+from pyflow.qss import __file__ as QSS_INIT_PATH
+
+QSS_PATH = pathlib.Path(QSS_INIT_PATH).parent
 
 
 class Window(QMainWindow):
@@ -30,15 +34,11 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.stylesheet_filename = os.path.join(
-            os.path.dirname(__file__), "..", "qss", ".qss"
-        )
-        loadStylesheets(
-            (
-                os.path.join(os.path.dirname(__file__), "..", "qss", "_dark.qss"),
-                self.stylesheet_filename,
-            )
-        )
+        self.stylesheets = [
+            os.path.join(QSS_PATH, "pyflow.qss"),
+            os.path.join(QSS_PATH, "pyflow_dark.qss"),
+        ]
+        loadStylesheets(self.stylesheets)
 
         self.mdiArea = QMdiArea()
         self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
