@@ -3,15 +3,9 @@
 
 """ Module for the base Code Block."""
 
-from typing import OrderedDict, Optional
-from PyQt5.QtWidgets import (
-    QPushButton,
-    QTextEdit,
-    QWidget,
-    QStyleOptionGraphicsItem,
-)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
+from typing import OrderedDict
+from PyQt5.QtWidgets import QPushButton, QTextEdit
+from PyQt5.QtGui import QPen, QColor
 
 from ansi2html import Ansi2HTMLConverter
 
