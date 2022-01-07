@@ -76,7 +76,7 @@ class Kernel:
     def run_queue(self):
         """Runs the next code in the queue."""
         self.busy = True
-        if self.execution_queue == []:
+        if len(self.execution_queue) == 0:
             self.busy = False
             return None
         block, code = self.execution_queue.pop(0)
