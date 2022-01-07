@@ -35,7 +35,7 @@ class TestCodeBlocks:
                     self.blocks_to_run[self.titles.index(item.title)] = item
 
     def test_duplicated_run(self):
-        """Don't run a block twice when the execution flows"""
+        """run exactly one time pressing run right."""
         for b in self.blocks_to_run:
             b.stdout = ""
 
@@ -58,7 +58,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_no_duplicates)
 
     def test_flow_left(self):
-        """Correct flow when pressing left run"""
+        """run its dependencies when pressing left run."""
 
         for b in self.blocks_to_run:
             b.stdout = ""
@@ -83,7 +83,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_run)
 
     def test_no_connection_left(self):
-        """run block only when no previous connection."""
+        """run itself only when has no dependecy and pressing left run."""
 
         def testing_run(msgQueue: CheckingQueue):
 
@@ -107,7 +107,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_run)
 
     def test_no_connection_right(self):
-        """run block only when no next connection."""
+        """run itself only when is not a dependecy and pressing right run."""
 
         def testing_run(msgQueue: CheckingQueue):
 

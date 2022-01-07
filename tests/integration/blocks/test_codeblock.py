@@ -61,7 +61,7 @@ class TestCodeBlocks:
         apply_function_inapp(self.window, testing_run)
 
     def test_run_block_with_path(self):
-        """runs blocks with the correct working directory for the kernel"""
+        """runs blocks with the correct working directory for the kernel."""
         file_example_path = "./tests/assets/example_graph1.ipyg"
         asset_path = "./tests/assets/data.txt"
         self._widget.scene.load(os.path.abspath(file_example_path))

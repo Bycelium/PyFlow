@@ -41,22 +41,22 @@ class CheckingQueue(Queue):
 
 
 class ExceptionForwardingThread(threading.Thread):
-    """A Thread class that forwards the exceptions to the calling thread"""
+    """A Thread class that forwards the exceptions to the calling thread."""
 
     def __init__(self, *args, **kwargs):
-        """Create an exception forwarding thread"""
+        """Create an exception forwarding thread."""
         super().__init__(*args, **kwargs)
         self.e = None
 
     def run(self):
-        """Code ran in another thread"""
+        """Code ran in another thread."""
         try:
             super().run()
         except Exception as e:
             self.e = e
 
     def join(self):
-        """Used to sync the thread with the caller"""
+        """Used to sync the thread with the caller."""
         super().join()
         print("except: ", self.e)
         if self.e != None:
@@ -64,7 +64,7 @@ class ExceptionForwardingThread(threading.Thread):
 
 
 def start_app(obj):
-    """Create a new app for testing"""
+    """Create a new app for testing purpose."""
     obj.window = Window()
     obj._widget = Widget()
     obj.subwindow = obj.window.mdiArea.addSubWindow(obj._widget)

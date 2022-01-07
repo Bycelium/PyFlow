@@ -19,7 +19,7 @@ class TestWindow:
         self.window = Window()
 
     def test_open_file(self, qtbot):
-        """loads files"""
+        """loads files."""
         wnd = Window()
         file_example_path = "./tests/assets/example_graph1.ipyg"
         subwnd = wnd.createNewMdiChild(os.path.abspath(file_example_path))
@@ -27,5 +27,5 @@ class TestWindow:
         wnd.close()
 
     def test_window_close(self, qtbot):
-        """closes"""
+        """closes."""
         self.window.close()
