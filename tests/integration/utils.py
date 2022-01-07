@@ -8,21 +8,21 @@ Utilities functions for integration testing.
 from typing import Callable
 
 import os
-import asyncio
-
-if os.name == "nt":  # If on windows
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
+import warnings
 import threading
 import time
 from queue import Queue
 
-from PyQt5.QtWidgets import QApplication
 import pytest_check as check
-import warnings
-from pyflow.graphics.widget import Widget
+import asyncio
 
+from PyQt5.QtWidgets import QApplication
+
+from pyflow.graphics.widget import Widget
 from pyflow.graphics.window import Window
+
+if os.name == "nt":  # If on windows
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 STOP_MSG = "stop"
 CHECK_MSG = "check"
@@ -46,21 +46,21 @@ class ExceptionForwardingThread(threading.Thread):
     def __init__(self, *args, **kwargs):
         """Create an exception forwarding thread."""
         super().__init__(*args, **kwargs)
-        self.e = None
+        self.exeption = None
 
     def run(self):
         """Code ran in another thread."""
         try:
             super().run()
         except Exception as e:
-            self.e = e
+            self.exeption = e
 
     def join(self):
         """Used to sync the thread with the caller."""
         super().join()
-        print("except: ", self.e)
-        if self.e != None:
-            raise self.e
+        print("except: ", self.exeption)
+        if self.exeption is not None:
+            raise self.exeption
 
 
 def start_app(obj):
@@ -74,8 +74,8 @@ def start_app(obj):
 def apply_function_inapp(window: Window, run_func: Callable):
     QApplication.processEvents()
     msgQueue = CheckingQueue()
-    t = ExceptionForwardingThread(target=run_func, args=(msgQueue,))
-    t.start()
+    thread = ExceptionForwardingThread(target=run_func, args=(msgQueue,))
+    thread.start()
 
     stop = False
     deadCounter = 0
@@ -92,7 +92,7 @@ def apply_function_inapp(window: Window, run_func: Callable):
             elif msg[0] == RUN_MSG:
                 msg[1](*msg[2], **msg[3])
 
-        if not t.is_alive() and not stop:
+        if not thread.is_alive() and not stop:
             deadCounter += 1
         if deadCounter >= 3:
             # Test failed, close was not called
@@ -100,4 +100,4 @@ def apply_function_inapp(window: Window, run_func: Callable):
                 "Warning: you need to call CheckingQueue.stop() at the end of your test !"
             )
             break
-    t.join()
+    thread.join()
