@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import QLineEdit, QWidget
 from pyflow.core.serializable import Serializable
 
 
-class OCBTitle(QLineEdit, Serializable):
-    """The title of an OCBBlock. Needs to be double clicked to interact"""
+class Title(QLineEdit, Serializable):
+    """The title of an Block. Needs to be double clicked to interact"""
 
     def __init__(
         self,
@@ -24,7 +24,7 @@ class OCBTitle(QLineEdit, Serializable):
         size: int = 12,
         parent: QWidget = None,
     ):
-        """Create a new title for an OCBBlock"""
+        """Create a new title for an Block"""
         Serializable.__init__(self)
         QLineEdit.__init__(self, text, parent)
         self.clickTime = None

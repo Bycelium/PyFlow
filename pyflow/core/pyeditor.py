@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for OCB in block python editor. """
+""" Module for  in block python editor. """
 
 from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import Qt
@@ -16,10 +16,10 @@ from PyQt5.QtGui import (
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 from pyflow.graphics.theme_manager import theme_manager
 
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 
 if TYPE_CHECKING:
-    from pyflow.graphics.view import OCBView
+    from pyflow.graphics.view import View
 
 POINT_SIZE = 11
 
@@ -28,7 +28,7 @@ class PythonEditor(QsciScintilla):
 
     """In-block python editor for Pyflow."""
 
-    def __init__(self, block: OCBBlock):
+    def __init__(self, block: Block):
         """In-block python editor for Pyflow.
 
         Args:
@@ -89,7 +89,7 @@ class PythonEditor(QsciScintilla):
         lexer.setFont(font)
         self.setLexer(lexer)
 
-    def views(self) -> List["OCBView"]:
+    def views(self) -> List["View"]:
         """Get the views in which the python_editor is present."""
         return self.block.scene().views()
 

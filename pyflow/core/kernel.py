@@ -60,7 +60,7 @@ class Kernel:
         Also calls run_queue when finished
 
         Args:
-            block: OCBCodeBlock to send the output to
+            block: CodeBlock to send the output to
             code: String representing a piece of Python code to execute
         """
         worker = Worker(self, code)

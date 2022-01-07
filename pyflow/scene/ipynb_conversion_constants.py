@@ -15,11 +15,11 @@ DEFAULT_LINE_HEIGHT = 10
 DEFAULT_TEXT_WIDTH = 618
 
 BLOCK_TYPE_TO_NAME: Dict[str, str] = {
-    "code": "OCBCodeBlock",
-    "markdown": "OCBMarkdownBlock",
+    "code": "CodeBlock",
+    "markdown": "MarkdownBlock",
 }
 
-BLOCK_TYPE_SUPPORTED_FOR_IPYG_TO_IPYNB = {"OCBCodeBlock", "OCBMarkdownBlock"}
+BLOCK_TYPE_SUPPORTED_FOR_IPYG_TO_IPYNB = {"CodeBlock", "MarkdownBlock"}
 
 DEFAULT_NOTEBOOK_DATA = {
     "cells": [],

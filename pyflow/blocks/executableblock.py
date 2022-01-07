@@ -5,11 +5,11 @@ from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
-from pyflow.blocks.block import OCBBlock
-from pyflow.core.socket import OCBSocket
+from pyflow.blocks.block import Block
+from pyflow.core.socket import Socket
 
 
-class OCBExecutableBlock(OCBBlock):
+class ExecutableBlock(Block):
 
     """
     Executable Block
@@ -17,8 +17,8 @@ class OCBExecutableBlock(OCBBlock):
     This block type is not meant to be instanciated !
 
     It's an abstract class that represents blocks that can be executed like:
-    - OCBCodeBlock
-    - OCBSlider
+    - CodeBlock
+    - Slider
 
     """
 
@@ -42,14 +42,14 @@ class OCBExecutableBlock(OCBBlock):
 
         # Add execution flow sockets
         exe_sockets = (
-            OCBSocket(self, socket_type="input", flow_type="exe"),
-            OCBSocket(self, socket_type="output", flow_type="exe"),
+            Socket(self, socket_type="input", flow_type="exe"),
+            Socket(self, socket_type="output", flow_type="exe"),
         )
         for socket in exe_sockets:
             self.add_socket(socket)
 
-        if type(self) == OCBExecutableBlock:
-            raise RuntimeError("OCBExecutableBlock should not be instanciated directly")
+        if type(self) == ExecutableBlock:
+            raise RuntimeError("ExecutableBlock should not be instanciated directly")
 
     def has_input(self) -> bool:
         """Checks whether a block has connected input blocks"""

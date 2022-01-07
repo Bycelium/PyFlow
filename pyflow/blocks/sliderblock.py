@@ -1,16 +1,16 @@
 # Pyflow an open-source tool for modular visual programing in python
 
 """
-Exports OCBSliderBlock.
+Exports SliderBlock.
 """
 
 from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSlider, QVBoxLayout
-from pyflow.blocks.executableblock import OCBExecutableBlock
+from pyflow.blocks.executableblock import ExecutableBlock
 
 
-class OCBSliderBlock(OCBExecutableBlock):
+class SliderBlock(ExecutableBlock):
     """
     Features a slider ranging from 0 to 1 and an area to choose what value to assign the slider to.
     """

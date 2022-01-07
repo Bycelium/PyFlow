@@ -1,12 +1,12 @@
 """
-Exports OCBContainerBlock.
+Exports ContainerBlock.
 """
 
 from PyQt5.QtWidgets import QVBoxLayout
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 
 
-class OCBContainerBlock(OCBBlock):
+class ContainerBlock(Block):
     """
     A block that can contain other blocks.
     """
@@ -19,9 +19,9 @@ class OCBContainerBlock(OCBBlock):
         # scene should be able to serialize blocks.
         # This is not due to bad code design and should not be removed.
         from pyflow.graphics.view import (
-            OCBView,
+            View,
         )  # pylint: disable=cyclic-import
-        from pyflow.scene.scene import OCBScene  # pylint: disable=cyclic-import
+        from pyflow.scene.scene import Scene  # pylint: disable=cyclic-import
 
         self.layout = QVBoxLayout(self.root)
         self.layout.setContentsMargins(
@@ -31,8 +31,8 @@ class OCBContainerBlock(OCBBlock):
             self.edge_size * 2,
         )
 
-        self.child_scene = OCBScene()
-        self.child_view = OCBView(self.child_scene)
+        self.child_scene = Scene()
+        self.child_view = View(self.child_scene)
         self.layout.addWidget(self.child_view)
 
         self.holder.setWidget(self.root)

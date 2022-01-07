@@ -2,25 +2,25 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
-Integration tests for the OCBWindow.
+Integration tests for the Window.
 """
 
 import os
 import pytest
 
 from pytest_mock import MockerFixture
-from pyflow.graphics.window import OCBWindow
+from pyflow.graphics.window import Window
 
 
 class TestWindow:
     @pytest.fixture(autouse=True)
     def setup(self, mocker: MockerFixture):
         """Setup reused variables."""
-        self.window = OCBWindow()
+        self.window = Window()
 
     def test_open_file(self, qtbot):
         """loads files"""
-        wnd = OCBWindow()
+        wnd = Window()
         file_example_path = "./tests/assets/example_graph1.ipyg"
         subwnd = wnd.createNewMdiChild(os.path.abspath(file_example_path))
         subwnd.show()

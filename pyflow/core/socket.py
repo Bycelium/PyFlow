@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for OCB Sockets """
+""" Module for  Sockets """
 
 from __future__ import annotations
 from typing import List, Optional, OrderedDict, TYPE_CHECKING
@@ -14,11 +14,11 @@ from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 from pyflow.core.serializable import Serializable
 
 if TYPE_CHECKING:
-    from pyflow.core.edge import OCBEdge
-    from pyflow.blocks.block import OCBBlock
+    from pyflow.core.edge import Edge
+    from pyflow.blocks.block import Block
 
 
-class OCBSocket(QGraphicsItem, Serializable):
+class Socket(QGraphicsItem, Serializable):
 
     """Base class for sockets in Pyflow."""
 
@@ -35,7 +35,7 @@ class OCBSocket(QGraphicsItem, Serializable):
 
     def __init__(
         self,
-        block: "OCBBlock",
+        block: "Block",
         socket_type: str = DEFAULT_DATA["type"],
         flow_type: str = "exe",
         radius: float = DEFAULT_DATA["metadata"]["radius"],
@@ -59,7 +59,7 @@ class OCBSocket(QGraphicsItem, Serializable):
         self.block = block
         QGraphicsItem.__init__(self, parent=self.block)
 
-        self.edges: List["OCBEdge"] = []
+        self.edges: List["Edge"] = []
         self.socket_type = socket_type
         self.flow_type = flow_type
 
@@ -75,7 +75,7 @@ class OCBSocket(QGraphicsItem, Serializable):
             "linecolor": linecolor,
         }
 
-    def add_edge(self, edge: "OCBEdge", is_destination: bool):
+    def add_edge(self, edge: "Edge", is_destination: bool):
         """Add a given edge to the socket edges."""
         if not self._allow_multiple_edges:
             for prev_edge in self.edges:
@@ -88,7 +88,7 @@ class OCBSocket(QGraphicsItem, Serializable):
                 return
         self.edges.append(edge)
 
-    def remove_edge(self, edge: "OCBEdge"):
+    def remove_edge(self, edge: "Edge"):
         """Remove a given edge from the socket edges."""
         self.edges.remove(edge)
 

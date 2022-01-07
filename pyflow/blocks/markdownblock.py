@@ -1,5 +1,5 @@
 """
-Exports OCBMarkdownBlock.
+Exports MarkdownBlock.
 """
 
 from typing import OrderedDict
@@ -9,16 +9,16 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.Qsci import QsciLexerMarkdown, QsciScintilla
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 from pyflow.graphics.theme_manager import theme_manager
 
 
-class OCBMarkdownBlock(OCBBlock):
+class MarkdownBlock(Block):
     """A block that is able to render markdown text"""
 
     def __init__(self, **kwargs):
         """
-        Create a new OCBMarkdownBlock, a block that renders markdown
+        Create a new MarkdownBlock, a block that renders markdown
         """
         super().__init__(**kwargs)
 

@@ -1,16 +1,16 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for the handling an OCBScene history. """
+""" Module for the handling an Scene history. """
 
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from pyflow.scene import OCBScene
+    from pyflow.scene import Scene
 
 
 class SceneHistory:
-    """Helper object to handle undo/redo operations on an OCBScene.
+    """Helper object to handle undo/redo operations on an Scene.
 
     Args:
         scene: Scene reference.
@@ -18,7 +18,7 @@ class SceneHistory:
 
     """
 
-    def __init__(self, scene: "OCBScene", max_stack: int = 50):
+    def __init__(self, scene: "Scene", max_stack: int = 50):
         self.scene = scene
         self.history_stack = []
         self.current = -1

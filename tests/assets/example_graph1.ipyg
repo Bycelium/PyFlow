@@ -4,7 +4,7 @@
         {
             "id": 1523300599264,
             "title": "test1",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 292,
                 0

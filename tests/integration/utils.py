@@ -20,9 +20,9 @@ from queue import Queue
 from PyQt5.QtWidgets import QApplication
 import pytest_check as check
 import warnings
-from pyflow.graphics.widget import OCBWidget
+from pyflow.graphics.widget import Widget
 
-from pyflow.graphics.window import OCBWindow
+from pyflow.graphics.window import Window
 
 STOP_MSG = "stop"
 CHECK_MSG = "check"
@@ -65,13 +65,13 @@ class ExceptionForwardingThread(threading.Thread):
 
 def start_app(obj):
     """Create a new app for testing"""
-    obj.window = OCBWindow()
-    obj.ocb_widget = OCBWidget()
-    obj.subwindow = obj.window.mdiArea.addSubWindow(obj.ocb_widget)
+    obj.window = Window()
+    obj._widget = Widget()
+    obj.subwindow = obj.window.mdiArea.addSubWindow(obj._widget)
     obj.subwindow.show()
 
 
-def apply_function_inapp(window: OCBWindow, run_func: Callable):
+def apply_function_inapp(window: Window, run_func: Callable):
 
     if os.name == "nt":  # If on windows
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

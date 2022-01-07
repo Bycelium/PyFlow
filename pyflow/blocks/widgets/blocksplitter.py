@@ -7,7 +7,7 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QSplitter, QSplitterHandle, QWidget
 
 
-class OCBSplitterHandle(QSplitterHandle):
+class SplitterHandle(QSplitterHandle):
     """A handle for splitters with undoable events"""
 
     def mouseReleaseEvent(self, evt: QMouseEvent):
@@ -18,14 +18,14 @@ class OCBSplitterHandle(QSplitterHandle):
         return super().mouseReleaseEvent(evt)
 
 
-class OCBSplitter(QSplitter):
+class Splitter(QSplitter):
     """A spliter with undoable events"""
 
     def __init__(self, block: QWidget, orientation: int, parent: QWidget):
-        """Create a new OCBSplitter"""
+        """Create a new Splitter"""
         super().__init__(orientation, parent)
         self.block = block
 
     def createHandle(self):
         """Return the middle handle of the splitter"""
-        return OCBSplitterHandle(self.orientation(), self)
+        return SplitterHandle(self.orientation(), self)

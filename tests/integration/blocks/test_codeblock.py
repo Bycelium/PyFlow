@@ -2,7 +2,7 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
-Integration tests for the OCBCodeBlocks.
+Integration tests for the CodeBlocks.
 """
 
 import time
@@ -12,7 +12,7 @@ import pytest
 
 from PyQt5.QtCore import QPointF
 
-from pyflow.blocks.codeblock import OCBCodeBlock
+from pyflow.blocks.codeblock import CodeBlock
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
@@ -31,8 +31,8 @@ class TestCodeBlocks:
         SOURCE_TEST = f"""print({EXPRESSION})"""
         expected_result = str(3 + 5 * 2)
 
-        test_block = OCBCodeBlock(title="CodeBlock test", source=SOURCE_TEST)
-        self.ocb_widget.scene.addItem(test_block)
+        test_block = CodeBlock(title="CodeBlock test", source=SOURCE_TEST)
+        self._widget.scene.addItem(test_block)
 
         def testing_run(msgQueue: CheckingQueue):
 
@@ -43,8 +43,8 @@ class TestCodeBlocks:
                 pos_run_button.x() + test_block.run_button.width() / 2,
                 pos_run_button.y() + test_block.run_button.height() / 2,
             )
-            pos_run_button = self.ocb_widget.view.mapFromScene(pos_run_button)
-            pos_run_button = self.ocb_widget.view.mapToGlobal(pos_run_button)
+            pos_run_button = self._widget.view.mapFromScene(pos_run_button)
+            pos_run_button = self._widget.view.mapToGlobal(pos_run_button)
 
             # Run the block by pressung the run button
             pyautogui.moveTo(pos_run_button.x(), pos_run_button.y())
@@ -64,12 +64,12 @@ class TestCodeBlocks:
         """runs blocks with the correct working directory for the kernel"""
         file_example_path = "./tests/assets/example_graph1.ipyg"
         asset_path = "./tests/assets/data.txt"
-        self.ocb_widget.scene.load(os.path.abspath(file_example_path))
+        self._widget.scene.load(os.path.abspath(file_example_path))
 
         def testing_path(msgQueue: CheckingQueue):
-            block_of_test: OCBCodeBlock = None
-            for item in self.ocb_widget.scene.items():
-                if isinstance(item, OCBCodeBlock) and item.title == "test1":
+            block_of_test: CodeBlock = None
+            for item in self._widget.scene.items():
+                if isinstance(item, CodeBlock) and item.title == "test1":
                     block_of_test = item
                     break
             msgQueue.check_equal(

@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
-""" Module for the base OCB Code Block. """
+""" Module for the base  Code Block. """
 
 from typing import OrderedDict, Optional
 from PyQt5.QtWidgets import (
@@ -15,15 +15,15 @@ from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
 
 from ansi2html import Ansi2HTMLConverter
 
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 
-from pyflow.blocks.executableblock import OCBExecutableBlock
+from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.core.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
 
 
-class OCBCodeBlock(OCBExecutableBlock):
+class CodeBlock(ExecutableBlock):
 
     """
     Code Block
@@ -36,16 +36,17 @@ class OCBCodeBlock(OCBExecutableBlock):
     """
 
     DEFAULT_DATA = {
-        **OCBBlock.DEFAULT_DATA,
+        **Block.DEFAULT_DATA,
         "source": "",
     }
-    MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
+    MANDATORY_FIELDS = Block.MANDATORY_FIELDS
 
     def __init__(self, source: str = "", **kwargs):
 
         """
-        Create a new OCBCodeBlock.
-        Initialize all the child widgets specific to this block type
+        Create a new CodeBlock.
+        Initialize all the child widgets specific to this block type.
+
         """
 
         super().__init__(**kwargs)

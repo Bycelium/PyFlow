@@ -1,6 +1,6 @@
 {
     "title": "Markdown",
-    "block_type": "OCBMarkdownBlock",
+    "block_type": "MarkdownBlock",
     "text": "",
     "splitter_pos": [88,41],
     "width": 618,

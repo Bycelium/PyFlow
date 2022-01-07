@@ -8,7 +8,7 @@ Integration tests for the execution flow.
 import pytest
 import time
 
-from pyflow.blocks.codeblock import OCBCodeBlock
+from pyflow.blocks.codeblock import CodeBlock
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
@@ -19,7 +19,7 @@ class TestCodeBlocks:
         """Setup reused variables."""
         start_app(self)
 
-        self.ocb_widget.scene.load("tests/assets/flow_test.ipyg")
+        self._widget.scene.load("tests/assets/flow_test.ipyg")
 
         self.titles = [
             "Test flow 5",
@@ -29,8 +29,8 @@ class TestCodeBlocks:
             "Test output only 1",
         ]
         self.blocks_to_run = [None] * 5
-        for item in self.ocb_widget.scene.items():
-            if isinstance(item, OCBCodeBlock):
+        for item in self._widget.scene.items():
+            if isinstance(item, CodeBlock):
                 if item.title in self.titles:
                     self.blocks_to_run[self.titles.index(item.title)] = item
 
@@ -41,7 +41,7 @@ class TestCodeBlocks:
 
         def testing_no_duplicates(msgQueue: CheckingQueue):
 
-            block_to_run: OCBCodeBlock = self.blocks_to_run[0]
+            block_to_run: CodeBlock = self.blocks_to_run[0]
 
             def run_block():
                 block_to_run.run_right()
@@ -65,8 +65,8 @@ class TestCodeBlocks:
 
         def testing_run(msgQueue: CheckingQueue):
 
-            block_to_run: OCBCodeBlock = self.blocks_to_run[0]
-            block_to_not_run: OCBCodeBlock = self.blocks_to_run[1]
+            block_to_run: CodeBlock = self.blocks_to_run[0]
+            block_to_not_run: CodeBlock = self.blocks_to_run[1]
 
             def run_block():
                 block_to_run.run_left()
@@ -87,7 +87,7 @@ class TestCodeBlocks:
 
         def testing_run(msgQueue: CheckingQueue):
 
-            block_to_run: OCBCodeBlock = self.blocks_to_run[
+            block_to_run: CodeBlock = self.blocks_to_run[
                 self.titles.index("Test no connection 1")
             ]
 
@@ -111,7 +111,7 @@ class TestCodeBlocks:
 
         def testing_run(msgQueue: CheckingQueue):
 
-            block_to_run: OCBCodeBlock = self.blocks_to_run[
+            block_to_run: CodeBlock = self.blocks_to_run[
                 self.titles.index("Test no connection 1")
             ]
 

@@ -1,6 +1,6 @@
 # pylint:disable=unused-argument
 
-""" Module for the base OCB Drawing Block. """
+""" Module for the base  Drawing Block. """
 
 from math import floor
 import json
@@ -9,7 +9,7 @@ from typing import OrderedDict
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor, QMouseEvent, QPaintEvent, QPainter
 from PyQt5.QtWidgets import QPushButton, QWidget
-from pyflow.blocks.executableblock import OCBExecutableBlock
+from pyflow.blocks.executableblock import ExecutableBlock
 
 
 eps = 1
@@ -79,12 +79,12 @@ class DrawableWidget(QWidget):
         self.mouse_down = False
 
 
-class OCBDrawingBlock(OCBExecutableBlock):
+class DrawingBlock(ExecutableBlock):
 
-    """An OCBBlock on which you can draw, to test your CNNs for example"""
+    """An Block on which you can draw, to test your CNNs for example"""
 
     def __init__(self, **kwargs):
-        """Create a new OCBBlock"""
+        """Create a new Block"""
         super().__init__(**kwargs)
 
         self.draw_area = DrawableWidget(self.root)

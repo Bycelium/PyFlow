@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QSizeGrip, QWidget
 from PyQt5.QtGui import QMouseEvent
 
 
-class OCBSizeGrip(QSizeGrip):
+class SizeGrip(QSizeGrip):
     """A grip to resize a block"""
 
     def __init__(self, block: QGraphicsItem, parent: QWidget = None):
@@ -18,7 +18,7 @@ class OCBSizeGrip(QSizeGrip):
         Constructor for BlockSizeGrip
 
         block is the QGraphicsItem holding the QSizeGrip.
-        It's usually an OCBBlock
+        It's usually an Block
         """
         super().__init__(parent)
         self.mouseX = 0

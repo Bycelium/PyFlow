@@ -2,7 +2,7 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 
 """
-Integration tests for the OCBBlocks.
+Integration tests for the Blocks.
 """
 
 import pytest
@@ -11,7 +11,7 @@ from pytestqt.qtbot import QtBot
 
 from PyQt5.QtCore import QPointF
 
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
 
@@ -21,18 +21,18 @@ class TestBlocks:
     def setup(self):
         """Setup reused variables."""
         start_app(self)
-        self.block = OCBBlock(title="Testing block")
+        self.block = Block(title="Testing block")
 
     def test_create_blocks(self, qtbot: QtBot):
         """can be added to the scene."""
-        self.ocb_widget.scene.addItem(self.block)
+        self._widget.scene.addItem(self.block)
 
     def test_move_blocks(self, qtbot: QtBot):
         """can be dragged around with the mouse."""
-        self.ocb_widget.scene.addItem(self.block)
-        self.ocb_widget.view.horizontalScrollBar().setValue(self.block.x())
-        self.ocb_widget.view.verticalScrollBar().setValue(
-            self.block.y() - self.ocb_widget.view.height() + self.block.height
+        self._widget.scene.addItem(self.block)
+        self._widget.view.horizontalScrollBar().setValue(self.block.x())
+        self._widget.view.verticalScrollBar().setValue(
+            self.block.y() - self._widget.view.height() + self.block.height
         )
 
         def testing_drag(msgQueue: CheckingQueue):
@@ -47,8 +47,8 @@ class TestBlocks:
             )
             pos_block.setY(pos_block.y() + self.block.title_widget.height() / 2)
 
-            pos_block = self.ocb_widget.view.mapFromScene(pos_block)
-            pos_block = self.ocb_widget.view.mapToGlobal(pos_block)
+            pos_block = self._widget.view.mapFromScene(pos_block)
+            pos_block = self._widget.view.mapToGlobal(pos_block)
 
             pyautogui.moveTo(pos_block.x(), pos_block.y())
             pyautogui.mouseDown(button="left")
@@ -64,8 +64,8 @@ class TestBlocks:
 
             move_amount = [self.block.pos().x(), self.block.pos().y()]
             # rectify because the scene can be zoomed :
-            move_amount[0] = move_amount[0] * self.ocb_widget.view.zoom
-            move_amount[1] = move_amount[1] * self.ocb_widget.view.zoom
+            move_amount[0] = move_amount[0] * self._widget.view.zoom
+            move_amount[1] = move_amount[1] * self._widget.view.zoom
 
             msgQueue.check_equal(
                 move_amount, expected_move_amount, "Block moved by the correct amound"

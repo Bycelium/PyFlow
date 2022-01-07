@@ -2,7 +2,7 @@
 # Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
 # pylint:disable=unused-argument
 
-""" Module for the base OCB Block. """
+""" Module for the base  Block. """
 
 from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple, Union
 
@@ -17,16 +17,16 @@ from PyQt5.QtWidgets import (
 )
 
 from pyflow.core.serializable import Serializable
-from pyflow.core.socket import OCBSocket
-from pyflow.blocks.widgets import OCBSplitter, OCBSizeGrip, OCBTitle
+from pyflow.core.socket import Socket
+from pyflow.blocks.widgets import Splitter, SizeGrip, Title
 
 if TYPE_CHECKING:
-    from pyflow.scene.scene import OCBScene
+    from pyflow.scene.scene import Scene
 
 BACKGROUND_COLOR = QColor("#E3212121")
 
 
-class OCBBlock(QGraphicsItem, Serializable):
+class Block(QGraphicsItem, Serializable):
 
     """Base class for blocks in Pyflow."""
 
@@ -49,7 +49,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         width: int = DEFAULT_DATA["width"],
         height: int = DEFAULT_DATA["height"],
         edge_size: float = 10.0,
-        title: Union[OCBTitle, str] = DEFAULT_DATA["title"],
+        title: Union[Title, str] = DEFAULT_DATA["title"],
         parent: Optional["QGraphicsItem"] = None,
     ):
         """Base class for blocks in Pyflow.
@@ -86,14 +86,14 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.root.setAttribute(Qt.WA_TranslucentBackground)
         self.root.setGeometry(0, 0, int(width), int(height))
 
-        self.title_widget = OCBTitle(title, parent=self.root)
+        self.title_widget = Title(title, parent=self.root)
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.splitter = OCBSplitter(self, Qt.Vertical, self.root)
+        self.splitter = Splitter(self, Qt.Vertical, self.root)
 
-        self.size_grip = OCBSizeGrip(self, self.root)
+        self.size_grip = SizeGrip(self, self.root)
 
-        if type(self) == OCBBlock:
+        if type(self) == Block:
             # This has to be called at the end of the constructor of
             # every class inheriting this.
             self.holder.setWidget(self.root)
@@ -107,8 +107,8 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.moved = False
         self.metadata = {}
 
-    def scene(self) -> "OCBScene":
-        """Get the current OCBScene containing the block."""
+    def scene(self) -> "Scene":
+        """Get the current Scene containing the block."""
         return super().scene()
 
     def boundingRect(self) -> QRectF:
@@ -144,7 +144,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
 
-    def get_socket_pos(self, socket: OCBSocket) -> Tuple[float]:
+    def get_socket_pos(self, socket: Socket) -> Tuple[float]:
         """Get a socket position to place them on the block sides."""
         if socket.socket_type == "input":
             x = 0
@@ -166,7 +166,7 @@ class OCBBlock(QGraphicsItem, Serializable):
         for socket in self.sockets_in + self.sockets_out:
             socket.setPos(*self.get_socket_pos(socket))
 
-    def add_socket(self, socket: OCBSocket):
+    def add_socket(self, socket: Socket):
         """Add a socket to the block."""
         if socket.socket_type == "input":
             self.sockets_in.append(socket)
@@ -174,7 +174,7 @@ class OCBBlock(QGraphicsItem, Serializable):
             self.sockets_out.append(socket)
         self.update_sockets()
 
-    def remove_socket(self, socket: OCBSocket):
+    def remove_socket(self, socket: Socket):
         """Remove a socket from the block."""
         if socket.socket_type == "input":
             self.sockets_in.remove(socket)
@@ -184,14 +184,14 @@ class OCBBlock(QGraphicsItem, Serializable):
         self.update_sockets()
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):
-        """OCBBlock reaction to a mouseReleaseEvent."""
+        """Block reaction to a mouseReleaseEvent."""
         if self.moved:
             self.moved = False
             self.scene().history.checkpoint("Moved block", set_modified=True)
         super().mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
-        """OCBBlock reaction to a mouseMoveEvent."""
+        """Block reaction to a mouseMoveEvent."""
         super().mouseMoveEvent(event)
         self.moved = True
 
@@ -317,7 +317,7 @@ class OCBBlock(QGraphicsItem, Serializable):
 
             # Deserialize new sockets
             for socket_data in data["sockets"]:
-                socket = OCBSocket(block=self)
+                socket = Socket(block=self)
                 socket.deserialize(socket_data, hashmap, restore_id)
                 self.add_socket(socket)
                 if hashmap is not None:

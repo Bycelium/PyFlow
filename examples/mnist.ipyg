@@ -4,7 +4,7 @@
         {
             "id": 2039122444152,
             "title": "Load MNIST dataset",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 131,
                 0
@@ -58,7 +58,7 @@
         {
             "id": 2039123153688,
             "title": "Evaluation",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 75,
                 75
@@ -112,7 +112,7 @@
         {
             "id": 2039123177336,
             "title": "Prediction example",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
                 281
@@ -166,7 +166,7 @@
         {
             "id": 2039123183800,
             "title": "Training",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 85,
                 229
@@ -220,7 +220,7 @@
         {
             "id": 2039123243512,
             "title": "Build Keras CNN",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 253,
                 0
@@ -274,7 +274,7 @@
         {
             "id": 2039171273928,
             "title": "Plot image example",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
                 277
@@ -328,7 +328,7 @@
         {
             "id": 2039171312808,
             "title": "Normalize dataset",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 73,
                 73
