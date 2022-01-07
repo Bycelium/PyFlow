@@ -79,7 +79,7 @@ class Kernel:
     def run_queue(self):
         """Runs the next code in the queue."""
         self.busy = True
-        if len(self.execution_queue) == 0:
+        if not self.execution_queue:
             self.busy = False
             return None
         block, code = self.execution_queue.pop(0)

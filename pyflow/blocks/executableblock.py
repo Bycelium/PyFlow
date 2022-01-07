@@ -59,14 +59,14 @@ class ExecutableBlock(Block):
     def has_input(self) -> bool:
         """Checks whether a block has connected input blocks."""
         for input_socket in self.sockets_in:
-            if len(input_socket.edges) != 0:
+            if input_socket.edges:
                 return True
         return False
 
     def has_output(self) -> bool:
         """Checks whether a block has connected output blocks."""
         for output_socket in self.sockets_out:
-            if len(output_socket.edges) != 0:
+            if output_socket.edges:
                 return True
         return False
 
@@ -128,7 +128,7 @@ class ExecutableBlock(Block):
 
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
-        if len(self.transmitting_queue) != 0:
+        if self.transmitting_queue:
             # If the queue is not empty, move forward in the animation
             self.transmitting_animation_in()
         else:
@@ -153,7 +153,7 @@ class ExecutableBlock(Block):
         to_transmit = [[start_node]]
 
         to_visit = [start_node]
-        while len(to_visit) != 0:
+        while to_visit:
             # Remove duplicates
             to_visit = list(set(to_visit))
 
@@ -208,7 +208,7 @@ class ExecutableBlock(Block):
         next_edges = []
         next_blocks = []
 
-        while len(to_visit_input) != 0 or len(to_visit_output) != 0:
+        while to_visit_input or to_visit_output:
             for block in to_visit_input.copy():
                 # Check input edges and blocks
                 for input_socket in block.sockets_in:
@@ -262,7 +262,7 @@ class ExecutableBlock(Block):
         self.has_been_run = False
 
         # To avoid crashing when spamming the button
-        if len(self.transmitting_queue) != 0:
+        if self.transmitting_queue:
             return
 
         # Gather dependencies
@@ -282,7 +282,7 @@ class ExecutableBlock(Block):
         """Run all of the output blocks and all their dependencies."""
 
         # To avoid crashing when spamming the button
-        if len(self.transmitting_queue) != 0:
+        if self.transmitting_queue:
             return
 
         # Create transmitting queue

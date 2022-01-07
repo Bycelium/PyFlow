@@ -126,7 +126,7 @@ def is_title(block_data: OrderedDict) -> bool:
         return False
     if "\n" in block_data["text"]:
         return False
-    if len(block_data["text"]) == 0 or len(block_data["text"]) > TITLE_MAX_LENGTH:
+    if not block_data["text"] or len(block_data["text"]) > TITLE_MAX_LENGTH:
         return False
     # Headings, quotes, bold or italic text are not considered to be headings
     if block_data["text"][0] in {"#", "*", "`"}:

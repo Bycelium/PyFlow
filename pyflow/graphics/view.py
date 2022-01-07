@@ -168,7 +168,7 @@ class View(QGraphicsView):
 
         code_blocks: List[Block] = [i for i in items if isinstance(i, Block)]
 
-        if len(code_blocks) == 0:
+        if not code_blocks:
             return False
 
         # Get the blocks with min and max x and y coordinates
@@ -260,7 +260,7 @@ class View(QGraphicsView):
         key_id = event.key()
         dist_array = filter(lambda pos: in_region(pos[2], pos[3], key_id), dist_array)
         dist_array = list(dist_array)
-        if len(dist_array) == 0:
+        if not dist_array:
             return False
 
         def oriented_distance(x, y, key):
