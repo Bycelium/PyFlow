@@ -61,7 +61,8 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable=inconsistent-return-statements,
+disable=bad-continuation,
+        inconsistent-return-statements,
         unidiomatic-typecheck,
         attribute-defined-outside-init,
         pointless-statement,
