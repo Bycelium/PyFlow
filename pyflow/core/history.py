@@ -21,13 +21,13 @@ class History:
 
     def undo(self) -> None:
         """Undo the last action by moving the current stamp backward and restoring."""
-        if len(self.history_stack) > 0 and self.current > 0:
+        if self.history_stack and self.current > 0:
             self.current -= 1
             self.restore()
 
     def redo(self) -> None:
         """Redo the last undone action by moving the current stamp forward and restoring."""
-        if len(self.history_stack) > 0 and self.current + 1 < len(self.history_stack):
+        if self.history_stack and self.current + 1 < len(self.history_stack):
             self.current += 1
             self.restore()
 

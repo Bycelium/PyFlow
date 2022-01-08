@@ -22,7 +22,7 @@ class EditorHistory(History):
     """
 
     def __init__(self, editor: "PythonEditor", max_stack: int = 50):
-        self.editor = editor
+        self.editor: PythonEditor = editor
         self.is_writing = False
         super().__init__(max_stack)
 
@@ -37,14 +37,14 @@ class EditorHistory(History):
     def end_sequence(self):
         """
         End the writing sequence if it was not already the case.
-        Do not save at this point because the writing parameters to be saved (cursor pos, etc) 
+        Do not save at this point because the writing parameters to be saved (cursor pos, etc)
         are the one of the beginning of the next sequence.
         """
         self.is_writing = False
 
     def checkpoint(self):
         """
-        Store a snapshot of the editor's text and parameters in the history stack 
+        Store a snapshot of the editor's text and parameters in the history stack
         (only if the text has changed).
         """
         text: str = self.editor.text()
@@ -64,7 +64,7 @@ class EditorHistory(History):
 
     def restore(self):
         """
-        Restore the editor's text and parameters 
+        Restore the editor's text and parameters
         using the snapshot pointed by current in the history stack.
         """
         data: Optional[OrderedDict] = self.restored_data()
