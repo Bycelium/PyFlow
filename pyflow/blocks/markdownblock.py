@@ -1,5 +1,10 @@
-"""
-Exports OCBMarkdownBlock.
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for the MarkdownBlock.
+
+A block able to render Markdown.
+
 """
 
 from typing import OrderedDict
@@ -9,16 +14,16 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.Qsci import QsciLexerMarkdown, QsciScintilla
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 from pyflow.graphics.theme_manager import theme_manager
 
 
-class OCBMarkdownBlock(OCBBlock):
-    """A block that is able to render markdown text"""
+class MarkdownBlock(Block):
+    """A block that is able to render markdown text."""
 
     def __init__(self, **kwargs):
         """
-        Create a new OCBMarkdownBlock, a block that renders markdown
+        Create a new MarkdownBlock, a block that renders markdown
         """
         super().__init__(**kwargs)
 
@@ -53,7 +58,7 @@ class OCBMarkdownBlock(OCBBlock):
         self.holder.setWidget(self.root)
 
     def valueChanged(self):
-        """Update markdown rendering when the content of the markdown editor changes"""
+        """Update markdown rendering when the content of the markdown editor changes."""
         t = self.editor.text()
 
         dark_theme = """
@@ -69,7 +74,7 @@ class OCBMarkdownBlock(OCBBlock):
 
     @property
     def text(self) -> str:
-        """The content of the markdown block"""
+        """The content of the markdown block."""
         return self.editor.text()
 
     @text.setter
@@ -86,7 +91,7 @@ class OCBMarkdownBlock(OCBBlock):
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
-        """Restore a markdown block from it's serialized state"""
+        """Restore a markdown block from it's serialized state."""
         for dataname in ["text"]:
             if dataname in data:
                 setattr(self, dataname, data[dataname])

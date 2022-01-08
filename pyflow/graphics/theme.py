@@ -1,6 +1,10 @@
-"""
-This module defined Theme, a class that
-contains the details of the theme
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for Theme.
+
+Theme is a class that contains the details of the coloring theme.
+
 """
 
 import json
@@ -9,7 +13,7 @@ from PyQt5.QtGui import QColor
 
 
 class Theme:
-    """Class holding the details of a specific theme"""
+    """Class holding the details of a specific theme."""
 
     def __init__(self, name: str, json_str: str = "{}"):
         """
@@ -33,7 +37,7 @@ class Theme:
         self.name = name
 
     def apply_to_lexer(self, lexer: QsciLexerPython):
-        """Make the given lexer follow the theme"""
+        """Make the given lexer follow the theme."""
         lexer.setDefaultPaper(QColor("#1E1E1E"))
         lexer.setDefaultColor(QColor("#D4D4D4"))
 

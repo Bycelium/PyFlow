@@ -1,4 +1,7 @@
-""" Module with the constants used to converter to ipynb and from ipynb """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module with the constants used to convert to and from notebooks."""
 
 from typing import Dict
 
@@ -15,11 +18,11 @@ DEFAULT_LINE_HEIGHT = 10
 DEFAULT_TEXT_WIDTH = 618
 
 BLOCK_TYPE_TO_NAME: Dict[str, str] = {
-    "code": "OCBCodeBlock",
-    "markdown": "OCBMarkdownBlock",
+    "code": "CodeBlock",
+    "markdown": "MarkdownBlock",
 }
 
-BLOCK_TYPE_SUPPORTED_FOR_IPYG_TO_IPYNB = {"OCBCodeBlock", "OCBMarkdownBlock"}
+BLOCK_TYPE_SUPPORTED_FOR_IPYG_TO_IPYNB = {"CodeBlock", "MarkdownBlock"}
 
 DEFAULT_NOTEBOOK_DATA = {
     "cells": [],

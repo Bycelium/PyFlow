@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module to create and manage multi-threading workers """
+""" Module to create and manage multi-threading workers."""
 
 import asyncio
 from PyQt5.QtCore import QObject, pyqtSignal, QRunnable
@@ -18,7 +18,7 @@ class WorkerSignals(QObject):
 
 
 class Worker(QRunnable):
-    """Worker thread"""
+    """Worker thread."""
 
     def __init__(self, kernel, code):
         """Initialize the worker object."""
@@ -29,7 +29,7 @@ class Worker(QRunnable):
         self.signals = WorkerSignals()
 
     async def run_code(self):
-        """Run the code in the block"""
+        """Run the code in the block."""
         # Execute the code
         self.kernel.client.execute(self.code)
         done = False

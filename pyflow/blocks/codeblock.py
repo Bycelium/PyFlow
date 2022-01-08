@@ -1,29 +1,23 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the base OCB Code Block. """
+""" Module for the base Code Block."""
 
-from typing import OrderedDict, Optional
-from PyQt5.QtWidgets import (
-    QPushButton,
-    QTextEdit,
-    QWidget,
-    QStyleOptionGraphicsItem,
-)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QColor, QPainter, QPainterPath
+from typing import OrderedDict
+from PyQt5.QtWidgets import QPushButton, QTextEdit
+from PyQt5.QtGui import QPen, QColor
 
 from ansi2html import Ansi2HTMLConverter
 
-from pyflow.blocks.block import OCBBlock
+from pyflow.blocks.block import Block
 
-from pyflow.blocks.executableblock import OCBExecutableBlock
+from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.core.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
 
 
-class OCBCodeBlock(OCBExecutableBlock):
+class CodeBlock(ExecutableBlock):
 
     """
     Code Block
@@ -36,16 +30,17 @@ class OCBCodeBlock(OCBExecutableBlock):
     """
 
     DEFAULT_DATA = {
-        **OCBBlock.DEFAULT_DATA,
+        **Block.DEFAULT_DATA,
         "source": "",
     }
-    MANDATORY_FIELDS = OCBBlock.MANDATORY_FIELDS
+    MANDATORY_FIELDS = Block.MANDATORY_FIELDS
 
     def __init__(self, source: str = "", **kwargs):
 
         """
-        Create a new OCBCodeBlock.
-        Initialize all the child widgets specific to this block type
+        Create a new CodeBlock.
+        Initialize all the child widgets specific to this block type.
+
         """
 
         super().__init__(**kwargs)
@@ -66,13 +61,10 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.has_been_run = False
         self.blocks_to_run = []
 
-        self._pen_outline = QPen(QColor("#7F000000"))
-        self._pen_outline_running = QPen(QColor("#FF0000"))
-        self._pen_outline_transmitting = QPen(QColor("#00ff00"))
         self._pen_outlines = [
-            self._pen_outline,
-            self._pen_outline_running,
-            self._pen_outline_transmitting,
+            QPen(QColor("#7F000000")),  # Idle
+            QPen(QColor("#FF0000")),  # Running
+            QPen(QColor("#00ff00")),  # Transmitting
         ]
 
         # Add output pannel
@@ -92,14 +84,14 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.update_all()  # Set the geometry of display and source_editor
 
     def init_output_panel(self):
-        """Initialize the output display widget: QLabel"""
+        """Initialize the output display widget: QLabel."""
         output_panel = QTextEdit()
         output_panel.setReadOnly(True)
         output_panel.setFont(self.source_editor.font())
         return output_panel
 
     def init_run_button(self):
-        """Initialize the run button"""
+        """Initialize the run button."""
         run_button = QPushButton(">", self.root)
         run_button.move(int(self.edge_size), int(self.edge_size / 2))
         run_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
@@ -107,7 +99,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         return run_button
 
     def init_run_all_button(self):
-        """Initialize the run all button"""
+        """Initialize the run all button."""
         run_all_button = QPushButton(">>", self.root)
         run_all_button.setFixedSize(int(3 * self.edge_size), int(3 * self.edge_size))
         run_all_button.clicked.connect(self.handle_run_right)
@@ -116,21 +108,21 @@ class OCBCodeBlock(OCBExecutableBlock):
         return run_all_button
 
     def handle_run_right(self):
-        """Called when the button for "Run All" was pressed"""
-        if self.run_color != 0:
+        """Called when the button for "Run All" was pressed."""
+        if self.run_state != 0:
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
-        """Called when the button for "Run Left" was pressed"""
-        if self.run_color != 0:
+        """Called when the button for "Run Left" was pressed."""
+        if self.run_state != 0:
             self._interrupt_execution()
         else:
             self.run_left()
 
     def run_code(self):
-        """Run the code in the block"""
+        """Run the code in the block."""
 
         # Reset stdout
         self._cached_stdout = ""
@@ -141,8 +133,13 @@ class OCBCodeBlock(OCBExecutableBlock):
 
         super().run_code()  # actually run the code
 
+    def execution_finished(self):
+        super().execution_finished()
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+
     def update_title(self):
-        """Change the geometry of the title widget"""
+        """Change the geometry of the title widget."""
         self.title_widget.setGeometry(
             int(self.edge_size) + self.run_button.width(),
             int(self.edge_size / 2),
@@ -151,7 +148,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         )
 
     def update_output_panel(self):
-        """Change the geometry of the output panel"""
+        """Change the geometry of the output panel."""
         # Close output panel if no output
         if self.stdout == "":
             self.previous_splitter_size = self.splitter.sizes()
@@ -159,50 +156,21 @@ class OCBCodeBlock(OCBExecutableBlock):
             self.splitter.setSizes([1, 0])
 
     def update_run_all_button(self):
-        """Change the geometry of the run all button"""
+        """Change the geometry of the run all button."""
         self.run_all_button.move(
             int(self.width - self.edge_size - self.run_button.width()),
             int(self.edge_size / 2),
         )
 
     def update_all(self):
-        """Update the code block parts"""
+        """Update the code block parts."""
         super().update_all()
         self.update_output_panel()
         self.update_run_all_button()
 
-    def paint(
-        self,
-        painter: QPainter,
-        option: QStyleOptionGraphicsItem,
-        widget: Optional[QWidget] = None,
-    ):
-        """Paint the code block"""
-        path_content = QPainterPath()
-        path_content.setFillRule(Qt.FillRule.WindingFill)
-        path_content.addRoundedRect(
-            0, 0, self.width, self.height, self.edge_size, self.edge_size
-        )
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(self._brush_background)
-        painter.drawPath(path_content.simplified())
-
-        # outline
-        path_outline = QPainterPath()
-        path_outline.addRoundedRect(
-            0, 0, self.width, self.height, self.edge_size, self.edge_size
-        )
-        painter.setPen(
-            self._pen_outline_selected
-            if self.isSelected()
-            else self._pen_outlines[self.run_color]
-        )
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawPath(path_outline.simplified())
-
     @property
     def source(self) -> str:
-        """Source code"""
+        """Source code."""
         return self._source
 
     @source.setter
@@ -217,19 +185,13 @@ class OCBCodeBlock(OCBExecutableBlock):
             self._source = value
 
     @property
-    def run_color(self) -> int:
-        """Run color"""
-        return self._run_color
-
-    @run_color.setter
-    def run_color(self, value: int):
-        self._run_color = value
-        # Update to force repaint
-        self.update()
+    def pen_outline(self) -> QPen:
+        """The current pen used to draw the outline of the CodeBlock."""
+        return self._pen_outlines[self.run_state]
 
     @property
     def stdout(self) -> str:
-        """Access the content of the output panel of the block"""
+        """Access the content of the output panel of the block."""
         return self._stdout
 
     @stdout.setter
@@ -254,8 +216,8 @@ class OCBCodeBlock(OCBExecutableBlock):
                 self.splitter.setSizes([1, 0])
 
     @staticmethod
-    def str_to_html(text: str):
-        """Format text so that it's properly displayed by the code block"""
+    def str_to_html(text: str) -> str:
+        """Format text so that it's properly displayed by the code block."""
         # Remove carriage returns and backspaces
         text = text.replace("\x08", "")
         text = text.replace("\r", "")
@@ -268,7 +230,7 @@ class OCBCodeBlock(OCBExecutableBlock):
         return text
 
     def handle_stdout(self, value: str):
-        """Handle the stdout signal"""
+        """Handle the stdout signal."""
         # If there is a new line
         # Save every line but the last one
 
@@ -281,16 +243,16 @@ class OCBCodeBlock(OCBExecutableBlock):
         self.stdout = self._cached_stdout + value
 
     @staticmethod
-    def b64_to_html(image: str):
-        """Transform a base64 encoded image into a html image"""
+    def b64_to_html(image: str) -> str:
+        """Transform a base64 encoded image into a html image."""
         return f'<img src="data:image/png;base64,{image}">'
 
     def handle_image(self, image: str):
-        """Handle the image signal"""
+        """Handle the image signal."""
         self.stdout = "<img>" + image
 
     def serialize(self):
-        """Serialize the code block"""
+        """Serialize the code block."""
         base_dict = super().serialize()
         base_dict["source"] = self.source
         base_dict["stdout"] = self.stdout
@@ -300,7 +262,7 @@ class OCBCodeBlock(OCBExecutableBlock):
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
-        """Restore a codeblock from it's serialized state"""
+        """Restore a codeblock from it's serialized state."""
 
         self.complete_with_default(data)
 

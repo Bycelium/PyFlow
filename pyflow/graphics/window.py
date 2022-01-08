@@ -1,13 +1,14 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
-# pylint:disable=too-many-instance-attributes
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+# pylint:disable=too-many-instance-attributes, unsubscriptable-object
 
-""" Module for the OCB Window """
+""" Module for the base Window."""
 
 import os
+import pathlib
+
 from PyQt5.QtCore import QPoint, QSettings, QSize, Qt, QSignalMapper
 from PyQt5.QtGui import QCloseEvent, QKeySequence
-
 from PyQt5.QtWidgets import (
     QWidget,
     QAction,
@@ -17,28 +18,27 @@ from PyQt5.QtWidgets import (
     QMdiArea,
 )
 
-from pyflow.graphics.widget import OCBWidget
+from pyflow.graphics.widget import Widget
 from pyflow.graphics.theme_manager import theme_manager
 
 from pyflow.qss import loadStylesheets
+from pyflow.qss import __file__ as QSS_INIT_PATH
+
+QSS_PATH = pathlib.Path(QSS_INIT_PATH).parent
 
 
-class OCBWindow(QMainWindow):
+class Window(QMainWindow):
 
     """Main window of the Pyflow Qt-based application."""
 
     def __init__(self):
         super().__init__()
 
-        self.stylesheet_filename = os.path.join(
-            os.path.dirname(__file__), "..", "qss", "ocb.qss"
-        )
-        loadStylesheets(
-            (
-                os.path.join(os.path.dirname(__file__), "..", "qss", "ocb_dark.qss"),
-                self.stylesheet_filename,
-            )
-        )
+        self.stylesheets = [
+            os.path.join(QSS_PATH, "pyflow.qss"),
+            os.path.join(QSS_PATH, "pyflow_dark.qss"),
+        ]
+        loadStylesheets(self.stylesheets)
 
         self.mdiArea = QMdiArea()
         self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
@@ -278,12 +278,12 @@ class OCBWindow(QMainWindow):
 
     def createNewMdiChild(self, filename: str = None):
         """Create a new graph subwindow loading a file if a path is given."""
-        ocb_widget = OCBWidget()
+        _widget = Widget()
         if filename is not None:
-            ocb_widget.scene.load(filename)
+            _widget.scene.load(filename)
             if filename.split(".")[-1] == "ipyg":
-                ocb_widget.savepath = filename
-        return self.mdiArea.addSubWindow(ocb_widget)
+                _widget.savepath = filename
+        return self.mdiArea.addSubWindow(_widget)
 
     def onFileNew(self):
         """Create a new file."""
@@ -362,15 +362,15 @@ class OCBWindow(QMainWindow):
             return True
         return False
 
-    def saveWindow(self, window: OCBWidget):
-        """Save the given window"""
+    def saveWindow(self, window: Widget):
+        """Save the given window."""
         window.save()
         self.statusbar.showMessage(
             f"Successfully saved ipygraph at {window.savepath}", 2000
         )
 
     @staticmethod
-    def is_not_editing(current_window: OCBWidget):
+    def is_not_editing(current_window: Widget):
         """True if current_window exists and is not in editing mode."""
         return current_window is not None and not current_window.view.is_mode("EDITING")
 
@@ -451,8 +451,8 @@ class OCBWindow(QMainWindow):
             return True
         return False
 
-    def activeMdiChild(self) -> OCBWidget:
-        """Get the active OCBWidget if existing."""
+    def activeMdiChild(self) -> Widget:
+        """Get the active Widget if existing."""
         activeSubWindow = self.mdiArea.activeSubWindow()
         if activeSubWindow is not None:
             return activeSubWindow.widget()
@@ -486,7 +486,7 @@ class OCBWindow(QMainWindow):
         If items are selected, then make all the selected items visible instead
         """
         current_window = self.activeMdiChild()
-        if current_window is not None and isinstance(current_window, OCBWidget):
+        if current_window is not None and isinstance(current_window, Widget):
             current_window.moveToItems()
 
     def setTheme(self, theme_index):

@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the OCB Edge. """
+""" Module for the base Edge."""
 
 from __future__ import annotations
 
@@ -16,10 +16,10 @@ from PyQt5.QtWidgets import (
 )
 
 from pyflow.core.serializable import Serializable
-from pyflow.core.socket import OCBSocket
+from pyflow.core.socket import Socket
 
 
-class OCBEdge(QGraphicsPathItem, Serializable):
+class Edge(QGraphicsPathItem, Serializable):
 
     """Base class for directed edges in Pyflow."""
 
@@ -36,8 +36,8 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         edge_transmitting_color="#00ff00",
         source: QPointF = QPointF(0, 0),
         destination: QPointF = QPointF(0, 0),
-        source_socket: OCBSocket = None,
-        destination_socket: OCBSocket = None,
+        source_socket: Socket = None,
+        destination_socket: Socket = None,
     ):
         """Base class for edges in Pyflow.
 
@@ -74,7 +74,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         self.pens = [self._pen, self._pen_running, self._pen_transmitting]
 
         # 0 for normal, 1 for running, 2 for transmitting
-        self.run_color = 0
+        self.run_state = 0
 
         self.setFlag(QGraphicsPathItem.GraphicsItemFlag.ItemIsSelectable)
         self.setZValue(-1)
@@ -96,7 +96,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
 
         """
         socket_name = f"{socket_type}_socket"
-        socket = getattr(self, socket_name, OCBSocket)
+        socket = getattr(self, socket_name, Socket)
         if socket is not None:
             socket.remove_edge(self)
             setattr(self, socket_name, None)
@@ -126,7 +126,7 @@ class OCBEdge(QGraphicsPathItem, Serializable):
         elif self.destination_socket is None:
             pen = self._pen_dragging
         else:
-            pen = self.pens[self.run_color]
+            pen = self.pens[self.run_state]
         painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
@@ -161,12 +161,12 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             pass
 
     @property
-    def source_socket(self) -> OCBSocket:
+    def source_socket(self) -> Socket:
         """Source socket of the directed edge."""
         return self._source_socket
 
     @source_socket.setter
-    def source_socket(self, value: OCBSocket):
+    def source_socket(self, value: Socket):
         self._source_socket = value
         if value is not None:
             self.source_socket.add_edge(self, is_destination=False)
@@ -188,12 +188,12 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             pass
 
     @property
-    def destination_socket(self) -> OCBSocket:
+    def destination_socket(self) -> Socket:
         """Destination socket of the directed edge."""
         return self._destination_socket
 
     @destination_socket.setter
-    def destination_socket(self, value: OCBSocket):
+    def destination_socket(self, value: Socket):
         self._destination_socket = value
         if value is not None:
             self.destination_socket.add_edge(self, is_destination=True)
@@ -259,12 +259,19 @@ class OCBEdge(QGraphicsPathItem, Serializable):
             self.remove()
 
     @property
-    def run_color(self) -> int:
-        """Run color"""
-        return self._run_color
+    def run_state(self) -> int:
+        """Run state.
 
-    @run_color.setter
-    def run_color(self, value: int):
-        self._run_color = value
+        Describe the current state of the Edge:
+            - 0: idle.
+            - 1: running.
+            - 2: transmitting.
+
+        """
+        return self._run_state
+
+    @run_state.setter
+    def run_state(self, value: int):
+        self._run_state = value
         # Update to force repaint
         self.update()

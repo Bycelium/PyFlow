@@ -1,0 +1,6 @@
+include pyflow/themes/*
+include pyflow/blocks/blockfiles/*
+include pyflow/qss/*
+include PYPI_README.md
+include VERSION
+include requirements.txt

@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the OCB Scene """
+""" Module for the base Scene."""
 
 import math
 import json
@@ -14,8 +14,8 @@ from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
 from pyflow.core.serializable import Serializable
-from pyflow.blocks.block import OCBBlock
-from pyflow.core.edge import OCBEdge
+from pyflow.blocks.block import Block
+from pyflow.core.edge import Edge
 from pyflow.scene.clipboard import SceneClipboard
 from pyflow.scene.history import SceneHistory
 from pyflow.core.kernel import Kernel
@@ -24,9 +24,9 @@ from pyflow.scene.to_ipynb_conversion import ipyg_to_ipynb
 from pyflow import blocks
 
 
-class OCBScene(QGraphicsScene, Serializable):
+class Scene(QGraphicsScene, Serializable):
 
-    """Scene for the OCB Window."""
+    """Scene for the  Window."""
 
     def __init__(
         self,
@@ -76,23 +76,23 @@ class OCBScene(QGraphicsScene, Serializable):
         """Add a callback that will trigger when the scene has been modified."""
         self._has_been_modified_listeners.append(callback)
 
-    def sortedSelectedItems(self) -> List[Union[OCBBlock, OCBEdge]]:
+    def sortedSelectedItems(self) -> List[Union[Block, Edge]]:
         """Returns the selected blocks and selected edges in two separate lists."""
         selected_blocks, selected_edges = [], []
         for item in self.selectedItems():
-            if isinstance(item, OCBBlock):
+            if isinstance(item, Block):
                 selected_blocks.append(item)
-            if isinstance(item, OCBEdge):
+            if isinstance(item, Edge):
                 selected_edges.append(item)
         return selected_blocks, selected_edges
 
     def drawBackground(self, painter: QPainter, rect: QRectF):
-        """Draw the Scene background"""
+        """Draw the Scene background."""
         super().drawBackground(painter, rect)
         self.drawGrid(painter, rect)
 
     def drawGrid(self, painter: QPainter, rect: QRectF):
-        """Draw the background grid"""
+        """Draw the background grid."""
         left = int(math.floor(rect.left()))
         top = int(math.floor(rect.top()))
         right = int(math.ceil(rect.right()))
@@ -144,7 +144,7 @@ class OCBScene(QGraphicsScene, Serializable):
             file.write(json.dumps(self.serialize(), indent=4))
 
     def save_to_ipynb(self, filepath: str):
-        """Save the scene into filepath as ipynb"""
+        """Save the scene into filepath as ipynb."""
         if "." not in filepath:
             filepath += ".ipynb"
 
@@ -204,9 +204,9 @@ class OCBScene(QGraphicsScene, Serializable):
         blocks = []
         edges = []
         for item in self.items():
-            if isinstance(item, OCBBlock):
+            if isinstance(item, Block):
                 blocks.append(item)
-            elif isinstance(item, OCBEdge):
+            elif isinstance(item, Edge):
                 edges.append(item)
         blocks.sort(key=lambda x: x.id)
         edges.sort(key=lambda x: x.id)
@@ -219,7 +219,7 @@ class OCBScene(QGraphicsScene, Serializable):
         )
 
     def create_block_from_file(self, filepath: str, x: float = 0, y: float = 0):
-        """Create a new block from a .ocbb file"""
+        """Create a new block from a .b file."""
         with open(filepath, "r", encoding="utf-8") as file:
             data = json.loads(file.read())
             data["position"] = [x, y]
@@ -228,8 +228,8 @@ class OCBScene(QGraphicsScene, Serializable):
 
     def create_block(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
-    ) -> OCBBlock:
-        """Create a new block from an OrderedDict"""
+    ) -> Block:
+        """Create a new block from an OrderedDict."""
 
         block = None
 
@@ -266,7 +266,7 @@ class OCBScene(QGraphicsScene, Serializable):
 
         # Create edges
         for edge_data in data["edges"]:
-            edge = OCBEdge()
+            edge = Edge()
             edge.deserialize(edge_data, hashmap, restore_id)
             self.addItem(edge)
             hashmap.update({edge_data["id"]: edge})

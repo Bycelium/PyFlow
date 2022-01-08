@@ -1,4 +1,7 @@
-""" Module for converting ipyg data to ipynb data """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for converting pygraph (.ipyg) data to notebook (.ipynb) data."""
 
 from typing import OrderedDict, List
 
@@ -8,7 +11,7 @@ from pyflow.scene.ipynb_conversion_constants import *
 
 
 def ipyg_to_ipynb(data: OrderedDict) -> OrderedDict:
-    """Convert ipyg data (as ordered dict) into ipynb data (as ordered dict)"""
+    """Convert ipyg data (as ordered dict) into ipynb data (as ordered dict)."""
     ordered_data: OrderedDict = get_block_in_order(data)
 
     ipynb_data: OrderedDict = copy.deepcopy(DEFAULT_NOTEBOOK_DATA)
@@ -21,14 +24,14 @@ def ipyg_to_ipynb(data: OrderedDict) -> OrderedDict:
 
 
 def get_block_in_order(data: OrderedDict) -> OrderedDict:
-    """Changes the order of the blocks from random to the naturel flow of the text"""
+    """Changes the order of the blocks from random to the naturel flow of the text."""
 
     # Not implemented yet
     return data
 
 
 def block_to_ipynb_cell(block_data: OrderedDict) -> OrderedDict:
-    """Convert a ipyg block into its corresponding ipynb cell"""
+    """Convert a ipyg block into its corresponding ipynb cell."""
     if block_data["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
         cell_data: OrderedDict = copy.deepcopy(DEFAULT_CODE_CELL)
         cell_data["source"] = split_lines_and_add_newline(block_data["source"])
@@ -45,7 +48,7 @@ def block_to_ipynb_cell(block_data: OrderedDict) -> OrderedDict:
 
 def split_lines_and_add_newline(text: str) -> List[str]:
     """Split the text and add a \\n at the end of each line
-    This is the jupyter notebook default formatting for source, outputs and text"""
+    This is the jupyter notebook default formatting for source, outputs and text."""
     lines = text.split("\n")
     for i in range(len(lines) - 1):
         lines[i] += "\n"

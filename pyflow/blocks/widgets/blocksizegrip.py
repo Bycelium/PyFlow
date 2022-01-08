@@ -1,5 +1,7 @@
-"""
-Implements the SizeGrip Widget for the Blocks.
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for SizeGrip block widget.
 
 The size grip is the little icon at the bottom right of a block that is used to
 resize a block.
@@ -10,15 +12,15 @@ from PyQt5.QtWidgets import QGraphicsItem, QSizeGrip, QWidget
 from PyQt5.QtGui import QMouseEvent
 
 
-class OCBSizeGrip(QSizeGrip):
-    """A grip to resize a block"""
+class SizeGrip(QSizeGrip):
+    """A grip to resize a block."""
 
     def __init__(self, block: QGraphicsItem, parent: QWidget = None):
         """
         Constructor for BlockSizeGrip
 
         block is the QGraphicsItem holding the QSizeGrip.
-        It's usually an OCBBlock
+        It's usually an Block
         """
         super().__init__(parent)
         self.mouseX = 0
@@ -27,7 +29,7 @@ class OCBSizeGrip(QSizeGrip):
         self.resizing = False
 
     def mousePressEvent(self, mouseEvent: QMouseEvent):
-        """Start the resizing"""
+        """Start the resizing."""
         self.mouseX = mouseEvent.globalX()
         self.mouseY = mouseEvent.globalY()
         self.resizing = True
@@ -35,17 +37,17 @@ class OCBSizeGrip(QSizeGrip):
     def mouseReleaseEvent(
         self, mouseEvent: QMouseEvent
     ):  # pylint:disable=unused-argument
-        """Stop the resizing"""
+        """Stop the resizing."""
         self.resizing = False
         self.block.scene().history.checkpoint("Resized block", set_modified=True)
 
     @property
     def _zoom(self) -> float:
-        """Returns how much the scene is"""
+        """Returns how much the scene is."""
         return self.block.scene().views()[0].zoom
 
     def mouseMoveEvent(self, mouseEvent: QMouseEvent):
-        """Performs resizing of the root widget"""
+        """Performs resizing of the root widget."""
         transformed_pt1 = self.block.mapFromScene(QPoint(0, 0))
         transformed_pt2 = self.block.mapFromScene(QPoint(1, 1))
 

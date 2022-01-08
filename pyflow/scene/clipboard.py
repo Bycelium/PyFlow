@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the handling an OCBScene clipboard operations. """
+""" Module for the handling of scene clipboard operations. """
 
 from typing import TYPE_CHECKING, OrderedDict
 from warnings import warn
@@ -9,19 +9,19 @@ from warnings import warn
 import json
 from PyQt5.QtWidgets import QApplication
 
-from pyflow.core.edge import OCBEdge
+from pyflow.core.edge import Edge
 
 if TYPE_CHECKING:
-    from pyflow.scene import OCBScene
-    from pyflow.graphics.view import OCBView
+    from pyflow.scene import Scene
+    from pyflow.graphics.view import View
 
 
 class SceneClipboard:
 
-    """Helper object to handle clipboard operations on an OCBScene."""
+    """Helper object to handle clipboard operations on an Scene."""
 
-    def __init__(self, scene: "OCBScene"):
-        """Helper object to handle clipboard operations on an OCBScene.
+    def __init__(self, scene: "Scene"):
+        """Helper object to handle clipboard operations on an Scene.
 
         Args:
             scene: Scene reference.
@@ -111,7 +111,7 @@ class SceneClipboard:
 
         # Create edges
         for edge_data in data["edges"]:
-            edge = OCBEdge()
+            edge = Edge()
             edge.deserialize(edge_data, hashmap, restore_id=False)
 
             if set_selected:

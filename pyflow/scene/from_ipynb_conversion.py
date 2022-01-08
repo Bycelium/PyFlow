@@ -1,4 +1,7 @@
-""" Module for converting ipynb data to ipyg data """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for converting notebook (.ipynb) data to pygraph (.ipyg) data."""
 
 from typing import OrderedDict, List
 
@@ -118,12 +121,12 @@ def get_blocks_data(
 
 
 def is_title(block_data: OrderedDict) -> bool:
-    """Checks if the block is a one-line markdown block which could correspond to a title"""
+    """Checks if the block is a one-line markdown block which could correspond to a title."""
     if block_data["block_type"] != BLOCK_TYPE_TO_NAME["markdown"]:
         return False
     if "\n" in block_data["text"]:
         return False
-    if len(block_data["text"]) == 0 or len(block_data["text"]) > TITLE_MAX_LENGTH:
+    if not block_data["text"] or len(block_data["text"]) > TITLE_MAX_LENGTH:
         return False
     # Headings, quotes, bold or italic text are not considered to be headings
     if block_data["text"][0] in {"#", "*", "`"}:
@@ -154,7 +157,7 @@ def adujst_markdown_blocks_width(blocks_data: OrderedDict) -> None:
 
 
 def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
-    """Add sockets to the blocks (in place) and returns the edge list"""
+    """Add sockets to the blocks (in place) and returns the edge list."""
     code_blocks: List[OrderedDict] = [
         block
         for block in blocks_data
@@ -186,7 +189,7 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
 
 
 def get_input_socket_data(socket_id: int) -> OrderedDict:
-    """Returns the input socket's data with the corresponding id"""
+    """Returns the input socket's data with the corresponding id."""
     return {
         "id": socket_id,
         "type": "input",
@@ -213,7 +216,7 @@ def get_edge_data(
     edge_end_block_id: int,
     edge_end_socket_id: int,
 ) -> OrderedDict:
-    """Return the ordered dict corresponding to the given parameters"""
+    """Return the ordered dict corresponding to the given parameters."""
     return {
         "id": edge_id,
         "source": {"block": edge_start_block_id, "socket": edge_start_socket_id},

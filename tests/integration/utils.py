@@ -1,5 +1,5 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
 """
 Utilities functions for integration testing.
@@ -8,17 +8,21 @@ Utilities functions for integration testing.
 from typing import Callable
 
 import os
-import asyncio
+import warnings
 import threading
 import time
 from queue import Queue
 
-from qtpy.QtWidgets import QApplication
 import pytest_check as check
-import warnings
-from pyflow.graphics.widget import OCBWidget
+import asyncio
 
-from pyflow.graphics.window import OCBWindow
+from PyQt5.QtWidgets import QApplication
+
+from pyflow.graphics.widget import Widget
+from pyflow.graphics.window import Window
+
+if os.name == "nt":  # If on windows
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 STOP_MSG = "stop"
 CHECK_MSG = "check"
@@ -37,45 +41,41 @@ class CheckingQueue(Queue):
 
 
 class ExceptionForwardingThread(threading.Thread):
-    """A Thread class that forwards the exceptions to the calling thread"""
+    """A Thread class that forwards the exceptions to the calling thread."""
 
     def __init__(self, *args, **kwargs):
-        """Create an exception forwarding thread"""
+        """Create an exception forwarding thread."""
         super().__init__(*args, **kwargs)
-        self.e = None
+        self.exeption = None
 
     def run(self):
-        """Code ran in another thread"""
+        """Code ran in another thread."""
         try:
             super().run()
         except Exception as e:
-            self.e = e
+            self.exeption = e
 
     def join(self):
-        """Used to sync the thread with the caller"""
+        """Used to sync the thread with the caller."""
         super().join()
-        print("except: ", self.e)
-        if self.e != None:
-            raise self.e
+        print("except: ", self.exeption)
+        if self.exeption is not None:
+            raise self.exeption
 
 
 def start_app(obj):
-    """Create a new app for testing"""
-    obj.window = OCBWindow()
-    obj.ocb_widget = OCBWidget()
-    obj.subwindow = obj.window.mdiArea.addSubWindow(obj.ocb_widget)
+    """Create a new app for testing purpose."""
+    obj.window = Window()
+    obj._widget = Widget()
+    obj.subwindow = obj.window.mdiArea.addSubWindow(obj._widget)
     obj.subwindow.show()
 
 
-def apply_function_inapp(window: OCBWindow, run_func: Callable):
-
-    if os.name == "nt":  # If on windows
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
+def apply_function_inapp(window: Window, run_func: Callable):
     QApplication.processEvents()
     msgQueue = CheckingQueue()
-    t = ExceptionForwardingThread(target=run_func, args=(msgQueue,))
-    t.start()
+    thread = ExceptionForwardingThread(target=run_func, args=(msgQueue,))
+    thread.start()
 
     stop = False
     deadCounter = 0
@@ -92,7 +92,7 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
             elif msg[0] == RUN_MSG:
                 msg[1](*msg[2], **msg[3])
 
-        if not t.is_alive() and not stop:
+        if not thread.is_alive() and not stop:
             deadCounter += 1
         if deadCounter >= 3:
             # Test failed, close was not called
@@ -100,4 +100,4 @@ def apply_function_inapp(window: OCBWindow, run_func: Callable):
                 "Warning: you need to call CheckingQueue.stop() at the end of your test !"
             )
             break
-    t.join()
+    thread.join()

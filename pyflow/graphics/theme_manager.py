@@ -1,4 +1,8 @@
-"""
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for the ThemeManager.
+
 This module provides `theme_manager()`,
 a method that returns a handle to the theme manager of the application.
 
@@ -6,21 +10,25 @@ The theme manager provides the color scheme for the syntax highlighting
 of the text areas containing code.
 """
 import os
+import pathlib
 from typing import List
 
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtCore import pyqtSignal, QObject
 
 from pyflow.graphics.theme import Theme
+from pyflow import __file__ as INIT_PATH
+
+PACKAGE_PATH = pathlib.Path(INIT_PATH).parent
 
 
 class ThemeManager(QObject):
-    """Class loading theme files and providing the options set in those files"""
+    """Class loading theme files and providing the options set in those files."""
 
     themeChanged = pyqtSignal()
 
     def __init__(self, parent=None):
-        """Load the default themes and the fonts available to construct the ThemeManager"""
+        """Load the default themes and the fonts available to construct the ThemeManager."""
         super().__init__(parent)
         self._preferred_fonts = ["Inconsolata", "Roboto Mono", "Courier"]
         self.recommended_font_family = "Monospace"
@@ -33,7 +41,7 @@ class ThemeManager(QObject):
 
         self._themes = []
         self._selected_theme_index = 0
-        theme_path = "./themes"
+        theme_path = os.path.join(PACKAGE_PATH, "themes")
         theme_paths = os.listdir(theme_path)
         for p in theme_paths:
             full_path = os.path.join(theme_path, p)
@@ -45,7 +53,7 @@ class ThemeManager(QObject):
 
     @property
     def selected_theme_index(self):
-        """Return the index of the selected theme"""
+        """Return the index of the selected theme."""
         return self._selected_theme_index
 
     @selected_theme_index.setter
@@ -54,11 +62,11 @@ class ThemeManager(QObject):
         self.themeChanged.emit()
 
     def list_themes(self) -> List[str]:
-        """List the themes"""
+        """List the themes."""
         return [theme.name for theme in self._themes]
 
     def current_theme(self) -> Theme:
-        """Return the current theme"""
+        """Return the current theme."""
         return self._themes[self.selected_theme_index]
 
 
@@ -66,7 +74,7 @@ theme_handle = None
 
 
 def theme_manager():
-    """Retreive the theme manager of the application"""
+    """Retreive the theme manager of the application."""
     global theme_handle
     if theme_handle is None:
         theme_handle = ThemeManager()

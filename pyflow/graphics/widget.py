@@ -1,20 +1,20 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the OCB Widget """
+""" Module for the base PyFlow Widget."""
 
 import os
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 
-from pyflow.scene import OCBScene
-from pyflow.graphics.view import OCBView
+from pyflow.scene import Scene
+from pyflow.graphics.view import View
 
 
-class OCBWidget(QWidget):
+class Widget(QWidget):
 
-    """Window for the OCB application."""
+    """Window for a graph visualisation."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -25,11 +25,11 @@ class OCBWidget(QWidget):
         self.setLayout(self.layout)
 
         # Graphics Scene
-        self.scene = OCBScene()
+        self.scene = Scene()
         self.scene.addHasBeenModifiedListener(self.updateTitle)
 
         # Graphics View
-        self.view = OCBView(self.scene)
+        self.view = View(self.scene)
         self.layout.addWidget(self.view)
 
         self.savepath = None
@@ -63,7 +63,7 @@ class OCBWidget(QWidget):
         self.scene.save(self.savepath)
 
     def saveAsJupyter(self, filepath: str):
-        """Save the current graph notebook as a regular python notebook"""
+        """Save the current graph notebook as a regular python notebook."""
         self.scene.save_to_ipynb(filepath)
 
     def load(self, filepath: str):

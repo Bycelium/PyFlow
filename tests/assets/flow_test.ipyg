@@ -4,7 +4,7 @@
         {
             "id": 2047380828024,
             "title": "Test flow 5",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 203,
                 0
@@ -58,7 +58,7 @@
         {
             "id": 2047509975832,
             "title": "Test flow 1",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 187,
                 0
@@ -112,7 +112,7 @@
         {
             "id": 2047510054808,
             "title": "Test flow 2",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 154,
                 0
@@ -166,7 +166,7 @@
         {
             "id": 2047510222024,
             "title": "Test flow 3",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 191,
                 0
@@ -220,7 +220,7 @@
         {
             "id": 2047510394344,
             "title": "Test flow 4",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 165,
                 0
@@ -274,7 +274,7 @@
         {
             "id": 2047510572632,
             "title": "Test flow 6",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 202,
                 0
@@ -328,7 +328,7 @@
         {
             "id": 2047511620200,
             "title": "Test flow 7",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 211,
                 0
@@ -382,7 +382,7 @@
         {
             "id": 2047511818888,
             "title": "Test flow 8",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 204,
                 0
@@ -436,7 +436,7 @@
         {
             "id": 2047514048984,
             "title": "Markdown",
-            "block_type": "OCBMarkdownBlock",
+            "block_type": "MarkdownBlock",
             "splitter_pos": [
                 0,
                 130
@@ -460,7 +460,7 @@
         {
             "id": 2047515370984,
             "title": "Test no connection 1",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 199,
                 0
@@ -514,7 +514,7 @@
         {
             "id": 2047515582680,
             "title": "Test input only 1",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 250,
                 0
@@ -568,7 +568,7 @@
         {
             "id": 2047516568312,
             "title": "Test input only 2",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 236,
                 0
@@ -622,7 +622,7 @@
         {
             "id": 2047517406264,
             "title": "Test output only 1",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 209,
                 0
@@ -676,7 +676,7 @@
         {
             "id": 2047520151448,
             "title": "Test output only 2",
-            "block_type": "OCBCodeBlock",
+            "block_type": "CodeBlock",
             "splitter_pos": [
                 202,
                 0
@@ -730,7 +730,7 @@
         {
             "id": 2047565442936,
             "title": "Markdown",
-            "block_type": "OCBMarkdownBlock",
+            "block_type": "MarkdownBlock",
             "splitter_pos": [
                 0,
                 131

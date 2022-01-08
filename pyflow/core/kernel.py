@@ -1,4 +1,7 @@
-""" Module to create and manage ipython kernels """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module to create and manage ipython kernels."""
 
 import queue
 from typing import Tuple
@@ -9,7 +12,7 @@ from pyflow.core.worker import Worker
 
 class Kernel:
 
-    """jupyter_client kernel used to execute code and return output"""
+    """jupyter_client kernel used to execute code and return output."""
 
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
@@ -60,12 +63,12 @@ class Kernel:
         Also calls run_queue when finished
 
         Args:
-            block: OCBCodeBlock to send the output to
+            block: CodeBlock to send the output to
             code: String representing a piece of Python code to execute
         """
         worker = Worker(self, code)
         # Change color to running
-        block.run_color = 1
+        block.run_state = 1
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
@@ -74,9 +77,9 @@ class Kernel:
         block.scene().threadpool.start(worker)
 
     def run_queue(self):
-        """Runs the next code in the queue"""
+        """Runs the next code in the queue."""
         self.busy = True
-        if self.execution_queue == []:
+        if not self.execution_queue:
             self.busy = False
             return None
         block, code = self.execution_queue.pop(0)

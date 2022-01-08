@@ -1,8 +1,8 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the OCB Blocks Widgets. """
+""" Module for the  Blocks Widgets. """
 
-from pyflow.blocks.widgets.blocksplitter import OCBSplitter
-from pyflow.blocks.widgets.blocktitle import OCBTitle
-from pyflow.blocks.widgets.blocksizegrip import OCBSizeGrip
+from pyflow.blocks.widgets.blocksplitter import Splitter
+from pyflow.blocks.widgets.blocktitle import Title
+from pyflow.blocks.widgets.blocksizegrip import SizeGrip

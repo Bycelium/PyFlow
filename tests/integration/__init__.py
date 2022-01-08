@@ -1,8 +1,8 @@
 # Pyflow an open-source tool for modular visual programing in python
-# Copyright (C) 2021 Mathïs FEDERICO <https://www.gnu.org/licenses/>
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
 """
-Integration tests for the OCB package.
+Integration tests for the  package.
 
 We use xvfb to perform the tests without opening any windows.
 We use pyautogui to move the mouse and interact with the application.

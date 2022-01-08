@@ -1,15 +1,22 @@
-""" Module for the executable block class """
+# Pyflow an open-source tool for modular visual programing in python
+# Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
+
+""" Module for the abstract ExecutableBlock class.
+
+An abstract block that allows for execution, like CodeBlocks and Sliders.
+
+"""
 
 from typing import OrderedDict
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
-from pyflow.blocks.block import OCBBlock
-from pyflow.core.socket import OCBSocket
+from pyflow.blocks.block import Block
+from pyflow.core.socket import Socket
 
 
-class OCBExecutableBlock(OCBBlock):
+class ExecutableBlock(Block):
 
     """
     Executable Block
@@ -17,8 +24,8 @@ class OCBExecutableBlock(OCBBlock):
     This block type is not meant to be instanciated !
 
     It's an abstract class that represents blocks that can be executed like:
-    - OCBCodeBlock
-    - OCBSlider
+    - CodeBlock
+    - Slider
 
     """
 
@@ -30,9 +37,7 @@ class OCBExecutableBlock(OCBBlock):
         super().__init__(**kwargs)
 
         self.has_been_run = False
-
-        # 0 for normal, 1 for running, 2 for transmitting
-        self.run_color = 0
+        self._run_state = 0
 
         # Each element is a list of blocks/edges to be animated
         # Running will paint each element one after the other
@@ -42,31 +47,31 @@ class OCBExecutableBlock(OCBBlock):
 
         # Add execution flow sockets
         exe_sockets = (
-            OCBSocket(self, socket_type="input", flow_type="exe"),
-            OCBSocket(self, socket_type="output", flow_type="exe"),
+            Socket(self, socket_type="input", flow_type="exe"),
+            Socket(self, socket_type="output", flow_type="exe"),
         )
         for socket in exe_sockets:
             self.add_socket(socket)
 
-        if type(self) == OCBExecutableBlock:
-            raise RuntimeError("OCBExecutableBlock should not be instanciated directly")
+        if type(self) == ExecutableBlock:
+            raise RuntimeError("ExecutableBlock should not be instanciated directly")
 
     def has_input(self) -> bool:
-        """Checks whether a block has connected input blocks"""
+        """Checks whether a block has connected input blocks."""
         for input_socket in self.sockets_in:
-            if len(input_socket.edges) != 0:
+            if input_socket.edges:
                 return True
         return False
 
     def has_output(self) -> bool:
-        """Checks whether a block has connected output blocks"""
+        """Checks whether a block has connected output blocks."""
         for output_socket in self.sockets_out:
-            if len(output_socket.edges) != 0:
+            if output_socket.edges:
                 return True
         return False
 
     def run_code(self):
-        """Run the code in the block"""
+        """Run the code in the block."""
 
         # Queue the code to execute
         code = self.source
@@ -78,14 +83,12 @@ class OCBExecutableBlock(OCBBlock):
         self.has_been_run = True
 
     def execution_finished(self):
-        """Reset the text of the run buttons"""
-        self.run_color = 0
-        self.run_button.setText(">")
-        self.run_all_button.setText(">>")
+        """Reset the text of the run buttons."""
+        self.run_state = 0
         self.blocks_to_run = []
 
     def _interrupt_execution(self):
-        """Interrupt an execution, reset the blocks in the queue"""
+        """Interrupt an execution, reset the blocks in the queue."""
         for block, _ in self.scene().kernel.execution_queue:
             # Reset the blocks that have not been run
             block.reset_has_been_run()
@@ -104,7 +107,7 @@ class OCBExecutableBlock(OCBBlock):
         """
         for elem in self.transmitting_queue[0]:
             # Set color to transmitting
-            elem.run_color = 2
+            elem.run_state = 2
         QApplication.processEvents()
         QTimer.singleShot(self.transmitting_delay, self.transmitting_animation_out)
 
@@ -117,13 +120,13 @@ class OCBExecutableBlock(OCBBlock):
             # Reset color only if the block will not be run
             if hasattr(elem, "has_been_run"):
                 if elem.has_been_run is True:
-                    elem.run_color = 0
+                    elem.run_state = 0
             else:
-                elem.run_color = 0
+                elem.run_state = 0
 
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
-        if len(self.transmitting_queue) != 0:
+        if self.transmitting_queue:
             # If the queue is not empty, move forward in the animation
             self.transmitting_animation_in()
         else:
@@ -148,7 +151,7 @@ class OCBExecutableBlock(OCBBlock):
         to_transmit = [[start_node]]
 
         to_visit = [start_node]
-        while len(to_visit) != 0:
+        while to_visit:
             # Remove duplicates
             to_visit = list(set(to_visit))
 
@@ -203,7 +206,7 @@ class OCBExecutableBlock(OCBBlock):
         next_edges = []
         next_blocks = []
 
-        while len(to_visit_input) != 0 or len(to_visit_output) != 0:
+        while to_visit_input or to_visit_output:
             for block in to_visit_input.copy():
                 # Check input edges and blocks
                 for input_socket in block.sockets_in:
@@ -243,7 +246,7 @@ class OCBExecutableBlock(OCBBlock):
         return to_transmit
 
     def run_blocks(self):
-        """Run a list of blocks"""
+        """Run a list of blocks."""
         for block in self.blocks_to_run[::-1]:
             if not block.has_been_run:
                 block.run_code()
@@ -251,13 +254,13 @@ class OCBExecutableBlock(OCBBlock):
             self.run_code()
 
     def run_left(self):
-        """Run all of the block's dependencies and then run the block"""
+        """Run all of the block's dependencies and then run the block."""
 
         # Reset has_been_run to make sure that the self is run again
         self.has_been_run = False
 
         # To avoid crashing when spamming the button
-        if len(self.transmitting_queue) != 0:
+        if self.transmitting_queue:
             return
 
         # Gather dependencies
@@ -274,10 +277,10 @@ class OCBExecutableBlock(OCBBlock):
         self.transmitting_animation_in()
 
     def run_right(self):
-        """Run all of the output blocks and all their dependencies"""
+        """Run all of the output blocks and all their dependencies."""
 
         # To avoid crashing when spamming the button
-        if len(self.transmitting_queue) != 0:
+        if self.transmitting_queue:
             return
 
         # Create transmitting queue
@@ -301,13 +304,13 @@ class OCBExecutableBlock(OCBBlock):
         self.transmitting_animation_in()
 
     def reset_has_been_run(self):
-        """Called when the output is an error"""
+        """Called when the output is an error."""
         self.has_been_run = False
 
     @property
     @abstractmethod
     def source(self) -> str:
-        """Source code"""
+        """Source code."""
         raise NotImplementedError("source(self) should be overriden")
 
     @source.setter
@@ -315,18 +318,36 @@ class OCBExecutableBlock(OCBBlock):
     def source(self, value: str):
         raise NotImplementedError("source(self) should be overriden")
 
+    @property
+    def run_state(self) -> int:
+        """Run state.
+
+        Describe the current state of the ExecutableBlock:
+            - 0: idle.
+            - 1: running.
+            - 2: transmitting.
+
+        """
+        return self._run_state
+
+    @run_state.setter
+    def run_state(self, value: int):
+        self._run_state = value
+        # Update to force repaint
+        self.update()
+
     def handle_stdout(self, value: str):
-        """Handle the stdout signal"""
+        """Handle the stdout signal."""
 
     def handle_image(self, image: str):
-        """Handle the image signal"""
+        """Handle the image signal."""
 
     def serialize(self):
-        """Return a serialized version of this block"""
+        """Return a serialized version of this block."""
         return super().serialize()
 
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
     ):
-        """Restore a codeblock from it's serialized state"""
+        """Restore a codeblock from it's serialized state."""
         super().deserialize(data, hashmap, restore_id)
