@@ -10,10 +10,12 @@ from PyQt5.QtGui import (
     QFont,
     QFontMetrics,
     QColor,
+    QKeyEvent,
     QMouseEvent,
     QWheelEvent,
 )
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
+from pyflow.core.pyeditor.history import EditorHistory
 from pyflow.graphics.theme_manager import theme_manager
 
 from pyflow.blocks.block import Block
@@ -38,6 +40,10 @@ class PythonEditor(QsciScintilla):
         super().__init__(None)
         self._mode = "NOOP"
         self.block = block
+
+        self.history = EditorHistory(self)
+        self.pressingControl = False
+        # self.startOfSequencePos
 
         self.update_theme()
         theme_manager().themeChanged.connect(self.update_theme)
@@ -67,7 +73,7 @@ class PythonEditor(QsciScintilla):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
     def update_theme(self):
-        """Change the font and colors of the editor to match the current theme."""
+        """Change the font and colors of the editor to match the current theme"""
         font = QFont()
         font.setFamily(theme_manager().recommended_font_family)
         font.setFixedPitch(True)
@@ -94,14 +100,14 @@ class PythonEditor(QsciScintilla):
         return self.block.scene().views()
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        """How PythonEditor handles wheel events."""
+        """How PythonEditor handles wheel events"""
         if self.mode == "EDITING" and event.angleDelta().x() == 0:
             event.accept()
             return super().wheelEvent(event)
 
     @property
     def mode(self) -> int:
-        """PythonEditor current mode."""
+        """PythonEditor current mode"""
         return self._mode
 
     @mode.setter
@@ -114,10 +120,38 @@ class PythonEditor(QsciScintilla):
         """PythonEditor reaction to PyQt mousePressEvent events."""
         if event.buttons() & Qt.MouseButton.LeftButton:
             self.mode = "EDITING"
-        return super().mousePressEvent(event)
+
+        super().mousePressEvent(event)
+        self.history.end_sequence()
 
     def focusOutEvent(self, event: QFocusEvent):
         """PythonEditor reaction to PyQt focusOut events."""
+        self.history.end_sequence()
         self.mode = "NOOP"
         self.block.source = self.text()
         return super().focusOutEvent(event)
+
+    def keyPressEvent(self, e: QKeyEvent) -> None:
+        """PythonEditor reaction to PyQt keyPressed events."""
+
+        # Disable QsciScintilla undo
+        self.SendScintilla(QsciScintilla.SCI_EMPTYUNDOBUFFER, 1)
+
+        # Manualy check if Ctrl+Z or Ctrl+Y is pressed
+        if self.pressingControl and e.key() == Qt.Key.Key_Z:
+            # The sequence ends and a new one starts when pressing Ctrl+Z
+            self.history.end_sequence()
+            self.history.start_sequence()
+            self.history.undo()
+        elif self.pressingControl and e.key() == Qt.Key.Key_Y:
+            self.history.redo()
+        elif e.key() == Qt.Key.Key_Control:
+            self.pressingControl = True
+        else:
+            self.pressingControl = False
+            self.history.start_sequence()
+
+        if e.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:
+            self.history.end_sequence()
+
+        super().keyPressEvent(e)
