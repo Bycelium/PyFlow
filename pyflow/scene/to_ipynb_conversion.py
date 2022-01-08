@@ -3,7 +3,7 @@
 
 """ Module for converting pygraph (.ipyg) data to notebook (.ipynb) data."""
 
-from typing import OrderedDict, List
+from typing import OrderedDict, List, Set
 
 import copy
 
@@ -108,7 +108,7 @@ def topological_sort(
     sorted_blocks: List[OrderedDict] = []
 
     # The set of the ids of visited blocks
-    visited: set[int] = set([])
+    visited: Set[int] = set([])
 
     def dfs(block_id):
         visited.add(block_id)
