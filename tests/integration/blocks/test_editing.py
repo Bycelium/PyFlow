@@ -79,6 +79,8 @@ class TestEditing:
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z")
 
+            time.sleep(0.1)
+
             msgQueue.check_equal(
                 self.code_block.source_editor.text().replace("\r", ""),
                 "ab\n",
@@ -89,6 +91,8 @@ class TestEditing:
             pyautogui.click()
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z")
+
+            time.sleep(0.1)
 
             msgQueue.check_equal(
                 self.code_block_2.source_editor.text().replace("\r", ""),
@@ -124,13 +128,17 @@ class TestEditing:
                 pyautogui.click()
                 pyautogui.press(["a", "b", "enter", "a"])
 
+                time.sleep(0.1)
                 msgQueue.check_equal(
                     block.source_editor.text().replace("\r", ""),
                     "ab\na",
                     "The chars have been written properly",
                 )
+
                 with pyautogui.hold("ctrl"):
                     pyautogui.press("z")
+
+                time.sleep(0.1)
 
                 msgQueue.check_equal(
                     block.source_editor.text().replace("\r", ""),
@@ -140,6 +148,8 @@ class TestEditing:
 
                 with pyautogui.hold("ctrl"):
                     pyautogui.press("y")
+
+                time.sleep(0.1)
 
                 msgQueue.check_equal(
                     block.source_editor.text().replace("\r", ""),
