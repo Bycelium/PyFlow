@@ -13,7 +13,6 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextM
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
-
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
@@ -46,7 +45,7 @@ class View(QGraphicsView):
         scene: Scene,
         parent=None,
         zoom_step: float = 1.25,
-        zoom_min: float = 0.2,
+        zoom_min: float = 0.05,
         zoom_max: float = 5,
     ):
         super().__init__(parent=parent)
