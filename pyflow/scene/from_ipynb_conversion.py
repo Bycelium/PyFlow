@@ -169,22 +169,27 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
     if len(blocks_data) > 0:
         greatest_block_id = blocks_data[-1]["id"]
 
-    for i in range(1, len(code_blocks)):
-        socket_id_out = greatest_block_id + 2 * i + 2
-        socket_id_in = greatest_block_id + 2 * i + 1
-        code_blocks[i - 1]["sockets"].append(
-            get_output_socket_data(socket_id_out, code_blocks[i - 1]["width"])
-        )
-        code_blocks[i]["sockets"].append(get_input_socket_data(socket_id_in))
-        edges_data.append(
-            get_edge_data(
-                i,
-                code_blocks[i - 1]["id"],
-                socket_id_out,
-                code_blocks[i]["id"],
-                socket_id_in,
+    last_socket_id_out: int = -1
+    for i, block in enumerate(code_blocks):
+        socket_id_out: int = greatest_block_id + 2 * i + 2
+        socket_id_in: int = greatest_block_id + 2 * i + 1
+
+        block["sockets"].append(get_output_socket_data(socket_id_out, block["width"]))
+        block["sockets"].append(get_input_socket_data(socket_id_in))
+
+        if i >= 1:
+            edges_data.append(
+                get_edge_data(
+                    i,
+                    code_blocks[i - 1]["id"],
+                    last_socket_id_out,
+                    code_blocks[i]["id"],
+                    socket_id_in,
+                )
             )
-        )
+
+        last_socket_id_out = socket_id_out
+
     return edges_data
 
 
