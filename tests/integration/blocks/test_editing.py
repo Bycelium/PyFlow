@@ -30,12 +30,10 @@ class TestEditing:
 
     def test_write_code_blocks(self, qtbot: QtBot):
         """code blocks can be written in."""
-
         self.aux_test_write_in(self.code_block, qtbot)
 
     def test_write_markdown_blocks(self, qtbot: QtBot):
-        """code blocks can be written in."""
-
+        """markdown blocks can be written in."""
         self.aux_test_write_in(self.markdown_block, qtbot)
 
     def test_history_not_lost(self, qtbot: QtBot):
@@ -105,58 +103,57 @@ class TestEditing:
         apply_function_inapp(self.window, testing_history)
 
     def aux_test_write_in(self, block: Block, qtbot: QtBot):
-        def test_write(self, qtbot: QtBot):
-            """can be written in."""
-            self._widget.scene.addItem(block)
-            self._widget.view.horizontalScrollBar().setValue(block.x())
-            self._widget.view.verticalScrollBar().setValue(
-                block.y() - self._widget.view.height() + block.height
+        """can be written in."""
+        self._widget.scene.addItem(block)
+        self._widget.view.horizontalScrollBar().setValue(block.x())
+        self._widget.view.verticalScrollBar().setValue(
+            block.y() - self._widget.view.height() + block.height
+        )
+
+        def testing_write(msgQueue: CheckingQueue):
+            # click inside the block and write in it
+
+            pos_block = QPointF(block.pos().x(), block.pos().y())
+
+            pos_block.setX(pos_block.x() + block.width / 2)
+            pos_block.setY(pos_block.y() + block.height / 2)
+
+            pos_block = self._widget.view.mapFromScene(pos_block)
+            pos_block = self._widget.view.mapToGlobal(pos_block)
+
+            pyautogui.moveTo(pos_block.x(), pos_block.y())
+            pyautogui.click()
+            pyautogui.press(["a", "b", "enter", "a"])
+
+            time.sleep(0.1)
+            msgQueue.check_equal(
+                block.source_editor.text().replace("\r", ""),
+                "ab\na",
+                "The chars have been written properly",
             )
 
-            def testing_write(msgQueue: CheckingQueue):
-                # click inside the block and write in it
+            with pyautogui.hold("ctrl"):
+                pyautogui.press("z")
 
-                pos_block = QPointF(block.pos().x(), block.pos().y())
+            time.sleep(0.1)
 
-                pos_block.setX(pos_block.x() + block.width / 2)
-                pos_block.setY(pos_block.y() + block.height / 2)
+            msgQueue.check_equal(
+                block.source_editor.text().replace("\r", ""),
+                "ab",
+                "undo worked properly",
+            )
 
-                pos_block = self._widget.view.mapFromScene(pos_block)
-                pos_block = self._widget.view.mapToGlobal(pos_block)
+            with pyautogui.hold("ctrl"):
+                pyautogui.press("y")
 
-                pyautogui.moveTo(pos_block.x(), pos_block.y())
-                pyautogui.click()
-                pyautogui.press(["a", "b", "enter", "a"])
+            time.sleep(0.1)
 
-                time.sleep(0.1)
-                msgQueue.check_equal(
-                    block.source_editor.text().replace("\r", ""),
-                    "ab\na",
-                    "The chars have been written properly",
-                )
+            msgQueue.check_equal(
+                block.source_editor.text().replace("\r", ""),
+                "ab\na",
+                "redo worked properly",
+            )
 
-                with pyautogui.hold("ctrl"):
-                    pyautogui.press("z")
+            msgQueue.stop()
 
-                time.sleep(0.1)
-
-                msgQueue.check_equal(
-                    block.source_editor.text().replace("\r", ""),
-                    "ab",
-                    "undo worked properly",
-                )
-
-                with pyautogui.hold("ctrl"):
-                    pyautogui.press("y")
-
-                time.sleep(0.1)
-
-                msgQueue.check_equal(
-                    block.source_editor.text().replace("\r", ""),
-                    "ab\na",
-                    "redo worked properly",
-                )
-
-                msgQueue.stop()
-
-            apply_function_inapp(self.window, testing_write)
+        apply_function_inapp(self.window, testing_write)
