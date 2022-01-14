@@ -154,3 +154,6 @@ class TestEditing:
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_write)
+
+    def test_finish(self):
+        self.window.close()
