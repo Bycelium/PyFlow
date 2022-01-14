@@ -69,7 +69,9 @@ def get_blocks_data(
                     if len(text) > 0
                     else 0
                 )
-            block_width: float = max(text_width + MARGIN_X, BLOCK_MIN_WIDTH)
+            block_width: float = min(
+                max(text_width + MARGIN_X, BLOCK_MIN_WIDTH), BLOCK_MAX_WIDTH
+            )
 
             lineSpacing = DEFAULT_LINE_SPACING
             lineHeight = DEFAULT_LINE_HEIGHT
