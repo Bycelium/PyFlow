@@ -23,10 +23,10 @@ class TestToIpynbConversion:
         check.equal(type(ipynb_data["cells"]), list)
         check.equal(len(ipynb_data["cells"]), 0)
 
-    def test_mnist_example(self, mocker: MockerFixture):
+    def test_simple_flow_example(self, mocker: MockerFixture):
         """should return the right number of cells in a right order on the mnist example."""
 
-        file_path = "./tests/assets/mnist.ipyg"
+        file_path = "./tests/assets/simple_flow.ipyg"
         ipyg_data: OrderedDict = {}
         with open(file_path, "r", encoding="utf-8") as file:
             ipyg_data = json.loads(file.read())
@@ -37,17 +37,9 @@ class TestToIpynbConversion:
         check.equal(len(ipynb_data["cells"]), 7)
 
         # Compute the order in which the cells have been placed
-        source_to_id: Dict[str, int] = {
-            "import num": 0,
-            "# Display ": 1,
-            "x_train = ": 2,
-            "import ten": 3,
-            "model.fit(": 4,
-            "rd_index =": 5,
-            "metrics = ": 6,
-        }
+        # The first line of each block is "#{nb}"
         results_inverse_order: List[int] = [
-            source_to_id[cell["source"][0][:10]] for cell in ipynb_data["cells"]
+            int(cell["source"][0][1:2]) for cell in ipynb_data["cells"]
         ]
         result_order: List[int] = [0] * 7
         for i in range(7):
