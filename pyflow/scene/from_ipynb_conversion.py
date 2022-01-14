@@ -60,7 +60,12 @@ def get_blocks_data(
         else:
             block_type: str = cell["cell_type"]
 
-            text: str = cell["source"]
+            text: List[str] = []
+
+            if type(cell["source"]) == list:
+                text: str = cell["source"]
+            else:
+                text = [line + "\n" for line in cell["source"].split("\n")]
 
             text_width = DEFAULT_TEXT_WIDTH
             if use_theme_font:
