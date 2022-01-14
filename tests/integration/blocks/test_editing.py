@@ -6,6 +6,7 @@ Integration tests for the Blocks.
 """
 
 import time
+from typing import Callable
 import pytest
 import pyautogui
 from pytestqt.qtbot import QtBot
@@ -26,15 +27,6 @@ class TestEditing:
         start_app(self)
         self.code_block = CodeBlock(title="Testing code block 1")
         self.code_block_2 = CodeBlock(title="Testing code block 2")
-        self.markdown_block = MarkdownBlock(title="Testing markdown block")
-
-    def test_write_code_blocks(self, qtbot: QtBot):
-        """code blocks can be written in."""
-        self.aux_test_write_in(self.code_block, qtbot)
-
-    def test_write_markdown_blocks(self, qtbot: QtBot):
-        """markdown blocks can be written in."""
-        self.aux_test_write_in(self.markdown_block, qtbot)
 
     def test_history_not_lost(self, qtbot: QtBot):
         """code blocks keep their own undo history."""
@@ -97,13 +89,17 @@ class TestEditing:
                 "cd\n",
                 "undo done properly",
             )
+            time.sleep(0.1)
 
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_history)
 
-    def aux_test_write_in(self, block: Block, qtbot: QtBot):
-        """can be written in."""
+    def test_write_code_blocks(self, qtbot: QtBot):
+        """code blocks can be written in."""
+
+        block = self.code_block
+
         self._widget.scene.addItem(block)
         self._widget.view.horizontalScrollBar().setValue(block.x())
         self._widget.view.verticalScrollBar().setValue(
@@ -126,6 +122,7 @@ class TestEditing:
             pyautogui.press(["a", "b", "enter", "a"])
 
             time.sleep(0.1)
+
             msgQueue.check_equal(
                 block.source_editor.text().replace("\r", ""),
                 "ab\na",
@@ -135,11 +132,9 @@ class TestEditing:
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z")
 
-            time.sleep(0.1)
-
             msgQueue.check_equal(
                 block.source_editor.text().replace("\r", ""),
-                "ab",
+                "ab\n",
                 "undo worked properly",
             )
 
@@ -153,6 +148,8 @@ class TestEditing:
                 "ab\na",
                 "redo worked properly",
             )
+
+            time.sleep(0.1)
 
             msgQueue.stop()
 
