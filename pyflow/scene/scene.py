@@ -240,12 +240,12 @@ class Scene(QGraphicsScene, Serializable):
             block_module = getattr(blocks, block_name)
             if isinstance(block_module, ModuleType):
                 if hasattr(block_module, data["block_type"]):
-                    block_constructor = getattr(blocks, data["block_type"])
+                    block_constructor = getattr(block_module, data["block_type"])
 
         if block_constructor is None:
             raise NotImplementedError(f"{data['block_type']} is not a known block type")
 
-        block = block_constructor()
+        block: Block = block_constructor()
         block.deserialize(data, hashmap, restore_id)
         self.addItem(block)
         if hashmap is not None:

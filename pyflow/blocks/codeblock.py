@@ -43,7 +43,7 @@ class CodeBlock(ExecutableBlock):
 
         """
 
-        super().__init__(**kwargs)
+        super().__init__(block_type="CodeBlock", **kwargs)
         self.source_editor = PythonEditor(self)
 
         self._source = ""

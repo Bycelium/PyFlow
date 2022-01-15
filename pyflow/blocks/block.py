@@ -44,7 +44,7 @@ class Block(QGraphicsItem, Serializable):
 
     def __init__(
         self,
-        block_type: str = "base",
+        block_type: str = "Block",
         position: tuple = (0, 0),
         width: int = DEFAULT_DATA["width"],
         height: int = DEFAULT_DATA["height"],

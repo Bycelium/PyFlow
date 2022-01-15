@@ -19,7 +19,7 @@ class SliderBlock(ExecutableBlock):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(block_type="SliderBlock", **kwargs)
 
         self.layout = QVBoxLayout(self.root)
 
