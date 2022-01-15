@@ -131,27 +131,27 @@ class PythonEditor(QsciScintilla):
         self.block.source = self.text()
         return super().focusOutEvent(event)
 
-    def keyPressEvent(self, e: QKeyEvent) -> None:
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         """PythonEditor reaction to PyQt keyPressed events."""
 
         # Disable QsciScintilla undo
         self.SendScintilla(QsciScintilla.SCI_EMPTYUNDOBUFFER, 1)
 
         # Manualy check if Ctrl+Z or Ctrl+Y is pressed
-        if self.pressingControl and e.key() == Qt.Key.Key_Z:
+        if self.pressingControl and event.key() == Qt.Key.Key_Z:
             # The sequence ends and a new one starts when pressing Ctrl+Z
             self.history.end_sequence()
             self.history.start_sequence()
             self.history.undo()
-        elif self.pressingControl and e.key() == Qt.Key.Key_Y:
+        elif self.pressingControl and event.key() == Qt.Key.Key_Y:
             self.history.redo()
-        elif e.key() == Qt.Key.Key_Control:
+        elif event.key() == Qt.Key.Key_Control:
             self.pressingControl = True
         else:
             self.pressingControl = False
             self.history.start_sequence()
 
-        if e.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:
+        if event.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:
             self.history.end_sequence()
 
-        super().keyPressEvent(e)
+        super().keyPressEvent(event)
