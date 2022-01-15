@@ -17,7 +17,7 @@ class ContainerBlock(Block):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(block_type="ContainerBlock", **kwargs)
 
         # Defer import to prevent circular dependency.
         # Due to the overall structure of the code, this cannot be removed, as the
