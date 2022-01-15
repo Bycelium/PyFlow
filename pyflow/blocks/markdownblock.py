@@ -15,6 +15,7 @@ from PyQt5.Qsci import QsciLexerMarkdown, QsciScintilla
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
 from pyflow.blocks.block import Block
+from pyflow.core.mdeditor import MarkdownEditor
 from pyflow.graphics.theme_manager import theme_manager
 
 
@@ -27,10 +28,7 @@ class MarkdownBlock(Block):
         """
         super().__init__(**kwargs)
 
-        self.editor = QsciScintilla()
-        self.editor.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
-        self.editor.setWindowFlags(Qt.WindowType.FramelessWindowHint)
-        self.editor.setAutoFillBackground(False)
+        self.editor = MarkdownEditor(self)
 
         self.lexer = QsciLexerMarkdown()
         theme_manager().current_theme().apply_to_lexer(self.lexer)
