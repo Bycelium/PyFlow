@@ -10,6 +10,8 @@ from pyflow.core.history import History
 if TYPE_CHECKING:
     from pyflow.scene import Scene
 
+DEBUG = True
+
 
 class SceneHistory(History):
     """Helper object to handle undo/redo operations on an Scene.
@@ -47,4 +49,6 @@ class SceneHistory(History):
 
         if stamp is not None:
             snapshot = stamp["snapshot"]
+            if DEBUG:
+                print(f"Restored [{self.current}]: {stamp['description']}")
             self.scene.deserialize(snapshot)

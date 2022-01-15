@@ -17,105 +17,34 @@ from pyflow.blocks.block import Block
 from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks.markdownblock import MarkdownBlock
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
+from tests.integration.utils import InAppTest, apply_function_inapp, CheckingQueue
 
 
-class TestEditing:
+class TestEditing(InAppTest):
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup reused variables."""
-        start_app(self)
-        self.code_block = CodeBlock(title="Testing code block 1")
+        self.start_app()
+        self.code_block_1 = CodeBlock(title="Testing code block 1")
         self.code_block_2 = CodeBlock(title="Testing code block 2")
-
-    def test_history_not_lost(self, qtbot: QtBot):
-        """code blocks keep their own undo history."""
-
-        self._widget.scene.addItem(self.code_block)
-        self._widget.scene.addItem(self.code_block_2)
-        self.code_block.setY(200)
-        self.code_block_2.setY(-200)
-
-        def testing_history(msgQueue: CheckingQueue):
-            # click inside the block and write in it
-
-            pos_block_1 = QPointF(self.code_block.pos().x(), self.code_block.pos().y())
-            pos_block_2 = QPointF(
-                self.code_block_2.pos().x(), self.code_block_2.pos().y()
-            )
-
-            pos_block_1.setX(self.code_block.x() + self.code_block.width / 2)
-            pos_block_1.setY(self.code_block.y() + self.code_block.height / 2)
-
-            pos_block_2.setX(self.code_block_2.x() + self.code_block_2.width / 2)
-            pos_block_2.setY(self.code_block_2.y() + self.code_block_2.height / 2)
-
-            pos_block_1 = self._widget.view.mapFromScene(pos_block_1)
-            pos_block_1 = self._widget.view.mapToGlobal(pos_block_1)
-
-            pos_block_2 = self._widget.view.mapFromScene(pos_block_2)
-            pos_block_2 = self._widget.view.mapToGlobal(pos_block_2)
-
-            pyautogui.moveTo(pos_block_1.x(), pos_block_1.y())
-            pyautogui.click()
-            pyautogui.press(["a", "b", "enter", "a"])
-
-            pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
-            pyautogui.click()
-            pyautogui.press(["c", "d", "enter", "d"])
-
-            pyautogui.moveTo(pos_block_1.x(), pos_block_1.y())
-            pyautogui.click()
-            with pyautogui.hold("ctrl"):
-                pyautogui.press("z")
-
-            time.sleep(0.1)
-
-            msgQueue.check_equal(
-                self.code_block.source_editor.text().replace("\r", ""),
-                "ab\n",
-                "undo done properly",
-            )
-
-            pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
-            pyautogui.click()
-            with pyautogui.hold("ctrl"):
-                pyautogui.press("z")
-
-            time.sleep(0.1)
-
-            msgQueue.check_equal(
-                self.code_block_2.source_editor.text().replace("\r", ""),
-                "cd\n",
-                "undo done properly",
-            )
-            time.sleep(0.1)
-
-            msgQueue.stop()
-
-        apply_function_inapp(self.window, testing_history)
+        self.widget.scene.addItem(self.code_block_1)
+        self.widget.scene.addItem(self.code_block_2)
 
     def test_write_code_blocks(self, qtbot: QtBot):
         """code blocks can be written in."""
 
-        block = self.code_block
+        block = self.code_block_1
 
-        self._widget.scene.addItem(block)
-        self._widget.view.horizontalScrollBar().setValue(block.x())
-        self._widget.view.verticalScrollBar().setValue(
-            block.y() - self._widget.view.height() + block.height
+        self.widget.scene.addItem(block)
+        self.widget.view.horizontalScrollBar().setValue(block.x())
+        self.widget.view.verticalScrollBar().setValue(
+            block.y() - self.widget.view.height() + block.height
         )
 
         def testing_write(msgQueue: CheckingQueue):
             # click inside the block and write in it
 
-            pos_block = QPointF(block.pos().x(), block.pos().y())
-
-            pos_block.setX(pos_block.x() + block.width / 2)
-            pos_block.setY(pos_block.y() + block.height / 2)
-
-            pos_block = self._widget.view.mapFromScene(pos_block)
-            pos_block = self._widget.view.mapToGlobal(pos_block)
+            pos_block = self.get_global_pos(block, rel_pos=(0.5, 0.5))
 
             pyautogui.moveTo(pos_block.x(), pos_block.y())
             pyautogui.click()
@@ -154,6 +83,68 @@ class TestEditing:
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_write)
+
+    def test_editing_history(self, qtbot: QtBot):
+        """code blocks keep their own undo history."""
+        self.code_block_1.setY(-200)
+        self.code_block_2.setY(200)
+
+        def testing_history(msgQueue: CheckingQueue):
+            # click inside the block and write in it
+            initial_pos = (self.code_block_2.pos().x(), self.code_block_2.pos().y())
+            pos_block_2 = self.get_global_pos(self.code_block_2, rel_pos=(0.5, 0.05))
+            center_block_1 = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
+            center_block_2 = self.get_global_pos(self.code_block_2, rel_pos=(0.5, 0.5))
+
+            pyautogui.moveTo(center_block_1.x(), center_block_1.y())
+            pyautogui.click()
+            pyautogui.press(["a", "b", "enter", "a"])
+
+            pyautogui.moveTo(center_block_2.x(), center_block_2.y())
+            pyautogui.click()
+            pyautogui.press(["c", "d", "enter", "d"])
+
+            pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
+            pyautogui.mouseDown(button="left")
+            pyautogui.moveTo(pos_block_2.x(), int(1.2 * pos_block_2.y()))
+            pyautogui.mouseUp(button="left")
+
+            pyautogui.moveTo(center_block_1.x(), center_block_1.y())
+            pyautogui.click()
+            with pyautogui.hold("ctrl"):
+                pyautogui.press("z")
+
+            time.sleep(0.1)
+
+            # Undo in the 1st edited block should only undo in that block
+            msgQueue.check_equal(
+                self.code_block_1.source_editor.text().replace("\r", ""),
+                "ab\n",
+                "Undone selected editing",
+            )
+
+            pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
+            pyautogui.click()
+            with pyautogui.hold("ctrl"):
+                pyautogui.press("z", presses=3, interval=0.1)
+
+            time.sleep(0.1)
+
+            msgQueue.check_equal(
+                (self.code_block_2.pos().x(), self.code_block_2.pos().y()),
+                initial_pos,
+                "Undone graph",
+            )
+
+            msgQueue.check_equal(
+                self.code_block_1.source_editor.text().replace("\r", ""),
+                "cd\nd",
+                "Not undone editing",
+            )
+
+            msgQueue.stop()
+
+        apply_function_inapp(self.window, testing_history)
 
     def test_finish(self):
         self.window.close()

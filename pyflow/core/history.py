@@ -5,6 +5,8 @@
 
 from typing import Any, List
 
+DEBUG = True
+
 
 class History:
     """Helper object to handle undo/redo operations.
@@ -48,6 +50,8 @@ class History:
             self.history_stack.pop(0)
 
         self.current = min(self.current + 1, len(self.history_stack) - 1)
+        if DEBUG and "description" in data:
+            print(f"Stored [{self.current}]: {data['description']}")
 
     def restored_data(self) -> Any:
         """
