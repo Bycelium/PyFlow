@@ -71,17 +71,10 @@ class SceneClipboard:
         return data
 
     def _find_bbox_center(self, blocks_data):
-        xmin, xmax, ymin, ymax = 0, 0, 0, 0
-        for block_data in blocks_data:
-            x, y = block_data["position"]
-            if x < xmin:
-                xmin = x
-            if x > xmax:
-                xmax = x
-            if y < ymin:
-                ymin = y
-            if y > ymax:
-                ymax = y
+        xmin = min(block["position"][0] for block in blocks_data)
+        xmax = max(block["position"][0] + block["width"] for block in blocks_data)
+        ymin = min(block["position"][1] for block in blocks_data)
+        ymax = max(block["position"][1] + block["height"] for block in blocks_data)
         return (xmin + xmax) / 2, (ymin + ymax) / 2
 
     def _deserializeData(self, data: OrderedDict, set_selected=True):
