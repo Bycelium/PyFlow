@@ -15,13 +15,14 @@ from PyQt5.QtGui import (
     QWheelEvent,
 )
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
+
 from pyflow.core.pyeditor.history import EditorHistory
 from pyflow.graphics.theme_manager import theme_manager
 
-from pyflow.blocks.block import Block
 
 if TYPE_CHECKING:
     from pyflow.graphics.view import View
+    from pyflow.blocks.codeblock import CodeBlock
 
 POINT_SIZE = 11
 
@@ -30,7 +31,7 @@ class PythonEditor(QsciScintilla):
 
     """In-block python editor for Pyflow."""
 
-    def __init__(self, block: Block):
+    def __init__(self, block: "CodeBlock"):
         """In-block python editor for Pyflow.
 
         Args:
@@ -129,6 +130,9 @@ class PythonEditor(QsciScintilla):
         self.history.end_sequence()
         self.mode = "NOOP"
         self.block.source = self.text()
+        self.block.scene().history.checkpoint(
+            "A codeblock source was updated", set_modified=True
+        )
         return super().focusOutEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:

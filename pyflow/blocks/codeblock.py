@@ -4,17 +4,17 @@
 """ Module for the base Code Block."""
 
 from typing import OrderedDict
-from PyQt5.QtWidgets import QPushButton, QTextEdit
-from PyQt5.QtGui import QPen, QColor
 
 from ansi2html import Ansi2HTMLConverter
 
-from pyflow.blocks.block import Block
+from PyQt5.QtWidgets import QPushButton, QTextEdit
+from PyQt5.QtGui import QPen, QColor, QFocusEvent
 
+from pyflow.blocks.block import Block
 from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.core.pyeditor import PythonEditor
 
-conv = Ansi2HTMLConverter()
+ansi2html_converter = Ansi2HTMLConverter()
 
 
 class CodeBlock(ExecutableBlock):
@@ -171,7 +171,7 @@ class CodeBlock(ExecutableBlock):
     @property
     def source(self) -> str:
         """Source code."""
-        return self._source
+        return self.source_editor.text()
 
     @source.setter
     def source(self, value: str):
@@ -222,7 +222,7 @@ class CodeBlock(ExecutableBlock):
         text = text.replace("\x08", "")
         text = text.replace("\r", "")
         # Convert ANSI escape codes to HTML
-        text = conv.convert(text)
+        text = ansi2html_converter.convert(text)
         # Replace background color
         text = text.replace(
             "background-color: #000000", "background-color: transparent"
@@ -256,7 +256,6 @@ class CodeBlock(ExecutableBlock):
         base_dict = super().serialize()
         base_dict["source"] = self.source
         base_dict["stdout"] = self.stdout
-
         return base_dict
 
     def deserialize(

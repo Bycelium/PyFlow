@@ -56,6 +56,7 @@ class Scene(QGraphicsScene, Serializable):
         self._has_been_modified_listeners = []
 
         self.history = SceneHistory(self)
+        self.history.checkpoint("Initialized scene", set_modified=False)
         self.clipboard = SceneClipboard(self)
 
         self.kernel = Kernel()
