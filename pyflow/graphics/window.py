@@ -292,7 +292,14 @@ class Window(QMainWindow):
 
     def onFileOpen(self):
         """Open a file."""
-        filename, _ = QFileDialog.getOpenFileName(self, "Open ipygraph from file")
+
+        filename, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open ipygraph from file",
+            "",
+            "Ipygraph or Juyter notebook (*.ipyg *.ipynb)",
+        )
+
         if filename == "":
             return
         if os.path.isfile(filename):
