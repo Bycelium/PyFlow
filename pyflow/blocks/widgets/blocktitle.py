@@ -11,7 +11,7 @@ import time
 from typing import OrderedDict
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QMouseEvent
-from PyQt5.QtWidgets import QLineEdit, QWidget
+from PyQt5.QtWidgets import QLineEdit, QWidget, QGraphicsItem
 
 from pyflow.core.serializable import Serializable
 
@@ -22,6 +22,7 @@ class Title(QLineEdit, Serializable):
     def __init__(
         self,
         text: str,
+        block_item: QGraphicsItem,
         color: str = "white",
         font: str = "Ubuntu",
         size: int = 12,
@@ -34,6 +35,7 @@ class Title(QLineEdit, Serializable):
         self.init_ui(color, font, size)
         self.setReadOnly(True)
         self.setCursorPosition(0)
+        self.block_item = block_item
 
     def init_ui(self, color: str, font: str, size: int):
         """Apply the style given to the title."""
@@ -48,16 +50,30 @@ class Title(QLineEdit, Serializable):
         )
         self.setFont(QFont(font, size))
 
+    @property
+    def readOnly(self) -> int:
+        """PythonEditor current mode."""
+        return self.isReadOnly()
+
+    @readOnly.setter
+    def readOnly(self, value: bool):
+        self.setReadOnly(value)
+
+        new_mode = "NOOP" if value else "EDITING"
+        views = self.block_item.scene().views()
+        for view in views:
+            view.set_mode(new_mode)
+
     def mousePressEvent(self, event: QMouseEvent):
         """
         Detect double clicks and single clicks are react accordingly by
         dispatching the event to the parent or the current widget
         """
         if self.clickTime is None or (
-            self.isReadOnly() and time.time() - self.clickTime > 0.3
+            self.readOnly and time.time() - self.clickTime > 0.3
         ):
             self.parent().mousePressEvent(event)
-        elif self.isReadOnly():
+        elif self.readOnly:
             self.mouseDoubleClickEvent(event)
             super().mousePressEvent(event)
         else:
@@ -66,14 +82,14 @@ class Title(QLineEdit, Serializable):
 
     def focusOutEvent(self, event: QFocusEvent):
         """The title is read-only when focused is lost."""
-        self.setReadOnly(True)
+        self.readOnly = True
         self.setCursorPosition(0)
         self.deselect()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         """Toggle readonly mode when double clicking."""
-        self.setReadOnly(not self.isReadOnly())
-        if not self.isReadOnly():
+        self.readOnly = not self.readOnly
+        if not self.readOnly:
             self.setFocus(Qt.MouseFocusReason)
 
     def serialize(self) -> OrderedDict:
