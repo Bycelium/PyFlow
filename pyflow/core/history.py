@@ -64,5 +64,4 @@ class History:
         Empty function to be overriden
         Contains the behavior to be adopted when a state is restored
         """
-        # data: Any = self.restored_data()
-        return
+        raise NotImplementedError
