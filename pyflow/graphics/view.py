@@ -13,7 +13,6 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextM
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
-
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
@@ -46,7 +45,7 @@ class View(QGraphicsView):
         scene: Scene,
         parent=None,
         zoom_step: float = 1.25,
-        zoom_min: float = 0.2,
+        zoom_min: float = 0.05,
         zoom_max: float = 5,
     ):
         super().__init__(parent=parent)
@@ -346,13 +345,19 @@ class View(QGraphicsView):
                 zoom_factor = 1 / self.zoom_step
 
             new_zoom = self.zoom * zoom_factor
-            if self.zoom_min < new_zoom < self.zoom_max:
-                self.setZoom(new_zoom)
+            self.setZoom(new_zoom)
         else:
             super().wheelEvent(event)
 
     def setZoom(self, new_zoom: float):
         """Set the zoom to the appropriate level."""
+
+        # Constrain the zoom level
+        if new_zoom > self.zoom_max:
+            new_zoom = self.zoom_max
+        if new_zoom < self.zoom_min:
+            new_zoom = self.zoom_min
+
         zoom_factor = new_zoom / self.zoom
         self.scale(zoom_factor, zoom_factor)
         self.zoom = new_zoom
