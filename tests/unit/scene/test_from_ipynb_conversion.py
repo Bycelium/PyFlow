@@ -1,7 +1,7 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-"""Unit tests for the conversion from and to ipynb."""
+"""Unit tests for the conversion from ipynb."""
 
 from typing import List, OrderedDict
 from pytest_mock import MockerFixture
@@ -12,7 +12,7 @@ from pyflow.scene.from_ipynb_conversion import ipynb_to_ipyg, is_title
 from pyflow.scene.ipynb_conversion_constants import BLOCK_TYPE_TO_NAME
 
 
-class TestIpynbConversion:
+class TestFromIpynbConversion:
 
     """Conversion from .ipynb"""
 
