@@ -22,20 +22,20 @@ class Title(QLineEdit, Serializable):
     def __init__(
         self,
         text: str,
-        block_item: QGraphicsItem,
+        parent_block: QGraphicsItem,
         color: str = "white",
         font: str = "Ubuntu",
         size: int = 12,
-        parent: QWidget = None,
+        parent_widget: QWidget = None,
     ):
         """Create a new title for an Block."""
         Serializable.__init__(self)
-        QLineEdit.__init__(self, text, parent)
+        QLineEdit.__init__(self, text, parent_widget)
         self.clickTime = None
         self.init_ui(color, font, size)
         self.setReadOnly(True)
         self.setCursorPosition(0)
-        self.block_item = block_item
+        self.parent_block = parent_block
 
     def init_ui(self, color: str, font: str, size: int):
         """Apply the style given to the title."""
@@ -60,7 +60,7 @@ class Title(QLineEdit, Serializable):
         self.setReadOnly(value)
 
         new_mode = "NOOP" if value else "EDITING"
-        views = self.block_item.scene().views()
+        views = self.parent_block.scene().views()
         for view in views:
             view.set_mode(new_mode)
 
