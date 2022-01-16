@@ -297,7 +297,7 @@ class Window(QMainWindow):
             self,
             "Open ipygraph from file",
             "",
-            "Ipygraph or Juyter notebook (*.ipyg *.ipynb)",
+            "Interactive python graph or notebook (*.ipyg *.ipynb)",
         )
 
         if filename == "":
