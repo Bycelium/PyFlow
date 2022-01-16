@@ -12,7 +12,7 @@ from ansi2html import Ansi2HTMLConverter
 from pyflow.blocks.block import Block
 
 from pyflow.blocks.executableblock import ExecutableBlock
-from pyflow.core.pyeditor import PythonEditor
+from pyflow.blocks.pyeditor import PythonEditor
 
 conv = Ansi2HTMLConverter()
 

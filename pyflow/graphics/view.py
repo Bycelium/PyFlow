@@ -17,7 +17,6 @@ from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
 from pyflow.blocks.block import Block
-from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks import __file__ as BLOCK_INIT_PATH
 
 BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
@@ -214,10 +213,12 @@ class View(QGraphicsView):
         Returns True if the event was handled.
         """
         # The focusItem has priority for this event if it is a source editor
-        if self.scene().focusItem() is not None:
-            parent = self.scene().focusItem().parentItem()
-            if isinstance(parent, CodeBlock) and parent.source_editor.hasFocus():
-                return False
+        # if self.scene().focusItem() is not None:
+        if self.mode == View.MODE_EDITING:
+            return False
+            # parent = self.scene().focusItem().parentItem()
+            # if isinstance(parent, CodeBlock) and parent.source_editor.hasFocus():
+            #     return False
 
         n_selected_items = len(self.scene().selectedItems())
         if n_selected_items > 1:

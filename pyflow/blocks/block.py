@@ -86,7 +86,7 @@ class Block(QGraphicsItem, Serializable):
         self.root.setAttribute(Qt.WA_TranslucentBackground)
         self.root.setGeometry(0, 0, int(width), int(height))
 
-        self.title_widget = Title(title, parent=self.root)
+        self.title_widget = Title(title, parent_widget=self.root, parent_block=super())
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
 
         self.splitter = Splitter(self, Qt.Vertical, self.root)
