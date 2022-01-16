@@ -12,10 +12,9 @@ from markdown import markdown
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.Qsci import QsciLexerMarkdown, QsciScintilla
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QFont
 from pyflow.blocks.block import Block
-from pyflow.core.mdeditor import MarkdownEditor
+from pyflow.blocks.mdeditor import MarkdownEditor
 from pyflow.graphics.theme_manager import theme_manager
 
 

@@ -3,14 +3,12 @@
 
 """ Module for the PyFlow python editor."""
 
-from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import (
     QFocusEvent,
     QFont,
     QFontMetrics,
     QColor,
-    QMouseEvent,
     QWheelEvent,
 )
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
@@ -19,11 +17,7 @@ from pyflow.graphics.theme_manager import theme_manager
 
 from pyflow.blocks.block import Block
 
-if TYPE_CHECKING:
-    from pyflow.graphics.view import View
-
 POINT_SIZE = 11
-
 
 class PythonEditor(Editor):
 
