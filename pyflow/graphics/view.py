@@ -238,6 +238,7 @@ class View(QGraphicsView):
                 selected_item.y() + selected_item.height / 2,
             )
             self.scene().clearSelection()
+            self.bring_block_forward(selected_item)
 
         dist_array = []
         for block in code_blocks:
@@ -382,6 +383,7 @@ class View(QGraphicsView):
         ):
             self.currentSelectedBlock.setZValue(0)
         block.setZValue(1)
+        block.setSelected(True)
         self.currentSelectedBlock = block
 
     def drag_scene(self, event: QMouseEvent, action="press"):
