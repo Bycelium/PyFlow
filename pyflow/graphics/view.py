@@ -284,6 +284,7 @@ class View(QGraphicsView):
         item_to_navigate = self.scene().itemAt(
             block_center_x, block_center_y, self.transform()
         )
+        self.scene().clearSelection()
         if isinstance(item_to_navigate.parentItem(), Block):
             item_to_navigate.parentItem().setSelected(True)
 
