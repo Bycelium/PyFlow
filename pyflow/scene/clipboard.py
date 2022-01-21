@@ -22,24 +22,21 @@ class BlocksClipboard:
 
     def cut(self, scene: "Scene"):
         """Cut the selected items and put them into clipboard."""
-        self.scene = scene
-        self._store(self._serializeSelected(delete=True))
+        self._store(self._serializeSelected(scene, delete=True))
 
     def copy(self, scene: "Scene"):
         """Copy the selected items into clipboard."""
-        self.scene = scene
-        self._store(self._serializeSelected(delete=False))
+        self._store(self._serializeSelected(scene, delete=False))
 
     def paste(self, scene: "Scene"):
         """Paste the items in clipboard into the current scene."""
-        self.scene = scene
         data = self._gatherData()
         if data is not None:
-            self._deserializeData(data)
+            self._deserializeData(data, scene)
 
-    def _serializeSelected(self, delete=False) -> OrderedDict:
+    def _serializeSelected(self, scene: "Scene", delete=False) -> OrderedDict:
         """Serialize the items in the scene"""
-        selected_blocks, selected_edges = self.scene.sortedSelectedItems()
+        selected_blocks, selected_edges = scene.sortedSelectedItems()
         selected_sockets = {}
 
         # Gather selected sockets
@@ -63,7 +60,7 @@ class BlocksClipboard:
         )
 
         if delete:  # Remove selected items
-            self.scene.views()[0].deleteSelected()
+            scene.views()[0].deleteSelected()
 
         return data
 
@@ -74,7 +71,7 @@ class BlocksClipboard:
         ymax = max(block["position"][1] + block["height"] for block in blocks_data)
         return (xmin + xmax) / 2, (ymin + ymax) / 2
 
-    def _deserializeData(self, data: OrderedDict, set_selected=True):
+    def _deserializeData(self, data: OrderedDict, scene: "Scene", set_selected=True):
         """Deserialize the items and put them in the scene"""
 
         if data is None:
@@ -82,10 +79,10 @@ class BlocksClipboard:
 
         hashmap = {}
 
-        view = self.scene.views()[0]
+        view = scene.views()[0]
         mouse_pos = view.lastMousePos
         if set_selected:
-            self.scene.clearSelection()
+            scene.clearSelection()
 
         # Finding pasting bbox center
         bbox_center_x, bbox_center_y = self._find_bbox_center(data["blocks"])
@@ -96,7 +93,7 @@ class BlocksClipboard:
 
         # Create blocks
         for block_data in data["blocks"]:
-            block = self.scene.create_block(block_data, hashmap, restore_id=False)
+            block = scene.create_block(block_data, hashmap, restore_id=False)
             if set_selected:
                 block.setSelected(True)
             block.setPos(block.x() + offset_x, block.y() + offset_y)
@@ -108,12 +105,10 @@ class BlocksClipboard:
 
             if set_selected:
                 edge.setSelected(True)
-            self.scene.addItem(edge)
+            scene.addItem(edge)
             hashmap.update({edge_data["id"]: edge})
 
-        self.scene.history.checkpoint(
-            "Desiralized elements into scene", set_modified=True
-        )
+        scene.history.checkpoint("Desiralized elements into scene", set_modified=True)
 
     def _store(self, data: OrderedDict):
         """Store the data in the clipboard if it is valid."""
