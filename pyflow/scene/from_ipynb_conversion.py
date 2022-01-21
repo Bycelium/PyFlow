@@ -175,10 +175,10 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
         socket_id_in: int = greatest_block_id + 2 * i + 1
 
         block["sockets"].append(
-            get_output_socket_data(socket_id_out, block["width"], block["height"])
+            get_output_socket_data(socket_id_out, block)
         )
         block["sockets"].append(
-            get_input_socket_data(socket_id_in, block["width"], block["height"])
+            get_input_socket_data(socket_id_in, block)
         )
 
         if i >= 1:
@@ -197,10 +197,12 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
     return edges_data
 
 
-def get_input_socket_data(
-    socket_id: int, block_width: int, block_height: int
-) -> OrderedDict:
-    """Returns the input socket's data with the corresponding id."""
+def get_input_socket_data(socket_id: int, block_data: OrderedDict) -> OrderedDict:
+    """Returns the input socket's data with the corresponding id
+    and at the correct relative position with respect to the block."""
+
+    block_width = block_data["width"]
+
     return {
         "id": socket_id,
         "type": "input",
@@ -208,13 +210,15 @@ def get_input_socket_data(
     }
 
 
-def get_output_socket_data(
-    socket_id: int, block_width: int, block_height: int
-) -> OrderedDict:
+def get_output_socket_data(socket_id: int, block_data: OrderedDict) -> OrderedDict:
     """
     Returns the input socket's data with the corresponding id
-    and at the correct relative position with respect to the block
+    and at the correct relative position with respect to the block.
     """
+
+    block_width = block_data["width"]
+    block_height = block_data["height"]
+
     return {
         "id": socket_id,
         "type": "output",
