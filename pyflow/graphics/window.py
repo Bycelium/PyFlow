@@ -23,6 +23,7 @@ from pyflow.graphics.theme_manager import theme_manager
 
 from pyflow.qss import loadStylesheets
 from pyflow.qss import __file__ as QSS_INIT_PATH
+from pyflow.scene.clipboard import BlocksClipboard
 
 QSS_PATH = pathlib.Path(QSS_INIT_PATH).parent
 
@@ -69,6 +70,9 @@ class Window(QMainWindow):
         # Window properties
         self.readSettings()
         self.show()
+
+        # Block clipboard
+        self.clipboard = BlocksClipboard()
 
     def createToolBars(self):
         """Does nothing, but is required by the QMainWindow interface."""
@@ -397,19 +401,19 @@ class Window(QMainWindow):
         """Cut the selected items if not in edit mode."""
         current_window = self.activeMdiChild()
         if self.is_not_editing(current_window):
-            current_window.scene.clipboard.cut()
+            self.clipboard.cut(current_window.scene)
 
     def onEditCopy(self):
         """Copy the selected items if not in edit mode."""
         current_window = self.activeMdiChild()
         if self.is_not_editing(current_window):
-            current_window.scene.clipboard.copy()
+            self.clipboard.copy(current_window.scene)
 
     def onEditPaste(self):
         """Paste the selected items if not in edit mode."""
         current_window = self.activeMdiChild()
         if self.is_not_editing(current_window):
-            current_window.scene.clipboard.paste()
+            self.clipboard.paste(current_window.scene)
 
     def onEditDelete(self):
         """Delete the selected items if not in edit mode."""

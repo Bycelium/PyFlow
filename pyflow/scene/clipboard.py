@@ -6,40 +6,33 @@
 from typing import TYPE_CHECKING, OrderedDict, Union
 from warnings import warn
 
-import json
-from PyQt5.QtWidgets import QApplication
-
 from pyflow.core.edge import Edge
 
 if TYPE_CHECKING:
     from pyflow.scene import Scene
-    from pyflow.graphics.view import View
 
 
-class SceneClipboard:
+class BlocksClipboard:
 
-    """Helper object to handle clipboard operations on an Scene."""
+    """Helper object to handle clipboard operations on blocks."""
 
-    def __init__(self, scene: "Scene"):
-        """Helper object to handle clipboard operations on an Scene.
+    def __init__(self):
+        """Helper object to handle clipboard operations on blocks."""
+        self.blocks_data: Union[None, OrderedDict] = None
 
-        Args:
-            scene: Scene reference.
-
-        """
-        self.scene = scene
-        self.objects: Union[None, OrderedDict] = None
-
-    def cut(self):
+    def cut(self, scene: "Scene"):
         """Cut the selected items and put them into clipboard."""
+        self.scene = scene
         self._store(self._serializeSelected(delete=True))
 
-    def copy(self):
+    def copy(self, scene: "Scene"):
         """Copy the selected items into clipboard."""
+        self.scene = scene
         self._store(self._serializeSelected(delete=False))
 
-    def paste(self):
+    def paste(self, scene: "Scene"):
         """Paste the items in clipboard into the current scene."""
+        self.scene = scene
         data = self._gatherData()
         if data is not None:
             self._deserializeData(data)
@@ -126,13 +119,13 @@ class SceneClipboard:
         """Store the data in the clipboard if it is valid."""
 
         if "blocks" not in data or not data["blocks"]:
-            self.objects = None
+            self.blocks_data = None
             return
 
-        self.objects = data
+        self.blocks_data = data
 
     def _gatherData(self) -> Union[OrderedDict, None]:
         """Return the data stored in the clipboard."""
-        if self.objects is None:
+        if self.blocks_data is None:
             warn(f"No object is loaded")
-        return self.objects
+        return self.blocks_data

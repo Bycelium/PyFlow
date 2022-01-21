@@ -7,12 +7,12 @@ import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
-from pyflow.scene.clipboard import SceneClipboard
+from pyflow.scene.clipboard import BlocksClipboard
 
 
 class TestSerializeSelected:
 
-    """SceneClipboard._serializeSelected"""
+    """BlocksClipboard._serializeSelected"""
 
     @pytest.fixture(autouse=True)
     def setup(self, mocker: MockerFixture):
@@ -42,7 +42,10 @@ class TestSerializeSelected:
             edge.destination_socket.id = dummy_edges_links[i][1]
 
         self.scene.sortedSelectedItems.return_value = self.blocks, self.edges
-        self.clipboard = SceneClipboard(self.scene)
+        self.clipboard = BlocksClipboard()
+        # Manually set the clipboard current scene
+        # Because private functions of the clipboard are used
+        self.clipboard.scene = self.scene
 
     def test_serialize_selected_blocks(self, mocker: MockerFixture):
         """should allow for blocks serialization."""
