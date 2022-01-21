@@ -134,26 +134,6 @@ def is_title(block_data: OrderedDict) -> bool:
     return True
 
 
-# def adujst_markdown_blocks_width(blocks_data: OrderedDict) -> None:
-#     """
-#     Modify the markdown blocks width (in place)
-#     For them to match the width of block of code below
-#     """
-#     i: int = len(blocks_data) - 1
-
-#     while i >= 0:
-#         if blocks_data[i]["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
-#             block_width: float = blocks_data[i]["width"]
-#             i -= 1
-
-#             while (
-#                 i >= 0
-#                 and blocks_data[i]["block_type"] == BLOCK_TYPE_TO_NAME["markdown"]
-#             ):
-#                 blocks_data[i]["width"] = block_width
-#                 i -= 1
-#         else:
-#             i -= 1
 
 
 def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
