@@ -154,12 +154,8 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
         socket_id_out: int = greatest_block_id + 2 * i + 2
         socket_id_in: int = greatest_block_id + 2 * i + 1
 
-        block["sockets"].append(
-            get_output_socket_data(socket_id_out, block)
-        )
-        block["sockets"].append(
-            get_input_socket_data(socket_id_in, block)
-        )
+        block["sockets"].append(get_output_socket_data(socket_id_out, block))
+        block["sockets"].append(get_input_socket_data(socket_id_in, block))
 
         if i >= 1:
             edges_data.append(
