@@ -139,8 +139,8 @@ class Edge(QGraphicsPathItem, Serializable):
         elif self.path_type == "bezier":
             sx, sy = self.source.x(), self.source.y()
             dx, dy = self.destination.x(), self.destination.y()
-            mid_dist = (dx - sx) / 2
-            path.cubicTo(sx + mid_dist, sy, dx - mid_dist, dy, dx, dy)
+            mid_dist = (dy - sy) / 2
+            path.cubicTo(sx, sy + mid_dist, dx, dy - mid_dist, dx, dy)
         else:
             raise NotImplementedError(f"Unknowed path type: {self.path_type}")
         self.setPath(path)

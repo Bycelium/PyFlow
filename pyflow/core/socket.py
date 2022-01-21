@@ -118,7 +118,7 @@ class Socket(QGraphicsItem, Serializable):
         painter.setPen(self._pen)
         r = self.radius
         if self.flow_type == "exe":
-            angles = [0, 2 * math.pi / 3, -2 * math.pi / 3]
+            angles = [-math.pi / 6, -5 * math.pi / 6, math.pi / 2]
             right_triangle_points = [
                 QPoint(int(r * math.cos(angle)), int(r * math.sin(angle)))
                 for angle in angles
