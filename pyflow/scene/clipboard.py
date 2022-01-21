@@ -3,7 +3,7 @@
 
 """ Module for the handling of scene clipboard operations. """
 
-from typing import TYPE_CHECKING, OrderedDict
+from typing import TYPE_CHECKING, OrderedDict, Union
 from warnings import warn
 
 import json
@@ -28,6 +28,7 @@ class SceneClipboard:
 
         """
         self.scene = scene
+        self.objects: Union[None, OrderedDict] = None
 
     def cut(self):
         """Cut the selected items and put them into clipboard."""
@@ -39,9 +40,12 @@ class SceneClipboard:
 
     def paste(self):
         """Paste the items in clipboard into the current scene."""
-        self._deserializeData(self._gatherData())
+        data = self._gatherData()
+        if data is not None:
+            self._deserializeData(data)
 
     def _serializeSelected(self, delete=False) -> OrderedDict:
+        """Serialize the items in the scene"""
         selected_blocks, selected_edges = self.scene.sortedSelectedItems()
         selected_sockets = {}
 
@@ -78,6 +82,8 @@ class SceneClipboard:
         return (xmin + xmax) / 2, (ymin + ymax) / 2
 
     def _deserializeData(self, data: OrderedDict, set_selected=True):
+        """Deserialize the items and put them in the scene"""
+
         if data is None:
             return
 
@@ -117,13 +123,16 @@ class SceneClipboard:
         )
 
     def _store(self, data: OrderedDict):
-        str_data = json.dumps(data, indent=4)
-        QApplication.instance().clipboard().setText(str_data)
+        """Store the data in the clipboard if it is valid."""
 
-    def _gatherData(self) -> str:
-        str_data = QApplication.instance().clipboard().text()
-        try:
-            return json.loads(str_data)
-        except ValueError as valueerror:
-            warn(f"Clipboard text could not be loaded into json data: {valueerror}")
+        if "blocks" not in data or not data["blocks"]:
+            self.objects = None
             return
+
+        self.objects = data
+
+    def _gatherData(self) -> Union[OrderedDict, None]:
+        """Return the data stored in the clipboard."""
+        if self.objects is None:
+            warn(f"No object is loaded")
+        return self.objects
