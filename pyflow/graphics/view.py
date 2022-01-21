@@ -159,10 +159,6 @@ class View(QGraphicsView):
             True if the event was handled, False otherwise.
         """
 
-        # The focusItem has priority for this event
-        if self.scene().focusItem() is not None:
-            return False
-
         items = self.scene().items()
 
         # If items are selected, overwride the behvaior
@@ -193,9 +189,16 @@ class View(QGraphicsView):
         required_zoom_x: float = self.width() / (max_x - min_x)
         required_zoom_y: float = self.height() / (max_y - min_y)
 
-        # Operate the zoom and the translation
-        self.setZoom(min(required_zoom_x, required_zoom_y))
+        # Operate the zoom
+        # If there is only one item, don't make it very big
+        if len(code_blocks) == 1:
+            self.setZoom(1)
+        else:
+            self.setZoom(min(required_zoom_x, required_zoom_y))
+
+        # Operate the translation
         self.centerView(center_x, center_y)
+
         return True
 
     def getDistanceToCenter(self, x: float, y: float) -> Tuple[float]:
@@ -238,6 +241,7 @@ class View(QGraphicsView):
                 selected_item.y() + selected_item.height / 2,
             )
             self.scene().clearSelection()
+            self.bring_block_forward(selected_item)
 
         dist_array = []
         for block in code_blocks:
@@ -280,6 +284,7 @@ class View(QGraphicsView):
         item_to_navigate = self.scene().itemAt(
             block_center_x, block_center_y, self.transform()
         )
+        self.scene().clearSelection()
         if isinstance(item_to_navigate.parentItem(), Block):
             item_to_navigate.parentItem().setSelected(True)
 
@@ -382,6 +387,7 @@ class View(QGraphicsView):
         ):
             self.currentSelectedBlock.setZValue(0)
         block.setZValue(1)
+        block.setSelected(True)
         self.currentSelectedBlock = block
 
     def drag_scene(self, event: QMouseEvent, action="press"):
