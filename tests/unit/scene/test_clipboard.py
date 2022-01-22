@@ -7,12 +7,12 @@ import pytest
 from pytest_mock import MockerFixture
 import pytest_check as check
 
-from pyflow.scene.clipboard import SceneClipboard
+from pyflow.scene.clipboard import BlocksClipboard
 
 
 class TestSerializeSelected:
 
-    """SceneClipboard._serializeSelected"""
+    """BlocksClipboard._serializeSelected"""
 
     @pytest.fixture(autouse=True)
     def setup(self, mocker: MockerFixture):
@@ -42,25 +42,25 @@ class TestSerializeSelected:
             edge.destination_socket.id = dummy_edges_links[i][1]
 
         self.scene.sortedSelectedItems.return_value = self.blocks, self.edges
-        self.clipboard = SceneClipboard(self.scene)
+        self.clipboard = BlocksClipboard()
 
     def test_serialize_selected_blocks(self, mocker: MockerFixture):
         """should allow for blocks serialization."""
-        data = self.clipboard._serializeSelected()
+        data = self.clipboard._serializeSelected(self.scene)
         check.equal(data["blocks"], [block.serialize() for block in self.blocks])
 
     def test_serialize_selected_edges(self, mocker: MockerFixture):
         """should allow for edges serialization."""
-        data = self.clipboard._serializeSelected()
+        data = self.clipboard._serializeSelected(self.scene)
         check.equal(data["edges"], [edge.serialize() for edge in self.edges])
 
     def test_serialize_partially_selected_edges(self, mocker: MockerFixture):
         """should not allow for partially selected edges serialization."""
         self.scene.sortedSelectedItems.return_value = self.blocks[0], self.edges
-        data = self.clipboard._serializeSelected()
+        data = self.clipboard._serializeSelected(self.scene)
         check.equal(data["edges"], [self.edges[0].serialize()])
 
     def test_serialize_delete(self, mocker: MockerFixture):
         """should allow for items deletion after serialization."""
-        self.clipboard._serializeSelected(delete=True)
+        self.clipboard._serializeSelected(self.scene, delete=True)
         check.is_true(self.view.deleteSelected.called)
