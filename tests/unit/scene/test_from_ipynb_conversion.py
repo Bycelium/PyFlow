@@ -1,9 +1,9 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-"""Unit tests for the conversion from and to ipynb."""
+"""Unit tests for the conversion from ipynb."""
 
-from typing import OrderedDict
+from typing import List, OrderedDict
 from pytest_mock import MockerFixture
 import pytest_check as check
 import json
@@ -12,7 +12,7 @@ from pyflow.scene.from_ipynb_conversion import ipynb_to_ipyg, is_title
 from pyflow.scene.ipynb_conversion_constants import BLOCK_TYPE_TO_NAME
 
 
-class TestIpynbConversion:
+class TestFromIpynbConversion:
 
     """Conversion from .ipynb"""
 
@@ -71,7 +71,7 @@ def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data: OrderedDict):
     2. the right amount of code blocks and edges
     3. blocks and sockets with unique ids
     4. edges with existing ids
-    5. code blocks that always have a source
+    5. code blocks that always have a source and two sockets
     6. markdown blocks that always have text
     """
 
@@ -109,10 +109,17 @@ def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data: OrderedDict):
         check.equal(edge["source"]["socket"] in socket_id_set, True)
         check.equal(edge["destination"]["socket"] in socket_id_set, True)
 
-    # code blocks always have a source and markdown blocks always have a text
+    # code blocks always have a source and two sockets
+    # markdown blocks always have a text
     for block in ipyg_data["blocks"]:
         if block["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
-            check.equal("source" in block and type(block["source"]) == str, True)
+            check.equal("source" in block, True)
+            check.equal(type(block["source"]), str)
+
+            check.equal("sockets" in block, True)
+            check.equal(type(block["sockets"]), list)
+            check.equal(len(block["sockets"]), 2)
+
         if block["block_type"] == BLOCK_TYPE_TO_NAME["markdown"]:
             check.equal("text" in block and type(block["text"]) == str, True)
 

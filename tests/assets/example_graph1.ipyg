@@ -6,12 +6,12 @@
             "title": "test1",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                292,
+                304,
                 0
             ],
             "position": [
-                1192.0,
-                292.79999999999995
+                -75.57812499999977,
+                -37.27812499999999
             ],
             "width": 707,
             "height": 351,
@@ -27,8 +27,8 @@
                     "id": 1523350963536,
                     "type": "input",
                     "position": [
-                        0.0,
-                        45.0
+                        353.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -41,8 +41,8 @@
                     "id": 1523350963680,
                     "type": "output",
                     "position": [
-                        707.0,
-                        45.0
+                        353.5,
+                        351.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",

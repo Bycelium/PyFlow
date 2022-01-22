@@ -13,12 +13,10 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextM
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
 
-
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
 from pyflow.blocks.block import Block
-from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks import __file__ as BLOCK_INIT_PATH
 
 BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
@@ -46,7 +44,7 @@ class View(QGraphicsView):
         scene: Scene,
         parent=None,
         zoom_step: float = 1.25,
-        zoom_min: float = 0.2,
+        zoom_min: float = 0.05,
         zoom_max: float = 5,
     ):
         super().__init__(parent=parent)
@@ -161,10 +159,6 @@ class View(QGraphicsView):
             True if the event was handled, False otherwise.
         """
 
-        # The focusItem has priority for this event
-        if self.scene().focusItem() is not None:
-            return False
-
         items = self.scene().items()
 
         # If items are selected, overwride the behvaior
@@ -195,9 +189,16 @@ class View(QGraphicsView):
         required_zoom_x: float = self.width() / (max_x - min_x)
         required_zoom_y: float = self.height() / (max_y - min_y)
 
-        # Operate the zoom and the translation
-        self.setZoom(min(required_zoom_x, required_zoom_y))
+        # Operate the zoom
+        # If there is only one item, don't make it very big
+        if len(code_blocks) == 1:
+            self.setZoom(1)
+        else:
+            self.setZoom(min(required_zoom_x, required_zoom_y))
+
+        # Operate the translation
         self.centerView(center_x, center_y)
+
         return True
 
     def getDistanceToCenter(self, x: float, y: float) -> Tuple[float]:
@@ -215,10 +216,12 @@ class View(QGraphicsView):
         Returns True if the event was handled.
         """
         # The focusItem has priority for this event if it is a source editor
-        if self.scene().focusItem() is not None:
-            parent = self.scene().focusItem().parentItem()
-            if isinstance(parent, CodeBlock) and parent.source_editor.hasFocus():
-                return False
+        # if self.scene().focusItem() is not None:
+        if self.mode == View.MODE_EDITING:
+            return False
+            # parent = self.scene().focusItem().parentItem()
+            # if isinstance(parent, CodeBlock) and parent.source_editor.hasFocus():
+            #     return False
 
         n_selected_items = len(self.scene().selectedItems())
         if n_selected_items > 1:
@@ -238,6 +241,7 @@ class View(QGraphicsView):
                 selected_item.y() + selected_item.height / 2,
             )
             self.scene().clearSelection()
+            self.bring_block_forward(selected_item)
 
         dist_array = []
         for block in code_blocks:
@@ -280,6 +284,7 @@ class View(QGraphicsView):
         item_to_navigate = self.scene().itemAt(
             block_center_x, block_center_y, self.transform()
         )
+        self.scene().clearSelection()
         if isinstance(item_to_navigate.parentItem(), Block):
             item_to_navigate.parentItem().setSelected(True)
 
@@ -346,13 +351,19 @@ class View(QGraphicsView):
                 zoom_factor = 1 / self.zoom_step
 
             new_zoom = self.zoom * zoom_factor
-            if self.zoom_min < new_zoom < self.zoom_max:
-                self.setZoom(new_zoom)
+            self.setZoom(new_zoom)
         else:
             super().wheelEvent(event)
 
     def setZoom(self, new_zoom: float):
         """Set the zoom to the appropriate level."""
+
+        # Constrain the zoom level
+        if new_zoom > self.zoom_max:
+            new_zoom = self.zoom_max
+        if new_zoom < self.zoom_min:
+            new_zoom = self.zoom_min
+
         zoom_factor = new_zoom / self.zoom
         self.scale(zoom_factor, zoom_factor)
         self.zoom = new_zoom
@@ -376,6 +387,7 @@ class View(QGraphicsView):
         ):
             self.currentSelectedBlock.setZValue(0)
         block.setZValue(1)
+        block.setSelected(True)
         self.currentSelectedBlock = block
 
     def drag_scene(self, event: QMouseEvent, action="press"):

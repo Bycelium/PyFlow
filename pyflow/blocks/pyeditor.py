@@ -3,7 +3,8 @@
 
 """ Module for the PyFlow python editor."""
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import (
     QFocusEvent,
@@ -11,23 +12,23 @@ from PyQt5.QtGui import (
     QFontMetrics,
     QColor,
     QKeyEvent,
-    QMouseEvent,
     QWheelEvent,
 )
+
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
-from pyflow.core.pyeditor.history import EditorHistory
+from pyflow.core.editor import Editor
+from pyflow.core.history import History
 from pyflow.graphics.theme_manager import theme_manager
 
 
 if TYPE_CHECKING:
-    from pyflow.graphics.view import View
     from pyflow.blocks.codeblock import CodeBlock
 
 POINT_SIZE = 11
 
 
-class PythonEditor(QsciScintilla):
+class PythonEditor(Editor):
 
     """In-block python editor for Pyflow."""
 
@@ -38,9 +39,7 @@ class PythonEditor(QsciScintilla):
             block: Block in which to add the python editor widget.
 
         """
-        super().__init__(None)
-        self._mode = "NOOP"
-        self.block = block
+        super().__init__(block)
 
         self.history = EditorHistory(self)
         self.pressingControl = False
@@ -96,39 +95,14 @@ class PythonEditor(QsciScintilla):
         lexer.setFont(font)
         self.setLexer(lexer)
 
-    def views(self) -> List["View"]:
-        """Get the views in which the python_editor is present."""
-        return self.block.scene().views()
-
     def wheelEvent(self, event: QWheelEvent) -> None:
         """How PythonEditor handles wheel events"""
         if self.mode == "EDITING" and event.angleDelta().x() == 0:
             event.accept()
             return super().wheelEvent(event)
 
-    @property
-    def mode(self) -> int:
-        """PythonEditor current mode"""
-        return self._mode
-
-    @mode.setter
-    def mode(self, value: str):
-        self._mode = value
-        for view in self.views():
-            view.set_mode(value)
-
-    def mousePressEvent(self, event: QMouseEvent) -> None:
-        """PythonEditor reaction to PyQt mousePressEvent events."""
-        if event.buttons() & Qt.MouseButton.LeftButton:
-            self.mode = "EDITING"
-
-        super().mousePressEvent(event)
-        self.history.end_sequence()
-
     def focusOutEvent(self, event: QFocusEvent):
         """PythonEditor reaction to PyQt focusOut events."""
-        self.history.end_sequence()
-        self.mode = "NOOP"
         self.block.source = self.text()
         self.block.scene().history.checkpoint(
             "A codeblock source was updated", set_modified=True
@@ -159,3 +133,67 @@ class PythonEditor(QsciScintilla):
             self.history.end_sequence()
 
         super().keyPressEvent(event)
+
+
+class EditorHistory(History):
+    """
+    Helper object to handle undo/redo operations on a PythonEditor.
+
+    Args:
+        editor: PythonEditor reference.
+        max_stack: Maximum size of the history stack (number of available undo).
+
+    """
+
+    def __init__(self, editor: "PythonEditor", max_stack: int = 50):
+        self.editor: "PythonEditor" = editor
+        self.is_writing = False
+        super().__init__(max_stack)
+
+    def start_sequence(self):
+        """
+        Start a new writing sequence if it was not already the case, and save the current state.
+        """
+        if not self.is_writing:
+            self.is_writing = True
+            self.checkpoint()
+
+    def end_sequence(self):
+        """
+        End the writing sequence if it was not already the case.
+        Do not save at this point because the writing parameters to be saved (cursor pos, etc)
+        are the one of the beginning of the next sequence.
+        """
+        self.is_writing = False
+
+    def checkpoint(self):
+        """
+        Store a snapshot of the editor's text and parameters in the history stack
+        (only if the text has changed).
+        """
+        text: str = self.editor.text()
+        old_data = self.restored_data()
+        if old_data is not None and old_data["text"] == text:
+            return
+
+        cursor_pos: Tuple[int, int] = self.editor.getCursorPosition()
+        scroll_pos: int = self.editor.verticalScrollBar().value()
+        self.store(
+            {
+                "text": text,
+                "cursor_pos": cursor_pos,
+                "scroll_pos": scroll_pos,
+            }
+        )
+
+    def restore(self):
+        """
+        Restore the editor's text and parameters
+        using the snapshot pointed by current in the history stack.
+        """
+        data: Optional[OrderedDict] = self.restored_data()
+
+        if data is not None:
+            self.editor.setText(data["text"])
+            self.editor.setCursorPosition(*data["cursor_pos"])
+            self.editor.verticalScrollBar().setValue(data["scroll_pos"])

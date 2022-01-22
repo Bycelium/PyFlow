@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFontMetrics, QFont
 
 from pyflow.scene.ipynb_conversion_constants import *
 from pyflow.graphics.theme_manager import theme_manager
-from pyflow.core.pyeditor import POINT_SIZE
+from pyflow.blocks.pyeditor import POINT_SIZE
 
 
 def ipynb_to_ipyg(data: OrderedDict, use_theme_font: bool = True) -> OrderedDict:
@@ -60,16 +60,14 @@ def get_blocks_data(
         else:
             block_type: str = cell["cell_type"]
 
-            text: str = cell["source"]
+            text: List[str] = []
 
-            text_width = DEFAULT_TEXT_WIDTH
-            if use_theme_font:
-                text_width: float = (
-                    max(fontmetrics.boundingRect(line).width() for line in text)
-                    if len(text) > 0
-                    else 0
-                )
-            block_width: float = max(text_width + MARGIN_X, BLOCK_MIN_WIDTH)
+            if isinstance(cell["source"], list):
+                text: str = cell["source"]
+            elif isinstance(cell["source"], str):
+                text = [line + "\n" for line in cell["source"].split("\n")]
+            else:
+                raise TypeError("A cell's source is not of the right type")
 
             lineSpacing = DEFAULT_LINE_SPACING
             lineHeight = DEFAULT_LINE_HEIGHT
@@ -84,7 +82,7 @@ def get_blocks_data(
             block_data = {
                 "id": next_block_id,
                 "block_type": BLOCK_TYPE_TO_NAME[block_type],
-                "width": block_width,
+                "width": BLOCK_WIDTH,
                 "height": block_height,
                 "position": [
                     next_block_x_pos,
@@ -95,14 +93,15 @@ def get_blocks_data(
 
             if block_type == "code":
                 block_data["source"] = "".join(text)
-                next_block_y_pos = 0
-                next_block_x_pos += block_width + MARGIN_BETWEEN_BLOCKS_X
 
                 if len(blocks_data) > 0 and is_title(blocks_data[-1]):
                     block_title: OrderedDict = blocks_data.pop()
                     block_data["title"] = block_title["text"]
 
                     # Revert position effect of the markdown block
+                    next_block_y_pos -= (
+                        block_data["position"][1] - block_title["position"][1]
+                    )
                     block_data["position"] = block_title["position"]
             elif block_type == "markdown":
                 block_data.update(
@@ -110,12 +109,13 @@ def get_blocks_data(
                         "text": "".join(text),
                     }
                 )
-                next_block_y_pos += block_height + MARGIN_BETWEEN_BLOCKS_Y
+
+            next_block_y_pos += block_height + MARGIN_BETWEEN_BLOCKS_Y
 
             blocks_data.append(block_data)
             next_block_id += 1
 
-    adujst_markdown_blocks_width(blocks_data)
+    # adujst_markdown_blocks_width(blocks_data)
 
     return blocks_data
 
@@ -134,26 +134,6 @@ def is_title(block_data: OrderedDict) -> bool:
     return True
 
 
-def adujst_markdown_blocks_width(blocks_data: OrderedDict) -> None:
-    """
-    Modify the markdown blocks width (in place)
-    For them to match the width of block of code below
-    """
-    i: int = len(blocks_data) - 1
-
-    while i >= 0:
-        if blocks_data[i]["block_type"] == BLOCK_TYPE_TO_NAME["code"]:
-            block_width: float = blocks_data[i]["width"]
-            i -= 1
-
-            while (
-                i >= 0
-                and blocks_data[i]["block_type"] == BLOCK_TYPE_TO_NAME["markdown"]
-            ):
-                blocks_data[i]["width"] = block_width
-                i -= 1
-        else:
-            i -= 1
 
 
 def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
@@ -169,43 +149,56 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
     if len(blocks_data) > 0:
         greatest_block_id = blocks_data[-1]["id"]
 
-    for i in range(1, len(code_blocks)):
-        socket_id_out = greatest_block_id + 2 * i + 2
-        socket_id_in = greatest_block_id + 2 * i + 1
-        code_blocks[i - 1]["sockets"].append(
-            get_output_socket_data(socket_id_out, code_blocks[i - 1]["width"])
-        )
-        code_blocks[i]["sockets"].append(get_input_socket_data(socket_id_in))
-        edges_data.append(
-            get_edge_data(
-                i,
-                code_blocks[i - 1]["id"],
-                socket_id_out,
-                code_blocks[i]["id"],
-                socket_id_in,
+    last_socket_id_out: int = -1
+    for i, block in enumerate(code_blocks):
+        socket_id_out: int = greatest_block_id + 2 * i + 2
+        socket_id_in: int = greatest_block_id + 2 * i + 1
+
+        block["sockets"].append(get_output_socket_data(socket_id_out, block))
+        block["sockets"].append(get_input_socket_data(socket_id_in, block))
+
+        if i >= 1:
+            edges_data.append(
+                get_edge_data(
+                    i,
+                    code_blocks[i - 1]["id"],
+                    last_socket_id_out,
+                    code_blocks[i]["id"],
+                    socket_id_in,
+                )
             )
-        )
+
+        last_socket_id_out = socket_id_out
+
     return edges_data
 
 
-def get_input_socket_data(socket_id: int) -> OrderedDict:
-    """Returns the input socket's data with the corresponding id."""
+def get_input_socket_data(socket_id: int, block_data: OrderedDict) -> OrderedDict:
+    """Returns the input socket's data with the corresponding id
+    and at the correct relative position with respect to the block."""
+
+    block_width = block_data["width"]
+
     return {
         "id": socket_id,
         "type": "input",
-        "position": [0.0, SOCKET_HEIGHT],
+        "position": [block_width / 2, 0],
     }
 
 
-def get_output_socket_data(socket_id: int, block_width: int) -> OrderedDict:
+def get_output_socket_data(socket_id: int, block_data: OrderedDict) -> OrderedDict:
     """
     Returns the input socket's data with the corresponding id
-    and at the correct relative position with respect to the block
+    and at the correct relative position with respect to the block.
     """
+
+    block_width = block_data["width"]
+    block_height = block_data["height"]
+
     return {
         "id": socket_id,
         "type": "output",
-        "position": [block_width, SOCKET_HEIGHT],
+        "position": [block_width / 2, block_height],
     }
 
 

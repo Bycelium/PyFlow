@@ -12,7 +12,7 @@ from PyQt5.QtGui import QPen, QColor, QFocusEvent
 
 from pyflow.blocks.block import Block
 from pyflow.blocks.executableblock import ExecutableBlock
-from pyflow.core.pyeditor import PythonEditor
+from pyflow.blocks.pyeditor import PythonEditor
 
 ansi2html_converter = Ansi2HTMLConverter()
 

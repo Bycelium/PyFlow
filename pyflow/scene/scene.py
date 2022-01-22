@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import QGraphicsScene
 from pyflow.core.serializable import Serializable
 from pyflow.blocks.block import Block
 from pyflow.core.edge import Edge
-from pyflow.scene.clipboard import SceneClipboard
 from pyflow.scene.history import SceneHistory
 from pyflow.core.kernel import Kernel
 from pyflow.scene.from_ipynb_conversion import ipynb_to_ipyg
@@ -57,7 +56,6 @@ class Scene(QGraphicsScene, Serializable):
 
         self.history = SceneHistory(self)
         self.history.checkpoint("Initialized scene", set_modified=False)
-        self.clipboard = SceneClipboard(self)
 
         self.kernel = Kernel()
         self.threadpool = QThreadPool()

@@ -86,7 +86,7 @@ class Block(QGraphicsItem, Serializable):
         self.root.setAttribute(Qt.WA_TranslucentBackground)
         self.root.setGeometry(0, 0, int(width), int(height))
 
-        self.title_widget = Title(title, parent=self.root)
+        self.title_widget = Title(title, parent_widget=self.root, parent_block=super())
         self.title_widget.setAttribute(Qt.WA_TranslucentBackground)
 
         self.splitter = Splitter(self, Qt.Vertical, self.root)
@@ -147,18 +147,16 @@ class Block(QGraphicsItem, Serializable):
     def get_socket_pos(self, socket: Socket) -> Tuple[float]:
         """Get a socket position to place them on the block sides."""
         if socket.socket_type == "input":
-            x = 0
+            y = 0
             sockets = self.sockets_in
         else:
-            x = self.width
+            y = self.height
             sockets = self.sockets_out
 
-        y_offset = self.title_widget.height() + 2 * socket.radius
-        if len(sockets) < 2:
-            y = y_offset
-        else:
-            side_lenght = self.height - y_offset - 2 * socket.radius - self.edge_size
-            y = y_offset + side_lenght * sockets.index(socket) / (len(sockets) - 1)
+        # Sockets are evenly spaced out on the whole block width
+        space_between_sockets = self.width / (len(sockets) + 1)
+        x = space_between_sockets * (sockets.index(socket) + 1)
+
         return x, y
 
     def update_sockets(self):

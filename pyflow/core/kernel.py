@@ -31,6 +31,8 @@ class Kernel:
                 image > text data > text print > error > nothing
         """
         message_type = "None"
+        if message is None:
+            return "", "text"
         if "data" in message:
             if "image/png" in message["data"]:
                 message_type = "image"
@@ -118,7 +120,7 @@ class Kernel:
         """
         done = False
         try:
-            message = self.client.get_iopub_msg(timeout=1000)["content"]
+            message = self.client.get_iopub_msg(timeout=2)["content"]
             if "execution_state" in message and message["execution_state"] == "idle":
                 done = True
         except queue.Empty:
