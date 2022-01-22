@@ -5,18 +5,13 @@
 
 from typing import Dict
 
-MARGIN_X: float = 75
-MARGIN_BETWEEN_BLOCKS_X: float = 50
-MARGIN_Y: float = 60
-MARGIN_BETWEEN_BLOCKS_Y: float = 5
-BLOCK_MIN_WIDTH: float = 400
-BLOCK_MAX_WIDTH: float = 1000
+MARGIN_Y: float = 120
+MARGIN_BETWEEN_BLOCKS_Y: float = 20
+BLOCK_WIDTH: float = 600
 TITLE_MAX_LENGTH: int = 60
-SOCKET_HEIGHT: float = 44.0
 
 DEFAULT_LINE_SPACING = 2
 DEFAULT_LINE_HEIGHT = 10
-DEFAULT_TEXT_WIDTH = 618
 
 BLOCK_TYPE_TO_NAME: Dict[str, str] = {
     "code": "CodeBlock",

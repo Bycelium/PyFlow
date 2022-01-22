@@ -7,11 +7,11 @@
             "block_type": "MarkdownBlock",
             "splitter_pos": [
                 0,
-                200
+                206
             ],
             "position": [
-                -940.0,
-                -467.0
+                126.71874999999943,
+                -276.99999999999966
             ],
             "width": 677,
             "height": 253,
@@ -31,11 +31,11 @@
             "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
-                272
+                278
             ],
             "position": [
-                53.875000000000085,
-                212.25
+                -424.40624999999943,
+                438.49999999999994
             ],
             "width": 439,
             "height": 325,
@@ -51,8 +51,8 @@
                     "id": 2034686483184,
                     "type": "input",
                     "position": [
-                        0.0,
-                        40.0
+                        219.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -65,8 +65,8 @@
                     "id": 2034686483328,
                     "type": "output",
                     "position": [
-                        439.0,
-                        40.0
+                        219.5,
+                        325.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -84,12 +84,12 @@
             "title": "Generate some data to plot",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                189,
-                85
+                193,
+                87
             ],
             "position": [
-                -929.7499999999999,
-                -121.31250000000003
+                121.03124999999955,
+                29.078125
             ],
             "width": 706,
             "height": 327,
@@ -105,8 +105,8 @@
                     "id": 2034723534592,
                     "type": "input",
                     "position": [
-                        0.0,
-                        40.0
+                        353.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -119,8 +119,8 @@
                     "id": 2034723534736,
                     "type": "output",
                     "position": [
-                        706.0,
-                        40.0
+                        353.0,
+                        327.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -139,8 +139,8 @@
             "block_type": "SliderBlock",
             "splitter_pos": [],
             "position": [
-                -890.625,
-                258.50000000000006
+                -632.03125,
+                203.81250000000028
             ],
             "width": 618,
             "height": 184,
@@ -156,8 +156,8 @@
                     "id": 2034723678672,
                     "type": "input",
                     "position": [
-                        0.0,
-                        42.0
+                        309.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -170,8 +170,8 @@
                     "id": 2034723678816,
                     "type": "output",
                     "position": [
-                        618.0,
-                        42.0
+                        309.0,
+                        184.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -190,8 +190,8 @@
             "block_type": "SliderBlock",
             "splitter_pos": [],
             "position": [
-                -901.1874999999999,
-                471.8750000000001
+                -592.9062499999998,
+                -27.109374999999375
             ],
             "width": 618,
             "height": 184,
@@ -207,8 +207,8 @@
                     "id": 2034723715680,
                     "type": "input",
                     "position": [
-                        0.0,
-                        42.0
+                        309.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -221,8 +221,8 @@
                     "id": 2034723715824,
                     "type": "output",
                     "position": [
-                        618.0,
-                        42.0
+                        309.0,
+                        184.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -241,11 +241,11 @@
             "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
-                276
+                282
             ],
             "position": [
-                782.4375000000001,
-                -676.0000000000001
+                232.51562500000023,
+                813.7656249999991
             ],
             "width": 434,
             "height": 329,
@@ -261,8 +261,8 @@
                     "id": 2034879163840,
                     "type": "input",
                     "position": [
-                        0.0,
-                        40.0
+                        217.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -275,8 +275,8 @@
                     "id": 2034879163984,
                     "type": "output",
                     "position": [
-                        434.0,
-                        40.0
+                        217.0,
+                        329.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -295,11 +295,11 @@
             "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
-                220
+                226
             ],
             "position": [
-                611.6875000000001,
-                251.81250000000006
+                -547.0624999999991,
+                842.5156249999998
             ],
             "width": 685,
             "height": 273,
@@ -315,8 +315,8 @@
                     "id": 2034879287152,
                     "type": "input",
                     "position": [
-                        0.0,
-                        40.0
+                        342.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -329,8 +329,8 @@
                     "id": 2034879197248,
                     "type": "output",
                     "position": [
-                        685.0,
-                        40.0
+                        342.5,
+                        273.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -348,12 +348,12 @@
             "title": "Create a new linear model",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                90,
-                85
+                93,
+                88
             ],
             "position": [
-                -160.3125,
-                -374.50000000000006
+                68.203125,
+                428.2343749999996
             ],
             "width": 840,
             "height": 228,
@@ -369,8 +369,8 @@
                     "id": 2034886211472,
                     "type": "input",
                     "position": [
-                        0.0,
-                        40.0
+                        420.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -383,8 +383,8 @@
                     "id": 2034886211616,
                     "type": "output",
                     "position": [
-                        840.0,
-                        40.0
+                        420.0,
+                        228.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -403,11 +403,11 @@
             "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
-                278
+                284
             ],
             "position": [
-                767.1875000000002,
-                -279.9375
+                708.8281250000007,
+                810.0624999999995
             ],
             "width": 816,
             "height": 331,
@@ -423,8 +423,8 @@
                     "id": 2136886540752,
                     "type": "input",
                     "position": [
-                        0.0,
-                        40.0
+                        408.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -437,8 +437,8 @@
                     "id": 2136886540896,
                     "type": "output",
                     "position": [
-                        816.0,
-                        40.0
+                        408.0,
+                        331.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",

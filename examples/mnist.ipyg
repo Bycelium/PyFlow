@@ -6,12 +6,12 @@
             "title": "Load MNIST dataset",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                131,
+                137,
                 0
             ],
             "position": [
-                -1008.1875,
-                107.19140625000023
+                -211.7736206054691,
+                -75.79580688476543
             ],
             "width": 618,
             "height": 184,
@@ -27,8 +27,8 @@
                     "id": 2039122756520,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        309.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -41,8 +41,8 @@
                     "id": 2039122756664,
                     "type": "output",
                     "position": [
-                        618.0,
-                        48.0
+                        309.0,
+                        184.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -60,12 +60,12 @@
             "title": "Evaluation",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                75,
-                75
+                78,
+                78
             ],
             "position": [
-                2201.3125,
-                289.8164062500002
+                147.74591064453216,
+                1429.3799743652335
             ],
             "width": 909,
             "height": 203,
@@ -81,8 +81,8 @@
                     "id": 2039123154696,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        454.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -95,8 +95,8 @@
                     "id": 2039123154840,
                     "type": "output",
                     "position": [
-                        909.0,
-                        48.0
+                        454.5,
+                        203.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -115,11 +115,11 @@
             "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
-                281
+                287
             ],
             "position": [
-                2250.3125,
-                -73.18359374999977
+                -213.56268310546818,
+                1421.7393493652344
             ],
             "width": 323,
             "height": 334,
@@ -135,8 +135,8 @@
                     "id": 2039123391400,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        161.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -149,8 +149,8 @@
                     "id": 2039123391544,
                     "type": "output",
                     "position": [
-                        323.0,
-                        48.0
+                        161.5,
+                        334.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -168,12 +168,12 @@
             "title": "Training",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                85,
-                229
+                87,
+                233
             ],
             "position": [
-                1059.374999999999,
-                101.00390625000023
+                1.179504394530909,
+                934.3252868652344
             ],
             "width": 1049,
             "height": 367,
@@ -189,8 +189,8 @@
                     "id": 2039123184808,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        524.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -203,8 +203,8 @@
                     "id": 2039123184952,
                     "type": "output",
                     "position": [
-                        1049.0,
-                        48.0
+                        524.5,
+                        367.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -222,12 +222,12 @@
             "title": "Build Keras CNN",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                253,
+                259,
                 0
             ],
             "position": [
-                397.1875,
-                118.62890625000023
+                25.03887939453091,
+                520.9541931152345
             ],
             "width": 580,
             "height": 306,
@@ -243,8 +243,8 @@
                     "id": 2039123244520,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        290.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -257,8 +257,8 @@
                     "id": 2039123244664,
                     "type": "output",
                     "position": [
-                        580.0,
-                        48.0
+                        290.0,
+                        306.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -277,11 +277,11 @@
             "block_type": "CodeBlock",
             "splitter_pos": [
                 0,
-                277
+                283
             ],
             "position": [
-                -264.1875,
-                -205.80859374999977
+                -413.21112060546864,
+                216.01669311523452
             ],
             "width": 320,
             "height": 330,
@@ -297,8 +297,8 @@
                     "id": 2039171274936,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        160.0,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -311,8 +311,8 @@
                     "id": 2039171275080,
                     "type": "output",
                     "position": [
-                        320.0,
-                        48.0
+                        160.0,
+                        330.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -330,12 +330,12 @@
             "title": "Normalize dataset",
             "block_type": "CodeBlock",
             "splitter_pos": [
-                73,
-                73
+                76,
+                76
             ],
             "position": [
-                -321.1875,
-                166.19140625000023
+                6.476379394530795,
+                216.01669311523463
             ],
             "width": 619,
             "height": 199,
@@ -351,8 +351,8 @@
                     "id": 2039123194072,
                     "type": "input",
                     "position": [
-                        0.0,
-                        48.0
+                        309.5,
+                        0.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
@@ -365,8 +365,8 @@
                     "id": 2039123194216,
                     "type": "output",
                     "position": [
-                        619.0,
-                        48.0
+                        309.5,
+                        199.0
                     ],
                     "metadata": {
                         "color": "#FF55FFF0",
