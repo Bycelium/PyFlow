@@ -10,12 +10,16 @@ from PyQt5.QtCore import Qt
 
 from pyflow.scene import Scene
 from pyflow.graphics.view import View
+from pyflow.logging import log_init_time, get_logger
+
+LOGGER = get_logger(__name__)
 
 
 class Widget(QWidget):
 
-    """Window for a graph visualisation."""
+    """Widget for a graph visualisation."""
 
+    @log_init_time(LOGGER)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -35,7 +39,7 @@ class Widget(QWidget):
         self.savepath = None
 
     def updateTitle(self):
-        """Update the window title."""
+        """Update the widget title."""
         if self.savepath is None:
             title = "New Graph"
         else:
@@ -43,6 +47,7 @@ class Widget(QWidget):
         if self.isModified():
             title += "*"
         self.setWindowTitle(title)
+        LOGGER.debug("Updated widget title to %s", title)
 
     def isModified(self) -> bool:
         """Return True if the scene has been modified, False otherwise."""

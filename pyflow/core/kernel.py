@@ -8,12 +8,16 @@ from typing import Tuple
 from jupyter_client.manager import start_new_kernel
 
 from pyflow.core.worker import Worker
+from pyflow.logging import log_init_time, get_logger
+
+LOGGER = get_logger(__name__)
 
 
 class Kernel:
 
     """jupyter_client kernel used to execute code and return output."""
 
+    @log_init_time(LOGGER)
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
         self.execution_queue = []
