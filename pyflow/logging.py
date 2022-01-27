@@ -10,11 +10,14 @@ from colorama import Fore, Style
 
 
 def log_init_time(logger: logging.Logger, level=logging.DEBUG):
-    """Decorator for logging an class init time."""
+    """Decorator for logging a class init time."""
 
     def inner(func):
+        """Inner decorator for logging a class init time."""
+
         @wraps(func)
         def wrapper_func(self: type, *args, **kwargs):
+            """Wrapper for logging a class init time."""
             init_time = time()
             func(self, *args, **kwargs)
             class_name = str(self).split(" ", maxsplit=1)[0].split(".")[-1]
