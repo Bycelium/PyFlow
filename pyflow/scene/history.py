@@ -4,13 +4,14 @@
 """ Module for the handling an OCBScene history. """
 
 from typing import TYPE_CHECKING
+import logging
 
 from pyflow.core.history import History
 
 if TYPE_CHECKING:
     from pyflow.scene import Scene
 
-DEBUG = True
+logger = logging.getLogger(__name__)
 
 
 class SceneHistory(History):
@@ -49,6 +50,5 @@ class SceneHistory(History):
 
         if stamp is not None:
             snapshot = stamp["snapshot"]
-            if DEBUG:
-                print(f"Restored [{self.current}]: {stamp['description']}")
+            logger.debug("Restored [%s]: %s", self.current, stamp["description"])
             self.scene.deserialize(snapshot)

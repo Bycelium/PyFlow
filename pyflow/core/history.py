@@ -4,8 +4,9 @@
 """ Module for the handling an history of operations. """
 
 from typing import Any, List
+import logging
 
-DEBUG = True
+logger = logging.getLogger(__name__)
 
 
 class History:
@@ -50,8 +51,8 @@ class History:
             self.history_stack.pop(0)
 
         self.current = min(self.current + 1, len(self.history_stack) - 1)
-        if DEBUG and "description" in data:
-            print(f"Stored [{self.current}]: {data['description']}")
+        if "description" in data:
+            logger.debug("Stored [%s]: %s", self.current, data["description"])
 
     def restored_data(self) -> Any:
         """
