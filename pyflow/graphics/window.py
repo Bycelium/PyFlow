@@ -471,7 +471,7 @@ class Window(QMainWindow):
 
     def readSettings(self):
         """Read the settings from the config file."""
-        settings = QSettings("AutopIA", "Pyflow")
+        settings = QSettings("Bycelium", "Pyflow")
         pos = settings.value("pos", QPoint(200, 200))
         size = settings.value("size", QSize(400, 400))
         self.move(pos)
@@ -481,7 +481,7 @@ class Window(QMainWindow):
 
     def writeSettings(self):
         """Write the settings to the config file."""
-        settings = QSettings("AutopIA", "Pyflow")
+        settings = QSettings("Bycelium", "Pyflow")
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
         settings.setValue("isMaximized", self.isMaximized())
