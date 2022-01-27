@@ -34,10 +34,8 @@ class PythonEditor(Editor):
 
     def __init__(self, block: "CodeBlock"):
         """In-block python editor for Pyflow.
-
         Args:
             block: Block in which to add the python editor widget.
-
         """
         super().__init__(block)
 
@@ -138,11 +136,9 @@ class PythonEditor(Editor):
 class EditorHistory(History):
     """
     Helper object to handle undo/redo operations on a PythonEditor.
-
     Args:
         editor: PythonEditor reference.
         max_stack: Maximum size of the history stack (number of available undo).
-
     """
 
     def __init__(self, editor: "PythonEditor", max_stack: int = 50):
