@@ -60,6 +60,31 @@ class PyflowHandler(logging.StreamHandler):
         record.pathname = "pyflow" + record.pathname.split("pyflow")[-1]
 
         level_color = self.COLOR_BY_LEVEL.get(record.levelname)
+        record.levelname = fill_size(record.levelname, 8)
         if level_color:
             record.levelname = level_color + record.levelname + Style.RESET_ALL
         return super().emit(record)
+
+
+def fill_size(text: str, size: int, filler: str = " "):
+    """Make a text fill a given size using a given filler.
+
+    Args:
+        text (str): Text to fit in given size.
+        size (int): Given size to fit text in.
+        filler (str, optional): Character to fill with if place there is. Defaults to " ".
+
+    Raises:
+        ValueError: The given filler is not a single character.
+
+    Returns:
+        str: A string containing the text and filler of the given size.
+    """
+    if len(filler) > 1:
+        raise ValueError(
+            f"Given filler was more than one character ({len(filler)}>1): {filler}"
+        )
+    if len(text) < size:
+        missing_size = size - len(text)
+        return filler + text + filler * (missing_size - 1)
+    return text[:size]
