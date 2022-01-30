@@ -19,6 +19,7 @@ from pyflow.blocks.block import Block
 
 POINT_SIZE = 11
 
+
 class PythonEditor(Editor):
 
     """In-block python editor for Pyflow."""
@@ -31,9 +32,13 @@ class PythonEditor(Editor):
 
         """
         super().__init__(block)
+        self.foreground_color = QColor("#dddddd")
+        self.background_color = QColor("#212121")
 
         self.update_theme()
         theme_manager().themeChanged.connect(self.update_theme)
+
+        self.fontmetrics = QFontMetrics(self.font())
 
         # Set caret
         self.setCaretForegroundColor(QColor("#D4D4D4"))
@@ -49,10 +54,10 @@ class PythonEditor(Editor):
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
 
         # # Add folding
-        # self.setFolding(QsciScintilla.FoldStyle.CircledTreeFoldStyle, 1)
-        # self.setFoldMarginColors(background_color, background_color)
-        # self.setMarkerForegroundColor(foreground_color, 0)
-        # self.setMarkerBackgroundColor(background_color, 0)
+        self.setFolding(QsciScintilla.FoldStyle.CircledTreeFoldStyle, 1)
+        self.setFoldMarginColors(self.background_color, self.background_color)
+        self.setMarkerForegroundColor(self.foreground_color, 1)
+        self.setMarkerBackgroundColor(self.background_color, 1)
 
         # Add background transparency
         self.setStyleSheet("background:transparent")
@@ -68,14 +73,12 @@ class PythonEditor(Editor):
         self.setFont(font)
 
         # Margin 0 is used for line numbers
-        fontmetrics = QFontMetrics(font)
-        foreground_color = QColor("#dddddd")
-        background_color = QColor("#212121")
+        self.fontmetrics = QFontMetrics(self.font())
         self.setMarginsFont(font)
-        self.setMarginWidth(2, fontmetrics.width("00") + 6)
-        self.setMarginLineNumbers(2, True)
-        self.setMarginsForegroundColor(foreground_color)
-        self.setMarginsBackgroundColor(background_color)
+        self.setMarginWidth(0, self.fontmetrics.width("00") + 6)
+        self.setMarginLineNumbers(0, True)
+        self.setMarginsForegroundColor(self.foreground_color)
+        self.setMarginsBackgroundColor(self.background_color)
 
         lexer = QsciLexerPython()
         theme_manager().current_theme().apply_to_lexer(lexer)

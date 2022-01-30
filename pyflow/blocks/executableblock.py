@@ -72,15 +72,15 @@ class ExecutableBlock(Block):
 
     def run_code(self):
         """Run the code in the block."""
-
         # Queue the code to execute
         code = self.source
-        kernel = self.scene().kernel
-        kernel.execution_queue.append((self, code))
+        if self.scene():
+            kernel = self.scene().kernel
+            kernel.execution_queue.append((self, code))
 
-        if kernel.busy is False:
-            kernel.run_queue()
-        self.has_been_run = True
+            if kernel.busy is False:
+                kernel.run_queue()
+            self.has_been_run = True
 
     def execution_finished(self):
         """Reset the text of the run buttons."""
