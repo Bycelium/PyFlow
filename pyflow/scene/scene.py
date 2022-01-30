@@ -71,6 +71,11 @@ class Scene(QGraphicsScene, Serializable):
         for callback in self._has_been_modified_listeners:
             callback()
 
+    def getItemById(self, item_id: int):
+        for item in self.items():
+            if hasattr(item, "id") and item.id == item_id:
+                return item
+
     def addHasBeenModifiedListener(self, callback: FunctionType):
         """Add a callback that will trigger when the scene has been modified."""
         self._has_been_modified_listeners.append(callback)
