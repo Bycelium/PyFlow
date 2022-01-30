@@ -111,17 +111,22 @@ class TestEditing(InAppTest):
             pyautogui.click()
             pyautogui.press(["a", "b", "enter", "a"])
 
+            time.sleep(0.1)
             pyautogui.moveTo(center_block_2.x(), center_block_2.y())
             pyautogui.click()
             pyautogui.press(["c", "d", "enter", "d"])
 
+            time.sleep(0.1)
             pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
             pyautogui.mouseDown(button="left")
+            time.sleep(0.1)
             pyautogui.moveTo(pos_block_2.x(), int(0.9 * pos_block_2.y()))
             pyautogui.mouseUp(button="left")
 
+            time.sleep(0.1)
             pyautogui.moveTo(center_block_1.x(), center_block_1.y())
             pyautogui.click()
+            time.sleep(0.1)
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z")
 
@@ -135,6 +140,7 @@ class TestEditing(InAppTest):
 
             pyautogui.moveTo(pos_block_2.x(), int(0.75 * pos_block_2.y()))
             pyautogui.click()
+            time.sleep(0.1)
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z", presses=2, interval=0.1)
 
