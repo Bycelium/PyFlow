@@ -8,12 +8,15 @@ The Title is a modified QLineEdit for PyFlow purpose.
 """
 
 import time
-from typing import OrderedDict
+from typing import List, OrderedDict, TYPE_CHECKING
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFocusEvent, QFont, QMouseEvent
 from PyQt5.QtWidgets import QLineEdit, QWidget, QGraphicsItem
 
 from pyflow.core.serializable import Serializable
+
+if TYPE_CHECKING:
+    from pyflow.graphics.view import View
 
 
 class Title(QLineEdit, Serializable):
@@ -60,9 +63,11 @@ class Title(QLineEdit, Serializable):
         self.setReadOnly(value)
 
         new_mode = "NOOP" if value else "EDITING"
-        views = self.parent_block.scene().views()
-        for view in views:
-            view.set_mode(new_mode)
+        scene = self.parent_block.scene()
+        if scene:
+            views: List["View"] = scene.views()
+            for view in views:
+                view.set_mode(new_mode)
 
     def mousePressEvent(self, event: QMouseEvent):
         """
