@@ -125,6 +125,7 @@ class TestEditing(InAppTest):
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z")
 
+            time.sleep(0.1)
             # Undo in the 1st edited block should only undo in that block
             msgQueue.check_equal(
                 self.code_block_1.source_editor.text().replace("\r", ""),
@@ -137,6 +138,7 @@ class TestEditing(InAppTest):
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z", presses=2, interval=0.1)
 
+            time.sleep(0.1)
             # Need to relink after re-serialization
             code_block_1: CodeBlock = self.widget.scene.getItemById(code_block_1_id)
             code_block_2: CodeBlock = self.widget.scene.getItemById(code_block_2_id)
