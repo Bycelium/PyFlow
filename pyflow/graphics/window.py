@@ -24,7 +24,9 @@ from pyflow.graphics.theme_manager import theme_manager
 from pyflow.qss import loadStylesheets
 from pyflow.qss import __file__ as QSS_INIT_PATH
 from pyflow.scene.clipboard import BlocksClipboard
+from pyflow.logging import log_init_time, get_logger
 
+LOGGER = get_logger(__name__)
 QSS_PATH = pathlib.Path(QSS_INIT_PATH).parent
 
 
@@ -32,6 +34,7 @@ class Window(QMainWindow):
 
     """Main window of the Pyflow Qt-based application."""
 
+    @log_init_time(LOGGER)
     def __init__(self):
         super().__init__()
 
@@ -309,7 +312,7 @@ class Window(QMainWindow):
         if os.path.isfile(filename):
             subwnd = self.createNewMdiChild(filename)
             subwnd.show()
-            self.statusbar.showMessage(f"Successfully loaded {filename}", 2000)
+            self.statusbar.showMessage(f"Loaded {filename}", 2000)
 
     def onFileSave(self) -> bool:
         """Save file.
@@ -366,19 +369,18 @@ class Window(QMainWindow):
             if filename == "":
                 return False
             current_window.saveAsJupyter(filename)
-            self.statusbar.showMessage(
-                f"Successfully saved ipygraph as jupter notebook at {filename}",
-                2000,
-            )
+            success_msg = f"Saved as jupter notebook at {filename}"
+            self.statusbar.showMessage(success_msg, 2000)
+            LOGGER.info(success_msg)
             return True
         return False
 
     def saveWindow(self, window: Widget):
         """Save the given window."""
         window.save()
-        self.statusbar.showMessage(
-            f"Successfully saved ipygraph at {window.savepath}", 2000
-        )
+        success_msg = f"Saved ipygraph at {window.savepath}"
+        self.statusbar.showMessage(success_msg, 2000)
+        LOGGER.info(success_msg)
 
     @staticmethod
     def is_not_editing(current_window: Widget):
@@ -471,20 +473,22 @@ class Window(QMainWindow):
 
     def readSettings(self):
         """Read the settings from the config file."""
-        settings = QSettings("AutopIA", "Pyflow")
+        settings = QSettings("Bycelium", "Pyflow")
         pos = settings.value("pos", QPoint(200, 200))
         size = settings.value("size", QSize(400, 400))
         self.move(pos)
         self.resize(size)
         if settings.value("isMaximized", False) == "true":
             self.showMaximized()
+        LOGGER.info("Loaded settings under Bycelium/Pyflow")
 
     def writeSettings(self):
         """Write the settings to the config file."""
-        settings = QSettings("AutopIA", "Pyflow")
+        settings = QSettings("Bycelium", "Pyflow")
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
         settings.setValue("isMaximized", self.isMaximized())
+        LOGGER.info("Saved settings under Bycelium/Pyflow")
 
     def setActiveSubWindow(self, window):
         """Set the active subwindow to the given window."""

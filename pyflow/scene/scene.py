@@ -21,12 +21,16 @@ from pyflow.core.kernel import Kernel
 from pyflow.scene.from_ipynb_conversion import ipynb_to_ipyg
 from pyflow.scene.to_ipynb_conversion import ipyg_to_ipynb
 from pyflow import blocks
+from pyflow.logging import log_init_time, get_logger
+
+LOGGER = get_logger(__name__)
 
 
 class Scene(QGraphicsScene, Serializable):
 
     """Scene for the  Window."""
 
+    @log_init_time(LOGGER)
     def __init__(
         self,
         parent=None,
