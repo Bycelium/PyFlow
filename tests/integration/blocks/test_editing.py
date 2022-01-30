@@ -31,29 +31,41 @@ class TestEditing(InAppTest):
         self.widget.scene.addItem(self.code_block_2)
 
     def test_write_code_blocks(self, qtbot: QtBot):
-        """code blocks can be written in."""
-
-        block = self.code_block_1
-
-        self.widget.scene.addItem(block)
-        self.widget.view.horizontalScrollBar().setValue(block.x())
-        self.widget.view.verticalScrollBar().setValue(
-            block.y() - self.widget.view.height() + block.height
-        )
+        """source of code blocks can be written using editor."""
 
         def testing_write(msgQueue: CheckingQueue):
             # click inside the block and write in it
+            center_block = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
+            pyautogui.moveTo(center_block.x(), center_block.y())
+            pyautogui.click()
+            pyautogui.press(["a", "b", "enter", "a"])
 
-            pos_block = self.get_global_pos(block, rel_pos=(0.5, 0.5))
+            # click outside the block to update source
+            corner_block = self.get_global_pos(self.code_block_1, rel_pos=(-0.1, -0.1))
+            pyautogui.moveTo(corner_block.x(), corner_block.y())
+            pyautogui.click()
+
+            msgQueue.check_equal(
+                self.code_block_1.source.replace("\r", ""),
+                "ab\na",
+                "The chars have been written properly",
+            )
+            msgQueue.stop()
+
+        apply_function_inapp(self.window, testing_write)
+
+    def test_code_blocks_history(self, qtbot: QtBot):
+        """code blocks source have their own history (undo/redo)."""
+
+        def testing_history(msgQueue: CheckingQueue):
+            pos_block = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
 
             pyautogui.moveTo(pos_block.x(), pos_block.y())
             pyautogui.click()
             pyautogui.press(["a", "b", "enter", "a"])
 
-            time.sleep(0.1)
-
             msgQueue.check_equal(
-                block.source_editor.text().replace("\r", ""),
+                self.code_block_1.source_editor.text().replace("\r", ""),
                 "ab\na",
                 "The chars have been written properly",
             )
@@ -62,7 +74,7 @@ class TestEditing(InAppTest):
                 pyautogui.press("z")
 
             msgQueue.check_equal(
-                block.source_editor.text().replace("\r", ""),
+                self.code_block_1.source_editor.text().replace("\r", ""),
                 "ab\n",
                 "undo worked properly",
             )
@@ -70,24 +82,23 @@ class TestEditing(InAppTest):
             with pyautogui.hold("ctrl"):
                 pyautogui.press("y")
 
-            time.sleep(0.1)
-
             msgQueue.check_equal(
-                block.source_editor.text().replace("\r", ""),
+                self.code_block_1.source_editor.text().replace("\r", ""),
                 "ab\na",
                 "redo worked properly",
             )
 
-            time.sleep(0.1)
-
             msgQueue.stop()
 
-        apply_function_inapp(self.window, testing_write)
+        apply_function_inapp(self.window, testing_history)
 
     def test_editing_history(self, qtbot: QtBot):
-        """code blocks keep their own undo history."""
+        """code blocks history is compatible with scene history."""
         self.code_block_1.setY(-200)
         self.code_block_2.setY(200)
+
+        code_block_1_id = self.code_block_1.id
+        code_block_2_id = self.code_block_2.id
 
         def testing_history(msgQueue: CheckingQueue):
             # click inside the block and write in it
@@ -106,15 +117,13 @@ class TestEditing(InAppTest):
 
             pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
             pyautogui.mouseDown(button="left")
-            pyautogui.moveTo(pos_block_2.x(), int(1.2 * pos_block_2.y()))
+            pyautogui.moveTo(pos_block_2.x(), int(0.9 * pos_block_2.y()))
             pyautogui.mouseUp(button="left")
 
             pyautogui.moveTo(center_block_1.x(), center_block_1.y())
             pyautogui.click()
             with pyautogui.hold("ctrl"):
                 pyautogui.press("z")
-
-            time.sleep(0.1)
 
             # Undo in the 1st edited block should only undo in that block
             msgQueue.check_equal(
@@ -123,28 +132,31 @@ class TestEditing(InAppTest):
                 "Undone selected editing",
             )
 
-            pyautogui.moveTo(pos_block_2.x(), pos_block_2.y())
+            pyautogui.moveTo(pos_block_2.x(), int(0.75 * pos_block_2.y()))
             pyautogui.click()
             with pyautogui.hold("ctrl"):
-                pyautogui.press("z", presses=3, interval=0.1)
+                pyautogui.press("z", presses=2, interval=0.1)
 
-            time.sleep(0.1)
+            # Need to relink after re-serialization
+            code_block_1: CodeBlock = self.widget.scene.getItemById(code_block_1_id)
+            code_block_2: CodeBlock = self.widget.scene.getItemById(code_block_2_id)
 
             msgQueue.check_equal(
-                (self.code_block_2.pos().x(), self.code_block_2.pos().y()),
-                initial_pos,
-                "Undone graph",
+                code_block_1.source_editor.text().replace("\r", ""),
+                "ab\na",
+                "Undone previous editing",
             )
-
             msgQueue.check_equal(
-                self.code_block_1.source_editor.text().replace("\r", ""),
+                (code_block_2.pos().x(), code_block_2.pos().y()),
+                initial_pos,
+                "Undone graph modification",
+            )
+            msgQueue.check_equal(
+                code_block_2.source_editor.text().replace("\r", ""),
                 "cd\nd",
-                "Not undone editing",
+                "Not undone 2 times previous editing",
             )
 
             msgQueue.stop()
 
         apply_function_inapp(self.window, testing_history)
-
-    def test_finish(self):
-        self.window.close()
