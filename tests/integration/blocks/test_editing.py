@@ -30,67 +30,67 @@ class TestEditing(InAppTest):
         self.widget.scene.addItem(self.code_block_1)
         self.widget.scene.addItem(self.code_block_2)
 
-    def test_write_code_blocks(self, qtbot: QtBot):
-        """source of code blocks can be written using editor."""
+    # def test_write_code_blocks(self, qtbot: QtBot):
+    #     """source of code blocks can be written using editor."""
 
-        def testing_write(msgQueue: CheckingQueue):
-            # click inside the block and write in it
-            center_block = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
-            pyautogui.moveTo(center_block.x(), center_block.y())
-            pyautogui.click()
-            pyautogui.press(["a", "b", "enter", "a"])
+    #     def testing_write(msgQueue: CheckingQueue):
+    #         # click inside the block and write in it
+    #         center_block = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
+    #         pyautogui.moveTo(center_block.x(), center_block.y())
+    #         pyautogui.click()
+    #         pyautogui.press(["a", "b", "enter", "a"])
 
-            # click outside the block to update source
-            corner_block = self.get_global_pos(self.code_block_1, rel_pos=(-0.1, -0.1))
-            pyautogui.moveTo(corner_block.x(), corner_block.y())
-            pyautogui.click()
+    #         # click outside the block to update source
+    #         corner_block = self.get_global_pos(self.code_block_1, rel_pos=(-0.1, -0.1))
+    #         pyautogui.moveTo(corner_block.x(), corner_block.y())
+    #         pyautogui.click()
 
-            msgQueue.check_equal(
-                self.code_block_1.source.replace("\r", ""),
-                "ab\na",
-                "The chars have been written properly",
-            )
-            msgQueue.stop()
+    #         msgQueue.check_equal(
+    #             self.code_block_1.source.replace("\r", ""),
+    #             "ab\na",
+    #             "The chars have been written properly",
+    #         )
+    #         msgQueue.stop()
 
-        apply_function_inapp(self.window, testing_write)
+    #     apply_function_inapp(self.window, testing_write)
 
-    def test_code_blocks_history(self, qtbot: QtBot):
-        """code blocks source have their own history (undo/redo)."""
+    # def test_code_blocks_history(self, qtbot: QtBot):
+    #     """code blocks source have their own history (undo/redo)."""
 
-        def testing_history(msgQueue: CheckingQueue):
-            pos_block = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
+    #     def testing_history(msgQueue: CheckingQueue):
+    #         pos_block = self.get_global_pos(self.code_block_1, rel_pos=(0.5, 0.5))
 
-            pyautogui.moveTo(pos_block.x(), pos_block.y())
-            pyautogui.click()
-            pyautogui.press(["a", "b", "enter", "a"])
+    #         pyautogui.moveTo(pos_block.x(), pos_block.y())
+    #         pyautogui.click()
+    #         pyautogui.press(["a", "b", "enter", "a"])
 
-            msgQueue.check_equal(
-                self.code_block_1.source_editor.text().replace("\r", ""),
-                "ab\na",
-                "The chars have been written properly",
-            )
+    #         msgQueue.check_equal(
+    #             self.code_block_1.source_editor.text().replace("\r", ""),
+    #             "ab\na",
+    #             "The chars have been written properly",
+    #         )
 
-            with pyautogui.hold("ctrl"):
-                pyautogui.press("z")
+    #         with pyautogui.hold("ctrl"):
+    #             pyautogui.press("z")
 
-            msgQueue.check_equal(
-                self.code_block_1.source_editor.text().replace("\r", ""),
-                "ab\n",
-                "undo worked properly",
-            )
+    #         msgQueue.check_equal(
+    #             self.code_block_1.source_editor.text().replace("\r", ""),
+    #             "ab\n",
+    #             "undo worked properly",
+    #         )
 
-            with pyautogui.hold("ctrl"):
-                pyautogui.press("y")
+    #         with pyautogui.hold("ctrl"):
+    #             pyautogui.press("y")
 
-            msgQueue.check_equal(
-                self.code_block_1.source_editor.text().replace("\r", ""),
-                "ab\na",
-                "redo worked properly",
-            )
+    #         msgQueue.check_equal(
+    #             self.code_block_1.source_editor.text().replace("\r", ""),
+    #             "ab\na",
+    #             "redo worked properly",
+    #         )
 
-            msgQueue.stop()
+    #         msgQueue.stop()
 
-        apply_function_inapp(self.window, testing_history)
+    #     apply_function_inapp(self.window, testing_history)
 
     def test_editing_history(self, qtbot: QtBot):
         """code blocks history is compatible with scene history."""
