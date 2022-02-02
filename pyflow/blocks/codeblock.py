@@ -8,7 +8,7 @@ from typing import OrderedDict
 from ansi2html import Ansi2HTMLConverter
 
 from PyQt5.QtWidgets import QPushButton, QTextEdit
-from PyQt5.QtGui import QPen, QColor, QFocusEvent
+from PyQt5.QtGui import QPen, QColor
 
 from pyflow.blocks.block import Block
 from pyflow.blocks.executableblock import ExecutableBlock
