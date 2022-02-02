@@ -7,7 +7,7 @@ import math
 import json
 from os import path
 from types import FunctionType, ModuleType
-from typing import List, OrderedDict, Union
+from typing import Any, List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -71,7 +71,15 @@ class Scene(QGraphicsScene, Serializable):
         for callback in self._has_been_modified_listeners:
             callback()
 
-    def getItemById(self, item_id: int):
+    def getItemById(self, item_id: int) -> Any:
+        """Return the item scene with the corresponding id.
+
+        Args:
+            item_id (int): Item id to look for.
+
+        Returns:
+            Any: Item with corresponding id, None if not found.
+        """
         for item in self.items():
             if hasattr(item, "id") and item.id == item_id:
                 return item
