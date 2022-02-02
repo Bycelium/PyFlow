@@ -54,7 +54,7 @@ class View(QGraphicsView):
 
         self.edge_drag = None
         self.lastMousePos = QPointF(0, 0)
-        self.currentSelectedBlock = None
+        self._currentSelectedBlock = None
 
         self.init_ui()
         self.setScene(scene)
@@ -118,7 +118,7 @@ class View(QGraphicsView):
                 item_at_click = item_at_click.parentItem()
 
             if isinstance(item_at_click, Block):
-                self.bring_block_forward(item_at_click)
+                self.currentSelectedBlock = item_at_click
 
         # If clicked on a socket, start dragging an edge.
         event = self.drag_edge(event, "press")
@@ -241,7 +241,7 @@ class View(QGraphicsView):
                 selected_item.y() + selected_item.height / 2,
             )
             self.scene().clearSelection()
-            self.bring_block_forward(selected_item)
+            self.currentSelectedBlock = selected_item
 
         dist_array = []
         for block in code_blocks:
@@ -375,20 +375,28 @@ class View(QGraphicsView):
             selected_item.remove()
         scene.history.checkpoint("Delete selected elements", set_modified=True)
 
-    def bring_block_forward(self, block: Block):
-        """Move the selected block in front of other blocks.
+    @property
+    def currentSelectedBlock(self) -> Block:
+        """Return the selected block in front of other blocks."""
+        if self._currentSelectedBlock is None or isdeleted(self._currentSelectedBlock):
+            self._currentSelectedBlock = None
+        return self._currentSelectedBlock
+
+    @currentSelectedBlock.setter
+    def currentSelectedBlock(self, block: Block):
+        """Make the given block the selected block in front of other blocks.
 
         Args:
             block: Block to bring forward.
 
         """
-        if self.currentSelectedBlock is not None and not isdeleted(
-            self.currentSelectedBlock
-        ):
-            self.currentSelectedBlock.setZValue(0)
+        current = self.currentSelectedBlock
+        if current is not None:
+            current.setZValue(0)
+            current.setSelected(False)
         block.setZValue(1)
         block.setSelected(True)
-        self.currentSelectedBlock = block
+        self._currentSelectedBlock = block
 
     def drag_scene(self, event: QMouseEvent, action="press"):
         """Drag the scene around."""

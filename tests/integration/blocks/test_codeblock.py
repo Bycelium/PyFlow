@@ -10,18 +10,16 @@ import os
 import pyautogui
 import pytest
 
-from PyQt5.QtCore import QPointF
-
 from pyflow.blocks.codeblock import CodeBlock
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
+from tests.integration.utils import apply_function_inapp, CheckingQueue, InAppTest
 
 
-class TestCodeBlocks:
+class TestCodeBlocks(InAppTest):
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup reused variables."""
-        start_app(self)
+        self.start_app()
 
     def test_run_python(self):
         """run source code when run button is pressed."""
@@ -32,19 +30,14 @@ class TestCodeBlocks:
         expected_result = str(3 + 5 * 2)
 
         test_block = CodeBlock(title="CodeBlock test", source=SOURCE_TEST)
-        self._widget.scene.addItem(test_block)
+        self.widget.scene.addItem(test_block)
 
         def testing_run(msgQueue: CheckingQueue):
 
             msgQueue.check_equal(test_block.stdout.strip(), "")
-
-            pos_run_button = test_block.run_button.pos()
-            pos_run_button = QPointF(
-                pos_run_button.x() + test_block.run_button.width() / 2,
-                pos_run_button.y() + test_block.run_button.height() / 2,
+            pos_run_button = self.get_global_pos(
+                test_block.run_button, rel_pos=(0.5, 0.5)
             )
-            pos_run_button = self._widget.view.mapFromScene(pos_run_button)
-            pos_run_button = self._widget.view.mapToGlobal(pos_run_button)
 
             # Run the block by pressung the run button
             pyautogui.moveTo(pos_run_button.x(), pos_run_button.y())
@@ -64,11 +57,11 @@ class TestCodeBlocks:
         """runs blocks with the correct working directory for the kernel."""
         file_example_path = "./tests/assets/example_graph1.ipyg"
         asset_path = "./tests/assets/data.txt"
-        self._widget.scene.load(os.path.abspath(file_example_path))
+        self.widget.scene.load(os.path.abspath(file_example_path))
 
         def testing_path(msgQueue: CheckingQueue):
             block_of_test: CodeBlock = None
-            for item in self._widget.scene.items():
+            for item in self.widget.scene.items():
                 if isinstance(item, CodeBlock) and item.title == "test1":
                     block_of_test = item
                     break

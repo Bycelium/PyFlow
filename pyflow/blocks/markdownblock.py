@@ -25,7 +25,7 @@ class MarkdownBlock(Block):
         """
         Create a new MarkdownBlock, a block that renders markdown
         """
-        super().__init__(**kwargs)
+        super().__init__(block_type="MarkdownBlock", **kwargs)
 
         self.editor = MarkdownEditor(self)
 

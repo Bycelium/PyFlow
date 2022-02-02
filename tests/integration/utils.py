@@ -5,7 +5,7 @@
 Utilities functions for integration testing.
 """
 
-from typing import Callable
+from typing import Callable, Tuple
 
 import os
 import warnings
@@ -16,7 +16,8 @@ from queue import Queue
 import pytest_check as check
 import asyncio
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QGraphicsItem
+from PyQt5.QtCore import QPointF, QPoint
 
 from pyflow.graphics.widget import Widget
 from pyflow.graphics.window import Window
@@ -27,6 +28,34 @@ if os.name == "nt":  # If on windows
 STOP_MSG = "stop"
 CHECK_MSG = "check"
 RUN_MSG = "run"
+
+
+class InAppTest:
+    def start_app(self):
+        self.window = Window()
+        self.widget = Widget()
+        self.subwindow = self.window.mdiArea.addSubWindow(self.widget)
+        self.subwindow.show()
+
+    def get_global_pos(
+        self, item: QGraphicsItem, rel_pos: Tuple[int] = (0, 0)
+    ) -> QPoint:
+        if isinstance(item.width, (int, float)):
+            width = item.width
+        else:
+            width = item.width()
+        if isinstance(item.height, (int, float)):
+            height = item.height
+        else:
+            height = item.height()
+
+        pos = QPointF(
+            item.pos().x() + rel_pos[0] * width,
+            item.pos().y() + rel_pos[1] * height,
+        )
+        pos_global = self.widget.view.mapFromScene(pos)
+        pos_global = self.widget.view.mapToGlobal(pos_global)
+        return pos_global
 
 
 class CheckingQueue(Queue):
@@ -61,14 +90,6 @@ class ExceptionForwardingThread(threading.Thread):
         print("except: ", self.exeption)
         if self.exeption is not None:
             raise self.exeption
-
-
-def start_app(obj):
-    """Create a new app for testing purpose."""
-    obj.window = Window()
-    obj._widget = Widget()
-    obj.subwindow = obj.window.mdiArea.addSubWindow(obj._widget)
-    obj.subwindow.show()
 
 
 def apply_function_inapp(window: Window, run_func: Callable):

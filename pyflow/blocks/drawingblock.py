@@ -91,7 +91,7 @@ class DrawingBlock(ExecutableBlock):
 
     def __init__(self, **kwargs):
         """Create a new Block."""
-        super().__init__(**kwargs)
+        super().__init__(block_type="DrawingBlock", **kwargs)
 
         self.draw_area = DrawableWidget(self.root)
         self.draw_area.on_value_changed.connect(self.valueChanged)

@@ -7,7 +7,7 @@ import math
 import json
 from os import path
 from types import FunctionType, ModuleType
-from typing import List, OrderedDict, Union
+from typing import Any, List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -59,6 +59,7 @@ class Scene(QGraphicsScene, Serializable):
         self._has_been_modified_listeners = []
 
         self.history = SceneHistory(self)
+        self.history.checkpoint("Initialized scene", set_modified=False)
 
         self.kernel = Kernel()
         self.threadpool = QThreadPool()
@@ -73,6 +74,19 @@ class Scene(QGraphicsScene, Serializable):
         self._has_been_modified = value
         for callback in self._has_been_modified_listeners:
             callback()
+
+    def getItemById(self, item_id: int) -> Any:
+        """Return the item scene with the corresponding id.
+
+        Args:
+            item_id (int): Item id to look for.
+
+        Returns:
+            Any: Item with corresponding id, None if not found.
+        """
+        for item in self.items():
+            if hasattr(item, "id") and item.id == item_id:
+                return item
 
     def addHasBeenModifiedListener(self, callback: FunctionType):
         """Add a callback that will trigger when the scene has been modified."""
@@ -201,32 +215,14 @@ class Scene(QGraphicsScene, Serializable):
         self.has_been_modified = False
         return super().clear()
 
-    def serialize(self) -> OrderedDict:
-        """Serialize the scene into a dict."""
-        blocks = []
-        edges = []
-        for item in self.items():
-            if isinstance(item, Block):
-                blocks.append(item)
-            elif isinstance(item, Edge):
-                edges.append(item)
-        blocks.sort(key=lambda x: x.id)
-        edges.sort(key=lambda x: x.id)
-        return OrderedDict(
-            [
-                ("id", self.id),
-                ("blocks", [block.serialize() for block in blocks]),
-                ("edges", [edge.serialize() for edge in edges]),
-            ]
-        )
-
     def create_block_from_file(self, filepath: str, x: float = 0, y: float = 0):
         """Create a new block from a .b file."""
         with open(filepath, "r", encoding="utf-8") as file:
             data = json.loads(file.read())
-            data["position"] = [x, y]
-            data["sockets"] = {}
-            self.create_block(data, None, False)
+        data["position"] = [x, y]
+        data["sockets"] = {}
+        self.create_block(data, None, False)
+        self.history.checkpoint("Created block from file", set_modified=True)
 
     def create_block(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
@@ -242,17 +238,36 @@ class Scene(QGraphicsScene, Serializable):
             block_module = getattr(blocks, block_name)
             if isinstance(block_module, ModuleType):
                 if hasattr(block_module, data["block_type"]):
-                    block_constructor = getattr(blocks, data["block_type"])
+                    block_constructor = getattr(block_module, data["block_type"])
 
         if block_constructor is None:
             raise NotImplementedError(f"{data['block_type']} is not a known block type")
 
-        block = block_constructor()
+        block: Block = block_constructor()
         block.deserialize(data, hashmap, restore_id)
         self.addItem(block)
         if hashmap is not None:
             hashmap.update({data["id"]: block})
         return block
+
+    def serialize(self) -> OrderedDict:
+        """Serialize the scene into a dict."""
+        blocks: List[Block] = []
+        edges: List[Edge] = []
+        for item in self.items():
+            if isinstance(item, Block):
+                blocks.append(item)
+            elif isinstance(item, Edge):
+                edges.append(item)
+        blocks.sort(key=lambda x: x.id)
+        edges.sort(key=lambda x: x.id)
+        return OrderedDict(
+            [
+                ("id", self.id),
+                ("blocks", [block.serialize() for block in blocks]),
+                ("edges", [edge.serialize() for edge in edges]),
+            ]
+        )
 
     def deserialize(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True
