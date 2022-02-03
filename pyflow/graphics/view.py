@@ -12,6 +12,7 @@ from PyQt5.QtCore import QEvent, QPoint, QPointF, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
 from PyQt5.QtWidgets import QGraphicsView, QMenu
 from PyQt5.sip import isdeleted
+from pyflow.core.add_edge_button import AddEdgeButton
 
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
@@ -437,6 +438,8 @@ class View(QGraphicsView):
                 )
                 scene.addItem(self.edge_drag)
                 return
+            elif isinstance(item_at_click, AddEdgeButton):
+                item_at_click.add_edge()
         elif action == "release":
             if self.mode == self.MODE_EDGE_DRAG:
                 if (
