@@ -28,9 +28,9 @@ class TestBlocks(InAppTest):
     def test_move_blocks(self, qtbot: QtBot):
         """can be dragged around with the mouse."""
         self.widget.scene.addItem(self.block)
-        self.widget.view.horizontalScrollBar().setValue(self.block.x())
+        self.widget.view.horizontalScrollBar().setValue(int(self.block.x()))
         self.widget.view.verticalScrollBar().setValue(
-            self.block.y() - self.widget.view.height() + self.block.height
+            int(self.block.y() - self.widget.view.height() + self.block.height)
         )
 
         def testing_drag(msgQueue: CheckingQueue):

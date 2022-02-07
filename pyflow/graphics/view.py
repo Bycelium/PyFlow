@@ -147,8 +147,8 @@ class View(QGraphicsView):
         """Move the view so that the position (x,y) is centered."""
         hsb = self.horizontalScrollBar()
         vsb = self.verticalScrollBar()
-        hsb.setValue(x * self.zoom - self.width() / 2)
-        vsb.setValue(y * self.zoom - self.height() / 2)
+        hsb.setValue(int(x * self.zoom - self.width() / 2))
+        vsb.setValue(int(y * self.zoom - self.height() / 2))
 
     def moveToItems(self) -> bool:
         """Ajust zoom and position to make selected items visible.
