@@ -201,6 +201,12 @@ class Scene(QGraphicsScene, Serializable):
         self.has_been_modified = False
         return super().clear()
 
+    def update_all_blocks_sockets(self):
+        """Update the socket position of all blocks."""
+        for item in self.items():
+            if isinstance(item, Block):
+                item.update_sockets()
+
     def serialize(self) -> OrderedDict:
         """Serialize the scene into a dict."""
         blocks = []

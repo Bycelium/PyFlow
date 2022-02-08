@@ -162,6 +162,19 @@ class Block(QGraphicsItem, Serializable):
     def update_sockets(self):
         """Update the sockets positions."""
 
+        def x_end_position(socket: Socket) -> float:
+            if not socket.edges:
+                return 0
+            return socket.edges[0].destination.x()
+
+        def x_start_position(socket: Socket) -> float:
+            if not socket.edges:
+                return 0
+            return socket.edges[0].source.x()
+
+        self.sockets_in.sort(key=x_start_position)
+        self.sockets_out.sort(key=x_end_position)
+
         for socket in self.sockets_in + self.sockets_out:
             socket.setPos(*self.get_socket_pos(socket))
 
@@ -184,6 +197,7 @@ class Block(QGraphicsItem, Serializable):
         """Block reaction to a mouseMoveEvent."""
         super().mouseMoveEvent(event)
         self.moved = True
+        self.scene().update_all_blocks_sockets()
 
     def remove(self):
         """Remove the block from the scene containing it."""
@@ -319,5 +333,5 @@ class Block(QGraphicsItem, Serializable):
 
                 if hashmap is not None:
                     hashmap.update({socket_data["id"]: socket})
-        
+
         self.update_all()

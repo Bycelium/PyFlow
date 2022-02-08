@@ -501,9 +501,11 @@ class View(QGraphicsView):
                     self.edge_drag.source_socket.remove()
                 self.edge_drag = None
                 self.mode = self.MODE_NOOP
+                self.scene().update_all_blocks_sockets()
         elif action == "move":
             if self.mode == self.MODE_EDGE_DRAG:
                 self.edge_drag.destination = self.mapToScene(event.pos())
+                self.scene().update_all_blocks_sockets()
         return event
 
     def set_mode(self, mode: str):
