@@ -4,7 +4,7 @@
 
 """ Module for the base Block."""
 
-from typing import TYPE_CHECKING, Optional, OrderedDict, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, OrderedDict, Tuple, Union
 
 from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import QBrush, QPen, QColor, QPainter, QPainterPath
@@ -69,8 +69,8 @@ class Block(QGraphicsItem, Serializable):
 
         self.block_type = block_type
         self.setPos(QPointF(*position))
-        self.sockets_in = []
-        self.sockets_out = []
+        self.sockets_in: List[Socket] = []
+        self.sockets_out: List[Socket] = []
 
         self._pen_outline = QPen(QColor("#7F000000"))
         self._pen_outline_selected = QPen(QColor("#FFFFA637"))
@@ -161,6 +161,7 @@ class Block(QGraphicsItem, Serializable):
 
     def update_sockets(self):
         """Update the sockets positions."""
+
         for socket in self.sockets_in + self.sockets_out:
             socket.setPos(*self.get_socket_pos(socket))
 
@@ -170,15 +171,6 @@ class Block(QGraphicsItem, Serializable):
             self.sockets_in.append(socket)
         else:
             self.sockets_out.append(socket)
-        self.update_sockets()
-
-    def remove_socket(self, socket: Socket):
-        """Remove a socket from the block."""
-        if socket.socket_type == "input":
-            self.sockets_in.remove(socket)
-        else:
-            self.sockets_out.remove(socket)
-        socket.remove()
         self.update_sockets()
 
     def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent):

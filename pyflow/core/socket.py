@@ -88,6 +88,11 @@ class Socket(QGraphicsItem, Serializable):
                 return
         self.edges.append(edge)
 
+    def clear_edge(self):
+        """Remove all edges from the socket"""
+        for edge in self.edges:
+            edge.remove()
+
     def remove_edge(self, edge: "Edge"):
         """Remove a given edge from the socket edges."""
         self.edges.remove(edge)
@@ -96,6 +101,14 @@ class Socket(QGraphicsItem, Serializable):
         """Remove the socket and all its edges from the scene it is in."""
         for edge in self.edges:
             edge.remove()
+        
+        
+        if self.socket_type == "input":
+            self.block.sockets_in.remove(self)
+        else:
+            self.block.sockets_out.remove(self)
+        self.block.update_sockets()
+        
         scene = self.scene()
         if scene is not None:
             scene.removeItem(self)
@@ -104,7 +117,7 @@ class Socket(QGraphicsItem, Serializable):
     @property
     def _allow_multiple_edges(self):
         if self.flow_type == "exe":
-            return True
+            return False
         raise NotImplementedError
 
     def paint(

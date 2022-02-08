@@ -45,14 +45,6 @@ class ExecutableBlock(Block):
         # Controls the duration of the visual flow animation
         self.transmitting_duration = 500
 
-        # Add execution flow sockets
-        exe_sockets = (
-            Socket(self, socket_type="input", flow_type="exe"),
-            Socket(self, socket_type="output", flow_type="exe"),
-        )
-        for socket in exe_sockets:
-            self.add_socket(socket)
-
         if type(self) == ExecutableBlock:
             raise RuntimeError("ExecutableBlock should not be instanciated directly")
 
@@ -69,6 +61,18 @@ class ExecutableBlock(Block):
             if output_socket.edges:
                 return True
         return False
+
+    def create_new_input_socket(self) -> Socket:
+        """Create a new input socket and returns it."""
+        socket = Socket(self, socket_type="input", flow_type="exe")
+        self.add_socket(socket)
+        return socket
+
+    def create_new_output_socket(self) -> Socket:
+        """Create a new output socket and returns it."""
+        socket = Socket(self, socket_type="output", flow_type="exe")
+        self.add_socket(socket)
+        return socket
 
     def run_code(self):
         """Run the code in the block."""

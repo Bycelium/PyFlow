@@ -13,7 +13,7 @@ from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 if TYPE_CHECKING:
-    from pyflow.blocks.block import Block
+    from pyflow.blocks.executableblock import ExecutableBlock
     from pyflow.core.edge import Edge
 
 
@@ -23,7 +23,7 @@ class AddEdgeButton(QGraphicsItem):
 
     def __init__(
         self,
-        block: "Block",
+        block: "ExecutableBlock",
     ):
         """Base class for the button to add an edge."""
 
@@ -36,11 +36,6 @@ class AddEdgeButton(QGraphicsItem):
         self._pen = QPen(QColor("#FF000000"))
         self._pen.setWidth(int(1))
         self._brush = QBrush(QColor("#FF55FFF0"))
-
-    def add_edge(self):
-        """Add a new edge and a new socket."""
-        # To be done
-        print("click")
 
     def paint(
         self,
