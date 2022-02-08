@@ -308,14 +308,16 @@ class Block(QGraphicsItem, Serializable):
         if len(data["sockets"]) > 0:
             # Remove old sockets
             for socket in self.sockets_in + self.sockets_out:
-                self.remove_socket(socket)
+                socket.remove()
 
             # Deserialize new sockets
             for socket_data in data["sockets"]:
                 socket = Socket(block=self)
                 socket.deserialize(socket_data, hashmap, restore_id)
+
                 self.add_socket(socket)
+
                 if hashmap is not None:
                     hashmap.update({socket_data["id"]: socket})
-
+        
         self.update_all()

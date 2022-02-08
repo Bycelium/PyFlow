@@ -458,8 +458,10 @@ class View(QGraphicsView):
                 and self.mode != self.MODE_EDGE_DRAG
                 and item_at_click.socket_type != "input"
             ):
-                old_destination = item_at_click.edges[0].destination_socket
-                old_destination.remove()
+                while item_at_click.edges:
+                    edge = item_at_click.edges[0]
+                    old_destination = edge.destination_socket
+                    old_destination.remove()
 
                 self.mode = self.MODE_EDGE_DRAG
                 self.edge_drag = Edge(
