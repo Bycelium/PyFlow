@@ -172,7 +172,7 @@ class CodeBlock(ExecutableBlock):
 
     def get_add_edge_button_pos(self) -> Tuple[int, int]:
         """Get the position where to place the add edge button."""
-        return (self.width / 2, self.height + 30)
+        return (self.width / 2, self.height + 15)
 
     def update_add_edge_button(self):
         """Change the geometry of the add edge button."""
