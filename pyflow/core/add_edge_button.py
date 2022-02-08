@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING, List, Optional
 
 from PyQt5.QtCore import QRectF

@@ -163,11 +163,13 @@ class Block(QGraphicsItem, Serializable):
         """Update the sockets positions."""
 
         def x_end_position(socket: Socket) -> float:
+            """x-coordinate of the end point of the first edge."""
             if not socket.edges:
                 return 0
             return socket.edges[0].destination.x()
 
         def x_start_position(socket: Socket) -> float:
+            """x-coordinate of the start point of the first edge."""
             if not socket.edges:
                 return 0
             return socket.edges[0].source.x()
