@@ -71,7 +71,7 @@ def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data: OrderedDict):
     2. the right amount of code blocks and edges
     3. blocks and sockets with unique ids
     4. edges with existing ids
-    5. code blocks that always have a source and two sockets
+    5. code blocks that always have a source
     6. markdown blocks that always have text
     """
 
@@ -118,7 +118,6 @@ def check_conversion_coherence(ipynb_data: OrderedDict, ipyg_data: OrderedDict):
 
             check.equal("sockets" in block, True)
             check.equal(type(block["sockets"]), list)
-            check.equal(len(block["sockets"]), 2)
 
         if block["block_type"] == BLOCK_TYPE_TO_NAME["markdown"]:
             check.equal("text" in block and type(block["text"]) == str, True)
