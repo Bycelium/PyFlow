@@ -4,11 +4,12 @@
 """ Module for the button to add an edge."""
 
 from __future__ import annotations
+import math
 
 from typing import TYPE_CHECKING, List, Optional
 
-from PyQt5.QtCore import QRectF
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
+from PyQt5.QtCore import QRectF, QPoint
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPolygon
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 if TYPE_CHECKING:
@@ -31,10 +32,25 @@ class AddEdgeButton(QGraphicsItem):
 
         self.edges: List["Edge"] = []
 
-        self.radius = 6
-        self._pen = QPen(QColor("#FF000000"))
+        self.radius = 10
+        self._pen = QPen(QColor("#44000000"))
         self._pen.setWidth(int(1))
-        self._brush = QBrush(QColor("#FF55FFF0"))
+
+        self._normal_brush = QBrush(QColor("#4455FFF0"))
+        self._hover_brush = QBrush(QColor("#AA55FFF0"))
+        self._brush = self._normal_brush
+
+        self.setAcceptHoverEvents(True)
+
+    def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse enters the button."""
+        self._brush = self._hover_brush
+        return super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse leaves the button."""
+        self._brush = self._normal_brush
+        return super().hoverLeaveEvent(event)
 
     def paint(
         self,
@@ -46,7 +62,12 @@ class AddEdgeButton(QGraphicsItem):
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         r = self.radius
-        painter.drawEllipse(int(-r), int(-r), int(2 * r), int(2 * r))
+        angles = [-math.pi / 6, -5 * math.pi / 6, math.pi / 2]
+        right_triangle_points = [
+            QPoint(int(r * math.cos(angle)), int(r * math.sin(angle)))
+            for angle in angles
+        ]
+        painter.drawPolygon(QPolygon(right_triangle_points))
 
     def boundingRect(self) -> QRectF:
         """Get the button bounding box."""
