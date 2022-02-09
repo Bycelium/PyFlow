@@ -7,14 +7,16 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 
 """
 
-from typing import List, OrderedDict, Union
+from typing import TYPE_CHECKING, List, OrderedDict, Set, Union
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
 from pyflow.blocks.block import Block
-from pyflow.core.edge import Edge
 from pyflow.core.socket import Socket
+
+if TYPE_CHECKING:
+    from pyflow.core.edge import Edge
 
 
 class ExecutableBlock(Block):
@@ -206,18 +208,18 @@ class ExecutableBlock(Block):
             list: each element is a list of blocks/edges to animate in order
         """
         # Result
-        to_transmit = [[self]]
+        to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[self]]
 
         # To check if a block has been visited
-        visited = []
+        visited: Set["ExecutableBlock"] = set([])
         # We need to visit the inputs of these blocks
-        to_visit_input = [self]
+        to_visit_input: Set["ExecutableBlock"] = set([self])
         # We need to visit the outputs of these blocks
-        to_visit_output = [self]
+        to_visit_output: Set["ExecutableBlock"] = set([self])
 
         # Next stage to put in to_transmit
-        next_edges = []
-        next_blocks = []
+        next_edges: List["Edge"] = []
+        next_blocks: List["ExecutableBlock"] = []
 
         while to_visit_input or to_visit_output:
             for block in to_visit_input.copy():
@@ -231,12 +233,12 @@ class ExecutableBlock(Block):
                         ):
                             continue
                         next_edges.append(edge)
-                        visited.append(edge)
+                        visited.add(edge)
                         input_block = edge.source_socket.block
-                        to_visit_input.append(input_block)
+                        to_visit_input.add(input_block)
                         if input_block not in visited:
                             next_blocks.append(input_block)
-                        visited.append(input_block)
+                        visited.add(input_block)
                 to_visit_input.remove(block)
             for block in to_visit_output.copy():
                 # Check output edges and blocks
@@ -249,13 +251,13 @@ class ExecutableBlock(Block):
                         ):
                             continue
                         next_edges.append(edge)
-                        visited.append(edge)
+                        visited.add(edge)
                         output_block = edge.destination_socket.block
-                        to_visit_input.append(output_block)
-                        to_visit_output.append(output_block)
+                        to_visit_input.add(output_block)
+                        to_visit_output.add(output_block)
                         if output_block not in visited:
                             next_blocks.append(output_block)
-                        visited.append(output_block)
+                        visited.add(output_block)
                 to_visit_output.remove(block)
 
             # Add the next stage to to_transmit
