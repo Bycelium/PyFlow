@@ -10,7 +10,7 @@ from typing import List, Optional, Tuple
 
 from PyQt5.QtCore import QEvent, QPoint, QPointF, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
-from PyQt5.QtWidgets import QGraphicsView, QMenu
+from PyQt5.QtWidgets import QGraphicsView, QMenu, QApplication
 from PyQt5.sip import isdeleted
 from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks.executableblock import ExecutableBlock
@@ -122,6 +122,9 @@ class View(QGraphicsView):
 
             if isinstance(item_at_click, Block):
                 self.bring_block_forward(item_at_click)
+
+        # If Ctrl + left click on a socket, toggle its state
+        event = self.toggle_socket(event)
 
         # If clicked on a socket or the add edge button, start dragging an edge.
         event = self.drag_edge(event, "press")
@@ -447,6 +450,14 @@ class View(QGraphicsView):
 
     def drag_edge(self, event: QMouseEvent, action="press"):
         """Create an edge by drag and drop."""
+
+        # edge creation / destruction if control is pressed
+        if event is None or (
+            action != "move"
+            and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        ):
+            return event
+
         # The item on top of everything else, below the mouse
         item_at_click = self.itemAt(event.pos())
 
@@ -507,6 +518,20 @@ class View(QGraphicsView):
                 self.edge_drag.destination = self.mapToScene(event.pos())
                 self.scene().update_all_blocks_sockets()
         return event
+
+    def toggle_socket(self, event: QMouseEvent) -> Optional[QMouseEvent]:
+        """Toggle the socket.
+
+        Return None if the event has been handeln, otherwise return the input event"""
+
+        if QApplication.keyboardModifiers() != Qt.KeyboardModifier.ControlModifier:
+            return event
+        item_at_click = self.itemAt(event.pos())
+        if not isinstance(item_at_click, Socket):
+            return event
+
+        item_at_click.toggle()
+        return None
 
     def set_mode(self, mode: str):
         """Change the view mode.
