@@ -7,12 +7,13 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 
 """
 
-from typing import OrderedDict
+from typing import List, OrderedDict, Union
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
 from pyflow.blocks.block import Block
+from pyflow.core.edge import Edge
 from pyflow.core.socket import Socket
 
 
@@ -150,11 +151,11 @@ class ExecutableBlock(Block):
             list: each element is a list of blocks/edges to animate in order
         """
         # Blocks to run in topological order
-        blocks_to_run = []
+        blocks_to_run: List["ExecutableBlock"] = []
         # List of lists of blocks/edges to animate in order
-        to_transmit = [[start_node]]
+        to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[start_node]]
 
-        to_visit = [start_node]
+        to_visit: List["ExecutableBlock"] = [start_node]
         while to_visit:
             # Remove duplicates
             to_visit = list(set(to_visit))
@@ -166,11 +167,19 @@ class ExecutableBlock(Block):
                 if not reverse:
                     for input_socket in block.sockets_in:
                         for edge in input_socket.edges:
-                            edges_to_visit.append(edge)
+                            if (
+                                edge.source_socket.is_on
+                                and edge.destination_socket.is_on
+                            ):
+                                edges_to_visit.append(edge)
                 else:
                     for output_socket in block.sockets_out:
                         for edge in output_socket.edges:
-                            edges_to_visit.append(edge)
+                            if (
+                                edge.source_socket.is_on
+                                and edge.destination_socket.is_on
+                            ):
+                                edges_to_visit.append(edge)
             to_transmit.append(edges_to_visit)
 
             # Gather connected blocks
@@ -215,8 +224,13 @@ class ExecutableBlock(Block):
                 # Check input edges and blocks
                 for input_socket in block.sockets_in:
                     for edge in input_socket.edges:
-                        if edge not in visited:
-                            next_edges.append(edge)
+                        if not (
+                            edge not in visited
+                            and edge.source_socket.is_on
+                            and edge.destination_socket.is_on
+                        ):
+                            continue
+                        next_edges.append(edge)
                         visited.append(edge)
                         input_block = edge.source_socket.block
                         to_visit_input.append(input_block)
@@ -228,8 +242,13 @@ class ExecutableBlock(Block):
                 # Check output edges and blocks
                 for output_socket in block.sockets_out:
                     for edge in output_socket.edges:
-                        if edge not in visited:
-                            next_edges.append(edge)
+                        if not (
+                            edge not in visited
+                            and edge.source_socket.is_on
+                            and edge.destination_socket.is_on
+                        ):
+                            continue
+                        next_edges.append(edge)
                         visited.append(edge)
                         output_block = edge.destination_socket.block
                         to_visit_input.append(output_block)
