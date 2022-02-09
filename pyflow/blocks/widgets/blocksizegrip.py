@@ -64,7 +64,7 @@ class SizeGrip(QSizeGrip):
         new_width = max(self.block.width + int(delta_x), self.block.min_width)
         new_height = max(self.block.height + int(delta_y), self.block.min_height)
 
-        self.parent().setGeometry(0, 0, new_width, new_height)
+        self.parent().setGeometry(0, 0, int(new_width), int(new_height))
         self.block.update_all()
 
         self.mouseX = mouseEvent.globalX()

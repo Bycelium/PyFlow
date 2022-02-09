@@ -29,10 +29,10 @@ class ContainerBlock(Block):
 
         self.layout = QVBoxLayout(self.root)
         self.layout.setContentsMargins(
-            self.edge_size * 2,
-            self.title_widget.height() + self.edge_size * 2,
-            self.edge_size * 2,
-            self.edge_size * 2,
+            int(self.edge_size * 2),
+            int(self.title_widget.height() + self.edge_size * 2),
+            int(self.edge_size * 2),
+            int(self.edge_size * 2),
         )
 
         self.child_scene = Scene()
