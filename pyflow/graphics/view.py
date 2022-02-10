@@ -522,7 +522,7 @@ class View(QGraphicsView):
     def toggle_socket(self, event: QMouseEvent) -> Optional[QMouseEvent]:
         """Toggle the socket.
 
-        Return None if the event has been handeln, otherwise return the input event"""
+        Return None if the event has been handled, otherwise return the input event"""
 
         if QApplication.keyboardModifiers() != Qt.KeyboardModifier.ControlModifier:
             return event
