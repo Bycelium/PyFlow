@@ -46,8 +46,9 @@ class Widget(QWidget):
             title = os.path.basename(self.savepath)
         if self.isModified():
             title += "*"
-        self.setWindowTitle(title)
-        LOGGER.debug("Updated widget title to %s", title)
+        if title != self.windowTitle():
+            self.setWindowTitle(title)
+            LOGGER.debug("Updated widget title to %s", title)
 
     def isModified(self) -> bool:
         """Return True if the scene has been modified, False otherwise."""
