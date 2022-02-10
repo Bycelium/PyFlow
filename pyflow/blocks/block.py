@@ -199,7 +199,6 @@ class Block(QGraphicsItem, Serializable):
         """Block reaction to a mouseMoveEvent."""
         super().mouseMoveEvent(event)
         self.moved = True
-        self.scene().update_all_blocks_sockets()
 
     def remove(self):
         """Remove the block from the scene containing it."""
