@@ -20,12 +20,14 @@ from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
 from pyflow.blocks.block import Block
+from pyflow.logging import get_logger
 from pyflow.blocks import __file__ as BLOCK_INIT_PATH
 
 BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
 BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
+LOGGER = get_logger(__name__)
 
 
 class View(QGraphicsView):
@@ -485,6 +487,7 @@ class View(QGraphicsView):
                     destination=self.mapToScene(event.pos()),
                 )
                 scene.addItem(self.edge_drag)
+                LOGGER.debug("Start draging edge from existing socket.")
                 return
             # If it is the add edge button, create a new edge and a new socket for this edge
             elif (
@@ -498,6 +501,7 @@ class View(QGraphicsView):
                     destination=self.mapToScene(event.pos()),
                 )
                 scene.addItem(self.edge_drag)
+                LOGGER.debug("Start draging edge from new socket.")
                 return
         elif action == "release":
             if self.mode == self.MODE_EDGE_DRAG:
@@ -512,6 +516,7 @@ class View(QGraphicsView):
                         "Created edge by dragging", set_modified=True
                     )
                 else:
+                    LOGGER.debug("Removed socket from edge release.")
                     self.edge_drag.source_socket.remove()
                 self.edge_drag = None
                 self.mode = self.MODE_NOOP
