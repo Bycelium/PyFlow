@@ -6,23 +6,28 @@
 import json
 import os
 import pathlib
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from PyQt5.QtCore import QEvent, QPoint, QPointF, Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QPainter, QWheelEvent, QContextMenuEvent
-from PyQt5.QtWidgets import QGraphicsView, QMenu
+from PyQt5.QtWidgets import QGraphicsView, QMenu, QApplication
 from PyQt5.sip import isdeleted
+from pyflow.blocks.codeblock import CodeBlock
+from pyflow.blocks.executableblock import ExecutableBlock
+from pyflow.core.add_edge_button import AddEdgeButton
 
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
 from pyflow.blocks.block import Block
+from pyflow.logging import get_logger
 from pyflow.blocks import __file__ as BLOCK_INIT_PATH
 
 BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
 BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
+LOGGER = get_logger(__name__)
 
 
 class View(QGraphicsView):
@@ -120,7 +125,10 @@ class View(QGraphicsView):
             if isinstance(item_at_click, Block):
                 self.currentSelectedBlock = item_at_click
 
-        # If clicked on a socket, start dragging an edge.
+        # If Ctrl + left click on a socket, toggle its state
+        event = self.toggle_socket(event)
+
+        # If clicked on a socket or the add edge button, start dragging an edge.
         event = self.drag_edge(event, "press")
         if event is not None:
             super().mousePressEvent(event)
@@ -428,42 +436,109 @@ class View(QGraphicsView):
             event.modifiers(),
         )
 
+    def get_block_below_mouse(
+        self, mouse_position: QPoint
+    ) -> Optional[ExecutableBlock]:
+        """Get the first ExecutableBlock below the mouse.
+
+        If there is none, return None"""
+        # All the items below the mouse
+        items_below_click = self.items(mouse_position)
+
+        for item in items_below_click:
+            if isinstance(item, CodeBlock):
+                return item
+            # Also checks blocks sockets because they extend slightly outside the block
+            if (
+                isinstance(item, Socket)
+                and isinstance(item.block, ExecutableBlock)
+                and item.socket_type == "input"
+            ):
+                return item.block
+
+        return None
+
     def drag_edge(self, event: QMouseEvent, action="press"):
         """Create an edge by drag and drop."""
+
+        # edge creation / destruction if control is pressed
+        ctrl_pressed = (
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        )
+        if event is None or (action != "move" and ctrl_pressed):
+            return event
+
+        # The item on top of everything else, below the mouse
         item_at_click = self.itemAt(event.pos())
+
         scene = self.scene()
         if action == "press":
+            # If we press an existing output socket, create a new edge from it.
             if (
                 isinstance(item_at_click, Socket)
                 and self.mode != self.MODE_EDGE_DRAG
-                and item_at_click.socket_type != "input"
+                and item_at_click.socket_type == "output"
             ):
-                self.mode = self.MODE_EDGE_DRAG
                 self.edge_drag = Edge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos()),
                 )
+                old_edges = item_at_click.edges
+                for edge in old_edges:
+                    edge.remove()
+                self.mode = self.MODE_EDGE_DRAG
                 scene.addItem(self.edge_drag)
+                LOGGER.debug("Start draging edge from existing socket.")
                 return
-        elif action == "release":
-            if self.mode == self.MODE_EDGE_DRAG:
+            # If it is the add edge button, create a new socket and a new edge from it.
+            elif (
+                isinstance(item_at_click, AddEdgeButton)
+                and self.mode != self.MODE_EDGE_DRAG
+            ):
+                self.mode = self.MODE_EDGE_DRAG
+                new_socket = item_at_click.block.create_new_output_socket()
+                self.edge_drag = Edge(
+                    source_socket=new_socket,
+                    destination=self.mapToScene(event.pos()),
+                )
+                scene.addItem(self.edge_drag)
+                LOGGER.debug("Start draging edge from new socket.")
+                return
+        elif self.mode == self.MODE_EDGE_DRAG:
+            if action == "release":
+                block_below_mouse = self.get_block_below_mouse(event.pos())
                 if (
-                    isinstance(item_at_click, Socket)
-                    and item_at_click is not self.edge_drag.source_socket
-                    and item_at_click.socket_type != "output"
+                    block_below_mouse is not None
+                    and block_below_mouse is not self.edge_drag.source_socket.block
                 ):
-                    self.edge_drag.destination_socket = item_at_click
+                    input_socket = block_below_mouse.create_new_input_socket()
+                    self.edge_drag.destination_socket = input_socket
                     scene.history.checkpoint(
                         "Created edge by dragging", set_modified=True
                     )
                 else:
-                    self.edge_drag.remove()
+                    LOGGER.debug("Removed socket from edge release.")
+                    self.edge_drag.source_socket.remove()
                 self.edge_drag = None
                 self.mode = self.MODE_NOOP
-        elif action == "move":
-            if self.mode == self.MODE_EDGE_DRAG:
+            elif action == "move":
                 self.edge_drag.destination = self.mapToScene(event.pos())
+            self.scene().update_all_blocks_sockets()
         return event
+
+    def toggle_socket(self, event: QMouseEvent) -> Optional[QMouseEvent]:
+        """Toggle the socket.
+
+        Return None if the event has been handled, otherwise return the input event"""
+
+        if QApplication.keyboardModifiers() != Qt.KeyboardModifier.ControlModifier:
+            return event
+        item_at_click = self.itemAt(event.pos())
+        if not isinstance(item_at_click, Socket):
+            return event
+
+        item_at_click.toggle()
+        return None
 
     def set_mode(self, mode: str):
         """Change the view mode.

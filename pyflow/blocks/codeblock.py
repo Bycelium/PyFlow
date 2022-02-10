@@ -3,16 +3,16 @@
 
 """ Module for the base Code Block."""
 
-from typing import OrderedDict
+from typing import OrderedDict, Tuple
 
 from ansi2html import Ansi2HTMLConverter
-
+from PyQt5.QtGui import QColor, QPen
 from PyQt5.QtWidgets import QPushButton, QTextEdit
-from PyQt5.QtGui import QPen, QColor
 
 from pyflow.blocks.block import Block
 from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.blocks.pyeditor import PythonEditor
+from pyflow.core.add_edge_button import AddEdgeButton
 
 ansi2html_converter = Ansi2HTMLConverter()
 
@@ -71,6 +71,7 @@ class CodeBlock(ExecutableBlock):
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
         self.run_all_button = self.init_run_all_button()
+        self.add_edge_button = self.init_add_edge_button()
 
         # Add splitter between source_editor and panel
         self.splitter.addWidget(self.source_editor)
@@ -106,6 +107,11 @@ class CodeBlock(ExecutableBlock):
         run_all_button.raise_()
 
         return run_all_button
+
+    def init_add_edge_button(self):
+        """Initialize the add edge button."""
+        add_edge_button = AddEdgeButton(block=self)
+        return add_edge_button
 
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed."""
@@ -162,11 +168,20 @@ class CodeBlock(ExecutableBlock):
             int(self.edge_size / 2),
         )
 
+    def get_add_edge_button_pos(self) -> Tuple[int, int]:
+        """Get the position where to place the add edge button."""
+        return (self.width / 2, self.height + int(2.5 * self.add_edge_button.radius))
+
+    def update_add_edge_button(self):
+        """Change the geometry of the add edge button."""
+        self.add_edge_button.setPos(*self.get_add_edge_button_pos())
+
     def update_all(self):
         """Update the code block parts."""
         super().update_all()
         self.update_output_panel()
         self.update_run_all_button()
+        self.update_add_edge_button()
 
     @property
     def source(self) -> str:

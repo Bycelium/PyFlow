@@ -250,6 +250,12 @@ class Scene(QGraphicsScene, Serializable):
             hashmap.update({data["id"]: block})
         return block
 
+    def update_all_blocks_sockets(self):
+        """Update the socket position of all blocks."""
+        for item in self.items():
+            if isinstance(item, Block):
+                item.update_sockets()
+
     def serialize(self) -> OrderedDict:
         """Serialize the scene into a dict."""
         blocks: List[Block] = []
@@ -287,3 +293,10 @@ class Scene(QGraphicsScene, Serializable):
             edge.deserialize(edge_data, hashmap, restore_id)
             self.addItem(edge)
             hashmap.update({edge_data["id"]: edge})
+
+        # Remove empty sockets
+        for item in self.items():
+            if isinstance(item, Block):
+                for socket in item.sockets_in + item.sockets_out:
+                    if not socket.edges:
+                        socket.remove()

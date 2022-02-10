@@ -134,8 +134,6 @@ def is_title(block_data: OrderedDict) -> bool:
     return True
 
 
-
-
 def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
     """Add sockets to the blocks (in place) and returns the edge list."""
     code_blocks: List[OrderedDict] = [
@@ -154,8 +152,11 @@ def get_edges_data(blocks_data: OrderedDict) -> OrderedDict:
         socket_id_out: int = greatest_block_id + 2 * i + 2
         socket_id_in: int = greatest_block_id + 2 * i + 1
 
-        block["sockets"].append(get_output_socket_data(socket_id_out, block))
-        block["sockets"].append(get_input_socket_data(socket_id_in, block))
+        # Only add sockets where there will be edges
+        if i > 0:
+            block["sockets"].append(get_input_socket_data(socket_id_in, block))
+        if i < len(code_blocks) - 1:
+            block["sockets"].append(get_output_socket_data(socket_id_out, block))
 
         if i >= 1:
             edges_data.append(
