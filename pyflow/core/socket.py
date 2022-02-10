@@ -26,6 +26,7 @@ class Socket(QGraphicsItem, Serializable):
         "type": "undefined",
         "metadata": {
             "color": "#FF55FFF0",
+            "off_color": "#FF323232",
             "linecolor": "#FF000000",
             "linewidth": 1.0,
             "radius": 6.0,
@@ -40,6 +41,7 @@ class Socket(QGraphicsItem, Serializable):
         flow_type: str = "exe",
         radius: float = DEFAULT_DATA["metadata"]["radius"],
         color: str = DEFAULT_DATA["metadata"]["color"],
+        off_color: str = DEFAULT_DATA["metadata"]["off_color"],
         linewidth: float = DEFAULT_DATA["metadata"]["linewidth"],
         linecolor: str = DEFAULT_DATA["metadata"]["linecolor"],
     ):
@@ -67,6 +69,9 @@ class Socket(QGraphicsItem, Serializable):
         self._pen = QPen(QColor(linecolor))
         self._pen.setWidth(int(linewidth))
         self._brush = QBrush(QColor(color))
+        self._off_brush = QBrush(QColor(off_color))
+
+        self.is_on = True
 
         self.metadata = {
             "radius": radius,
@@ -129,7 +134,7 @@ class Socket(QGraphicsItem, Serializable):
         widget: Optional[QWidget] = None,
     ):  # pylint:disable=unused-argument
         """Paint the socket."""
-        painter.setBrush(self._brush)
+        painter.setBrush(self._brush if self.is_on else self._off_brush)
         painter.setPen(self._pen)
         r = self.radius
         if self.flow_type == "exe":
@@ -146,6 +151,10 @@ class Socket(QGraphicsItem, Serializable):
         """Get the socket bounding box."""
         r = self.radius
         return QRectF(-r, -r, 2 * r, 2 * r)
+
+    def toggle(self):
+        """Toggle the state of the socket."""
+        self.is_on = not self.is_on
 
     def serialize(self) -> OrderedDict:
         metadata = OrderedDict(sorted(self.metadata.items()))
