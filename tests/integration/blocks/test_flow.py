@@ -10,16 +10,15 @@ import time
 
 from pyflow.blocks.codeblock import CodeBlock
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
+from tests.integration.utils import apply_function_inapp, CheckingQueue, InAppTest
 
 
-class TestCodeBlocksFlow:
+class TestCodeBlocksFlow(InAppTest):
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup reused variables."""
-        start_app(self)
-
-        self._widget.scene.load("tests/assets/flow_test.ipyg")
+        self.start_app()
+        self.widget.scene.load("tests/assets/flow_test.ipyg")
 
         self.titles = [
             "Test flow 5",
@@ -29,15 +28,15 @@ class TestCodeBlocksFlow:
             "Test output only 1",
         ]
         self.blocks_to_run = [None] * 5
-        for item in self._widget.scene.items():
+        for item in self.widget.scene.items():
             if isinstance(item, CodeBlock):
                 if item.title in self.titles:
                     self.blocks_to_run[self.titles.index(item.title)] = item
 
     def test_duplicated_run(self):
         """run exactly one time pressing run right."""
-        for b in self.blocks_to_run:
-            b.stdout = ""
+        for block in self.blocks_to_run:
+            block.stdout = ""
 
         def testing_no_duplicates(msgQueue: CheckingQueue):
 
@@ -60,8 +59,8 @@ class TestCodeBlocksFlow:
     def test_flow_left(self):
         """run its dependencies when pressing left run."""
 
-        for b in self.blocks_to_run:
-            b.stdout = ""
+        for block in self.blocks_to_run:
+            block.stdout = ""
 
         def testing_run(msgQueue: CheckingQueue):
 

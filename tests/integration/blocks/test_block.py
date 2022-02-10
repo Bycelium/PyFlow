@@ -9,30 +9,28 @@ import pytest
 import pyautogui
 from pytestqt.qtbot import QtBot
 
-from PyQt5.QtCore import QPointF
-
 from pyflow.blocks.block import Block
 
-from tests.integration.utils import apply_function_inapp, CheckingQueue, start_app
+from tests.integration.utils import apply_function_inapp, CheckingQueue, InAppTest
 
 
-class TestBlocks:
+class TestBlocks(InAppTest):
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup reused variables."""
-        start_app(self)
+        self.start_app()
         self.block = Block(title="Testing block")
 
     def test_create_blocks(self, qtbot: QtBot):
         """can be added to the scene."""
-        self._widget.scene.addItem(self.block)
+        self.widget.scene.addItem(self.block)
 
     def test_move_blocks(self, qtbot: QtBot):
         """can be dragged around with the mouse."""
-        self._widget.scene.addItem(self.block)
-        self._widget.view.horizontalScrollBar().setValue(self.block.x())
-        self._widget.view.verticalScrollBar().setValue(
-            self.block.y() - self._widget.view.height() + self.block.height
+        self.widget.scene.addItem(self.block)
+        self.widget.view.horizontalScrollBar().setValue(int(self.block.x()))
+        self.widget.view.verticalScrollBar().setValue(
+            int(self.block.y() - self.widget.view.height() + self.block.height)
         )
 
         def testing_drag(msgQueue: CheckingQueue):
@@ -40,15 +38,7 @@ class TestBlocks:
             # This line works because the zoom is 1 by default.
 
             expected_move_amount = [20, -30]
-            pos_block = QPointF(self.block.pos().x(), self.block.pos().y())
-
-            pos_block.setX(
-                pos_block.x() + self.block.title_widget.height() + self.block.edge_size
-            )
-            pos_block.setY(pos_block.y() + self.block.title_widget.height() / 2)
-
-            pos_block = self._widget.view.mapFromScene(pos_block)
-            pos_block = self._widget.view.mapToGlobal(pos_block)
+            pos_block = self.get_global_pos(self.block, rel_pos=(0.05, 0.5))
 
             pyautogui.moveTo(pos_block.x(), pos_block.y())
             pyautogui.mouseDown(button="left")
@@ -64,8 +54,8 @@ class TestBlocks:
 
             move_amount = [self.block.pos().x(), self.block.pos().y()]
             # rectify because the scene can be zoomed :
-            move_amount[0] = move_amount[0] * self._widget.view.zoom
-            move_amount[1] = move_amount[1] * self._widget.view.zoom
+            move_amount[0] = move_amount[0] * self.widget.view.zoom
+            move_amount[1] = move_amount[1] * self.widget.view.zoom
 
             msgQueue.check_equal(
                 move_amount, expected_move_amount, "Block moved by the correct amound"

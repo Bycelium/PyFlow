@@ -4,12 +4,14 @@
 """ Module for the handling of scene clipboard operations. """
 
 from typing import TYPE_CHECKING, OrderedDict, Union
-from warnings import warn
+import logging
 
 from pyflow.core.edge import Edge
 
 if TYPE_CHECKING:
     from pyflow.scene import Scene
+
+logger = logging.getLogger(__name__)
 
 
 class BlocksClipboard:
@@ -122,5 +124,5 @@ class BlocksClipboard:
     def _gatherData(self) -> Union[OrderedDict, None]:
         """Return the data stored in the clipboard."""
         if self.blocks_data is None:
-            warn(f"No object is loaded")
+            logger.warning("Try to gather block_data but None is found.")
         return self.blocks_data

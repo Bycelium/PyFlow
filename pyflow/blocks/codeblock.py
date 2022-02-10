@@ -14,7 +14,7 @@ from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_edge_button import AddEdgeButton
 
-conv = Ansi2HTMLConverter()
+ansi2html_converter = Ansi2HTMLConverter()
 
 
 class CodeBlock(ExecutableBlock):
@@ -43,7 +43,7 @@ class CodeBlock(ExecutableBlock):
 
         """
 
-        super().__init__(**kwargs)
+        super().__init__(block_type="CodeBlock", **kwargs)
         self.source_editor = PythonEditor(self)
 
         self._source = ""
@@ -188,7 +188,7 @@ class CodeBlock(ExecutableBlock):
     @property
     def source(self) -> str:
         """Source code."""
-        return self._source
+        return self.source_editor.text()
 
     @source.setter
     def source(self, value: str):
@@ -239,7 +239,7 @@ class CodeBlock(ExecutableBlock):
         text = text.replace("\x08", "")
         text = text.replace("\r", "")
         # Convert ANSI escape codes to HTML
-        text = conv.convert(text)
+        text = ansi2html_converter.convert(text)
         # Replace background color
         text = text.replace(
             "background-color: #000000", "background-color: transparent"
@@ -273,7 +273,6 @@ class CodeBlock(ExecutableBlock):
         base_dict = super().serialize()
         base_dict["source"] = self.source
         base_dict["stdout"] = self.stdout
-
         return base_dict
 
     def deserialize(

@@ -19,7 +19,7 @@ class SliderBlock(ExecutableBlock):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(block_type="SliderBlock", **kwargs)
 
         self.layout = QVBoxLayout(self.root)
 
@@ -29,16 +29,16 @@ class SliderBlock(ExecutableBlock):
         self.variable_text = QLineEdit("slider_value")
         self.variable_value = QLabel(f"{self.slider.value()/100}")
 
-        self.variable_text.setFixedWidth(self.root.width() / 2)
+        self.variable_text.setFixedWidth(int(self.root.width() / 2))
 
         self.variable_layout.addWidget(self.variable_text)
         self.variable_layout.addWidget(self.variable_value)
 
         self.layout.setContentsMargins(
-            self.edge_size * 2,
-            self.title_widget.height() + self.edge_size * 2,
-            self.edge_size * 2,
-            self.edge_size * 2,
+            int(self.edge_size * 2),
+            int(self.title_widget.height() + self.edge_size * 2),
+            int(self.edge_size * 2),
+            int(self.edge_size * 2),
         )
         self.layout.addWidget(self.slider)
         self.layout.addLayout(self.variable_layout)

@@ -17,7 +17,7 @@ class ContainerBlock(Block):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(block_type="ContainerBlock", **kwargs)
 
         # Defer import to prevent circular dependency.
         # Due to the overall structure of the code, this cannot be removed, as the
@@ -29,10 +29,10 @@ class ContainerBlock(Block):
 
         self.layout = QVBoxLayout(self.root)
         self.layout.setContentsMargins(
-            self.edge_size * 2,
-            self.title_widget.height() + self.edge_size * 2,
-            self.edge_size * 2,
-            self.edge_size * 2,
+            int(self.edge_size * 2),
+            int(self.title_widget.height() + self.edge_size * 2),
+            int(self.edge_size * 2),
+            int(self.edge_size * 2),
         )
 
         self.child_scene = Scene()
