@@ -462,7 +462,9 @@ class View(QGraphicsView):
         """Create an edge by drag and drop."""
 
         # edge creation / destruction if control is pressed
-        ctrl_pressed = QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        ctrl_pressed = (
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        )
         if event is None or (action != "move" and ctrl_pressed):
             return event
 
@@ -471,21 +473,20 @@ class View(QGraphicsView):
 
         scene = self.scene()
         if action == "press":
-            
             if (
                 isinstance(item_at_click, Socket)
                 and self.mode != self.MODE_EDGE_DRAG
                 and item_at_click.socket_type != "input"
             ):
                 # Delete existing edges
-                for edge in item_at_click.edges:
-                    edge.remove()
-
-                self.mode = self.MODE_EDGE_DRAG
                 self.edge_drag = Edge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos()),
                 )
+                old_edges = item_at_click.edges
+                for edge in old_edges:
+                    edge.remove()
+                self.mode = self.MODE_EDGE_DRAG
                 scene.addItem(self.edge_drag)
                 LOGGER.debug("Start draging edge from existing socket.")
                 return
