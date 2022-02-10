@@ -452,10 +452,8 @@ class View(QGraphicsView):
         """Create an edge by drag and drop."""
 
         # edge creation / destruction if control is pressed
-        if event is None or (
-            action != "move"
-            and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
-        ):
+        ctrl_pressed = QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        if event is None or (action != "move" and ctrl_pressed):
             return event
 
         # The item on top of everything else, below the mouse
