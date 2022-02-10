@@ -131,13 +131,13 @@ class CodeBlock(ExecutableBlock):
         else:
             self.run_left()
 
-    def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
-        """Handle the event when the mouse enters the button."""
+    def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse enters the block."""
         self.add_edge_button.set_highlight(True)
         return super().hoverEnterEvent(event)
-    
-    def hoverLeaveEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
-        """Handle the event when the mouse leaves the button."""
+
+    def hoverLeaveEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse leaves the block."""
         self.add_edge_button.set_highlight(False)
         return super().hoverLeaveEvent(event)
 
