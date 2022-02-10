@@ -200,6 +200,18 @@ class Block(QGraphicsItem, Serializable):
         super().mouseMoveEvent(event)
         self.moved = True
 
+        # Update the position of the sockets of this block
+        # and the block it is connected to
+        self.update_sockets()
+        for socket in self.sockets_in:
+            for edge in socket.edges:
+                if edge.source_socket is not None:
+                    edge.source_socket.block.update_sockets()
+        for socket in self.sockets_out:
+            for edge in socket.edges:
+                if edge.destination_socket is not None:
+                    edge.destination_socket.block.update_sockets()
+
     def remove(self):
         """Remove the block from the scene containing it."""
         scene = self.scene()
