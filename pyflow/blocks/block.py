@@ -205,7 +205,7 @@ class Block(QGraphicsItem, Serializable):
         """Remove the block from the scene containing it."""
         scene = self.scene()
         for socket in self.sockets_in + self.sockets_out:
-            self.remove_socket(socket)
+            socket.remove()
         if scene is not None:
             scene.removeItem(self)
 
