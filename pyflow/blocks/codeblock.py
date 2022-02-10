@@ -82,6 +82,8 @@ class CodeBlock(ExecutableBlock):
         # Build root widget into holder
         self.holder.setWidget(self.root)
 
+        self.setAcceptHoverEvents(True)
+
         self.update_all()  # Set the geometry of display and source_editor
 
     def init_output_panel(self):
@@ -129,6 +131,16 @@ class CodeBlock(ExecutableBlock):
         else:
             self.run_left()
 
+    def hoverEnterEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
+        """Handle the event when the mouse enters the button."""
+        self.add_edge_button.set_highlight(True)
+        return super().hoverEnterEvent(event)
+    
+    def hoverLeaveEvent(self, event: 'QGraphicsSceneHoverEvent') -> None:
+        """Handle the event when the mouse leaves the button."""
+        self.add_edge_button.set_highlight(False)
+        return super().hoverLeaveEvent(event)
+
     def run_code(self):
         """Run the code in the block."""
 
@@ -172,7 +184,7 @@ class CodeBlock(ExecutableBlock):
 
     def get_add_edge_button_pos(self) -> Tuple[int, int]:
         """Get the position where to place the add edge button."""
-        return (self.width / 2, self.height + 15)
+        return (self.width / 2, self.height + 25)
 
     def update_add_edge_button(self):
         """Change the geometry of the add edge button."""

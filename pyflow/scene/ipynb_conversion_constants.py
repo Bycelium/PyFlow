@@ -6,7 +6,7 @@
 from typing import Dict
 
 MARGIN_Y: float = 120
-MARGIN_BETWEEN_BLOCKS_Y: float = 40
+MARGIN_BETWEEN_BLOCKS_Y: float = 60
 BLOCK_WIDTH: float = 600
 TITLE_MAX_LENGTH: int = 60
 
