@@ -29,7 +29,7 @@ class Socket(QGraphicsItem, Serializable):
             "off_color": "#FF323232",
             "linecolor": "#FF000000",
             "linewidth": 1.0,
-            "radius": 6.0,
+            "radius": 10.0,
         },
     }
     MANDATORY_FIELDS = {"position"}
