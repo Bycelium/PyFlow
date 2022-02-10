@@ -473,12 +473,12 @@ class View(QGraphicsView):
 
         scene = self.scene()
         if action == "press":
+            # If we press an existing output socket, create a new edge from it.
             if (
                 isinstance(item_at_click, Socket)
                 and self.mode != self.MODE_EDGE_DRAG
-                and item_at_click.socket_type != "input"
+                and item_at_click.socket_type == "output"
             ):
-                # Delete existing edges
                 self.edge_drag = Edge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos()),
@@ -490,7 +490,7 @@ class View(QGraphicsView):
                 scene.addItem(self.edge_drag)
                 LOGGER.debug("Start draging edge from existing socket.")
                 return
-            # If it is the add edge button, create a new edge and a new socket for this edge
+            # If it is the add edge button, create a new socket and a new edge from it.
             elif (
                 isinstance(item_at_click, AddEdgeButton)
                 and self.mode != self.MODE_EDGE_DRAG
@@ -504,8 +504,8 @@ class View(QGraphicsView):
                 scene.addItem(self.edge_drag)
                 LOGGER.debug("Start draging edge from new socket.")
                 return
-        elif action == "release":
-            if self.mode == self.MODE_EDGE_DRAG:
+        elif self.mode == self.MODE_EDGE_DRAG:
+            if action == "release":
                 block_below_mouse = self.get_block_below_mouse(event.pos())
                 if (
                     block_below_mouse is not None
@@ -521,11 +521,9 @@ class View(QGraphicsView):
                     self.edge_drag.source_socket.remove()
                 self.edge_drag = None
                 self.mode = self.MODE_NOOP
-                self.scene().update_all_blocks_sockets()
-        elif action == "move":
-            if self.mode == self.MODE_EDGE_DRAG:
+            elif action == "move":
                 self.edge_drag.destination = self.mapToScene(event.pos())
-                self.scene().update_all_blocks_sockets()
+            self.scene().update_all_blocks_sockets()
         return event
 
     def toggle_socket(self, event: QMouseEvent) -> Optional[QMouseEvent]:
