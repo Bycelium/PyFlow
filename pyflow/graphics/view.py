@@ -460,16 +460,15 @@ class View(QGraphicsView):
 
         scene = self.scene()
         if action == "press":
-            # If it is an existing edge, deleted the old edge and create a new one
+            
             if (
                 isinstance(item_at_click, Socket)
                 and self.mode != self.MODE_EDGE_DRAG
                 and item_at_click.socket_type != "input"
             ):
-                while item_at_click.edges:
-                    edge = item_at_click.edges[0]
-                    old_destination = edge.destination_socket
-                    old_destination.remove()
+                # Delete existing edges
+                for edge in item_at_click.edges:
+                    edge.remove()
 
                 self.mode = self.MODE_EDGE_DRAG
                 self.edge_drag = Edge(
@@ -493,9 +492,7 @@ class View(QGraphicsView):
                 return
         elif action == "release":
             if self.mode == self.MODE_EDGE_DRAG:
-
                 block_below_mouse = self.get_block_below_mouse(event.pos())
-
                 if (
                     block_below_mouse is not None
                     and block_below_mouse is not self.edge_drag.source_socket.block

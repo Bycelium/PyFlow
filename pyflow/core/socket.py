@@ -96,6 +96,8 @@ class Socket(QGraphicsItem, Serializable):
     def remove_edge(self, edge: "Edge"):
         """Remove a given edge from the socket edges."""
         self.edges.remove(edge)
+        if not self.edges:
+            self.remove()
 
     def remove(self):
         """Remove the socket and all its edges from the scene it is in."""
@@ -105,7 +107,8 @@ class Socket(QGraphicsItem, Serializable):
         if self.socket_type == "input":
             self.block.sockets_in.remove(self)
         else:
-            self.block.sockets_out.remove(self)
+            if self in self.block.sockets_out:
+                self.block.sockets_out.remove(self)
         self.block.update_sockets()
 
         scene = self.scene()
