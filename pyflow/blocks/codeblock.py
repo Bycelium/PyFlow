@@ -3,7 +3,7 @@
 
 """ Module for the base Code Block."""
 
-from typing import OrderedDict, Tuple
+from typing import TYPE_CHECKING, OrderedDict, Tuple
 
 from ansi2html import Ansi2HTMLConverter
 from PyQt5.QtGui import QColor, QPen
@@ -15,6 +15,9 @@ from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_edge_button import AddEdgeButton
 
 ansi2html_converter = Ansi2HTMLConverter()
+
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QGraphicsSceneHoverEvent
 
 
 class CodeBlock(ExecutableBlock):
