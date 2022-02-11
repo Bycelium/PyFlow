@@ -112,9 +112,7 @@ class CodeBlock(ExecutableBlock):
 
     def init_add_edge_button(self):
         """Initialize the add edge button."""
-
         add_edge_button = AddEdgeButton(block=self)
-
         return add_edge_button
 
     def handle_run_right(self):
@@ -184,7 +182,7 @@ class CodeBlock(ExecutableBlock):
 
     def get_add_edge_button_pos(self) -> Tuple[int, int]:
         """Get the position where to place the add edge button."""
-        return (self.width / 2, self.height + 25)
+        return (self.width / 2, self.height + int(2.5 * self.add_edge_button.radius))
 
     def update_add_edge_button(self):
         """Change the geometry of the add edge button."""

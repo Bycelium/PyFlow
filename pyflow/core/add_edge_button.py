@@ -13,6 +13,7 @@ from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPolygon
 from PyQt5.QtWidgets import QGraphicsItem, QStyleOptionGraphicsItem, QWidget
 
 if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QGraphicsSceneHoverEvent
     from pyflow.blocks.executableblock import ExecutableBlock
     from pyflow.core.edge import Edge
 

@@ -20,12 +20,14 @@ from pyflow.scene import Scene
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
 from pyflow.blocks.block import Block
+from pyflow.logging import get_logger
 from pyflow.blocks import __file__ as BLOCK_INIT_PATH
 
 BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
 BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
+LOGGER = get_logger(__name__)
 
 
 class View(QGraphicsView):
@@ -460,7 +462,9 @@ class View(QGraphicsView):
         """Create an edge by drag and drop."""
 
         # edge creation / destruction if control is pressed
-        ctrl_pressed = QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        ctrl_pressed = (
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        )
         if event is None or (action != "move" and ctrl_pressed):
             return event
 
@@ -469,24 +473,24 @@ class View(QGraphicsView):
 
         scene = self.scene()
         if action == "press":
-            
+            # If we press an existing output socket, create a new edge from it.
             if (
                 isinstance(item_at_click, Socket)
                 and self.mode != self.MODE_EDGE_DRAG
-                and item_at_click.socket_type != "input"
+                and item_at_click.socket_type == "output"
             ):
-                # Delete existing edges
-                for edge in item_at_click.edges:
-                    edge.remove()
-
-                self.mode = self.MODE_EDGE_DRAG
                 self.edge_drag = Edge(
                     source_socket=item_at_click,
                     destination=self.mapToScene(event.pos()),
                 )
+                old_edges = item_at_click.edges
+                for edge in old_edges:
+                    edge.remove()
+                self.mode = self.MODE_EDGE_DRAG
                 scene.addItem(self.edge_drag)
+                LOGGER.debug("Start draging edge from existing socket.")
                 return
-            # If it is the add edge button, create a new edge and a new socket for this edge
+            # If it is the add edge button, create a new socket and a new edge from it.
             elif (
                 isinstance(item_at_click, AddEdgeButton)
                 and self.mode != self.MODE_EDGE_DRAG
@@ -498,9 +502,10 @@ class View(QGraphicsView):
                     destination=self.mapToScene(event.pos()),
                 )
                 scene.addItem(self.edge_drag)
+                LOGGER.debug("Start draging edge from new socket.")
                 return
-        elif action == "release":
-            if self.mode == self.MODE_EDGE_DRAG:
+        elif self.mode == self.MODE_EDGE_DRAG:
+            if action == "release":
                 block_below_mouse = self.get_block_below_mouse(event.pos())
                 if (
                     block_below_mouse is not None
@@ -512,14 +517,13 @@ class View(QGraphicsView):
                         "Created edge by dragging", set_modified=True
                     )
                 else:
+                    LOGGER.debug("Removed socket from edge release.")
                     self.edge_drag.source_socket.remove()
                 self.edge_drag = None
                 self.mode = self.MODE_NOOP
-                self.scene().update_all_blocks_sockets()
-        elif action == "move":
-            if self.mode == self.MODE_EDGE_DRAG:
+            elif action == "move":
                 self.edge_drag.destination = self.mapToScene(event.pos())
-                self.scene().update_all_blocks_sockets()
+            self.scene().update_all_blocks_sockets()
         return event
 
     def toggle_socket(self, event: QMouseEvent) -> Optional[QMouseEvent]:

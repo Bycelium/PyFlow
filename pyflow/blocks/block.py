@@ -144,42 +144,6 @@ class Block(QGraphicsItem, Serializable):
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
 
-    def get_socket_pos(self, socket: Socket) -> Tuple[float]:
-        """Get a socket position to place them on the block sides."""
-        if socket.socket_type == "input":
-            y = 0
-            sockets = self.sockets_in
-        else:
-            y = self.height
-            sockets = self.sockets_out
-
-        # Sockets are evenly spaced out on the whole block width
-        space_between_sockets = self.width / (len(sockets) + 1)
-        x = space_between_sockets * (sockets.index(socket) + 1)
-
-        return x, y
-
-    def update_sockets(self):
-        """Update the sockets positions."""
-
-        def x_end_position(socket: Socket) -> float:
-            """x-coordinate of the end point of the first edge."""
-            if not socket.edges:
-                return 0
-            return socket.edges[0].destination.x()
-
-        def x_start_position(socket: Socket) -> float:
-            """x-coordinate of the start point of the first edge."""
-            if not socket.edges:
-                return 0
-            return socket.edges[0].source.x()
-
-        self.sockets_in.sort(key=x_start_position)
-        self.sockets_out.sort(key=x_end_position)
-
-        for socket in self.sockets_in + self.sockets_out:
-            socket.setPos(*self.get_socket_pos(socket))
-
     def add_socket(self, socket: Socket):
         """Add a socket to the block."""
         if socket.socket_type == "input":
@@ -203,14 +167,7 @@ class Block(QGraphicsItem, Serializable):
         # Update the position of the sockets of this block
         # and the block it is connected to
         self.update_sockets()
-        for socket in self.sockets_in:
-            for edge in socket.edges:
-                if edge.source_socket is not None:
-                    edge.source_socket.block.update_sockets()
-        for socket in self.sockets_out:
-            for edge in socket.edges:
-                if edge.destination_socket is not None:
-                    edge.destination_socket.block.update_sockets()
+        self.update_neighbors_sockets()
 
     def remove(self):
         """Remove the block from the scene containing it."""
@@ -248,6 +205,53 @@ class Block(QGraphicsItem, Serializable):
             int(self.edge_size * 1.7),
             int(self.edge_size * 1.7),
         )
+
+    def get_socket_pos(self, socket: Socket) -> Tuple[float]:
+        """Get a socket position to place them on the block sides."""
+        if socket.socket_type == "input":
+            y = 0
+            sockets = self.sockets_in
+        else:
+            y = self.height
+            sockets = self.sockets_out
+
+        # Sockets are evenly spaced out on the whole block width
+        space_between_sockets = self.width / (len(sockets) + 1)
+        x = space_between_sockets * (sockets.index(socket) + 1)
+
+        return x, y
+
+    def update_sockets(self):
+        """Update the sockets positions."""
+
+        def x_end_position(socket: Socket) -> float:
+            """x-coordinate of the end point of the first edge."""
+            if not socket.edges:
+                return 0
+            return socket.edges[0].destination.x()
+
+        def x_start_position(socket: Socket) -> float:
+            """x-coordinate of the start point of the first edge."""
+            if not socket.edges:
+                return 0
+            return socket.edges[0].source.x()
+
+        self.sockets_in.sort(key=x_start_position)
+        self.sockets_out.sort(key=x_end_position)
+
+        for socket in self.sockets_in + self.sockets_out:
+            socket.setPos(*self.get_socket_pos(socket))
+
+    def update_neighbors_sockets(self):
+        """Update the sockets positions of all neighboring blocks."""
+        for socket in self.sockets_in:
+            for edge in socket.edges:
+                if edge.source_socket is not None:
+                    edge.source_socket.block.update_sockets()
+        for socket in self.sockets_out:
+            for edge in socket.edges:
+                if edge.destination_socket is not None:
+                    edge.destination_socket.block.update_sockets()
 
     def update_all(self):
         """Update sockets and title."""
