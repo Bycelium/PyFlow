@@ -124,7 +124,7 @@ class Kernel:
         """
         done = False
         try:
-            message = self.client.get_iopub_msg(timeout=2)["content"]
+            message = self.client.get_iopub_msg()["content"]
             if "execution_state" in message and message["execution_state"] == "idle":
                 done = True
         except queue.Empty:
