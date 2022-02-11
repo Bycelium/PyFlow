@@ -3,7 +3,7 @@
 
 """ Module for the base Code Block."""
 
-from typing import OrderedDict, Tuple
+from typing import TYPE_CHECKING, OrderedDict, Tuple
 
 from ansi2html import Ansi2HTMLConverter
 from PyQt5.QtGui import QColor, QPen
@@ -15,6 +15,9 @@ from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_edge_button import AddEdgeButton
 
 ansi2html_converter = Ansi2HTMLConverter()
+
+if TYPE_CHECKING:
+    from PyQt5.QtWidgets import QGraphicsSceneHoverEvent
 
 
 class CodeBlock(ExecutableBlock):
@@ -84,6 +87,8 @@ class CodeBlock(ExecutableBlock):
         # Build root widget into holder
         self.holder.setWidget(self.root)
 
+        self.setAcceptHoverEvents(True)
+
         self.update_all()  # Set the geometry of display and source_editor
 
     def init_output_panel(self):
@@ -132,6 +137,16 @@ class CodeBlock(ExecutableBlock):
             self._interrupt_execution()
         else:
             self.run_left()
+
+    def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse enters the block."""
+        self.add_edge_button.set_highlight(True)
+        return super().hoverEnterEvent(event)
+
+    def hoverLeaveEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse leaves the block."""
+        self.add_edge_button.set_highlight(False)
+        return super().hoverLeaveEvent(event)
 
     def run_code(self):
         """Run the code in the block."""

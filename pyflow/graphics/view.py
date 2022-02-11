@@ -491,7 +491,7 @@ class View(QGraphicsView):
                 LOGGER.debug("Start draging edge from existing socket.")
                 return
             # If it is the add edge button, create a new socket and a new edge from it.
-            elif (
+            if (
                 isinstance(item_at_click, AddEdgeButton)
                 and self.mode != self.MODE_EDGE_DRAG
             ):

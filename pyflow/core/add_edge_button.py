@@ -33,15 +33,22 @@ class AddEdgeButton(QGraphicsItem):
 
         self.edges: List["Edge"] = []
 
-        self.radius = 10
+        self.radius = 12
         self._pen = QPen(QColor("#44000000"))
         self._pen.setWidth(int(1))
 
-        self._normal_brush = QBrush(QColor("#4455FFF0"))
-        self._hover_brush = QBrush(QColor("#AA55FFF0"))
+        self._normal_brush = QBrush(QColor("#1155FFF0"))
+        self._hover_brush = QBrush(QColor("#FF23E9D8"))
+        self._block_hover_brush = QBrush(QColor("#8855FFF0"))
         self._brush = self._normal_brush
 
         self.setAcceptHoverEvents(True)
+
+    def set_highlight(self, value: bool) -> None:
+        if value:
+            self._brush = self._block_hover_brush
+        else:
+            self._brush = self._normal_brush
 
     def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
         """Handle the event when the mouse enters the button."""
