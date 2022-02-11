@@ -47,8 +47,9 @@ class MarkdownBlock(Block):
         self.splitter.addWidget(self.editor)
 
         self.rendered_markdown = QWebEngineView()
+        self.output_panel_background_color = "#1E1E1E"
         self.rendered_markdown.page().setBackgroundColor(
-            QColor.fromRgba64(0, 0, 0, alpha=0)
+            QColor(self.output_panel_background_color)
         )
 
         self.splitter.addWidget(self.rendered_markdown)
@@ -58,14 +59,14 @@ class MarkdownBlock(Block):
         """Update markdown rendering when the content of the markdown editor changes."""
         t = self.editor.text()
 
-        dark_theme = """
+        dark_theme =f'''
             <style>
-                *{
-                    background-color:transparent;
+                *{{
+                    background-color:"""{self.output_panel_background_color}""";
                     color:white;
-                }
+                }}
             </style>
-        """
+        '''
 
         self.rendered_markdown.setHtml(f"{dark_theme}{markdown(t)}")
 

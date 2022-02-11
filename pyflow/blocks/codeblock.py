@@ -67,6 +67,8 @@ class CodeBlock(ExecutableBlock):
             QPen(QColor("#00ff00")),  # Transmitting
         ]
 
+        self.output_panel_background_color = "#1E1E1E"
+
         # Add output pannel
         self.output_panel = self.init_output_panel()
         self.run_button = self.init_run_button()
@@ -89,6 +91,10 @@ class CodeBlock(ExecutableBlock):
         output_panel = QTextEdit()
         output_panel.setReadOnly(True)
         output_panel.setFont(self.source_editor.font())
+        style_sheet = (
+            f'QTextEdit {{ background-color: "{self.output_panel_background_color}"; }}'
+        )
+        output_panel.setStyleSheet(style_sheet)
         return output_panel
 
     def init_run_button(self):
