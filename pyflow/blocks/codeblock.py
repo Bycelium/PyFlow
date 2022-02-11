@@ -91,9 +91,7 @@ class CodeBlock(ExecutableBlock):
         output_panel.setReadOnly(True)
         output_panel.setFont(self.source_editor.font())
         style_sheet = (
-            "QTextEdit { background-color: "
-            + self.output_panel_background_color
-            + "; }"
+            f'QTextEdit {{ background-color: "{self.output_panel_background_color}"; }}'
         )
         output_panel.setStyleSheet(style_sheet)
         return output_panel

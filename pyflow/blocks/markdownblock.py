@@ -59,18 +59,14 @@ class MarkdownBlock(Block):
         """Update markdown rendering when the content of the markdown editor changes."""
         t = self.editor.text()
 
-        dark_theme = (
-            """
+        dark_theme =f'''
             <style>
-                *{
-                    background-color:"""
-            + self.output_panel_background_color
-            + """;
+                *{{
+                    background-color:"""{self.output_panel_background_color}""";
                     color:white;
-                }
+                }}
             </style>
-        """
-        )
+        '''
 
         self.rendered_markdown.setHtml(f"{dark_theme}{markdown(t)}")
 
