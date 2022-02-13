@@ -159,6 +159,12 @@ class Window(QMainWindow):
             shortcut="Del",
             triggered=self.onEditDelete,
         )
+        self._actDuplicate = QAction(
+            "&Duplicate",
+            statusTip="Duplicate selected items",
+            shortcut="Ctrl+D",
+            triggered=self.onEditDuplicate,
+        )
 
         # View
         self._actViewItems = QAction(
@@ -231,6 +237,7 @@ class Window(QMainWindow):
         self.editmenu.addAction(self._actPaste)
         self.editmenu.addSeparator()
         self.editmenu.addAction(self._actDel)
+        self.editmenu.addAction(self._actDuplicate)
 
         self.viewmenu = self.menuBar().addMenu("&View")
         self.thememenu = self.viewmenu.addMenu("Theme")
@@ -422,6 +429,13 @@ class Window(QMainWindow):
         current_window = self.activeMdiChild()
         if self.is_not_editing(current_window):
             current_window.view.deleteSelected()
+
+    def onEditDuplicate(self):
+        """Duplicate the selected items if not in edit mode."""
+        current_window = self.activeMdiChild()
+        if self.is_not_editing(current_window):
+            self.clipboard.copy(current_window.scene)
+            self.clipboard.paste(current_window.scene)
 
     # def closeEvent(self, event:QEvent):
     #     """ Save and quit the application. """
