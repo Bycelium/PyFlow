@@ -13,6 +13,7 @@ from pyflow.blocks.block import Block
 from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_edge_button import AddEdgeButton
+from pyflow.core.add_newblock_button import AddNewBlockButton
 
 ansi2html_converter = Ansi2HTMLConverter()
 
@@ -77,6 +78,7 @@ class CodeBlock(ExecutableBlock):
         self.run_button = self.init_run_button()
         self.run_all_button = self.init_run_all_button()
         self.add_edge_button = self.init_add_edge_button()
+        self.add_newblock_button = self.init_add_newblock_button()
 
         # Add splitter between source_editor and panel
         self.splitter.addWidget(self.source_editor)
@@ -124,6 +126,11 @@ class CodeBlock(ExecutableBlock):
         add_edge_button = AddEdgeButton(block=self)
         return add_edge_button
 
+    def init_add_newblock_button(self):
+        """Initialize the add a new block button."""
+        add_newblock_button = AddNewBlockButton(block=self)
+        return add_newblock_button
+
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed."""
         if self.run_state != 0:
@@ -141,11 +148,13 @@ class CodeBlock(ExecutableBlock):
     def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
         """Handle the event when the mouse enters the block."""
         self.add_edge_button.set_highlight(True)
+        self.add_newblock_button.set_highlight(True)
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
         """Handle the event when the mouse leaves the block."""
         self.add_edge_button.set_highlight(False)
+        self.add_newblock_button.set_highlight(False)
         return super().hoverLeaveEvent(event)
 
     def run_code(self):
@@ -191,11 +200,27 @@ class CodeBlock(ExecutableBlock):
 
     def get_add_edge_button_pos(self) -> Tuple[int, int]:
         """Get the position where to place the add edge button."""
-        return (self.width / 2, self.height + int(2.5 * self.add_edge_button.radius))
+        return (
+            self.width / 2,
+            self.height
+            + int(2.5 * self.add_edge_button.radius)
+            + int(2.5 * self.add_newblock_button.radius),
+        )
+
+    def get_add_newblock_button_pos(self) -> Tuple[int, int]:
+        """Get the position where to place the add newblock button."""
+        return (
+            self.width / 2,
+            self.height + int(2.5 * self.add_newblock_button.radius),
+        )
 
     def update_add_edge_button(self):
         """Change the geometry of the add edge button."""
         self.add_edge_button.setPos(*self.get_add_edge_button_pos())
+
+    def update_add_newblock_button(self):
+        """Change the geometry of the add newblock button."""
+        self.add_newblock_button.setPos(*self.get_add_newblock_button_pos())
 
     def update_all(self):
         """Update the code block parts."""
@@ -203,6 +228,7 @@ class CodeBlock(ExecutableBlock):
         self.update_output_panel()
         self.update_run_all_button()
         self.update_add_edge_button()
+        self.update_add_newblock_button()
 
     @property
     def source(self) -> str:

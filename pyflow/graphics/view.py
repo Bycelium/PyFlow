@@ -15,6 +15,7 @@ from PyQt5.sip import isdeleted
 from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.core.add_edge_button import AddEdgeButton
+from pyflow.core.add_newblock_button import AddNewBlockButton
 
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
@@ -503,6 +504,13 @@ class View(QGraphicsView):
                 )
                 scene.addItem(self.edge_drag)
                 LOGGER.debug("Start draging edge from new socket.")
+                return
+            if (
+                isinstance(item_at_click, AddNewBlockButton)
+                and self.mode != self.MODE_EDGE_DRAG
+            ):
+                new_socket = item_at_click.block.create_newblock()
+                LOGGER.debug("Create a new linked block.")
                 return
         elif self.mode == self.MODE_EDGE_DRAG:
             if action == "release":

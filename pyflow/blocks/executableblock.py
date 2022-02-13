@@ -7,7 +7,7 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 
 """
 
-from typing import TYPE_CHECKING, List, OrderedDict, Set, Union
+from typing import List, OrderedDict, Set, Union
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
@@ -15,8 +15,7 @@ from PyQt5.QtWidgets import QApplication
 from pyflow.blocks.block import Block
 from pyflow.core.socket import Socket
 
-if TYPE_CHECKING:
-    from pyflow.core.edge import Edge
+from pyflow.core.edge import Edge
 
 
 class ExecutableBlock(Block):
@@ -76,6 +75,26 @@ class ExecutableBlock(Block):
         socket = Socket(self, socket_type="output", flow_type="exe")
         self.add_socket(socket)
         return socket
+
+    def create_newblock(self):
+        """Create a new linked block under the self"""
+
+        # Create an empty block under the current one
+        filepath = "pyflow/blocks/blockfiles/empty.pfb"
+        new_block = self.scene().create_block_from_file(filepath)
+        new_block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
+        self.scene().addItem(new_block)
+
+        # Add sockets to the new block and the current one
+        self.create_new_output_socket()
+        new_block.create_new_input_socket()
+
+        # Create an edge between the two blocks
+        edge = Edge()
+        edge.source_socket = self.sockets_out[0]
+        edge.destination_socket = new_block.sockets_in[-1]
+        edge.update_path()
+        self.scene().addItem(edge)
 
     def run_code(self):
         """Run the code in the block."""
