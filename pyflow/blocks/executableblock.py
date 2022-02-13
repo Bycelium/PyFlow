@@ -86,13 +86,13 @@ class ExecutableBlock(Block):
         self.scene().addItem(new_block)
 
         # Add sockets to the new block and the current one
-        self.create_new_output_socket()
-        new_block.create_new_input_socket()
+        source_socket = self.create_new_output_socket()
+        destination_socket = new_block.create_new_input_socket()
 
         # Create an edge between the two blocks
         edge = Edge()
-        edge.source_socket = self.sockets_out[0]
-        edge.destination_socket = new_block.sockets_in[-1]
+        edge.source_socket = source_socket
+        edge.destination_socket = destination_socket
         edge.update_path()
         self.scene().addItem(edge)
 
