@@ -332,6 +332,10 @@ class ExecutableBlock(Block):
         """Called when the output is an error."""
         self.has_been_run = False
 
+    def error_occured(self):
+        """Interrupt the kernel if an error occured"""
+        self._interrupt_execution()
+
     @property
     @abstractmethod
     def source(self) -> str:

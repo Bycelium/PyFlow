@@ -72,14 +72,14 @@ class Kernel:
             block: CodeBlock to send the output to
             code: String representing a piece of Python code to execute
         """
-        worker = Worker(self, code)
+        worker = Worker(self, block, code)
         # Change color to running
         block.run_state = 1
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
         worker.signals.finished.connect(block.execution_finished)
-        worker.signals.error.connect(block.reset_has_been_run)
+        worker.signals.error.connect(block.error_occured)
         block.scene().threadpool.start(worker)
 
     def run_queue(self):
