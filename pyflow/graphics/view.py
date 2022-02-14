@@ -508,13 +508,12 @@ class View(QGraphicsView):
                 isinstance(item_at_click, AddNewBlockButton)
                 and self.mode != self.MODE_EDGE_DRAG
             ):
-                # Create a new block
-                filepath = "pyflow/blocks/blockfiles/empty.pfb"
-                new_block = self.scene().create_block_from_file(filepath)
+                # Link a new CodeBlock under the selected block
+                parent: CodeBlock = item_at_click.block
+                new_block = CodeBlock()
                 self.scene().addItem(new_block)
-                # Link it and place it under the selected block
-                new_socket = item_at_click.block.link_and_place(new_block)
-                LOGGER.debug("Create a new linked block.")
+                parent.link_and_place(new_block)
+
                 return
         elif self.mode == self.MODE_EDGE_DRAG:
             if action == "release":

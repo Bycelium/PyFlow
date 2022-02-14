@@ -33,8 +33,8 @@ class Block(QGraphicsItem, Serializable):
     DEFAULT_DATA = {
         "title": "New block",
         "splitter_pos": [0, 0],
-        "width": 300,
-        "height": 200,
+        "width": 618,
+        "height": 184,
         "metadata": {
             "title_metadata": {"color": "white", "font": "Ubuntu", "size": 10}
         },
