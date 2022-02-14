@@ -449,7 +449,7 @@ class Window(QMainWindow):
         current_window = self.activeMdiChild()
         selected_blocks, _ = current_window.scene.sortedSelectedItems()
         if len(selected_blocks) == 1:
-            selected_blocks[0].run_code()
+            selected_blocks[0].run_left()
 
     # def closeEvent(self, event:QEvent):
     #     """ Save and quit the application. """
