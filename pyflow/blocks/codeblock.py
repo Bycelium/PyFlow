@@ -10,6 +10,7 @@ from PyQt5.QtGui import QColor, QPen
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from pyflow.blocks.block import Block
+from pyflow.core.edge import Edge
 from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
@@ -172,6 +173,25 @@ class CodeBlock(ExecutableBlock):
         super().execution_finished()
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
+
+    def link(self, block: "ExecutableBlock"):
+        """Link a block to the current one."""
+        # Add sockets to the new block and the current one
+        source_socket = self.create_new_output_socket()
+        destination_socket = block.create_new_input_socket()
+
+        # Create an edge between the two blocks
+        edge = Edge(source_socket=source_socket, destination_socket=destination_socket)
+        self.scene().addItem(edge)
+
+    def place(self, block: Block):
+        """Place a block under itself."""
+        block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
+
+    def link_and_place(self, block: "ExecutableBlock"):
+        """Create a new linked block under itself."""
+        self.place(block)
+        self.link(block)
 
     def update_title(self):
         """Change the geometry of the title widget."""

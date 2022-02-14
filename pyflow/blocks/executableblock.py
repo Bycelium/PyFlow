@@ -14,7 +14,6 @@ from PyQt5.QtWidgets import QApplication
 
 from pyflow.blocks.block import Block
 from pyflow.core.socket import Socket
-
 from pyflow.core.edge import Edge
 
 
@@ -75,28 +74,6 @@ class ExecutableBlock(Block):
         socket = Socket(self, socket_type="output", flow_type="exe")
         self.add_socket(socket)
         return socket
-
-    def link(self, block):
-        """Link a block to the current one."""
-        # Add sockets to the new block and the current one
-        source_socket = self.create_new_output_socket()
-        destination_socket = block.create_new_input_socket()
-
-        # Create an edge between the two blocks
-        edge = Edge()
-        edge.source_socket = source_socket
-        edge.destination_socket = destination_socket
-        edge.update_path()
-        self.scene().addItem(edge)
-
-    def place(self, block):
-        """Place a block under the current one"""
-        block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
-
-    def link_and_place(self, block):
-        """Create a new linked block under the self"""
-        self.place(block)
-        self.link(block)
 
     def run_code(self):
         """Run the code in the block."""
