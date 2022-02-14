@@ -221,8 +221,9 @@ class Scene(QGraphicsScene, Serializable):
             data = json.loads(file.read())
         data["position"] = [x, y]
         data["sockets"] = {}
-        self.create_block(data, None, False)
+        block = self.create_block(data, None, False)
         self.history.checkpoint("Created block from file", set_modified=True)
+        return block
 
     def create_block(
         self, data: OrderedDict, hashmap: dict = None, restore_id: bool = True

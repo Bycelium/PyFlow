@@ -7,16 +7,14 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 
 """
 
-from typing import TYPE_CHECKING, List, OrderedDict, Set, Union
+from typing import List, OrderedDict, Set, Union
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
 from pyflow.blocks.block import Block
 from pyflow.core.socket import Socket
-
-if TYPE_CHECKING:
-    from pyflow.core.edge import Edge
+from pyflow.core.edge import Edge
 
 
 class ExecutableBlock(Block):

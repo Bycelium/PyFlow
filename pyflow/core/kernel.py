@@ -4,11 +4,14 @@
 """ Module to create and manage ipython kernels."""
 
 import queue
-from typing import Tuple
+from typing import TYPE_CHECKING, List, Tuple
 from jupyter_client.manager import start_new_kernel
 
 from pyflow.core.worker import Worker
 from pyflow.logging import log_init_time, get_logger
+
+if TYPE_CHECKING:
+    from pyflow.blocks.executableblock import ExecutableBlock
 
 LOGGER = get_logger(__name__)
 
@@ -20,7 +23,7 @@ class Kernel:
     @log_init_time(LOGGER)
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
-        self.execution_queue = []
+        self.execution_queue: List["ExecutableBlock"] = []
         self.busy = False
 
     def message_to_output(self, message: dict) -> Tuple[str, str]:
@@ -63,7 +66,7 @@ class Kernel:
             out = ""
         return out, message_type
 
-    def run_block(self, block, code: str):
+    def run_block(self, block: "ExecutableBlock", code: str):
         """
         Runs code on a separate thread and sends the output to the block
         Also calls run_queue when finished
