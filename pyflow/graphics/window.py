@@ -159,6 +159,18 @@ class Window(QMainWindow):
             shortcut="Del",
             triggered=self.onEditDelete,
         )
+        self._actDuplicate = QAction(
+            "&Duplicate",
+            statusTip="Duplicate selected items",
+            shortcut="Ctrl+D",
+            triggered=self.onEditDuplicate,
+        )
+        self._actRun = QAction(
+            "&Run",
+            statusTip="Run the selected block",
+            shortcut="Shift+Return",
+            triggered=self.onEditRun,
+        )
 
         # View
         self._actViewItems = QAction(
@@ -231,6 +243,8 @@ class Window(QMainWindow):
         self.editmenu.addAction(self._actPaste)
         self.editmenu.addSeparator()
         self.editmenu.addAction(self._actDel)
+        self.editmenu.addAction(self._actDuplicate)
+        self.editmenu.addAction(self._actRun)
 
         self.viewmenu = self.menuBar().addMenu("&View")
         self.thememenu = self.viewmenu.addMenu("Theme")
@@ -422,6 +436,20 @@ class Window(QMainWindow):
         current_window = self.activeMdiChild()
         if self.is_not_editing(current_window):
             current_window.view.deleteSelected()
+
+    def onEditDuplicate(self):
+        """Duplicate the selected items if not in edit mode."""
+        current_window = self.activeMdiChild()
+        if self.is_not_editing(current_window):
+            self.clipboard.copy(current_window.scene)
+            self.clipboard.paste(current_window.scene)
+
+    def onEditRun(self):
+        """Run the selected block if there is only one block selected."""
+        current_window = self.activeMdiChild()
+        selected_blocks, _ = current_window.scene.sortedSelectedItems()
+        if len(selected_blocks) == 1:
+            selected_blocks[0].run_left()
 
     # def closeEvent(self, event:QEvent):
     #     """ Save and quit the application. """
