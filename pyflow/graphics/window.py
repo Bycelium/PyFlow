@@ -89,7 +89,7 @@ class Window(QMainWindow):
         self._actNew = QAction(
             "&New",
             statusTip="Create new ipygraph",
-            shortcut="Ctrl+Shift+N",
+            shortcut="Ctrl+N",
             triggered=self.onFileNew,
         )
         self._actOpen = QAction(
