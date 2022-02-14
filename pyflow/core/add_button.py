@@ -67,6 +67,9 @@ class AddButton(QGraphicsItem):
 
 
 class AddNewBlockButton(AddButton):
+
+    """Button to add a new linked block under the current one."""
+
     def __init__(self, block: "ExecutableBlock"):
         """Initialize the Edge button."""
         super().__init__(block)
@@ -89,6 +92,9 @@ class AddNewBlockButton(AddButton):
 
 
 class AddEdgeButton(AddButton):
+
+    """Button to drag an edge under the current block."""
+
     def __init__(self, block: "ExecutableBlock"):
         """Initialize the AddNewBlock button."""
         super().__init__(block)
