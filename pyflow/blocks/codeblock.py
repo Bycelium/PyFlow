@@ -12,8 +12,7 @@ from PyQt5.QtWidgets import QPushButton, QTextEdit
 from pyflow.blocks.block import Block
 from pyflow.blocks.executableblock import ExecutableBlock
 from pyflow.blocks.pyeditor import PythonEditor
-from pyflow.core.add_edge_button import AddEdgeButton
-from pyflow.core.add_newblock_button import AddNewBlockButton
+from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
 
 ansi2html_converter = Ansi2HTMLConverter()
 

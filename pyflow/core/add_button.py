@@ -1,9 +1,10 @@
 # Pyflow an open-source tool for modular visual programing in python
 # Copyright (C) 2021-2022 Bycelium <https://www.gnu.org/licenses/>
 
-""" Module for the button to create a linked block."""
+""" Module to place a button under a block."""
 
 from __future__ import annotations
+import math
 
 from typing import TYPE_CHECKING, List, Optional
 
@@ -17,15 +18,15 @@ if TYPE_CHECKING:
     from pyflow.core.edge import Edge
 
 
-class AddNewBlockButton(QGraphicsItem):
+class AddButton(QGraphicsItem):
 
-    """Base class for the button to create a new linked block."""
+    """Base class for the button to add an edge."""
 
     def __init__(
         self,
         block: "ExecutableBlock",
     ):
-        """Base class for the button to create a new linked block."""
+        """Base class for the button to add an edge."""
 
         self.block = block
         QGraphicsItem.__init__(self, parent=self.block)
@@ -33,7 +34,6 @@ class AddNewBlockButton(QGraphicsItem):
         self.edges: List["Edge"] = []
 
         self.radius = 9
-
         self._pen = QPen(QColor("#44000000"))
         self._pen.setWidth(int(1))
 
@@ -60,6 +60,17 @@ class AddNewBlockButton(QGraphicsItem):
         self._brush = self._normal_brush
         return super().hoverLeaveEvent(event)
 
+    def boundingRect(self) -> QRectF:
+        """Get the button bounding box."""
+        r = self.radius
+        return QRectF(-r, -r, 2 * r, 2 * r)
+
+
+class AddNewBlockButton(AddButton):
+    def __init__(self, block: "ExecutableBlock"):
+        """Initialize the Edge button."""
+        super().__init__(block)
+
     def paint(
         self,
         painter: QPainter,
@@ -76,7 +87,26 @@ class AddNewBlockButton(QGraphicsItem):
         polygon.append(QPoint(-self.radius, self.radius))
         painter.drawPolygon(polygon)
 
-    def boundingRect(self) -> QRectF:
-        """Get the button bounding box."""
+
+class AddEdgeButton(AddButton):
+    def __init__(self, block: "ExecutableBlock"):
+        """Initialize the AddNewBlock button."""
+        super().__init__(block)
+        self.radius = 12
+
+    def paint(
+        self,
+        painter: QPainter,
+        option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
+        widget: Optional[QWidget] = None,  # pylint:disable=unused-argument
+    ):
+        """Paint the button."""
+        painter.setBrush(self._brush)
+        painter.setPen(self._pen)
         r = self.radius
-        return QRectF(-r, -r, 2 * r, 2 * r)
+        angles = [-math.pi / 6, -5 * math.pi / 6, math.pi / 2]
+        right_triangle_points = [
+            QPoint(int(r * math.cos(angle)), int(r * math.sin(angle)))
+            for angle in angles
+        ]
+        painter.drawPolygon(QPolygon(right_triangle_points))

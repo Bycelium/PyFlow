@@ -76,18 +76,11 @@ class ExecutableBlock(Block):
         self.add_socket(socket)
         return socket
 
-    def create_newblock(self):
-        """Create a new linked block under the self"""
-
-        # Create an empty block under the current one
-        filepath = "pyflow/blocks/blockfiles/empty.pfb"
-        new_block = self.scene().create_block_from_file(filepath)
-        new_block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
-        self.scene().addItem(new_block)
-
+    def link(self, block):
+        """Link a block to the current one."""
         # Add sockets to the new block and the current one
         source_socket = self.create_new_output_socket()
-        destination_socket = new_block.create_new_input_socket()
+        destination_socket = block.create_new_input_socket()
 
         # Create an edge between the two blocks
         edge = Edge()
@@ -95,6 +88,15 @@ class ExecutableBlock(Block):
         edge.destination_socket = destination_socket
         edge.update_path()
         self.scene().addItem(edge)
+
+    def place(self, block):
+        """Place a block under the current one"""
+        block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
+
+    def link_and_place(self, block):
+        """Create a new linked block under the self"""
+        self.place(block)
+        self.link(block)
 
     def run_code(self):
         """Run the code in the block."""

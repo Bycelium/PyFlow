@@ -14,8 +14,7 @@ from PyQt5.QtWidgets import QGraphicsView, QMenu, QApplication
 from PyQt5.sip import isdeleted
 from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks.executableblock import ExecutableBlock
-from pyflow.core.add_edge_button import AddEdgeButton
-from pyflow.core.add_newblock_button import AddNewBlockButton
+from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
 
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
@@ -509,7 +508,12 @@ class View(QGraphicsView):
                 isinstance(item_at_click, AddNewBlockButton)
                 and self.mode != self.MODE_EDGE_DRAG
             ):
-                new_socket = item_at_click.block.create_newblock()
+                # Create a new block
+                filepath = "pyflow/blocks/blockfiles/empty.pfb"
+                new_block = self.scene().create_block_from_file(filepath)
+                self.scene().addItem(new_block)
+                # Link it and place it under the selected block
+                new_socket = item_at_click.block.link_and_place(new_block)
                 LOGGER.debug("Create a new linked block.")
                 return
         elif self.mode == self.MODE_EDGE_DRAG:
