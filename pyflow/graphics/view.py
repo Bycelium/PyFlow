@@ -513,7 +513,9 @@ class View(QGraphicsView):
                 new_block = CodeBlock()
                 self.scene().addItem(new_block)
                 parent.link_and_place(new_block)
-
+                scene.history.checkpoint(
+                    "Created a new linked block", set_modified=True
+                )
                 return
         elif self.mode == self.MODE_EDGE_DRAG:
             if action == "release":
