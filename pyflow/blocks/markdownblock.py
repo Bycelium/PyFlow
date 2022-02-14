@@ -55,11 +55,56 @@ class MarkdownBlock(Block):
         self.splitter.addWidget(self.rendered_markdown)
         self.holder.setWidget(self.root)
 
+        self.setAcceptHoverEvents(True)
+
+    def move_splitter_up(self):
+        """Move the splitter to the top of the block.
+
+        This is the viewing mode."""
+        self.splitter.setSizes([0, 0])
+
+    def move_splitter_down(self):
+        """Move the splitter to the bottom of the block.
+
+        This is the editing mode."""
+        self.splitter.setSizes([1, 0])
+
+    def hoverLeaveEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse enters the block."""
+        if not self.viewing_is_available():
+            self.move_splitter_up()
+        return super().hoverLeaveEvent(event)
+
+    def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
+        """Handle the event when the mouse leaves the block."""
+        if self.isSelected() and not self.editing_is_available():
+            self.move_splitter_down()
+        return super().hoverLeaveEvent(event)
+
+    def setSelected(self, selected: bool) -> None:
+        """Handle the changes in selection state."""
+
+        # If the user selects the block,
+        # and the editing mode is not available,
+        # move the splitter down
+        if selected and not self.editing_is_available():
+            self.move_splitter_down()
+
+        return super().setSelected(selected)
+
+    def editing_is_available(self):
+        """Return True if the splitter isn't fully to the top."""
+        return self.splitter.sizes()[0] > 0
+
+    def viewing_is_available(self):
+        """Return True if the splitter isn't fully to the bottom."""
+        return self.splitter.sizes()[1] > 0
+
     def valueChanged(self):
         """Update markdown rendering when the content of the markdown editor changes."""
         t = self.editor.text()
 
-        dark_theme =f'''
+        dark_theme = f'''
             <style>
                 *{{
                     background-color:"""{self.output_panel_background_color}""";
