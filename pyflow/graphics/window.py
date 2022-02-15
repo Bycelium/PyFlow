@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QMdiArea,
+    QCheckBox,
 )
 
 from pyflow.graphics.widget import Widget
@@ -71,6 +72,7 @@ class Window(QMainWindow):
         self.updateMenus()
 
         # Window properties
+        self.never_show_exit_prompt = False
         self.readSettings()
         self.show()
 
@@ -454,14 +456,31 @@ class Window(QMainWindow):
     def closeEvent(self, event: QCloseEvent):
         """Handle the event when the window is about to be closed."""
 
+        if self.never_show_exit_prompt:
+            self.closeWindow(event)
+            return
+
         quit_msg = "Exit without saving?"
-        reply = QMessageBox.question(
-            self, "Message", quit_msg, QMessageBox.Yes, QMessageBox.No
-        )
+        msgbox = QMessageBox(self)
+        msgbox.setText(quit_msg)
+        msgbox.setWindowTitle("Exit?")
+        msgbox.addButton(QMessageBox.Yes)
+        msgbox.addButton(QMessageBox.No)
+        cb = QCheckBox("Never show this again")
+        msgbox.setCheckBox(cb)
+        msgbox.exec()
 
-        if reply == QMessageBox.No:
+        if msgbox.checkBox().checkState() == Qt.CheckState.Checked:
+            self.never_show_exit_prompt = True
+
+        if msgbox.result() == int(str(QMessageBox.No)):
             event.ignore()
+            return
 
+        self.closeWindow(event)
+
+    def closeWindow(self, event: QCloseEvent):
+        """Close the window."""
         self.mdiArea.closeAllSubWindows()
         if self.mdiArea.currentSubWindow():
             event.ignore()
@@ -469,30 +488,30 @@ class Window(QMainWindow):
             self.writeSettings()
             event.accept()
 
-    def maybeSave(self) -> bool:
-        """Ask for save and returns if the file should be closed.
+    # def maybeSave(self) -> bool:
+    #     """Ask for save and returns if the file should be closed.
 
-        Returns:
-            True if the file should be closed, False otherwise.
+    #     Returns:
+    #         True if the file should be closed, False otherwise.
 
-        """
-        if not self.isModified():
-            return True
+    #     """
+    #     if not self.isModified():
+    #         return True
 
-        answer = QMessageBox.warning(
-            self,
-            "About to loose you work?",
-            "The file has been modified.\n" "Do you want to save your changes?",
-            QMessageBox.StandardButton.Save
-            | QMessageBox.StandardButton.Discard
-            | QMessageBox.StandardButton.Cancel,
-        )
+    #     answer = QMessageBox.warning(
+    #         self,
+    #         "About to loose you work?",
+    #         "The file has been modified.\n" "Do you want to save your changes?",
+    #         QMessageBox.StandardButton.Save
+    #         | QMessageBox.StandardButton.Discard
+    #         | QMessageBox.StandardButton.Cancel,
+    #     )
 
-        if answer == QMessageBox.StandardButton.Save:
-            return self.onFileSave()
-        if answer == QMessageBox.StandardButton.Discard:
-            return True
-        return False
+    #     if answer == QMessageBox.StandardButton.Save:
+    #         return self.onFileSave()
+    #     if answer == QMessageBox.StandardButton.Discard:
+    #         return True
+    #     return False
 
     def activeMdiChild(self) -> Widget:
         """Get the active Widget if existing."""
@@ -510,6 +529,8 @@ class Window(QMainWindow):
         self.resize(size)
         if settings.value("isMaximized", False) == "true":
             self.showMaximized()
+        if settings.value("NeverShowExitPrompt", False) == "true":
+            self.never_show_exit_prompt = True
         LOGGER.info("Loaded settings under Bycelium/Pyflow")
 
     def writeSettings(self):
@@ -518,6 +539,7 @@ class Window(QMainWindow):
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
         settings.setValue("isMaximized", self.isMaximized())
+        settings.setValue("NeverShowExitPrompt", self.never_show_exit_prompt)
         LOGGER.info("Saved settings under Bycelium/Pyflow")
 
     def setActiveSubWindow(self, window):
