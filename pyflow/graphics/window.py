@@ -451,15 +451,17 @@ class Window(QMainWindow):
         if len(selected_blocks) == 1:
             selected_blocks[0].run_left()
 
-    # def closeEvent(self, event:QEvent):
-    #     """ Save and quit the application. """
-    #     if self.maybeSave():
-    #         event.accept()
-    #     else:
-    #         event.ignore()
-
     def closeEvent(self, event: QCloseEvent):
-        """Save and quit the application."""
+        """Handle the event when the window is about to be closed."""
+
+        quit_msg = "Exit without saving?"
+        reply = QMessageBox.question(
+            self, "Message", quit_msg, QMessageBox.Yes, QMessageBox.No
+        )
+
+        if reply == QMessageBox.No:
+            event.ignore()
+
         self.mdiArea.closeAllSubWindows()
         if self.mdiArea.currentSubWindow():
             event.ignore()
