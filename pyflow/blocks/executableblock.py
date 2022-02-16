@@ -8,7 +8,6 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 """
 
 from typing import List, OrderedDict, Set, Union
-from enum import Enum, auto
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
@@ -16,17 +15,10 @@ from PyQt5.QtWidgets import QApplication
 from pyflow.blocks.block import Block
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
+from pyflow.core.executable import Executable, ExecutableState
 
 
-class ExecutableState(Enum):
-    IDLE = 0
-    RUNNING = 1
-    PENDING = 2
-    DONE = 3
-    CRASHED = 4
-
-
-class ExecutableBlock(Block):
+class ExecutableBlock(Block, Executable):
 
     """
     Executable Block
@@ -44,9 +36,8 @@ class ExecutableBlock(Block):
         Create a new executable block.
         Do not call this method except when inheriting from this class.
         """
-        super().__init__(**kwargs)
-
-        self._run_state = ExecutableState.IDLE
+        Block.__init__(self, **kwargs)
+        Executable.__init__(self)
 
         # Each element is a list of blocks/edges to be animated
         # Running will paint each element one after the other
@@ -268,7 +259,7 @@ class ExecutableBlock(Block):
     def run_blocks(self):
         """Run a list of blocks."""
         for block in self.blocks_to_run[::-1] + [self]:
-            if block.run_state == ExecutableState.IDLE:
+            if block.run_state != ExecutableState.DONE:
                 block.run_code()
 
     def run_left(self):
@@ -336,18 +327,6 @@ class ExecutableBlock(Block):
     @abstractmethod
     def source(self, value: str):
         raise NotImplementedError("source(self) should be overriden")
-
-    @property
-    def run_state(self) -> ExecutableState:
-        """The current state of the ExecutableBlock."""
-        return self._run_state
-
-    @run_state.setter
-    def run_state(self, value: ExecutableState):
-        assert isinstance(value, ExecutableState)
-        self._run_state = value
-        # Update to force repaint
-        self.update()
 
     def handle_stdout(self, value: str):
         """Handle the stdout signal."""

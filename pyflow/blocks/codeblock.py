@@ -66,7 +66,7 @@ class CodeBlock(ExecutableBlock):
 
         self._pen_outlines = {
             ExecutableState.IDLE: QPen(QColor("#00000000")),  # No outline
-            ExecutableState.RUNNING: QPen(QColor("#fffc6107")),  # Orange
+            ExecutableState.RUNNING: QPen(QColor("#ff6107ff")),  # Purple
             ExecutableState.PENDING: QPen(QColor("#80fc6107")),  # Dark orange
             ExecutableState.DONE: QPen(QColor("#158000")),  # Dark green
             ExecutableState.CRASHED: QPen(QColor("#ff0000")),  # Red: Crashed
