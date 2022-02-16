@@ -500,31 +500,6 @@ class Window(QMainWindow):
             self.writeSettings()
             event.accept()
 
-    # def maybeSave(self) -> bool:
-    #     """Ask for save and returns if the file should be closed.
-
-    #     Returns:
-    #         True if the file should be closed, False otherwise.
-
-    #     """
-    #     if not self.isModified():
-    #         return True
-
-    #     answer = QMessageBox.warning(
-    #         self,
-    #         "About to loose you work?",
-    #         "The file has been modified.\n" "Do you want to save your changes?",
-    #         QMessageBox.StandardButton.Save
-    #         | QMessageBox.StandardButton.Discard
-    #         | QMessageBox.StandardButton.Cancel,
-    #     )
-
-    #     if answer == QMessageBox.StandardButton.Save:
-    #         return self.onFileSave()
-    #     if answer == QMessageBox.StandardButton.Discard:
-    #         return True
-    #     return False
-
     def activeMdiChild(self) -> Widget:
         """Get the active Widget if existing."""
         activeSubWindow = self.mdiArea.activeSubWindow()
