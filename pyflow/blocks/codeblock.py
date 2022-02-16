@@ -63,13 +63,16 @@ class CodeBlock(ExecutableBlock):
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
         self.has_been_run = False
+        self.is_crashed = False
         self.blocks_to_run = []
 
         self._pen_outlines = [
-            QPen(QColor("#7F000000")),  # Idle
-            QPen(QColor("#FF0000")),  # Running
-            QPen(QColor("#00ff00")),  # Transmitting
+            QPen(QColor("#00000000")),  # No outline: Idle
+            QPen(QColor("#fffc6107")),  # Orange: Running
+            QPen(QColor("#80fc6107")),  # Dark orange: Transmitting
         ]
+        self._pen_has_been_run = QPen(QColor("#158000"))  # Dark green: has been run
+        self._pen_crashed = QPen(QColor("#ff0000"))  # Red: Crashed
 
         self.output_panel_background_color = "#1E1E1E"
 
@@ -268,6 +271,10 @@ class CodeBlock(ExecutableBlock):
     @property
     def pen_outline(self) -> QPen:
         """The current pen used to draw the outline of the CodeBlock."""
+        if self.is_crashed:
+            return self._pen_crashed
+        if self.has_been_run:
+            return self._pen_has_been_run
         return self._pen_outlines[self.run_state]
 
     @property

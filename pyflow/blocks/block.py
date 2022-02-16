@@ -72,8 +72,8 @@ class Block(QGraphicsItem, Serializable):
         self.sockets_in: List[Socket] = []
         self.sockets_out: List[Socket] = []
 
-        self._pen_outline = QPen(QColor("#7F000000"))
-        self._pen_outline_selected = QPen(QColor("#FFFFA637"))
+        self._pen_outline = QPen(QColor("#00000000"))
+        self._pen_outline_selected = QPen(QColor("#800030FF"))
         self._brush_background = QBrush(BACKGROUND_COLOR)
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
@@ -138,11 +138,25 @@ class Block(QGraphicsItem, Serializable):
         path_outline.addRoundedRect(
             0, 0, self.width, self.height, self.edge_size, self.edge_size
         )
-        painter.setPen(
-            self._pen_outline_selected if self.isSelected() else self.pen_outline
-        )
+        painter.setPen(self.pen_outline)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
+
+        # selection inner outline
+        if self.isSelected():
+            path_in_outline = QPainterPath()
+            outline_width = self.pen_outline.widthF()
+            path_in_outline.addRoundedRect(
+                2 * outline_width,
+                2 * outline_width,
+                self.width - 4 * outline_width,
+                self.height - 4 * outline_width,
+                self.edge_size - 2 * outline_width,
+                self.edge_size - 2 * outline_width,
+            )
+            painter.setPen(self._pen_outline_selected)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawPath(path_in_outline.simplified())
 
     def add_socket(self, socket: Socket):
         """Add a socket to the block."""

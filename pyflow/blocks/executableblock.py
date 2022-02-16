@@ -123,9 +123,8 @@ class ExecutableBlock(Block):
         """
         for elem in self.transmitting_queue[0]:
             # Reset color only if the block will not be run
-            if hasattr(elem, "has_been_run"):
-                if elem.has_been_run is True:
-                    elem.run_state = 0
+            if hasattr(elem, "has_been_run") and not elem.has_been_run:
+                pass
             else:
                 elem.run_state = 0
 
@@ -332,6 +331,7 @@ class ExecutableBlock(Block):
 
     def error_occured(self):
         """Interrupt the kernel if an error occured"""
+        self.is_crashed = True
         self._interrupt_execution()
 
     @property

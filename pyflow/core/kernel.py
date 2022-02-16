@@ -78,6 +78,7 @@ class Kernel:
         worker = Worker(self, block, code)
         # Change color to running
         block.run_state = 1
+        block.is_crashed = False
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)
