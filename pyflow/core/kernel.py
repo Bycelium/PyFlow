@@ -6,6 +6,7 @@
 import queue
 from typing import TYPE_CHECKING, List, Tuple
 from jupyter_client.manager import start_new_kernel
+from pyflow.blocks.executableblock import ExecutableState
 
 from pyflow.core.worker import Worker
 from pyflow.logging import log_init_time, get_logger
@@ -77,8 +78,7 @@ class Kernel:
         """
         worker = Worker(self, block, code)
         # Change color to running
-        block.run_state = 1
-        block.is_crashed = False
+        block.run_state = ExecutableState.RUNNING
         worker.signals.stdout.connect(block.handle_stdout)
         worker.signals.image.connect(block.handle_image)
         worker.signals.finished.connect(self.run_queue)

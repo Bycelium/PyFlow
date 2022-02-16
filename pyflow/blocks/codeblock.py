@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from pyflow.blocks.block import Block
 from pyflow.core.edge import Edge
-from pyflow.blocks.executableblock import ExecutableBlock
+from pyflow.blocks.executableblock import ExecutableBlock, ExecutableState
 from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
 
@@ -62,17 +62,15 @@ class CodeBlock(ExecutableBlock):
         self.output_closed = True
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
-        self.has_been_run = False
-        self.is_crashed = False
         self.blocks_to_run = []
 
-        self._pen_outlines = [
-            QPen(QColor("#00000000")),  # No outline: Idle
-            QPen(QColor("#fffc6107")),  # Orange: Running
-            QPen(QColor("#80fc6107")),  # Dark orange: Transmitting
-        ]
-        self._pen_has_been_run = QPen(QColor("#158000"))  # Dark green: has been run
-        self._pen_crashed = QPen(QColor("#ff0000"))  # Red: Crashed
+        self._pen_outlines = {
+            ExecutableState.IDLE: QPen(QColor("#00000000")),  # No outline
+            ExecutableState.RUNNING: QPen(QColor("#fffc6107")),  # Orange
+            ExecutableState.PENDING: QPen(QColor("#80fc6107")),  # Dark orange
+            ExecutableState.DONE: QPen(QColor("#158000")),  # Dark green
+            ExecutableState.CRASHED: QPen(QColor("#ff0000")),  # Red: Crashed
+        }
 
         self.output_panel_background_color = "#1E1E1E"
 
@@ -136,14 +134,14 @@ class CodeBlock(ExecutableBlock):
 
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed."""
-        if self.run_state != 0:
+        if self.run_state in (ExecutableState.PENDING, ExecutableState.RUNNING):
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
         """Called when the button for "Run Left" was pressed."""
-        if self.run_state != 0:
+        if self.run_state in (ExecutableState.PENDING, ExecutableState.RUNNING):
             self._interrupt_execution()
         else:
             self.run_left()
@@ -262,19 +260,14 @@ class CodeBlock(ExecutableBlock):
         if value != self._source:
             # If text has changed, set self and all output blocks to not run
             output_blocks, _ = self.custom_bfs(self, reverse=True)
-            for block in output_blocks:
-                block.has_been_run = False
-            self.has_been_run = False
+            for block in output_blocks + [self]:
+                block.run_state = ExecutableState.IDLE
             self.source_editor.setText(value)
             self._source = value
 
     @property
     def pen_outline(self) -> QPen:
         """The current pen used to draw the outline of the CodeBlock."""
-        if self.is_crashed:
-            return self._pen_crashed
-        if self.has_been_run:
-            return self._pen_has_been_run
         return self._pen_outlines[self.run_state]
 
     @property

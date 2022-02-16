@@ -74,7 +74,7 @@ class Edge(QGraphicsPathItem, Serializable):
         self.pens = [self._pen, self._pen_running, self._pen_transmitting]
 
         # 0 for normal, 1 for running, 2 for transmitting
-        self.run_state = 0
+        self._run_state = 0
 
         self.setFlag(QGraphicsPathItem.GraphicsItemFlag.ItemIsSelectable)
         self.setZValue(-1)
@@ -272,6 +272,8 @@ class Edge(QGraphicsPathItem, Serializable):
 
     @run_state.setter
     def run_state(self, value: int):
+        if hasattr(value, "value"):
+            value = min(len(self.pens) - 1, value.value)
         self._run_state = value
         # Update to force repaint
         self.update()

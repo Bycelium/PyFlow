@@ -8,6 +8,7 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 """
 
 from typing import List, OrderedDict, Set, Union
+from enum import Enum, auto
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
@@ -15,6 +16,14 @@ from PyQt5.QtWidgets import QApplication
 from pyflow.blocks.block import Block
 from pyflow.core.socket import Socket
 from pyflow.core.edge import Edge
+
+
+class ExecutableState(Enum):
+    IDLE = 0
+    RUNNING = 1
+    PENDING = 2
+    DONE = 3
+    CRASHED = 4
 
 
 class ExecutableBlock(Block):
@@ -37,8 +46,7 @@ class ExecutableBlock(Block):
         """
         super().__init__(**kwargs)
 
-        self.has_been_run = False
-        self._run_state = 0
+        self._run_state = ExecutableState.IDLE
 
         # Each element is a list of blocks/edges to be animated
         # Running will paint each element one after the other
@@ -85,18 +93,18 @@ class ExecutableBlock(Block):
 
             if kernel.busy is False:
                 kernel.run_queue()
-            self.has_been_run = True
+            self.run_state = ExecutableState.PENDING
 
     def execution_finished(self):
         """Reset the text of the run buttons."""
-        self.run_state = 0
+        if self.run_state != ExecutableState.CRASHED:
+            self.run_state = ExecutableState.DONE
         self.blocks_to_run = []
 
     def _interrupt_execution(self):
         """Interrupt an execution, reset the blocks in the queue."""
         for block, _ in self.scene().kernel.execution_queue:
             # Reset the blocks that have not been run
-            block.reset_has_been_run()
             block.execution_finished()
         # Clear kernel execution queue
         self.scene().kernel.execution_queue = []
@@ -110,9 +118,6 @@ class ExecutableBlock(Block):
         Animate the visual flow
         Set color to transmitting and set a timer before switching to normal
         """
-        for elem in self.transmitting_queue[0]:
-            # Set color to transmitting
-            elem.run_state = 2
         QApplication.processEvents()
         QTimer.singleShot(self.transmitting_delay, self.transmitting_animation_out)
 
@@ -121,13 +126,6 @@ class ExecutableBlock(Block):
         Animate the visual flow
         After the timer, set color to normal and move on with the queue
         """
-        for elem in self.transmitting_queue[0]:
-            # Reset color only if the block will not be run
-            if hasattr(elem, "has_been_run") and not elem.has_been_run:
-                pass
-            else:
-                elem.run_state = 0
-
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
         if self.transmitting_queue:
@@ -269,17 +267,15 @@ class ExecutableBlock(Block):
 
     def run_blocks(self):
         """Run a list of blocks."""
-        for block in self.blocks_to_run[::-1]:
-            if not block.has_been_run:
+        for block in self.blocks_to_run[::-1] + [self]:
+            if block.run_state == ExecutableState.IDLE:
                 block.run_code()
-        if not self.has_been_run:
-            self.run_code()
 
     def run_left(self):
         """Run all of the block's dependencies and then run the block."""
 
-        # Reset has_been_run to make sure that the self is run again
-        self.has_been_run = False
+        # Reset state to make sure that the self is run again
+        self.run_state = ExecutableState.IDLE
 
         # To avoid crashing when spamming the button
         if self.transmitting_queue:
@@ -325,13 +321,9 @@ class ExecutableBlock(Block):
         # Start transmitting animation
         self.transmitting_animation_in()
 
-    def reset_has_been_run(self):
-        """Called when the output is an error."""
-        self.has_been_run = False
-
     def error_occured(self):
         """Interrupt the kernel if an error occured"""
-        self.is_crashed = True
+        self.run_state = ExecutableState.CRASHED
         self._interrupt_execution()
 
     @property
@@ -346,19 +338,13 @@ class ExecutableBlock(Block):
         raise NotImplementedError("source(self) should be overriden")
 
     @property
-    def run_state(self) -> int:
-        """Run state.
-
-        Describe the current state of the ExecutableBlock:
-            - 0: idle.
-            - 1: running.
-            - 2: transmitting.
-
-        """
+    def run_state(self) -> ExecutableState:
+        """The current state of the ExecutableBlock."""
         return self._run_state
 
     @run_state.setter
-    def run_state(self, value: int):
+    def run_state(self, value: ExecutableState):
+        assert isinstance(value, ExecutableState)
         self._run_state = value
         # Update to force repaint
         self.update()
