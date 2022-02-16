@@ -453,13 +453,24 @@ class Window(QMainWindow):
         if len(selected_blocks) == 1:
             selected_blocks[0].run_left()
 
+    def allWidgetsAreSaved(self):
+        """Return true if all widgets are saved."""
+
+        for widget in self.mdiArea.subWindowList():
+            if isinstance(widget.widget(), Widget):
+                if widget.widget().isModified():
+                    return False
+
+        return True
+
     def closeEvent(self, event: QCloseEvent):
         """Handle the event when the window is about to be closed."""
 
-        if self.never_show_exit_prompt:
+        if self.allWidgetsAreSaved() or self.never_show_exit_prompt:
             self.closeWindow(event)
             return
 
+        # Show the exit without saving prompt
         quit_msg = "Exit without saving?"
         msgbox = QMessageBox(self)
         msgbox.setText(quit_msg)
@@ -472,6 +483,7 @@ class Window(QMainWindow):
 
         if msgbox.checkBox().checkState() == Qt.CheckState.Checked:
             self.never_show_exit_prompt = True
+            self.writeSettings()
 
         if msgbox.result() == int(str(QMessageBox.No)):
             event.ignore()
