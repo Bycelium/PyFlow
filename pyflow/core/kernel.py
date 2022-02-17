@@ -3,6 +3,7 @@
 
 """ Module to create and manage ipython kernels."""
 
+from ast import Str
 import queue
 from typing import TYPE_CHECKING, List, Tuple
 from jupyter_client.manager import start_new_kernel
@@ -24,7 +25,7 @@ class Kernel:
     @log_init_time(LOGGER)
     def __init__(self):
         self.kernel_manager, self.client = start_new_kernel()
-        self.execution_queue: List["ExecutableBlock"] = []
+        self.execution_queue: List[Tuple["ExecutableBlock", str]] = []
         self.busy = False
 
     def message_to_output(self, message: dict) -> Tuple[str, str]:
