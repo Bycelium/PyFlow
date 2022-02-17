@@ -3,7 +3,6 @@
 
 """ Module to create and manage ipython kernels."""
 
-from ast import Str
 import queue
 from typing import TYPE_CHECKING, List, Tuple
 from jupyter_client.manager import start_new_kernel
