@@ -71,6 +71,8 @@ class CodeBlock(ExecutableBlock):
             ExecutableState.DONE: QPen(QColor("#158000")),  # Dark green
             ExecutableState.CRASHED: QPen(QColor("#ff0000")),  # Red: Crashed
         }
+        for pen in self._pen_outlines.values():
+            pen.setWidth(self.pen_width)
 
         self.output_panel_background_color = "#1E1E1E"
 

@@ -72,8 +72,11 @@ class Block(QGraphicsItem, Serializable):
         self.sockets_in: List[Socket] = []
         self.sockets_out: List[Socket] = []
 
+        self.pen_width = 3
         self._pen_outline = QPen(QColor("#00000000"))
+        self._pen_outline.setWidth(self.pen_width)
         self._pen_outline_selected = QPen(QColor("#800030FF"))
+        self._pen_outline_selected.setWidth(self.pen_width)
         self._brush_background = QBrush(BACKGROUND_COLOR)
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
@@ -138,6 +141,7 @@ class Block(QGraphicsItem, Serializable):
         path_outline.addRoundedRect(
             0, 0, self.width, self.height, self.edge_size, self.edge_size
         )
+        pen = self.pen_outline
         painter.setPen(self.pen_outline)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
@@ -147,12 +151,12 @@ class Block(QGraphicsItem, Serializable):
             path_in_outline = QPainterPath()
             outline_width = self.pen_outline.widthF()
             path_in_outline.addRoundedRect(
-                2 * outline_width,
-                2 * outline_width,
-                self.width - 4 * outline_width,
-                self.height - 4 * outline_width,
-                self.edge_size - 2 * outline_width,
-                self.edge_size - 2 * outline_width,
+                -2 * outline_width,
+                -2 * outline_width,
+                self.width + 4 * outline_width,
+                self.height + 4 * outline_width,
+                self.edge_size + 2 * outline_width,
+                self.edge_size + 2 * outline_width,
             )
             painter.setPen(self._pen_outline_selected)
             painter.setBrush(Qt.BrushStyle.NoBrush)
