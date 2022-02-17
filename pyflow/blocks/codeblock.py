@@ -173,7 +173,14 @@ class CodeBlock(ExecutableBlock):
         super().run_code()  # actually run the code
 
     def execution_finished(self):
+        """Reset the text of the run buttons after it was executed."""
         super().execution_finished()
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+
+    def execution_canceled(self):
+        """Reset the text of the run buttons after it was canceled."""
+        super().execution_canceled()
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
 

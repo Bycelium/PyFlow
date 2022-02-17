@@ -87,16 +87,22 @@ class ExecutableBlock(Block, Executable):
             self.run_state = ExecutableState.PENDING
 
     def execution_finished(self):
-        """Reset the text of the run buttons."""
+        """Reset the state of the block after it was executed."""
         if self.run_state != ExecutableState.CRASHED:
             self.run_state = ExecutableState.DONE
+        self.blocks_to_run = []
+
+    def execution_canceled(self):
+        """Reset the state of the block after its execution was canceled."""
+        if self.run_state != ExecutableState.CRASHED:
+            self.run_state = ExecutableState.IDLE
         self.blocks_to_run = []
 
     def _interrupt_execution(self):
         """Interrupt an execution, reset the blocks in the queue."""
         for block, _ in self.scene().kernel.execution_queue:
             # Reset the blocks that have not been run
-            block.execution_finished()
+            block.execution_canceled()
         # Clear kernel execution queue
         self.scene().kernel.execution_queue = []
         # Interrupt the kernel
