@@ -265,7 +265,11 @@ class ExecutableBlock(Block, Executable):
     def run_blocks(self):
         """Run a list of blocks."""
         for block in self.blocks_to_run[::-1] + [self]:
-            if block.run_state != ExecutableState.DONE:
+            if block.run_state not in {
+                ExecutableState.PENDING,
+                ExecutableState.RUNNING,
+                ExecutableState.DONE,
+            }:
                 block.run_code()
 
     def run_left(self):
