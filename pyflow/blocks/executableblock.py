@@ -156,9 +156,18 @@ class ExecutableBlock(Block):
         to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[start_node]]
 
         to_visit: List["ExecutableBlock"] = [start_node]
+
+        # Set to make sure to never execute the same block twice
+        visited: Set["ExecutableBlock"] = set([])
+
         while to_visit:
             # Remove duplicates
-            to_visit = list(set(to_visit))
+            to_visit_set = set(to_visit)
+            to_visit_set.difference_update(visited)
+            to_visit = list(to_visit_set)
+
+            # Update the visited block set
+            visited.update(to_visit_set)
 
             # Gather connected edges
             edges_to_visit = []
