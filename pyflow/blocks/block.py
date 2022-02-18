@@ -141,7 +141,6 @@ class Block(QGraphicsItem, Serializable):
         path_outline.addRoundedRect(
             0, 0, self.width, self.height, self.edge_size, self.edge_size
         )
-        pen = self.pen_outline
         painter.setPen(self.pen_outline)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path_outline.simplified())
