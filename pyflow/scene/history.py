@@ -3,7 +3,7 @@
 
 """ Module for the handling an OCBScene history. """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, OrderedDict
 import logging
 
 from pyflow.core.history import History
@@ -25,6 +25,7 @@ class SceneHistory(History):
 
     def __init__(self, scene: "Scene", max_stack: int = 50):
         self.scene = scene
+        self._hash: Optional[str] = None
         super().__init__(max_stack)
 
     def checkpoint(self, description: str, set_modified=True):
@@ -35,9 +36,18 @@ class SceneHistory(History):
             set_modified: Whether the scene should be considered modified.
 
         """
+
+        serialized_scene = self.scene.serialize()
+
+        new_serialized_scene_hash = hash(str(serialized_scene))
+        if not self.should_checkpoint(new_serialized_scene_hash):
+            return
+
+        self._hash = new_serialized_scene_hash
+
         history_stamp = {
             "description": description,
-            "snapshot": self.scene.serialize(),
+            "snapshot": serialized_scene,
         }
         self.store(history_stamp)
         if set_modified:
@@ -52,3 +62,15 @@ class SceneHistory(History):
             snapshot = stamp["snapshot"]
             logger.debug("Restored [%s]: %s", self.current, stamp["description"])
             self.scene.deserialize(snapshot)
+
+    def should_checkpoint(self, new_serialized_scene_hash: str) -> bool:
+        """Return true if a checkpoint should be created.
+
+        This is not the case when the previous checkpoint is the same as the new one.
+        This is the case if there was no previous hash
+        (as it is the case when the scene is first loaded)."""
+
+        if self._hash is None:
+            return True
+
+        return self._hash != new_serialized_scene_hash
