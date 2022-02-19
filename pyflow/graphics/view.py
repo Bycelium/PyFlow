@@ -27,6 +27,7 @@ BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
 BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
+ZOOM_INCREMENT = 1.2
 LOGGER = get_logger(__name__)
 
 
@@ -375,6 +376,16 @@ class View(QGraphicsView):
         zoom_factor = new_zoom / self.zoom
         self.scale(zoom_factor, zoom_factor)
         self.zoom = new_zoom
+
+    def zoomIn(self):
+        """Zoom in."""
+
+        self.setZoom(self.zoom * ZOOM_INCREMENT)
+
+    def zoomOut(self):
+        """Zoom out"""
+
+        self.setZoom(self.zoom / ZOOM_INCREMENT)
 
     def deleteSelected(self):
         """Delete selected items from the current scene."""
