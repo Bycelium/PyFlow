@@ -3,7 +3,7 @@
 
 """ Module for the handling an OCBScene history. """
 
-from typing import TYPE_CHECKING, Optional, OrderedDict
+from typing import TYPE_CHECKING, Optional
 import logging
 
 from pyflow.core.history import History
