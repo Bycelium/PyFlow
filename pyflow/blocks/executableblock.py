@@ -158,10 +158,21 @@ class ExecutableBlock(Block, Executable):
         # List of lists of blocks/edges to animate in order
         to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[start_node]]
 
+        # Set to make sure to never execute the same block twice
+        visited: Set["ExecutableBlock"] = set([])
+
         blocks_to_visit: List["ExecutableBlock"] = [start_node]
         while blocks_to_visit:
             # Remove duplicates
             blocks_to_visit = list(set(blocks_to_visit))
+
+            # Remove duplicates
+            to_visit_set = set(blocks_to_visit)
+            to_visit_set.difference_update(visited)
+            blocks_to_visit = list(to_visit_set)
+
+            # Update the visited block set
+            visited.update(to_visit_set)
 
             # Gather connected edges
             edges_to_visit: List[Edge] = []
