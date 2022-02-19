@@ -133,6 +133,7 @@ class Kernel:
         Return:
             output from the last message sent by the kernel
         """
+        self.start()
         _ = self.client.execute(code)
         done = False
         while not done:
