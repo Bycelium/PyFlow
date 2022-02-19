@@ -316,6 +316,9 @@ class ExecutableBlock(Block, Executable):
     def run_left(self):
         """Run all of the block's dependencies and then run the block."""
 
+        # Start kernel
+        self.scene().kernel.start()
+
         # Reset state to make sure that the self is run again
         self.run_state = ExecutableState.IDLE
 
@@ -338,6 +341,9 @@ class ExecutableBlock(Block, Executable):
 
     def run_right(self):
         """Run all of the output blocks and all their dependencies."""
+
+        # Start kernel
+        self.scene().kernel.start()
 
         # To avoid crashing when spamming the button
         if self.transmitting_queue:

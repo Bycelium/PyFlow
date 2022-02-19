@@ -23,9 +23,38 @@ class Kernel:
 
     @log_init_time(LOGGER)
     def __init__(self):
-        self.kernel_manager, self.client = start_new_kernel()
+        self.client = None
+        self.kernel_manager = None
         self.execution_queue: List[Tuple["ExecutableBlock", str]] = []
         self.busy = False
+
+    def start(self):
+        """
+        Starts the kernel
+        """
+        # Check if client exists
+        if self.client is None:
+            self.kernel_manager, self.client = start_new_kernel()
+
+    def stop(self):
+        """
+        Stops the kernel
+        """
+        self.kernel_manager.shutdown_kernel()
+        self.client = None
+        self.kernel_manager = None
+
+    def interrupt(self):
+        """
+        Interrupts the kernel
+        """
+        self.kernel_manager.interrupt_kernel()
+
+    def restart(self):
+        """
+        Restarts the kernel
+        """
+        self.kernel_manager.restart_kernel()
 
     def message_to_output(self, message: dict) -> Tuple[str, str]:
         """
