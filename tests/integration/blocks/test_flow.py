@@ -9,6 +9,7 @@ import pytest
 import time
 
 from pyflow.blocks.codeblock import CodeBlock
+from pyflow.blocks.executableblock import ExecutableState
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue, InAppTest
 
@@ -47,7 +48,7 @@ class TestCodeBlocksFlow(InAppTest):
 
             msgQueue.run_lambda(run_block)
             time.sleep((block_to_run.transmitting_duration / 1000) + 0.2)
-            while block_to_run.run_state != 0:
+            while block_to_run.run_state != ExecutableState.DONE:
                 time.sleep(0.1)
 
             # 6 and not 6\n6
@@ -72,7 +73,7 @@ class TestCodeBlocksFlow(InAppTest):
 
             msgQueue.run_lambda(run_block)
             time.sleep((block_to_run.transmitting_duration / 1000) + 0.2)
-            while block_to_run.run_state != 0:
+            while block_to_run.run_state != ExecutableState.DONE:
                 time.sleep(0.1)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "6")
@@ -97,7 +98,7 @@ class TestCodeBlocksFlow(InAppTest):
 
             msgQueue.run_lambda(run_block)
             time.sleep((block_to_run.transmitting_duration / 1000) + 0.2)
-            while block_to_run.run_state != 0:
+            while block_to_run.run_state != ExecutableState.DONE:
                 time.sleep(0.1)
 
             msgQueue.check_equal(block_to_run.stdout.strip(), "1")
@@ -119,7 +120,7 @@ class TestCodeBlocksFlow(InAppTest):
 
             msgQueue.run_lambda(run_block)
             time.sleep((block_to_run.transmitting_duration / 1000) + 0.2)
-            while block_to_run.run_state != 0:
+            while block_to_run.run_state != ExecutableState.DONE:
                 time.sleep(0.1)
 
             # Just check that it doesn't crash

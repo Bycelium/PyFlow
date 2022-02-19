@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from pyflow.blocks.block import Block
 from pyflow.core.edge import Edge
-from pyflow.blocks.executableblock import ExecutableBlock
+from pyflow.blocks.executableblock import ExecutableBlock, ExecutableState
 from pyflow.blocks.pyeditor import PythonEditor
 from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
 
@@ -62,14 +62,17 @@ class CodeBlock(ExecutableBlock):
         self.output_closed = True
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
-        self.has_been_run = False
         self.blocks_to_run = []
 
-        self._pen_outlines = [
-            QPen(QColor("#7F000000")),  # Idle
-            QPen(QColor("#FF0000")),  # Running
-            QPen(QColor("#00ff00")),  # Transmitting
-        ]
+        self._pen_outlines = {
+            ExecutableState.IDLE: QPen(QColor("#00000000")),  # No outline
+            ExecutableState.RUNNING: QPen(QColor("#fffc6107")),  # Dark orange
+            ExecutableState.PENDING: QPen(QColor("#90fc6107")),  # Transparent orange
+            ExecutableState.DONE: QPen(QColor("#158000")),  # Dark green
+            ExecutableState.CRASHED: QPen(QColor("#ff0000")),  # Red: Crashed
+        }
+        for pen in self._pen_outlines.values():
+            pen.setWidth(self.pen_width)
 
         self.output_panel_background_color = "#1E1E1E"
 
@@ -133,14 +136,14 @@ class CodeBlock(ExecutableBlock):
 
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed."""
-        if self.run_state != 0:
+        if self.run_state in (ExecutableState.PENDING, ExecutableState.RUNNING):
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
         """Called when the button for "Run Left" was pressed."""
-        if self.run_state != 0:
+        if self.run_state in (ExecutableState.PENDING, ExecutableState.RUNNING):
             self._interrupt_execution()
         else:
             self.run_left()
@@ -170,7 +173,14 @@ class CodeBlock(ExecutableBlock):
         super().run_code()  # actually run the code
 
     def execution_finished(self):
+        """Reset the text of the run buttons after it was executed."""
         super().execution_finished()
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+
+    def execution_canceled(self):
+        """Reset the text of the run buttons after it was canceled."""
+        super().execution_canceled()
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
 
@@ -259,9 +269,8 @@ class CodeBlock(ExecutableBlock):
         if value != self._source:
             # If text has changed, set self and all output blocks to not run
             output_blocks, _ = self.custom_bfs(self, reverse=True)
-            for block in output_blocks:
-                block.has_been_run = False
-            self.has_been_run = False
+            for block in output_blocks + [self]:
+                block.run_state = ExecutableState.IDLE
             self.source_editor.setText(value)
             self._source = value
 

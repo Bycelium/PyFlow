@@ -44,7 +44,6 @@ class Worker(QRunnable):
                 elif output_type == "image":
                     self.signals.image.emit(output)
                 elif output_type == "error":
-                    self.block.reset_has_been_run()
                     self.signals.error.emit()
                     self.signals.stdout.emit(output)
         self.signals.finished.emit()
