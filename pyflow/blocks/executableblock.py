@@ -312,6 +312,8 @@ class ExecutableBlock(Block, Executable):
         # For each output found
         for block in self.blocks_to_run.copy()[::-1]:
             # Gather dependencies
+            if block is not self:
+                block.run_state = ExecutableState.IDLE
             new_blocks_to_run, _ = self.custom_bfs(block)
             self.blocks_to_run += new_blocks_to_run
 
