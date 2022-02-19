@@ -19,6 +19,8 @@ from PyQt5.QtWidgets import (
     QCheckBox,
 )
 
+from pyflow.blocks.executableblock import ExecutableBlock
+from pyflow.core.executable import ExecutableState
 from pyflow.graphics.widget import Widget
 from pyflow.graphics.theme_manager import theme_manager
 
@@ -224,6 +226,32 @@ class Window(QMainWindow):
         self._actSeparator = QAction(self)
         self._actSeparator.setSeparator(True)
 
+        # Kernel
+        self._actStartKernel = QAction(
+            "&Start Kernel",
+            self,
+            statusTip="Start the kernel",
+            triggered=self.start_kernel,
+        )
+        self._actInterruptKernel = QAction(
+            "&Interrupt Kernel",
+            self,
+            statusTip="Interrupt the kernel",
+            triggered=self.interrupt_kernel,
+        )
+        self._actStopKernel = QAction(
+            "&Stop Kernel",
+            self,
+            statusTip="Stop the kernel",
+            triggered=self.stop_kernel,
+        )
+        self._actRestartKernel = QAction(
+            "&Restart Kernel",
+            self,
+            statusTip="Restart the kernel",
+            triggered=self.restart_kernel,
+        )
+
     def createMenus(self):
         """Create the File menu with linked shortcuts."""
         self.filemenu = self.menuBar().addMenu("&File")
@@ -247,6 +275,12 @@ class Window(QMainWindow):
         self.editmenu.addAction(self._actDel)
         self.editmenu.addAction(self._actDuplicate)
         self.editmenu.addAction(self._actRun)
+
+        self.kernelMenu = self.menuBar().addMenu("&Kernel")
+        self.kernelMenu.addAction(self._actStartKernel)
+        self.kernelMenu.addAction(self._actInterruptKernel)
+        self.kernelMenu.addAction(self._actStopKernel)
+        self.kernelMenu.addAction(self._actRestartKernel)
 
         self.viewmenu = self.menuBar().addMenu("&View")
         self.thememenu = self.viewmenu.addMenu("Theme")
@@ -547,3 +581,47 @@ class Window(QMainWindow):
     def setTheme(self, theme_index):
         """Set the theme of the application."""
         theme_manager().selected_theme_index = theme_index
+
+    def start_kernel(self):
+        """Start the kernel."""
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            current_window.scene.kernel.start()
+            self.statusbar.showMessage("Kernel started")
+        else:
+            self.statusbar.showMessage("No active window")
+
+    def interrupt_kernel(self):
+        """Interrupt the kernel."""
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            current_window.scene.kernel.interrupt()
+            self.statusbar.showMessage("Kernel interrupted")
+        else:
+            self.statusbar.showMessage("No active window")
+
+    def stop_kernel(self):
+        """Stop the kernel."""
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            current_window.scene.kernel.stop()
+            self.reset_block_states()
+            self.statusbar.showMessage("Kernel stopped")
+        else:
+            self.statusbar.showMessage("No active window")
+
+    def restart_kernel(self):
+        """Restart the kernel."""
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            current_window.scene.kernel.restart()
+            self.reset_block_states()
+            self.statusbar.showMessage("Kernel restarted")
+        else:
+            self.statusbar.showMessage("No active window")
+
+    def reset_block_states(self):
+        current_scene = self.activeMdiChild().scene
+        for item in current_scene.items():
+            if isinstance(item, ExecutableBlock):
+                item.run_state = ExecutableState.IDLE
