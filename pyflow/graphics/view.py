@@ -510,8 +510,10 @@ class View(QGraphicsView):
             ):
                 # Link a new CodeBlock under the selected block
                 parent: CodeBlock = item_at_click.block
-                empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb") 
-                new_block = self.scene().create_block_from_file(empty_code_block_path, 0, 0)
+                empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb")
+                new_block = self.scene().create_block_from_file(
+                    empty_code_block_path, 0, 0
+                )
                 parent.link_and_place(new_block)
                 scene.history.checkpoint(
                     "Created a new linked block", set_modified=True
