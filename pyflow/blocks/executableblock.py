@@ -227,7 +227,8 @@ class ExecutableBlock(Block, Executable):
 
             Args:
                 sockets (List[Socket]): List of sockets to search next blocks and edges on.
-                visited (Set[Union[Block, Edge]], optional): Already visited blocks and edges. Defaults to None.
+                visited (Set[Union[Block, Edge]], optional): Already visited blocks and edges.
+                    Defaults to None.
                 to_visit (Set[Block], optional): List of next blocks to visit. Defaults to None.
 
             Returns:
