@@ -478,6 +478,7 @@ class Window(QMainWindow):
         msgbox.addButton(QMessageBox.Yes)
         msgbox.addButton(QMessageBox.No)
         cb = QCheckBox("Never show this again")
+        cb.setStyleSheet("color: white")
         msgbox.setCheckBox(cb)
         msgbox.exec()
 
