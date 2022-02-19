@@ -45,6 +45,11 @@ class AddButton(QGraphicsItem):
         self.setAcceptHoverEvents(True)
 
     def set_highlight(self, value: bool) -> None:
+        """Set the AddButton highlight to the given boolean value.
+
+        Args:
+            value (bool): New highlight value.
+        """
         if value:
             self._brush = self._block_hover_brush
         else:

@@ -147,7 +147,7 @@ class ExecutableBlock(Block, Executable):
         # Blocks to run in topological order
         blocks_to_run: List["ExecutableBlock"] = []
         # List of lists of blocks/edges to animate in order
-        to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[start_node]]
+        to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[start_node]]
 
         to_visit: List["ExecutableBlock"] = [start_node]
         while to_visit:
@@ -200,7 +200,7 @@ class ExecutableBlock(Block, Executable):
             list: each element is a list of blocks/edges to animate in order
         """
         # Result
-        to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[self]]
+        to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[self]]
 
         # To check if a block has been visited
         visited: Set["ExecutableBlock"] = set([])
@@ -210,7 +210,7 @@ class ExecutableBlock(Block, Executable):
         to_visit_output: Set["ExecutableBlock"] = set([self])
 
         # Next stage to put in to_transmit
-        next_edges: List["Edge"] = []
+        next_edges: List[Edge] = []
         next_blocks: List["ExecutableBlock"] = []
 
         while to_visit_input or to_visit_output:
