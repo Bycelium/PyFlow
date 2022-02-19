@@ -144,46 +144,45 @@ class ExecutableBlock(Block, Executable):
             list: Blocks to run in topological order (reversed)
             list: each element is a list of blocks/edges to animate in order
         """
+
+        def gather_edges_to_visit(sockets: List[Socket]):
+            edges_to_visit = []
+            for socket in sockets:
+                for edge in socket.edges:
+                    if edge.source_socket.is_on and edge.destination_socket.is_on:
+                        edges_to_visit.append(edge)
+            return edges_to_visit
+
         # Blocks to run in topological order
         blocks_to_run: List["ExecutableBlock"] = []
         # List of lists of blocks/edges to animate in order
         to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[start_node]]
 
-        to_visit: List["ExecutableBlock"] = [start_node]
-        while to_visit:
+        blocks_to_visit: List["ExecutableBlock"] = [start_node]
+        while blocks_to_visit:
             # Remove duplicates
-            to_visit = list(set(to_visit))
+            blocks_to_visit = list(set(blocks_to_visit))
 
             # Gather connected edges
-            edges_to_visit = []
-            for block in to_visit:
+            edges_to_visit: List[Edge] = []
+            for block in blocks_to_visit:
                 blocks_to_run.append(block)
                 if not reverse:
-                    for input_socket in block.sockets_in:
-                        for edge in input_socket.edges:
-                            if (
-                                edge.source_socket.is_on
-                                and edge.destination_socket.is_on
-                            ):
-                                edges_to_visit.append(edge)
+                    next_sockets = block.sockets_in
                 else:
-                    for output_socket in block.sockets_out:
-                        for edge in output_socket.edges:
-                            if (
-                                edge.source_socket.is_on
-                                and edge.destination_socket.is_on
-                            ):
-                                edges_to_visit.append(edge)
+                    next_sockets = block.sockets_out
+                edges_to_visit += gather_edges_to_visit(next_sockets)
             to_transmit.append(edges_to_visit)
 
             # Gather connected blocks
-            to_visit = []
+            blocks_to_visit = []
             for edge in edges_to_visit:
                 if not reverse:
-                    to_visit.append(edge.source_socket.block)
+                    next_blocks = edge.source_socket.block
                 else:
-                    to_visit.append(edge.destination_socket.block)
-            to_transmit.append(to_visit)
+                    next_blocks = edge.destination_socket.block
+                blocks_to_visit.append(next_blocks)
+            to_transmit.append(blocks_to_visit)
 
         # Remove start node
         blocks_to_run.pop(0)
