@@ -75,7 +75,7 @@ class Block(QGraphicsItem, Serializable):
         self.pen_width = 3
         self._pen_outline = QPen(QColor("#00000000"))
         self._pen_outline.setWidth(self.pen_width)
-        self._pen_outline_selected = QPen(QColor("#800030FF"))
+        self._pen_outline_selected = QPen(QColor("#FFFFA637"))
         self._pen_outline_selected.setWidth(self.pen_width)
         self._brush_background = QBrush(BACKGROUND_COLOR)
 

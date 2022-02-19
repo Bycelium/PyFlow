@@ -29,10 +29,10 @@ class Edge(QGraphicsPathItem, Serializable, Executable):
 
     def __init__(
         self,
-        edge_width: float = 6.0,
+        edge_width: float = 5.0,
         path_type=DEFAULT_DATA["path_type"],
         edge_color="#001000",
-        edge_selected_color="#0030FF",
+        edge_selected_color="#FFA637",
         edge_running_color="#FF0000",
         edge_pending_color="#00ff00",
         source: QPointF = QPointF(0, 0),
