@@ -146,6 +146,14 @@ class ExecutableBlock(Block, Executable):
         """
 
         def gather_edges_to_visit(sockets: List[Socket]):
+            """Get list of next edges to visit given a list of sockets.
+
+            Args:
+                sockets (List[Socket]): List of sockets to search edges on.
+
+            Returns:
+                List[Edge]: List of edges connected to sockets given.
+            """
             edges_to_visit = []
             for socket in sockets:
                 for edge in socket.edges:
@@ -210,13 +218,23 @@ class ExecutableBlock(Block, Executable):
             list: each element is a list of blocks/edges to animate in order
         """
 
-        def gather_next_blocks(
+        def gather_next_blocks_and_edges(
             sockets: List[Socket],
             visited: Set[Union[Block, Edge]] = None,
             to_visit: Set[Block] = None,
         ):
-            visited = [] if visited is None else visited
-            to_visit = [] if to_visit is None else to_visit
+            """Gather next blocks and edges to run given a list of sockets.
+
+            Args:
+                sockets (List[Socket]): List of sockets to search next blocks and edges on.
+                visited (Set[Union[Block, Edge]], optional): Already visited blocks and edges. Defaults to None.
+                to_visit (Set[Block], optional): List of next blocks to visit. Defaults to None.
+
+            Returns:
+                Tuple[List[Block], List[Edge]]: Lists of next blocks and next edges to run.
+            """
+            visited = set() if visited is None else visited
+            to_visit = set() if to_visit is None else to_visit
 
             next_blocks = []
             next_edges = []
@@ -259,7 +277,7 @@ class ExecutableBlock(Block, Executable):
         while to_visit_input or to_visit_output:
             for block in to_visit_input.copy():
                 # Check input edges and blocks
-                new_blocks, new_edges = gather_next_blocks(
+                new_blocks, new_edges = gather_next_blocks_and_edges(
                     block.sockets_in, visited, to_visit_input
                 )
                 next_blocks += new_blocks
@@ -267,7 +285,7 @@ class ExecutableBlock(Block, Executable):
                 to_visit_input.remove(block)
             for block in to_visit_output.copy():
                 # Check output edges and blocks
-                new_blocks, new_edges = gather_next_blocks(
+                new_blocks, new_edges = gather_next_blocks_and_edges(
                     block.sockets_out, visited, to_visit_output
                 )
                 next_blocks += new_blocks
