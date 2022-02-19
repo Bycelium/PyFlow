@@ -198,6 +198,39 @@ class ExecutableBlock(Block, Executable):
         Returns:
             list: each element is a list of blocks/edges to animate in order
         """
+
+        def gather_next_blocks(
+            sockets: List[Socket],
+            visited: Set[Union[Block, Edge]] = None,
+            to_visit: Set[Block] = None,
+        ):
+            visited = [] if visited is None else visited
+            to_visit = [] if to_visit is None else to_visit
+
+            next_blocks = []
+            next_edges = []
+
+            for socket in sockets:
+                for edge in socket.edges:
+                    if not (
+                        edge not in visited
+                        and edge.source_socket.is_on
+                        and edge.destination_socket.is_on
+                    ):
+                        continue
+
+                    next_edges.append(edge)
+                    visited.add(edge)
+
+                    next_block = edge.destination_socket.block
+                    to_visit.add(next_block)
+                    visited.add(next_block)
+
+                    if next_block not in visited:
+                        next_blocks.append(next_block)
+
+            return next_blocks, next_edges
+
         # Result
         to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[self]]
 
@@ -215,40 +248,19 @@ class ExecutableBlock(Block, Executable):
         while to_visit_input or to_visit_output:
             for block in to_visit_input.copy():
                 # Check input edges and blocks
-                for input_socket in block.sockets_in:
-                    for edge in input_socket.edges:
-                        if not (
-                            edge not in visited
-                            and edge.source_socket.is_on
-                            and edge.destination_socket.is_on
-                        ):
-                            continue
-                        next_edges.append(edge)
-                        visited.add(edge)
-                        input_block = edge.source_socket.block
-                        to_visit_input.add(input_block)
-                        if input_block not in visited:
-                            next_blocks.append(input_block)
-                        visited.add(input_block)
+                new_blocks, new_edges = gather_next_blocks(
+                    block.sockets_in, visited, to_visit_input
+                )
+                next_blocks += new_blocks
+                next_edges += new_edges
                 to_visit_input.remove(block)
             for block in to_visit_output.copy():
                 # Check output edges and blocks
-                for output_socket in block.sockets_out:
-                    for edge in output_socket.edges:
-                        if not (
-                            edge not in visited
-                            and edge.source_socket.is_on
-                            and edge.destination_socket.is_on
-                        ):
-                            continue
-                        next_edges.append(edge)
-                        visited.add(edge)
-                        output_block = edge.destination_socket.block
-                        to_visit_input.add(output_block)
-                        to_visit_output.add(output_block)
-                        if output_block not in visited:
-                            next_blocks.append(output_block)
-                        visited.add(output_block)
+                new_blocks, new_edges = gather_next_blocks(
+                    block.sockets_out, visited, to_visit_output
+                )
+                next_blocks += new_blocks
+                next_edges += new_edges
                 to_visit_output.remove(block)
 
             # Add the next stage to to_transmit
