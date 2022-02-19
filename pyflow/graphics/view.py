@@ -27,6 +27,7 @@ BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
 BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
+ZOOM_INCREMENT = 1.2
 LOGGER = get_logger(__name__)
 
 
@@ -376,6 +377,16 @@ class View(QGraphicsView):
         self.scale(zoom_factor, zoom_factor)
         self.zoom = new_zoom
 
+    def zoomIn(self):
+        """Zoom in."""
+
+        self.setZoom(self.zoom * ZOOM_INCREMENT)
+
+    def zoomOut(self):
+        """Zoom out"""
+
+        self.setZoom(self.zoom / ZOOM_INCREMENT)
+
     def deleteSelected(self):
         """Delete selected items from the current scene."""
         scene = self.scene()
@@ -510,8 +521,10 @@ class View(QGraphicsView):
             ):
                 # Link a new CodeBlock under the selected block
                 parent: CodeBlock = item_at_click.block
-                empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb") 
-                new_block = self.scene().create_block_from_file(empty_code_block_path, 0, 0)
+                empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb")
+                new_block = self.scene().create_block_from_file(
+                    empty_code_block_path, 0, 0
+                )
                 parent.link_and_place(new_block)
                 scene.history.checkpoint(
                     "Created a new linked block", set_modified=True

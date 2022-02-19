@@ -181,6 +181,18 @@ class Window(QMainWindow):
             shortcut=" ",
             triggered=self.onMoveToItems,
         )
+        self._actZoomIn = QAction(
+            "Zoom in",
+            statusTip="Zoom in",
+            shortcut=QKeySequence.ZoomIn,
+            triggered=self.onZoomIn,
+        )
+        self._actZoomOut = QAction(
+            "Zoom out",
+            statusTip="Zoom out",
+            shortcut=QKeySequence.ZoomOut,
+            triggered=self.onZoomOut,
+        )
 
         # Window
         self._actClose = QAction(
@@ -252,6 +264,8 @@ class Window(QMainWindow):
         self.thememenu = self.viewmenu.addMenu("Theme")
         self.thememenu.aboutToShow.connect(self.updateThemeMenu)
         self.viewmenu.addAction(self._actViewItems)
+        self.viewmenu.addAction(self._actZoomIn)
+        self.viewmenu.addAction(self._actZoomOut)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -542,6 +556,18 @@ class Window(QMainWindow):
         current_window = self.activeMdiChild()
         if current_window is not None and isinstance(current_window, Widget):
             current_window.moveToItems()
+
+    def onZoomIn(self):
+        """Zoom in, in the current window.."""
+        current_window = self.activeMdiChild()
+        if current_window is not None and isinstance(current_window, Widget):
+            current_window.view.zoomIn()
+
+    def onZoomOut(self):
+        """Zoom out, in the current window."""
+        current_window = self.activeMdiChild()
+        if current_window is not None and isinstance(current_window, Widget):
+            current_window.view.zoomOut()
 
     def setTheme(self, theme_index):
         """Set the theme of the application."""
