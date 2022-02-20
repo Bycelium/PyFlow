@@ -226,11 +226,11 @@ class View(QGraphicsView):
         """
         # The focusItem has priority for this event if it is a source editor
         # if self.scene().focusItem() is not None:
-        if self.mode == View.MODE_EDITING:
+        alt_is_pressed: bool = (
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.AltModifier
+        )
+        if self.mode == View.MODE_EDITING and not alt_is_pressed:
             return False
-            # parent = self.scene().focusItem().parentItem()
-            # if isinstance(parent, CodeBlock) and parent.source_editor.hasFocus():
-            #     return False
 
         n_selected_items = len(self.scene().selectedItems())
         if n_selected_items > 1:
@@ -294,8 +294,14 @@ class View(QGraphicsView):
             block_center_x, block_center_y, self.transform()
         )
         self.scene().clearSelection()
-        if isinstance(item_to_navigate.parentItem(), Block):
-            item_to_navigate.parentItem().setSelected(True)
+        self.scene().clearFocus()
+        parent = item_to_navigate.parentItem()
+        if isinstance(parent, Block):
+            parent.setSelected(True)
+            parent.setFocus(True)
+            if alt_is_pressed and hasattr(parent, "source_editor"):
+                parent.source_editor.setFocus(True)
+                self.mode = View.MODE_EDITING
 
         self.centerView(block_center_x, block_center_y)
         return True
@@ -311,6 +317,20 @@ class View(QGraphicsView):
         ]:
             if self.moveViewOnArrow(event):
                 return
+
+        if key_id == Qt.Key.Key_Escape:
+            self.scene().clearSelection()
+            self.scene().clearFocus()
+
+        if key_id == Qt.Key.Key_Alt:
+            selected_items = self.scene().selectedItems()
+            if len(selected_items) == 1:
+                item = selected_items[0]
+                item.setFocus(True)
+                if hasattr(item, "source_editor"):
+                    item.source_editor.setFocus(True)
+                    self.mode = View.MODE_EDITING
+            return
 
         super().keyPressEvent(event)
 
