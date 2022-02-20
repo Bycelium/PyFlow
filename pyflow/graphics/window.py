@@ -583,41 +583,39 @@ class Window(QMainWindow):
 
     def start_kernel(self):
         """Start the kernel."""
-        current_window = self.activeMdiChild()
+        current_window = self._call_kernel("Kernel started")
         if current_window is not None:
             current_window.scene.kernel.start()
-            self.statusbar.showMessage("Kernel started")
-        else:
-            self.statusbar.showMessage("No active window")
 
     def interrupt_kernel(self):
         """Interrupt the kernel."""
-        current_window = self.activeMdiChild()
+        current_window = self._call_kernel("Kernel interrupted")
         if current_window is not None:
             current_window.scene.kernel.interrupt()
-            self.statusbar.showMessage("Kernel interrupted")
-        else:
-            self.statusbar.showMessage("No active window")
 
     def stop_kernel(self):
         """Stop the kernel."""
-        current_window = self.activeMdiChild()
+        current_window = self._call_kernel("Kernel stopped")
         if current_window is not None:
             current_window.scene.kernel.stop()
             self.reset_block_states()
-            self.statusbar.showMessage("Kernel stopped")
-        else:
-            self.statusbar.showMessage("No active window")
 
     def restart_kernel(self):
         """Restart the kernel."""
-        current_window = self.activeMdiChild()
+        current_window = self._call_kernel("Kernel restarted")
         if current_window is not None:
             current_window.scene.kernel.restart()
             self.reset_block_states()
-            self.statusbar.showMessage("Kernel restarted")
+
+    def _call_kernel(self, message):
+        """Call a kernel function but check if a kernel exists first"""
+        current_window = self.activeMdiChild()
+        if current_window is not None:
+            self.statusbar.showMessage(message)
+            return current_window
         else:
             self.statusbar.showMessage("No active window")
+            return None
 
     def reset_block_states(self):
         current_scene = self.activeMdiChild().scene
