@@ -191,7 +191,7 @@ class Scene(QGraphicsScene, Serializable):
             extention_format = filepath.split(".")[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
         self.deserialize(data)
-        self.history.checkpoint("Loaded scene")
+        self.history.checkpoint("Loaded scene", erase_previous_checkpoints=True)
         self.has_been_modified = False
 
         # Add filepath to kernel path

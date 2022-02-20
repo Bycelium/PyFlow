@@ -28,12 +28,15 @@ class SceneHistory(History):
         self._hash: Optional[str] = None
         super().__init__(max_stack)
 
-    def checkpoint(self, description: str, set_modified=True):
+    def checkpoint(
+        self, description: str, set_modified=True, erase_previous_checkpoints=False
+    ):
         """Store a snapshot of the scene in the history stack.
 
         Args:
             description: Description given to this checkpoint.
             set_modified: Whether the scene should be considered modified.
+            erase_previous_checkpoints: Whether the previous checkpoints should be erased
 
         """
 
@@ -42,6 +45,9 @@ class SceneHistory(History):
         new_serialized_scene_hash = hash(str(serialized_scene))
         if not self.should_checkpoint(new_serialized_scene_hash):
             return
+
+        if erase_previous_checkpoints:
+            self.history_stack = []
 
         self._hash = new_serialized_scene_hash
 
