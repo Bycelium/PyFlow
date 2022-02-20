@@ -20,11 +20,12 @@ class WorkerSignals(QObject):
 class Worker(QRunnable):
     """Worker thread."""
 
-    def __init__(self, kernel, code):
+    def __init__(self, kernel, block, code):
         """Initialize the worker object."""
         super().__init__()
 
         self.kernel = kernel
+        self.block = block
         self.code = code
         self.signals = WorkerSignals()
 

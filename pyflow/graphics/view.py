@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QGraphicsView, QMenu, QApplication
 from PyQt5.sip import isdeleted
 from pyflow.blocks.codeblock import CodeBlock
 from pyflow.blocks.executableblock import ExecutableBlock
-from pyflow.core.add_edge_button import AddEdgeButton
+from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
 
 from pyflow.scene import Scene
 from pyflow.core.socket import Socket
@@ -27,6 +27,7 @@ BLOCK_PATH = pathlib.Path(BLOCK_INIT_PATH).parent
 BLOCKFILES_PATH = os.path.join(BLOCK_PATH, "blockfiles")
 
 EPS: float = 1e-10  # To check if blocks are of size 0
+ZOOM_INCREMENT = 1.2
 LOGGER = get_logger(__name__)
 
 
@@ -376,6 +377,16 @@ class View(QGraphicsView):
         self.scale(zoom_factor, zoom_factor)
         self.zoom = new_zoom
 
+    def zoomIn(self):
+        """Zoom in."""
+
+        self.setZoom(self.zoom * ZOOM_INCREMENT)
+
+    def zoomOut(self):
+        """Zoom out"""
+
+        self.setZoom(self.zoom / ZOOM_INCREMENT)
+
     def deleteSelected(self):
         """Delete selected items from the current scene."""
         scene = self.scene()
@@ -503,6 +514,21 @@ class View(QGraphicsView):
                 )
                 scene.addItem(self.edge_drag)
                 LOGGER.debug("Start draging edge from new socket.")
+                return
+            if (
+                isinstance(item_at_click, AddNewBlockButton)
+                and self.mode != self.MODE_EDGE_DRAG
+            ):
+                # Link a new CodeBlock under the selected block
+                parent: CodeBlock = item_at_click.block
+                empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb")
+                new_block = self.scene().create_block_from_file(
+                    empty_code_block_path, 0, 0
+                )
+                parent.link_and_place(new_block)
+                scene.history.checkpoint(
+                    "Created a new linked block", set_modified=True
+                )
                 return
         elif self.mode == self.MODE_EDGE_DRAG:
             if action == "release":

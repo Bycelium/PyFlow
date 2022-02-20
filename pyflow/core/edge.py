@@ -17,9 +17,10 @@ from PyQt5.QtWidgets import (
 
 from pyflow.core.serializable import Serializable
 from pyflow.core.socket import Socket
+from pyflow.core.executable import Executable, ExecutableState
 
 
-class Edge(QGraphicsPathItem, Serializable):
+class Edge(QGraphicsPathItem, Serializable, Executable):
 
     """Base class for directed edges in Pyflow."""
 
@@ -28,12 +29,12 @@ class Edge(QGraphicsPathItem, Serializable):
 
     def __init__(
         self,
-        edge_width: float = 4.0,
+        edge_width: float = 5.0,
         path_type=DEFAULT_DATA["path_type"],
         edge_color="#001000",
-        edge_selected_color="#00ff00",
+        edge_selected_color="#FFA637",
         edge_running_color="#FF0000",
-        edge_transmitting_color="#00ff00",
+        edge_pending_color="#00ff00",
         source: QPointF = QPointF(0, 0),
         destination: QPointF = QPointF(0, 0),
         source_socket: Socket = None,
@@ -55,6 +56,8 @@ class Edge(QGraphicsPathItem, Serializable):
 
         Serializable.__init__(self)
         QGraphicsPathItem.__init__(self, parent=None)
+        Executable.__init__(self)
+
         self._pen = QPen(QColor(edge_color))
         self._pen.setWidthF(edge_width)
 
@@ -68,13 +71,14 @@ class Edge(QGraphicsPathItem, Serializable):
         self._pen_running = QPen(QColor(edge_running_color))
         self._pen_running.setWidthF(edge_width)
 
-        self._pen_transmitting = QPen(QColor(edge_transmitting_color))
-        self._pen_transmitting.setWidthF(edge_width)
+        self._pen_pending = QPen(QColor(edge_pending_color))
+        self._pen_pending.setWidthF(edge_width)
 
-        self.pens = [self._pen, self._pen_running, self._pen_transmitting]
-
-        # 0 for normal, 1 for running, 2 for transmitting
-        self.run_state = 0
+        self.state_pens = {
+            ExecutableState.IDLE: self._pen,
+            ExecutableState.RUNNING: self._pen_running,
+            ExecutableState.PENDING: self._pen_pending,
+        }
 
         self.setFlag(QGraphicsPathItem.GraphicsItemFlag.ItemIsSelectable)
         self.setZValue(-1)
@@ -117,8 +121,8 @@ class Edge(QGraphicsPathItem, Serializable):
         self,
         painter: QPainter,
         option: QStyleOptionGraphicsItem,  # pylint:disable=unused-argument
-        widget: Optional[QWidget] = None,
-    ):  # pylint:disable=unused-argument
+        widget: Optional[QWidget] = None,  # pylint:disable=unused-argument
+    ):
         """Paint the edge."""
         self.update_path()
         if self.isSelected():
@@ -126,7 +130,7 @@ class Edge(QGraphicsPathItem, Serializable):
         elif self.destination_socket is None:
             pen = self._pen_dragging
         else:
-            pen = self.pens[self.run_state]
+            pen = self.state_pens[self.run_state]
         painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
@@ -257,21 +261,3 @@ class Edge(QGraphicsPathItem, Serializable):
             self.update_path()
         except KeyError:
             self.remove()
-
-    @property
-    def run_state(self) -> int:
-        """Run state.
-
-        Describe the current state of the Edge:
-            - 0: idle.
-            - 1: running.
-            - 2: transmitting.
-
-        """
-        return self._run_state
-
-    @run_state.setter
-    def run_state(self, value: int):
-        self._run_state = value
-        # Update to force repaint
-        self.update()

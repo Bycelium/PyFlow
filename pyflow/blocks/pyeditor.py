@@ -14,7 +14,7 @@ from PyQt5.QtGui import (
     QKeyEvent,
     QWheelEvent,
 )
-
+from PyQt5.QtWidgets import QApplication
 from PyQt5.Qsci import QsciScintilla, QsciLexerPython
 
 from pyflow.core.editor import Editor
@@ -42,8 +42,6 @@ class PythonEditor(Editor):
         self.background_color = QColor("#212121")
 
         self.history = EditorHistory(self)
-        self.pressingControl = False
-        # self.startOfSequencePos
 
         self.update_theme()
         theme_manager().themeChanged.connect(self.update_theme)
@@ -107,6 +105,7 @@ class PythonEditor(Editor):
         self.block.scene().history.checkpoint(
             "A codeblock source was updated", set_modified=True
         )
+        self.history.checkpoint()
         return super().focusOutEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -115,18 +114,27 @@ class PythonEditor(Editor):
         # Disable QsciScintilla undo
         self.SendScintilla(QsciScintilla.SCI_EMPTYUNDOBUFFER, 1)
 
+        # Check if Shift+Return is pressed
+        # If so, the cell should be (left) run
+        shift_is_pressed: bool = (
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ShiftModifier
+        )
+        if shift_is_pressed and event.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:
+            self.block.run_left()
+            return
+
         # Manualy check if Ctrl+Z or Ctrl+Y is pressed
-        if self.pressingControl and event.key() == Qt.Key.Key_Z:
+        control_is_pressed: bool = (
+            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
+        )
+        if control_is_pressed and event.key() == Qt.Key.Key_Z:
             # The sequence ends and a new one starts when pressing Ctrl+Z
             self.history.end_sequence()
             self.history.start_sequence()
             self.history.undo()
-        elif self.pressingControl and event.key() == Qt.Key.Key_Y:
+        elif control_is_pressed and event.key() == Qt.Key.Key_Y:
             self.history.redo()
-        elif event.key() == Qt.Key.Key_Control:
-            self.pressingControl = True
-        else:
-            self.pressingControl = False
+        elif not control_is_pressed:
             self.history.start_sequence()
 
         if event.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:

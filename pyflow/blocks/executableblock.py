@@ -7,19 +7,18 @@ An abstract block that allows for execution, like CodeBlocks and Sliders.
 
 """
 
-from typing import TYPE_CHECKING, List, OrderedDict, Set, Union
+from typing import List, OrderedDict, Set, Union
 from abc import abstractmethod
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication
 
 from pyflow.blocks.block import Block
 from pyflow.core.socket import Socket
+from pyflow.core.edge import Edge
+from pyflow.core.executable import Executable, ExecutableState
 
-if TYPE_CHECKING:
-    from pyflow.core.edge import Edge
 
-
-class ExecutableBlock(Block):
+class ExecutableBlock(Block, Executable):
 
     """
     Executable Block
@@ -37,10 +36,8 @@ class ExecutableBlock(Block):
         Create a new executable block.
         Do not call this method except when inheriting from this class.
         """
-        super().__init__(**kwargs)
-
-        self.has_been_run = False
-        self._run_state = 0
+        Block.__init__(self, **kwargs)
+        Executable.__init__(self)
 
         # Each element is a list of blocks/edges to be animated
         # Running will paint each element one after the other
@@ -87,19 +84,25 @@ class ExecutableBlock(Block):
 
             if kernel.busy is False:
                 kernel.run_queue()
-            self.has_been_run = True
+            self.run_state = ExecutableState.PENDING
 
     def execution_finished(self):
-        """Reset the text of the run buttons."""
-        self.run_state = 0
+        """Reset the state of the block after it was executed."""
+        if self.run_state != ExecutableState.CRASHED:
+            self.run_state = ExecutableState.DONE
+        self.blocks_to_run = []
+
+    def execution_canceled(self):
+        """Reset the state of the block after its execution was canceled."""
+        if self.run_state != ExecutableState.CRASHED:
+            self.run_state = ExecutableState.IDLE
         self.blocks_to_run = []
 
     def _interrupt_execution(self):
         """Interrupt an execution, reset the blocks in the queue."""
         for block, _ in self.scene().kernel.execution_queue:
             # Reset the blocks that have not been run
-            block.reset_has_been_run()
-            block.execution_finished()
+            block.execution_canceled()
         # Clear kernel execution queue
         self.scene().kernel.execution_queue = []
         # Interrupt the kernel
@@ -112,9 +115,6 @@ class ExecutableBlock(Block):
         Animate the visual flow
         Set color to transmitting and set a timer before switching to normal
         """
-        for elem in self.transmitting_queue[0]:
-            # Set color to transmitting
-            elem.run_state = 2
         QApplication.processEvents()
         QTimer.singleShot(self.transmitting_delay, self.transmitting_animation_out)
 
@@ -123,14 +123,6 @@ class ExecutableBlock(Block):
         Animate the visual flow
         After the timer, set color to normal and move on with the queue
         """
-        for elem in self.transmitting_queue[0]:
-            # Reset color only if the block will not be run
-            if hasattr(elem, "has_been_run"):
-                if elem.has_been_run is True:
-                    elem.run_state = 0
-            else:
-                elem.run_state = 0
-
         QApplication.processEvents()
         self.transmitting_queue.pop(0)
         if self.transmitting_queue:
@@ -152,46 +144,64 @@ class ExecutableBlock(Block):
             list: Blocks to run in topological order (reversed)
             list: each element is a list of blocks/edges to animate in order
         """
+
+        def gather_edges_to_visit(sockets: List[Socket]):
+            """Get list of next edges to visit given a list of sockets.
+
+            Args:
+                sockets (List[Socket]): List of sockets to search edges on.
+
+            Returns:
+                List[Edge]: List of edges connected to sockets given.
+            """
+            edges_to_visit = []
+            for socket in sockets:
+                for edge in socket.edges:
+                    if edge.source_socket.is_on and edge.destination_socket.is_on:
+                        edges_to_visit.append(edge)
+            return edges_to_visit
+
         # Blocks to run in topological order
         blocks_to_run: List["ExecutableBlock"] = []
         # List of lists of blocks/edges to animate in order
-        to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[start_node]]
+        to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[start_node]]
 
-        to_visit: List["ExecutableBlock"] = [start_node]
-        while to_visit:
+        # Set to make sure to never execute the same block twice
+        visited: Set["ExecutableBlock"] = set([])
+
+        blocks_to_visit: List["ExecutableBlock"] = [start_node]
+        while blocks_to_visit:
             # Remove duplicates
-            to_visit = list(set(to_visit))
+            blocks_to_visit = list(set(blocks_to_visit))
+
+            # Remove duplicates
+            to_visit_set = set(blocks_to_visit)
+            to_visit_set.difference_update(visited)
+            blocks_to_visit = list(to_visit_set)
+
+            # Update the visited block set
+            visited.update(to_visit_set)
 
             # Gather connected edges
-            edges_to_visit = []
-            for block in to_visit:
+            edges_to_visit: List[Edge] = []
+            for block in blocks_to_visit:
                 blocks_to_run.append(block)
                 if not reverse:
-                    for input_socket in block.sockets_in:
-                        for edge in input_socket.edges:
-                            if (
-                                edge.source_socket.is_on
-                                and edge.destination_socket.is_on
-                            ):
-                                edges_to_visit.append(edge)
+                    next_sockets = block.sockets_in
                 else:
-                    for output_socket in block.sockets_out:
-                        for edge in output_socket.edges:
-                            if (
-                                edge.source_socket.is_on
-                                and edge.destination_socket.is_on
-                            ):
-                                edges_to_visit.append(edge)
+                    next_sockets = block.sockets_out
+                edges_to_visit += gather_edges_to_visit(next_sockets)
             to_transmit.append(edges_to_visit)
 
             # Gather connected blocks
-            to_visit = []
+            blocks_to_visit = []
             for edge in edges_to_visit:
                 if not reverse:
-                    to_visit.append(edge.source_socket.block)
+                    next_blocks = edge.source_socket.block
                 else:
-                    to_visit.append(edge.destination_socket.block)
-            to_transmit.append(to_visit)
+                    next_blocks = edge.destination_socket.block
+                blocks_to_visit.append(next_blocks)
+            to_transmit.append(blocks_to_visit)
 
         # Remove start node
         blocks_to_run.pop(0)
@@ -207,8 +217,52 @@ class ExecutableBlock(Block):
         Returns:
             list: each element is a list of blocks/edges to animate in order
         """
+
+        def gather_next_blocks_and_edges(
+            sockets: List[Socket],
+            visited: Set[Union[Block, Edge]] = None,
+            to_visit: Set[Block] = None,
+        ):
+            """Gather next blocks and edges to run given a list of sockets.
+
+            Args:
+                sockets (List[Socket]): List of sockets to search next blocks and edges on.
+                visited (Set[Union[Block, Edge]], optional): Already visited blocks and edges.
+                    Defaults to None.
+                to_visit (Set[Block], optional): List of next blocks to visit. Defaults to None.
+
+            Returns:
+                Tuple[List[Block], List[Edge]]: Lists of next blocks and next edges to run.
+            """
+            visited = set() if visited is None else visited
+            to_visit = set() if to_visit is None else to_visit
+
+            next_blocks = []
+            next_edges = []
+
+            for socket in sockets:
+                for edge in socket.edges:
+                    if not (
+                        edge not in visited
+                        and edge.source_socket.is_on
+                        and edge.destination_socket.is_on
+                    ):
+                        continue
+
+                    next_edges.append(edge)
+                    visited.add(edge)
+
+                    next_block = edge.destination_socket.block
+                    to_visit.add(next_block)
+                    visited.add(next_block)
+
+                    if next_block not in visited:
+                        next_blocks.append(next_block)
+
+            return next_blocks, next_edges
+
         # Result
-        to_transmit: List[List[Union["ExecutableBlock", "Edge"]]] = [[self]]
+        to_transmit: List[List[Union["ExecutableBlock", Edge]]] = [[self]]
 
         # To check if a block has been visited
         visited: Set["ExecutableBlock"] = set([])
@@ -218,46 +272,25 @@ class ExecutableBlock(Block):
         to_visit_output: Set["ExecutableBlock"] = set([self])
 
         # Next stage to put in to_transmit
-        next_edges: List["Edge"] = []
+        next_edges: List[Edge] = []
         next_blocks: List["ExecutableBlock"] = []
 
         while to_visit_input or to_visit_output:
             for block in to_visit_input.copy():
                 # Check input edges and blocks
-                for input_socket in block.sockets_in:
-                    for edge in input_socket.edges:
-                        if not (
-                            edge not in visited
-                            and edge.source_socket.is_on
-                            and edge.destination_socket.is_on
-                        ):
-                            continue
-                        next_edges.append(edge)
-                        visited.add(edge)
-                        input_block = edge.source_socket.block
-                        to_visit_input.add(input_block)
-                        if input_block not in visited:
-                            next_blocks.append(input_block)
-                        visited.add(input_block)
+                new_blocks, new_edges = gather_next_blocks_and_edges(
+                    block.sockets_in, visited, to_visit_input
+                )
+                next_blocks += new_blocks
+                next_edges += new_edges
                 to_visit_input.remove(block)
             for block in to_visit_output.copy():
                 # Check output edges and blocks
-                for output_socket in block.sockets_out:
-                    for edge in output_socket.edges:
-                        if not (
-                            edge not in visited
-                            and edge.source_socket.is_on
-                            and edge.destination_socket.is_on
-                        ):
-                            continue
-                        next_edges.append(edge)
-                        visited.add(edge)
-                        output_block = edge.destination_socket.block
-                        to_visit_input.add(output_block)
-                        to_visit_output.add(output_block)
-                        if output_block not in visited:
-                            next_blocks.append(output_block)
-                        visited.add(output_block)
+                new_blocks, new_edges = gather_next_blocks_and_edges(
+                    block.sockets_out, visited, to_visit_output
+                )
+                next_blocks += new_blocks
+                next_edges += new_edges
                 to_visit_output.remove(block)
 
             # Add the next stage to to_transmit
@@ -272,17 +305,19 @@ class ExecutableBlock(Block):
 
     def run_blocks(self):
         """Run a list of blocks."""
-        for block in self.blocks_to_run[::-1]:
-            if not block.has_been_run:
+        for block in self.blocks_to_run[::-1] + [self]:
+            if block.run_state not in {
+                ExecutableState.PENDING,
+                ExecutableState.RUNNING,
+                ExecutableState.DONE,
+            }:
                 block.run_code()
-        if not self.has_been_run:
-            self.run_code()
 
     def run_left(self):
         """Run all of the block's dependencies and then run the block."""
 
-        # Reset has_been_run to make sure that the self is run again
-        self.has_been_run = False
+        # Reset state to make sure that the self is run again
+        self.run_state = ExecutableState.IDLE
 
         # To avoid crashing when spamming the button
         if self.transmitting_queue:
@@ -318,6 +353,8 @@ class ExecutableBlock(Block):
         # For each output found
         for block in self.blocks_to_run.copy()[::-1]:
             # Gather dependencies
+            if block is not self:
+                block.run_state = ExecutableState.IDLE
             new_blocks_to_run, _ = self.custom_bfs(block)
             self.blocks_to_run += new_blocks_to_run
 
@@ -328,9 +365,10 @@ class ExecutableBlock(Block):
         # Start transmitting animation
         self.transmitting_animation_in()
 
-    def reset_has_been_run(self):
-        """Called when the output is an error."""
-        self.has_been_run = False
+    def error_occured(self):
+        """Interrupt the kernel if an error occured"""
+        self.run_state = ExecutableState.CRASHED
+        self._interrupt_execution()
 
     @property
     @abstractmethod
@@ -342,24 +380,6 @@ class ExecutableBlock(Block):
     @abstractmethod
     def source(self, value: str):
         raise NotImplementedError("source(self) should be overriden")
-
-    @property
-    def run_state(self) -> int:
-        """Run state.
-
-        Describe the current state of the ExecutableBlock:
-            - 0: idle.
-            - 1: running.
-            - 2: transmitting.
-
-        """
-        return self._run_state
-
-    @run_state.setter
-    def run_state(self, value: int):
-        self._run_state = value
-        # Update to force repaint
-        self.update()
 
     def handle_stdout(self, value: str):
         """Handle the stdout signal."""

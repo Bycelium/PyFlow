@@ -10,9 +10,10 @@ from PyQt5.QtGui import QColor, QPen
 from PyQt5.QtWidgets import QPushButton, QTextEdit
 
 from pyflow.blocks.block import Block
-from pyflow.blocks.executableblock import ExecutableBlock
+from pyflow.core.edge import Edge
+from pyflow.blocks.executableblock import ExecutableBlock, ExecutableState
 from pyflow.blocks.pyeditor import PythonEditor
-from pyflow.core.add_edge_button import AddEdgeButton
+from pyflow.core.add_button import AddEdgeButton, AddNewBlockButton
 
 ansi2html_converter = Ansi2HTMLConverter()
 
@@ -61,14 +62,17 @@ class CodeBlock(ExecutableBlock):
         self.output_closed = True
         self._splitter_size = [1, 1]
         self._cached_stdout = ""
-        self.has_been_run = False
         self.blocks_to_run = []
 
-        self._pen_outlines = [
-            QPen(QColor("#7F000000")),  # Idle
-            QPen(QColor("#FF0000")),  # Running
-            QPen(QColor("#00ff00")),  # Transmitting
-        ]
+        self._pen_outlines = {
+            ExecutableState.IDLE: QPen(QColor("#00000000")),  # No outline
+            ExecutableState.RUNNING: QPen(QColor("#fffc6107")),  # Dark orange
+            ExecutableState.PENDING: QPen(QColor("#90fc6107")),  # Transparent orange
+            ExecutableState.DONE: QPen(QColor("#158000")),  # Dark green
+            ExecutableState.CRASHED: QPen(QColor("#ff0000")),  # Red: Crashed
+        }
+        for pen in self._pen_outlines.values():
+            pen.setWidth(self.pen_width)
 
         self.output_panel_background_color = "#1E1E1E"
 
@@ -77,6 +81,7 @@ class CodeBlock(ExecutableBlock):
         self.run_button = self.init_run_button()
         self.run_all_button = self.init_run_all_button()
         self.add_edge_button = self.init_add_edge_button()
+        self.add_newblock_button = self.init_add_newblock_button()
 
         # Add splitter between source_editor and panel
         self.splitter.addWidget(self.source_editor)
@@ -124,16 +129,21 @@ class CodeBlock(ExecutableBlock):
         add_edge_button = AddEdgeButton(block=self)
         return add_edge_button
 
+    def init_add_newblock_button(self):
+        """Initialize the add a new block button."""
+        add_newblock_button = AddNewBlockButton(block=self)
+        return add_newblock_button
+
     def handle_run_right(self):
         """Called when the button for "Run All" was pressed."""
-        if self.run_state != 0:
+        if self.run_state in (ExecutableState.PENDING, ExecutableState.RUNNING):
             self._interrupt_execution()
         else:
             self.run_right()
 
     def handle_run_left(self):
         """Called when the button for "Run Left" was pressed."""
-        if self.run_state != 0:
+        if self.run_state in (ExecutableState.PENDING, ExecutableState.RUNNING):
             self._interrupt_execution()
         else:
             self.run_left()
@@ -141,11 +151,13 @@ class CodeBlock(ExecutableBlock):
     def hoverEnterEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
         """Handle the event when the mouse enters the block."""
         self.add_edge_button.set_highlight(True)
+        self.add_newblock_button.set_highlight(True)
         return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event: "QGraphicsSceneHoverEvent") -> None:
         """Handle the event when the mouse leaves the block."""
         self.add_edge_button.set_highlight(False)
+        self.add_newblock_button.set_highlight(False)
         return super().hoverLeaveEvent(event)
 
     def run_code(self):
@@ -161,9 +173,35 @@ class CodeBlock(ExecutableBlock):
         super().run_code()  # actually run the code
 
     def execution_finished(self):
+        """Reset the text of the run buttons after it was executed."""
         super().execution_finished()
         self.run_button.setText(">")
         self.run_all_button.setText(">>")
+
+    def execution_canceled(self):
+        """Reset the text of the run buttons after it was canceled."""
+        super().execution_canceled()
+        self.run_button.setText(">")
+        self.run_all_button.setText(">>")
+
+    def link(self, block: "ExecutableBlock"):
+        """Link a block to the current one."""
+        # Add sockets to the new block and the current one
+        source_socket = self.create_new_output_socket()
+        destination_socket = block.create_new_input_socket()
+
+        # Create an edge between the two blocks
+        edge = Edge(source_socket=source_socket, destination_socket=destination_socket)
+        self.scene().addItem(edge)
+
+    def place(self, block: Block):
+        """Place a block under itself."""
+        block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
+
+    def link_and_place(self, block: "ExecutableBlock"):
+        """Create a new linked block under itself."""
+        self.place(block)
+        self.link(block)
 
     def update_title(self):
         """Change the geometry of the title widget."""
@@ -191,11 +229,27 @@ class CodeBlock(ExecutableBlock):
 
     def get_add_edge_button_pos(self) -> Tuple[int, int]:
         """Get the position where to place the add edge button."""
-        return (self.width / 2, self.height + int(2.5 * self.add_edge_button.radius))
+        return (
+            self.width / 2,
+            self.height
+            + int(2.5 * self.add_edge_button.radius)
+            + int(2.5 * self.add_newblock_button.radius),
+        )
+
+    def get_add_newblock_button_pos(self) -> Tuple[int, int]:
+        """Get the position where to place the add newblock button."""
+        return (
+            self.width / 2,
+            self.height + int(2.5 * self.add_newblock_button.radius),
+        )
 
     def update_add_edge_button(self):
         """Change the geometry of the add edge button."""
         self.add_edge_button.setPos(*self.get_add_edge_button_pos())
+
+    def update_add_newblock_button(self):
+        """Change the geometry of the add newblock button."""
+        self.add_newblock_button.setPos(*self.get_add_newblock_button_pos())
 
     def update_all(self):
         """Update the code block parts."""
@@ -203,6 +257,7 @@ class CodeBlock(ExecutableBlock):
         self.update_output_panel()
         self.update_run_all_button()
         self.update_add_edge_button()
+        self.update_add_newblock_button()
 
     @property
     def source(self) -> str:
@@ -214,9 +269,8 @@ class CodeBlock(ExecutableBlock):
         if value != self._source:
             # If text has changed, set self and all output blocks to not run
             output_blocks, _ = self.custom_bfs(self, reverse=True)
-            for block in output_blocks:
-                block.has_been_run = False
-            self.has_been_run = False
+            for block in output_blocks + [self]:
+                block.run_state = ExecutableState.IDLE
             self.source_editor.setText(value)
             self._source = value
 

@@ -110,7 +110,8 @@ class Socket(QGraphicsItem, Serializable):
             edge.remove()
 
         if self.socket_type == "input":
-            self.block.sockets_in.remove(self)
+            if self in self.block.sockets_in:
+                self.block.sockets_in.remove(self)
         else:
             if self in self.block.sockets_out:
                 self.block.sockets_out.remove(self)

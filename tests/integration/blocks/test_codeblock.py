@@ -11,6 +11,7 @@ import pyautogui
 import pytest
 
 from pyflow.blocks.codeblock import CodeBlock
+from pyflow.blocks.executableblock import ExecutableState
 
 from tests.integration.utils import apply_function_inapp, CheckingQueue, InAppTest
 
@@ -45,7 +46,7 @@ class TestCodeBlocks(InAppTest):
             pyautogui.mouseUp(button="left")
 
             time.sleep((test_block.transmitting_duration / 1000) + 0.2)
-            while test_block.run_state != 0:
+            while test_block.run_state != ExecutableState.DONE:
                 time.sleep(0.1)
 
             msgQueue.check_equal(test_block.stdout.strip(), expected_result)
@@ -76,7 +77,7 @@ class TestCodeBlocks(InAppTest):
 
             msgQueue.run_lambda(run_block)
             time.sleep(0.1)  # wait for the lambda to complete.
-            while block_of_test.run_state != 0:
+            while block_of_test.run_state != ExecutableState.DONE:
                 time.sleep(0.1)  # wait for the execution to finish.
 
             time.sleep(0.1)

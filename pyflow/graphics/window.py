@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QMdiArea,
+    QCheckBox,
 )
 
 from pyflow.graphics.widget import Widget
@@ -71,6 +72,7 @@ class Window(QMainWindow):
         self.updateMenus()
 
         # Window properties
+        self.never_show_exit_prompt = False
         self.readSettings()
         self.show()
 
@@ -159,6 +161,18 @@ class Window(QMainWindow):
             shortcut="Del",
             triggered=self.onEditDelete,
         )
+        self._actDuplicate = QAction(
+            "&Duplicate",
+            statusTip="Duplicate selected items",
+            shortcut="Ctrl+D",
+            triggered=self.onEditDuplicate,
+        )
+        self._actRun = QAction(
+            "&Run",
+            statusTip="Run the selected block",
+            shortcut="Shift+Return",
+            triggered=self.onEditRun,
+        )
 
         # View
         self._actViewItems = QAction(
@@ -166,6 +180,18 @@ class Window(QMainWindow):
             statusTip="See all selected blocks. If none are selected, view all blocks",
             shortcut=" ",
             triggered=self.onMoveToItems,
+        )
+        self._actZoomIn = QAction(
+            "Zoom in",
+            statusTip="Zoom in",
+            shortcut=QKeySequence.ZoomIn,
+            triggered=self.onZoomIn,
+        )
+        self._actZoomOut = QAction(
+            "Zoom out",
+            statusTip="Zoom out",
+            shortcut=QKeySequence.ZoomOut,
+            triggered=self.onZoomOut,
         )
 
         # Window
@@ -231,11 +257,15 @@ class Window(QMainWindow):
         self.editmenu.addAction(self._actPaste)
         self.editmenu.addSeparator()
         self.editmenu.addAction(self._actDel)
+        self.editmenu.addAction(self._actDuplicate)
+        self.editmenu.addAction(self._actRun)
 
         self.viewmenu = self.menuBar().addMenu("&View")
         self.thememenu = self.viewmenu.addMenu("Theme")
         self.thememenu.aboutToShow.connect(self.updateThemeMenu)
         self.viewmenu.addAction(self._actViewItems)
+        self.viewmenu.addAction(self._actZoomIn)
+        self.viewmenu.addAction(self._actZoomOut)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -423,46 +453,67 @@ class Window(QMainWindow):
         if self.is_not_editing(current_window):
             current_window.view.deleteSelected()
 
-    # def closeEvent(self, event:QEvent):
-    #     """ Save and quit the application. """
-    #     if self.maybeSave():
-    #         event.accept()
-    #     else:
-    #         event.ignore()
+    def onEditDuplicate(self):
+        """Duplicate the selected items if not in edit mode."""
+        current_window = self.activeMdiChild()
+        if self.is_not_editing(current_window):
+            self.clipboard.copy(current_window.scene)
+            self.clipboard.paste(current_window.scene)
+
+    def onEditRun(self):
+        """Run the selected block if there is only one block selected."""
+        current_window = self.activeMdiChild()
+        selected_blocks, _ = current_window.scene.sortedSelectedItems()
+        if len(selected_blocks) == 1:
+            selected_blocks[0].run_left()
+
+    def allWidgetsAreSaved(self):
+        """Return true if all widgets are saved."""
+
+        for widget in self.mdiArea.subWindowList():
+            if isinstance(widget.widget(), Widget):
+                if widget.widget().isModified():
+                    return False
+
+        return True
 
     def closeEvent(self, event: QCloseEvent):
-        """Save and quit the application."""
+        """Handle the event when the window is about to be closed."""
+
+        if self.allWidgetsAreSaved() or self.never_show_exit_prompt:
+            self.closeWindow(event)
+            return
+
+        # Show the exit without saving prompt
+        quit_msg = "Exit without saving?"
+        msgbox = QMessageBox(self)
+        msgbox.setText(quit_msg)
+        msgbox.setWindowTitle("Exit?")
+        msgbox.addButton(QMessageBox.Yes)
+        msgbox.addButton(QMessageBox.No)
+        cb = QCheckBox("Never show this again")
+        cb.setStyleSheet("color: white")
+        msgbox.setCheckBox(cb)
+        msgbox.exec()
+
+        if msgbox.checkBox().checkState() == Qt.CheckState.Checked:
+            self.never_show_exit_prompt = True
+            self.writeSettings()
+
+        if msgbox.result() == int(str(QMessageBox.No)):
+            event.ignore()
+            return
+
+        self.closeWindow(event)
+
+    def closeWindow(self, event: QCloseEvent):
+        """Close the window."""
         self.mdiArea.closeAllSubWindows()
         if self.mdiArea.currentSubWindow():
             event.ignore()
         else:
             self.writeSettings()
             event.accept()
-
-    def maybeSave(self) -> bool:
-        """Ask for save and returns if the file should be closed.
-
-        Returns:
-            True if the file should be closed, False otherwise.
-
-        """
-        if not self.isModified():
-            return True
-
-        answer = QMessageBox.warning(
-            self,
-            "About to loose you work?",
-            "The file has been modified.\n" "Do you want to save your changes?",
-            QMessageBox.StandardButton.Save
-            | QMessageBox.StandardButton.Discard
-            | QMessageBox.StandardButton.Cancel,
-        )
-
-        if answer == QMessageBox.StandardButton.Save:
-            return self.onFileSave()
-        if answer == QMessageBox.StandardButton.Discard:
-            return True
-        return False
 
     def activeMdiChild(self) -> Widget:
         """Get the active Widget if existing."""
@@ -480,6 +531,8 @@ class Window(QMainWindow):
         self.resize(size)
         if settings.value("isMaximized", False) == "true":
             self.showMaximized()
+        if settings.value("NeverShowExitPrompt", False) == "true":
+            self.never_show_exit_prompt = True
         LOGGER.info("Loaded settings under Bycelium/Pyflow")
 
     def writeSettings(self):
@@ -488,6 +541,7 @@ class Window(QMainWindow):
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
         settings.setValue("isMaximized", self.isMaximized())
+        settings.setValue("NeverShowExitPrompt", self.never_show_exit_prompt)
         LOGGER.info("Saved settings under Bycelium/Pyflow")
 
     def setActiveSubWindow(self, window):
@@ -503,6 +557,18 @@ class Window(QMainWindow):
         current_window = self.activeMdiChild()
         if current_window is not None and isinstance(current_window, Widget):
             current_window.moveToItems()
+
+    def onZoomIn(self):
+        """Zoom in, in the current window.."""
+        current_window = self.activeMdiChild()
+        if current_window is not None and isinstance(current_window, Widget):
+            current_window.view.zoomIn()
+
+    def onZoomOut(self):
+        """Zoom out, in the current window."""
+        current_window = self.activeMdiChild()
+        if current_window is not None and isinstance(current_window, Widget):
+            current_window.view.zoomOut()
 
     def setTheme(self, theme_index):
         """Set the theme of the application."""
