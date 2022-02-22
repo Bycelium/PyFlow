@@ -306,6 +306,39 @@ class View(QGraphicsView):
         self.centerView(block_center_x, block_center_y)
         return True
 
+    def addBlock(self, block: CodeBlock, direction=("down", "mid")):
+        """Add a block linked with the current block."""
+
+        empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb")
+        new_block = self.scene().create_block_from_file(empty_code_block_path, 0, 0)
+
+        block.link_and_place(new_block, direction)
+        
+        self.scene().history.checkpoint("Created a new linked block", set_modified=True)
+
+    def tryAddBlock(self, event):
+        """Add a block linked with the current block if the conditions are right."""
+        alt_is_pressed: bool = (
+            QApplication.keyboardModifiers() & Qt.KeyboardModifier.AltModifier
+        )
+
+        if self.mode == View.MODE_EDITING and not alt_is_pressed:
+            return False
+
+        n_selected_items = len(self.scene().selectedItems())
+        if n_selected_items > 1:
+            return False
+
+        key_to_direction = {
+            Qt.Key.Key_Up: ("up", "mid"),
+            Qt.Key.Key_Down: ("down", "mid"),
+            Qt.Key.Key_Left: ("down", "left"),
+            Qt.Key.Key_Right: ("down", "right"),
+        }
+        direction: Tuple[str, str] = key_to_direction[event.key()]
+
+        self.addBlock(self.currentSelectedBlock, direction=direction)
+
     def keyPressEvent(self, event: QKeyEvent):
         """View reaction to a key being pressed."""
         key_id = event.key()
@@ -315,6 +348,13 @@ class View(QGraphicsView):
             Qt.Key.Key_Left,
             Qt.Key.Key_Right,
         ]:
+
+            shift_is_pressed: bool = QApplication.keyboardModifiers() & Qt.ShiftModifier
+
+            if shift_is_pressed:
+                self.tryAddBlock(event)
+                return
+
             if self.moveViewOnArrow(event):
                 return
 
@@ -541,14 +581,7 @@ class View(QGraphicsView):
             ):
                 # Link a new CodeBlock under the selected block
                 parent: CodeBlock = item_at_click.block
-                empty_code_block_path: str = os.path.join(BLOCKFILES_PATH, "empty.pfb")
-                new_block = self.scene().create_block_from_file(
-                    empty_code_block_path, 0, 0
-                )
-                parent.link_and_place(new_block)
-                scene.history.checkpoint(
-                    "Created a new linked block", set_modified=True
-                )
+                self.addBlock(parent)
                 return
         elif self.mode == self.MODE_EDGE_DRAG:
             if action == "release":

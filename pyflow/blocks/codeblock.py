@@ -194,14 +194,45 @@ class CodeBlock(ExecutableBlock):
         edge = Edge(source_socket=source_socket, destination_socket=destination_socket)
         self.scene().addItem(edge)
 
-    def place(self, block: Block):
-        """Place a block under itself."""
-        block.setPos(self.pos().x(), self.pos().y() + self.height + 100)
+    def place(self, block: Block, horizontal_direction: str, vertical_direction: str):
+        """Place a block under itself.
 
-    def link_and_place(self, block: "ExecutableBlock"):
-        """Create a new linked block under itself."""
-        self.place(block)
-        self.link(block)
+        horizontal_direction is a string in {"left", "mid", "right"}
+        vertical_direction is a string in {"up", "down"}
+        that says where to place the block relative to this block."""
+        block.setPos(self.pos().x(), self.pos().y())
+
+        delta_x: float = self.width + 20
+        if horizontal_direction == "left":
+            block.setPos(block.pos().x() - delta_x, block.pos().y())
+        elif horizontal_direction == "right":
+            block.setPos(block.pos().x() + delta_x, block.pos().y())
+        elif horizontal_direction != "mid":
+            raise ValueError("invalid horizontal direction ", horizontal_direction)
+
+        delta_y = self.height + 100
+        if vertical_direction == "up":
+            block.setPos(block.pos().x(), block.pos().y() - delta_y)
+        elif vertical_direction == "down":
+            block.setPos(block.pos().x(), block.pos().y() + delta_y)
+        else:
+            raise ValueError("invalid vertical direction ", vertical_direction)
+
+    def link_and_place(self, block: "CodeBlock", direction: Tuple[str, str]):
+        """Create a new linked block in the right direction."""
+
+        vertical_direction, horizontal_direction = direction
+
+        self.place(block, horizontal_direction, vertical_direction)
+
+        if vertical_direction == "up":
+            block.link(self)
+        elif vertical_direction == "down":
+            self.link(block)
+        else:
+            raise ValueError("invalid link direction ", vertical_direction)
+
+        self.update_sockets()
 
     def update_title(self):
         """Change the geometry of the title widget."""
