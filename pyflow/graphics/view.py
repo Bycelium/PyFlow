@@ -313,7 +313,7 @@ class View(QGraphicsView):
         new_block = self.scene().create_block_from_file(empty_code_block_path, 0, 0)
 
         block.link_and_place(new_block, direction)
-        
+
         self.scene().history.checkpoint("Created a new linked block", set_modified=True)
 
     def tryAddBlock(self, event):
@@ -362,7 +362,7 @@ class View(QGraphicsView):
             self.scene().clearSelection()
             self.scene().clearFocus()
 
-        if key_id in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+        if key_id in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.mode != View.MODE_EDITING:
             selected_items = self.scene().selectedItems()
             if len(selected_items) == 1:
                 item = selected_items[0]
