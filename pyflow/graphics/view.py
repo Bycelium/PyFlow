@@ -318,6 +318,10 @@ class View(QGraphicsView):
 
     def tryAddBlock(self, event):
         """Add a block linked with the current block if the conditions are right."""
+
+        if not isinstance(self.currentSelectedBlock, CodeBlock):
+            return False
+
         alt_is_pressed: bool = (
             QApplication.keyboardModifiers() & Qt.KeyboardModifier.AltModifier
         )
