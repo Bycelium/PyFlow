@@ -322,7 +322,7 @@ class View(QGraphicsView):
             self.scene().clearSelection()
             self.scene().clearFocus()
 
-        if key_id == Qt.Key.Key_Alt:
+        if key_id in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             selected_items = self.scene().selectedItems()
             if len(selected_items) == 1:
                 item = selected_items[0]
