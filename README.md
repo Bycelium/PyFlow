@@ -13,7 +13,9 @@ PyFlow is an open-source graph-structured interactive Python development tool
 
 Although for now Pyflow is in closed Beta and features are coming in bit by bit, stay tuned for the first release soon !
 
-![](media/mnist_example.gif)
+<p align="center">
+  <img src="media/mnist_example.gif" alt="" width="800"/>
+</p>
 
 Check out this quick video comparing features between Pyflow to Jupyter:
 
