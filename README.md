@@ -18,10 +18,8 @@ Although for now Pyflow is in closed Beta and features are coming in bit by bit,
 Check out this quick video comparing features between Pyflow to Jupyter:
 
 <p align="center">
-  <a href="https://youtu.be/Ml7H2CMdX-4">
-          <img alt="Pyflow: a 2D Alternative to Jupyter" src="media/thumbnail.jpg"
-          width=400>
-  </a>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/Ml7H2CMdX-4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+  </iframe>
 </p>
 
 ## Community
