@@ -226,10 +226,7 @@ class View(QGraphicsView):
         """
         # The focusItem has priority for this event if it is a source editor
         # if self.scene().focusItem() is not None:
-        alt_is_pressed: bool = (
-            QApplication.keyboardModifiers() == Qt.KeyboardModifier.AltModifier
-        )
-        if self.mode == View.MODE_EDITING and not alt_is_pressed:
+        if self.mode == View.MODE_EDITING and not self._alt_is_pressed():
             return False
 
         n_selected_items = len(self.scene().selectedItems())
@@ -249,7 +246,6 @@ class View(QGraphicsView):
                 selected_item.x() + selected_item.width / 2,
                 selected_item.y() + selected_item.height / 2,
             )
-            self.currentSelectedBlock = selected_item
 
         dist_array = []
         for block in code_blocks:
@@ -328,11 +324,7 @@ class View(QGraphicsView):
         if not isinstance(self.currentSelectedBlock, CodeBlock):
             return False
 
-        alt_is_pressed: bool = (
-            QApplication.keyboardModifiers() & Qt.KeyboardModifier.AltModifier
-        )
-
-        if self.mode == View.MODE_EDITING and not alt_is_pressed:
+        if self.mode == View.MODE_EDITING and not self._alt_is_pressed():
             return False
 
         n_selected_items = len(self.scene().selectedItems())
@@ -358,10 +350,7 @@ class View(QGraphicsView):
             Qt.Key.Key_Left,
             Qt.Key.Key_Right,
         ]:
-
-            shift_is_pressed: bool = QApplication.keyboardModifiers() & Qt.ShiftModifier
-
-            if shift_is_pressed:
+            if self._shift_is_pressed(False) and self._alt_is_pressed(False):
                 self.tryAddBlock(event)
                 return
 
@@ -492,10 +481,7 @@ class View(QGraphicsView):
         block.setFocus(True)
         block.setZValue(1)
 
-        alt_is_pressed: bool = (
-            QApplication.keyboardModifiers() == Qt.KeyboardModifier.AltModifier
-        )
-        if alt_is_pressed and isinstance(block, CodeBlock):
+        if self._alt_is_pressed() and isinstance(block, CodeBlock):
             block.source_editor.setFocus(True)
             self.mode = View.MODE_EDITING
 
@@ -557,10 +543,7 @@ class View(QGraphicsView):
         """Create an edge by drag and drop."""
 
         # edge creation / destruction if control is pressed
-        ctrl_pressed = (
-            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier
-        )
-        if event is None or (action != "move" and ctrl_pressed):
+        if event is None or (action != "move" and self._ctrl_is_pressed()):
             return event
 
         # The item on top of everything else, below the mouse
@@ -660,3 +643,21 @@ class View(QGraphicsView):
 
         """
         return self.mode == self.MODES[mode]
+
+    @staticmethod
+    def _modifier_is_pressed(
+        modifier: Qt.KeyboardModifier, strict: bool = True
+    ) -> bool:
+        if strict:
+            return QApplication.keyboardModifiers() == modifier
+        else:
+            return QApplication.keyboardModifiers() & modifier
+
+    def _alt_is_pressed(self, strict: bool = True) -> bool:
+        return self._modifier_is_pressed(Qt.KeyboardModifier.AltModifier, strict)
+
+    def _ctrl_is_pressed(self, strict: bool = True) -> bool:
+        return self._modifier_is_pressed(Qt.KeyboardModifier.ControlModifier, strict)
+
+    def _shift_is_pressed(self, strict: bool = True) -> bool:
+        return self._modifier_is_pressed(Qt.KeyboardModifier.ShiftModifier, strict)
