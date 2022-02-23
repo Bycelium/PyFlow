@@ -324,7 +324,7 @@ class View(QGraphicsView):
         if not isinstance(self.currentSelectedBlock, CodeBlock):
             return False
 
-        if self.mode == View.MODE_EDITING and not self._alt_is_pressed():
+        if self.mode == View.MODE_EDITING and not self._alt_is_pressed(False):
             return False
 
         n_selected_items = len(self.scene().selectedItems())
@@ -350,7 +350,7 @@ class View(QGraphicsView):
             Qt.Key.Key_Left,
             Qt.Key.Key_Right,
         ]:
-            if self._shift_is_pressed(False) and self._alt_is_pressed(False):
+            if self._shift_is_pressed(False):
                 self.tryAddBlock(event)
                 return
 
