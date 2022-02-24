@@ -72,6 +72,8 @@ pip install byc-pyflow
 python -m pyflow
 ```
 
+See [SHORTCUTS.md](SHORTCUTS.md) for a better experience.
+
 ## Contributing
 
 If you are interested in contributing to the project, see [CONTRIBUTING.md](CONTRIBUTING.md).
