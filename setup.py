@@ -36,6 +36,7 @@ setup(
     packages=find_packages(exclude=["*test*", "*docs*"]),
     include_package_data=True,
     install_requires=REQUIREMENTS,
+    license="GPLv3",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

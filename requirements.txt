@@ -7,5 +7,4 @@ ipykernel >= 6.5.0
 ansi2html >= 1.6.0
 markdown >= 3.3.6
 pyqtwebengine>=5.15.5
-networkx >= 2.6.2
 colorama >= 0.4.4
