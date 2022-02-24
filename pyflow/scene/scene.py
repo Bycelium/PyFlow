@@ -7,7 +7,7 @@ import math
 import json
 from os import path
 from types import FunctionType, ModuleType
-from typing import Any, List, OrderedDict, Union
+from typing import TYPE_CHECKING, Any, List, OrderedDict, Union
 
 from PyQt5.QtCore import QLine, QRectF, QThreadPool
 from PyQt5.QtGui import QColor, QPainter, QPen
@@ -24,6 +24,9 @@ from pyflow import blocks
 from pyflow.logging import log_init_time, get_logger
 
 LOGGER = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from pyflow.graphics.view import View
 
 
 class Scene(QGraphicsScene, Serializable):
@@ -191,7 +194,7 @@ class Scene(QGraphicsScene, Serializable):
             extention_format = filepath.split(".")[-1]
             raise NotImplementedError(f"Unsupported format {extention_format}")
         self.deserialize(data)
-        self.history.checkpoint("Loaded scene")
+        self.history.checkpoint("Loaded scene", erase_previous_checkpoints=True)
         self.has_been_modified = False
 
         # Add filepath to kernel path
@@ -256,6 +259,9 @@ class Scene(QGraphicsScene, Serializable):
         for item in self.items():
             if isinstance(item, Block):
                 item.update_sockets()
+
+    def views(self) -> List["View"]:
+        return super().views()
 
     def serialize(self) -> OrderedDict:
         """Serialize the scene into a dict."""

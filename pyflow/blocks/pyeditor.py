@@ -38,6 +38,7 @@ class PythonEditor(Editor):
             block: Block in which to add the python editor widget.
         """
         super().__init__(block)
+        self.block: "CodeBlock" = self.block  # Add typechecking
         self.foreground_color = QColor("#dddddd")
         self.background_color = QColor("#212121")
 
@@ -49,7 +50,8 @@ class PythonEditor(Editor):
         self.fontmetrics = QFontMetrics(self.font())
 
         # Set caret
-        self.setCaretForegroundColor(QColor("#D4D4D4"))
+        self._caret_color = QColor("#D4D4D4")
+        self.setCaretForegroundColor(self._caret_color)
 
         # Indentation
         self.setAutoIndent(True)
@@ -99,7 +101,7 @@ class PythonEditor(Editor):
             event.accept()
             return super().wheelEvent(event)
 
-    def focusOutEvent(self, event: QFocusEvent):
+    def focusOutEvent(self, event: QFocusEvent) -> None:
         """PythonEditor reaction to PyQt focusOut events."""
         self.block.source = self.text()
         self.block.scene().history.checkpoint(
@@ -107,6 +109,11 @@ class PythonEditor(Editor):
         )
         self.history.checkpoint()
         return super().focusOutEvent(event)
+
+    def focusInEvent(self, event: QFocusEvent) -> None:
+        text_len = self.SendScintilla(self.SCI_GETLENGTH)
+        self.SendScintilla(self.SCI_GOTOPOS, text_len)
+        return super().focusInEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """PythonEditor reaction to PyQt keyPressed events."""
@@ -119,9 +126,10 @@ class PythonEditor(Editor):
         shift_is_pressed: bool = (
             QApplication.keyboardModifiers() == Qt.KeyboardModifier.ShiftModifier
         )
-        if shift_is_pressed and event.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:
-            self.block.run_left()
-            return
+        if shift_is_pressed:
+            if event.key() in {Qt.Key.Key_Return, Qt.Key.Key_Enter}:
+                self.block.run_left()
+                return
 
         # Manualy check if Ctrl+Z or Ctrl+Y is pressed
         control_is_pressed: bool = (

@@ -11,9 +11,18 @@
 
 PyFlow is an open-source graph-structured interactive Python development tool
 
-Although for now Pyflow is in closed Beta and features are coming in bit by bit, stay tuned for the first release soon !
+<p align="center">
+  <img src="media/mnist_example.gif" alt="" width="800"/>
+</p>
 
-![](media/mnist_example.gif)
+Check out this quick video comparing features between Pyflow to Jupyter:
+
+<p align="center">
+  <a href="https://youtu.be/Ml7H2CMdX-4">
+          <img alt="Pyflow: a 2D Alternative to Jupyter" src="media/thumbnail.jpg"
+          width=400>
+  </a>
+</p>
 
 ## Community
 
@@ -62,6 +71,8 @@ pip install byc-pyflow
 ```bash
 python -m pyflow
 ```
+
+See [SHORTCUTS.md](SHORTCUTS.md) for a better experience.
 
 ## Contributing
 
